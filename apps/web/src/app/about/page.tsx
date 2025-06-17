@@ -82,27 +82,24 @@ export default function About() {
                 as="h3"
                 className="font-serif text-3xl leading-tight sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl"
               >
-                I create captivating designs by blending aesthetics, motion, and
-                technology.
+                AI Product Manager | Generative AI (LLMs, Prompt Engineering, Computer Vision), SQL, Figma, Excel
               </TextReveal>
               <TextReveal
                 as="p"
                 className="text-muted-foreground text-base leading-relaxed sm:text-lg md:text-lg lg:text-xl xl:text-2xl"
               >
-                My journey into creativity began with a spark of curiosity about
-                how ideas could come to life on a screen. Fascinated by the
-                interplay of design and technology, I started exploring web
-                development, motion graphics, and interface design through
-                self-driven projects. With every experiment, my skills grew, and
-                what began as a hobby soon became a passion for crafting
-                meaningful digital experiences. As I honed my abilities, I
-                sought opportunities to apply them in real-world settings,
-                turning concepts into polished outcomes. Today, my approach
-                combines creativity, problem-solving, and technical expertise to
-                create work that is both functional and impactful.
+                Founder & CEO – <a href="https://expiredsolutions.com" className="underline text-blue-700" target="_blank">Expired Solutions</a><br/>
+                Product Manager Intern – PM Happy Hour<br/>
+                AI Product Consultant – Tutora<br/>
+                <br/>
+                Tackling food waste by leading teams to build insightful & delightful user experiences. Open to relocation – Houston, TX preferred.<br/>
+                <br/>
+                <b>Contact:</b> <a href="mailto:lawrencehua2@gmail.com" className="underline">lawrencehua2@gmail.com</a><br/>
+                <b>LinkedIn:</b> <a href="https://linkedin.com/in/lawrence-hua" className="underline text-blue-700" target="_blank">linkedin.com/in/lawrence-hua</a><br/>
+                <b>GitHub:</b> <a href="https://github.com/LawrenceHua" className="underline text-gray-800" target="_blank">github.com/LawrenceHua</a>
               </TextReveal>
               <Button asChild variant={"outline"} className="rounded-full px-6">
-                <a href="resume.pdf" target="_blank">
+                <a href="/resume.pdf" target="_blank">
                   View Resume <Icons.arrowUpRight className="ml-2 size-5" />
                 </a>
               </Button>
