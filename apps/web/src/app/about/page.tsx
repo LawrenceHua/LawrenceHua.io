@@ -82,7 +82,7 @@ export default function About() {
                 as="h3"
                 className="font-serif text-3xl leading-tight sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl"
               >
-                AI Product Manager | Generative AI (LLMs, Prompt Engineering, Computer Vision), SQL, Figma, Excel
+                Visionary AI Product Leader | Generative AI, Computer Vision, Data-Driven Product Strategy
               </TextReveal>
               <TextReveal
                 as="p"
@@ -92,7 +92,7 @@ export default function About() {
                 Product Manager Intern – PM Happy Hour<br/>
                 AI Product Consultant – Tutora<br/>
                 <br/>
-                Tackling food waste by leading teams to build insightful & delightful user experiences. Open to relocation – Houston, TX preferred.<br/>
+                I drive innovation at the intersection of AI and product, leading teams to deliver measurable business impact and world-class user experiences. My work has reduced operational waste, accelerated product launches, and empowered organizations to harness the power of data and machine learning. Open to relocation – Houston, TX preferred.<br/>
                 <br/>
                 <b>Contact:</b> <a href="mailto:lawrencehua2@gmail.com" className="underline">lawrencehua2@gmail.com</a><br/>
                 <b>LinkedIn:</b> <a href="https://linkedin.com/in/lawrence-hua" className="underline text-blue-700" target="_blank">linkedin.com/in/lawrence-hua</a><br/>
@@ -100,7 +100,7 @@ export default function About() {
               </TextReveal>
               <Button asChild variant={"outline"} className="rounded-full px-6">
                 <a href="/resume.pdf" target="_blank">
-                  View Resume <Icons.arrowUpRight className="ml-2 size-5" />
+                  Download Resume <Icons.arrowUpRight className="ml-2 size-5" />
                 </a>
               </Button>
             </div>
