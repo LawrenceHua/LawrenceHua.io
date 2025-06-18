@@ -16,14 +16,21 @@ function getSystemPrompt(): string {
       "public",
       "experience.txt",
     );
+    console.log("Trying to read from:", filePath);
     const content = readFileSync(filePath, "utf-8");
+    console.log("Successfully read experience.txt, length:", content.length);
     return content;
   } catch (error) {
     console.error("Error reading experience.txt:", error);
     // Try alternative path
     try {
       const altPath = join(process.cwd(), "public", "experience.txt");
+      console.log("Trying alternative path:", altPath);
       const content = readFileSync(altPath, "utf-8");
+      console.log(
+        "Successfully read from alternative path, length:",
+        content.length,
+      );
       return content;
     } catch (altError) {
       console.error("Alternative path also failed:", altError);
