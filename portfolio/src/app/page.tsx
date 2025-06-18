@@ -286,7 +286,7 @@ const timelineEvents = [
 ];
 
 // Helper to extract end date (YYYYMM or '999999' for Present)
-function getEndDateNum(dateStr) {
+function getEndDateNum(dateStr: string): number {
   if (!dateStr) return 0;
   // Try to match 'Mon YYYY - Mon YYYY' or 'Mon YYYY - Present'
   const match = dateStr.match(/- ([A-Za-z]+ )?(\d{4}|Present)/);
@@ -295,13 +295,13 @@ function getEndDateNum(dateStr) {
   if (end === 'Present') return 202505; // treat as May 2025
   if (end === '2025') return 202505;
   // Try to get month and year
-  const monthMap = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
+  const monthMap: { [key: string]: string } = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
   const monthMatch = match[1] ? match[1].trim() : '01';
   const year = match[2] && match[2] !== 'Present' ? match[2] : '0000';
   return parseInt(year + (monthMap[monthMatch] || '01'));
 }
 
-function isPresent(dateStr) {
+function isPresent(dateStr: string): boolean {
   return /Present|present/.test(dateStr);
 }
 
@@ -381,7 +381,7 @@ export default function Home() {
     : skillsData[activeFilter] || [];
 
   // Handle form input changes
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -390,7 +390,7 @@ export default function Home() {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
