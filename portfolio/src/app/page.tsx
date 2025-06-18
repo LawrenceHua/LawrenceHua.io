@@ -180,7 +180,7 @@ const timelineEvents: Array<{
     title: "High School Diploma",
     org: 'Spanish River Community High School',
     date: 'Aug 2013 - May 2017',
-    logo: '/logos/UF logo.jpeg', // Using UF logo as placeholder, you can replace with actual high school logo
+    logo: '/logos/srhs_logo.jpeg',
     details: [
       'Drum Captain - Led marching band percussion section',
       'Founded Asian American Club - 250 members, $10K cashflow management',
