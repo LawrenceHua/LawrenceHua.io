@@ -1,3 +1,5 @@
+import { readFileSync } from "fs";
+import { join } from "path";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
@@ -16,17 +18,33 @@ const openai = openaiApiKey
     })
   : null;
 
-const systemPrompt = `pmpt_6852c19a79ec819588edd870c0065373097c8eb16a7ee416`;
-
-// Fallback responses for when OpenAI is not available
-const fallbackResponses: { [key: string]: string } = {
-  "who is lawrence hua": `**Lawrence Hua** is an **AI Product Manager** and Founder & CEO of Expired Solutions.\n\n**Education:**\n- Master's: Information Systems Management, Carnegie Mellon University\n- Bachelor's: Computer Science, University of Florida\n\n**Current Roles:**\n- Product Manager at PM Happy Hour\n- Founder & CEO at Expired Solutions\n\n**Expertise:**\nAI, machine learning, product management.`,
-  "what does lawrence do": `**Lawrence** is an **AI Product Manager** and entrepreneur.\n\n- Founder & CEO of Expired Solutions (AI platform for grocery shrink reduction)\n- Product Manager at PM Happy Hour\n- Experience: Android development, machine learning, consulting`,
-  "lawrence experience": `**Experience Highlights:**\n- Product Manager at PM Happy Hour\n- Founder & CEO at Expired Solutions\n- Product Manager at PanPalz\n- Student Consultant at Kearney\n- Embedded Android Engineer at Motorola Solutions\n- AI Product Consultant at Tutora\n\n**Specialties:** AI, product management, technical development.`,
-  "lawrence skills": `**Key Skills:**\n- Product Management\n- A/B Testing\n- Machine Learning\n- Python, JavaScript, React, Node.js, SQL, Figma\n- OpenAI APIs, Azure, GPT, Vision AI, Flask, Android development`,
-  "lawrence education": `**Education:**\n- Master's: Information Systems Management, Carnegie Mellon University (2023-2024)\n- Bachelor's: Computer Science, University of Florida (2017-2021)\n\n**Awards:**\n- Finalist, McGinnis Venture Competition (2025)\n- Gerhalt Sandbox Fund Scholar (2025)`,
-  default: `I'm Lawrence's AI assistant!\n\n**About Lawrence:**\n- AI Product Manager & entrepreneur\n- Founder & CEO of Expired Solutions\n- Experience: machine learning, product management, technical development\n\n_You can ask me about his experience, skills, education, or projects!_`,
-};
+// Read system prompt from experience.txt file
+function getSystemPrompt(): string {
+  try {
+    const filePath = join(process.cwd(), "public", "experience.txt");
+    console.log("Trying to read from:", filePath);
+    const content = readFileSync(filePath, "utf-8");
+    console.log("Successfully read experience.txt, length:", content.length);
+    return content;
+  } catch (error) {
+    console.error("Error reading experience.txt:", error);
+    // Try alternative path
+    try {
+      const altPath = join(process.cwd(), "..", "..", "experience.txt");
+      console.log("Trying alternative path:", altPath);
+      const content = readFileSync(altPath, "utf-8");
+      console.log(
+        "Successfully read from alternative path, length:",
+        content.length,
+      );
+      return content;
+    } catch (altError) {
+      console.error("Alternative path also failed:", altError);
+      // Fallback to a basic prompt if file can't be read
+      return `You are Lawrence Hua's AI assistant. You have extensive knowledge about Lawrence's background, experience, skills, and achievements. Answer questions about Lawrence professionally and accurately.`;
+    }
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,30 +57,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get system prompt from file
+    const systemPrompt = getSystemPrompt();
+
     // If OpenAI is not available, use fallback responses
     if (!openai || !openaiApiKey) {
-      const lowerMessage = message.toLowerCase();
-      let response = fallbackResponses.default;
-
-      // Find the best matching fallback response
-      for (const [key, fallbackResponse] of Object.entries(fallbackResponses)) {
-        if (lowerMessage.includes(key)) {
-          response = fallbackResponse;
-          break;
-        }
-      }
-
-      return NextResponse.json({ response });
+      return NextResponse.json({
+        response:
+          "I'm sorry, I'm having trouble connecting to my AI service right now. Please try again later or reach out to Lawrence directly.",
+      });
     }
 
     // Use OpenAI if available
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: message },
       ],
-      max_tokens: 500,
+      max_tokens: 400,
       temperature: 0.7,
     });
 
