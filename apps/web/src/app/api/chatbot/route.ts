@@ -13,8 +13,16 @@ function getSystemPrompt(): string {
     return content;
   } catch (error) {
     console.error("Error reading experience.txt:", error);
-    // Fallback to a basic prompt if file can't be read
-    return `You are Lawrence Hua's AI assistant. You have extensive knowledge about Lawrence's background, experience, skills, and achievements. Answer questions about Lawrence professionally and accurately.`;
+    // Try alternative path
+    try {
+      const altPath = join(process.cwd(), "..", "experience.txt");
+      const content = readFileSync(altPath, "utf-8");
+      return content;
+    } catch (altError) {
+      console.error("Alternative path also failed:", altError);
+      // Fallback to a basic prompt if file can't be read
+      return `You are Lawrence Hua's AI assistant. You have extensive knowledge about Lawrence's background, experience, skills, and achievements. Answer questions about Lawrence professionally and accurately.`;
+    }
   }
 }
 
