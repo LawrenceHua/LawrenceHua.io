@@ -359,6 +359,17 @@ export default function Home() {
   const [expYear, setExpYear] = useState('All');
   const [projectSection, setProjectSection] = useState('all');
   const [showAllProjects, setShowAllProjects] = useState(false);
+  
+  // Contact form state
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const expYears = Array.from(new Set(sortedTimelineEvents.filter(e => e.type === 'experience').map(e => e.year))).sort((a, b) => b - a);
   const filteredExperiences = expYear === 'All'
@@ -368,6 +379,49 @@ export default function Home() {
   const filteredSkills = activeFilter === 'all' 
     ? Object.values(skillsData).flat()
     : skillsData[activeFilter] || [];
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setSubmitMessage('');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus('success');
+        setSubmitMessage('Thank you! Your message has been sent successfully.');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setSubmitStatus('error');
+        setSubmitMessage(result.error || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setSubmitMessage('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Project data organized by sections
   const projectSections = {
@@ -1137,8 +1191,7 @@ export default function Home() {
           
           <div className="contact-form">
             <form 
-              action="https://formspree.io/f/xpzgwvzg" 
-              method="POST"
+              onSubmit={handleSubmit}
               className="space-y-6"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1148,6 +1201,8 @@ export default function Home() {
                     type="text"
                     id="name"
                     name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
                     className="form-input w-full"
                     placeholder="Your name"
                     required
@@ -1159,6 +1214,8 @@ export default function Home() {
                     type="email"
                     id="email"
                     name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     className="form-input w-full"
                     placeholder="your.email@example.com"
                     required
@@ -1171,6 +1228,8 @@ export default function Home() {
                   type="text"
                   id="subject"
                   name="subject"
+                  value={formData.subject}
+                  onChange={handleInputChange}
                   className="form-input w-full"
                   placeholder="What's this about?"
                   required
@@ -1181,22 +1240,47 @@ export default function Home() {
                 <textarea
                   id="message"
                   name="message"
+                  value={formData.message}
+                  onChange={handleInputChange}
                   rows={6}
                   className="form-input w-full resize-none"
-                  placeholder="Tell me more about your project or opportunity..."
+                  placeholder="Tell me about your project, opportunity, or just say hello!"
                   required
+                  disabled={isSubmitting}
                 ></textarea>
               </div>
               
-              <div className="flex justify-center">
-                <button 
-                  type="submit" 
-                  className="form-button flex items-center justify-center"
-                >
-                  <FiSend className="w-4 h-4 mr-2" />
-                  Send Message
-                </button>
-              </div>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              >
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sending...
+                  </>
+                ) : (
+                  'Send Message'
+                )}
+              </button>
+
+              {/* Success/Error Messages */}
+              {submitStatus === 'success' && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                  <span className="block sm:inline">{submitMessage}</span>
+                </div>
+              )}
+              
+              {submitStatus === 'error' && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                  <span className="block sm:inline">{submitMessage}</span>
+                </div>
+              )}
             </form>
           </div>
         </div>
