@@ -6,6 +6,8 @@ import { FiFileText, FiExternalLink, FiSend, FiGithub, FiAward, FiBook } from 'r
 import { FaLinkedin } from 'react-icons/fa'
 import { useState } from 'react'
 import React from 'react'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 
 const timelineData = [
   {
@@ -400,6 +402,8 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
+  const [scheduleMeeting, setScheduleMeeting] = useState(false);
+  const [meetingDate, setMeetingDate] = useState<Date | null>(null);
 
   const expYears = Array.from(new Set(sortedTimelineEvents.filter(e => e.type === 'experience').map(e => e.year))).sort((a, b) => Number(b) - Number(a));
   const filteredExperiences = expYear === 'All'
@@ -427,12 +431,16 @@ export default function Home() {
     setSubmitMessage('');
 
     try {
+      const payload = {
+        ...formData,
+        meeting: scheduleMeeting ? meetingDate : null,
+      };
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -441,6 +449,8 @@ export default function Home() {
         setSubmitStatus('success');
         setSubmitMessage('Thank you! Your message has been sent successfully.');
         setFormData({ name: '', email: '', subject: '', message: '' });
+        setScheduleMeeting(false);
+        setMeetingDate(null);
       } else {
         setSubmitStatus('error');
         setSubmitMessage(result.error || 'Failed to send message. Please try again.');
@@ -1289,6 +1299,33 @@ export default function Home() {
                   disabled={isSubmitting}
                 ></textarea>
               </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="scheduleMeeting"
+                  checked={scheduleMeeting}
+                  onChange={() => setScheduleMeeting((v) => !v)}
+                  className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                />
+                <label htmlFor="scheduleMeeting" className="text-gray-300 font-medium select-none cursor-pointer">
+                  Schedule a meeting with me
+                </label>
+              </div>
+              {scheduleMeeting && (
+                <div className="mt-2">
+                  <label htmlFor="meetingDate" className="block text-sm font-medium text-gray-300 mb-2">Select a date</label>
+                  <DatePicker
+                    id="meetingDate"
+                    selected={meetingDate}
+                    onChange={setMeetingDate}
+                    minDate={new Date()}
+                    className="form-input w-full"
+                    placeholderText="Pick a date"
+                    dateFormat="MMMM d, yyyy"
+                    required
+                  />
+                </div>
+              )}
               
               {/* Submit Button */}
               <button

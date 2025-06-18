@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, subject, message } = await request.json();
+    const { name, email, subject, message, meeting } = await request.json();
 
     // Validate required fields
     if (!name || !email || !subject || !message) {
@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
             <div style="background: white; padding: 15px; border-radius: 4px; border-left: 4px solid #2563eb;">
               ${message.replace(/\n/g, '<br>')}
             </div>
+            ${meeting ? `<p style='margin-top:16px;'><strong>Meeting Requested:</strong> ${new Date(meeting).toLocaleDateString()}</p>` : ''}
           </div>
           <p style="color: #64748b; font-size: 14px;">
             This message was sent from your portfolio contact form at ${new Date().toLocaleString()}
