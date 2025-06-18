@@ -513,6 +513,7 @@ const skillsData: {
     level: string;
     endorsements: number;
     experiences: number;
+    highlight: string;
   }>;
 } = {
   business: [
@@ -521,68 +522,103 @@ const skillsData: {
       level: "expert",
       endorsements: 15,
       experiences: 3,
+      highlight:
+        "Led Expired Solutions from 0→1, reducing grocery shrink by 20% using AI",
     },
     {
       name: "Product Strategy",
       level: "proficient",
       endorsements: 0,
       experiences: 7,
+      highlight:
+        "Defined go-to-market strategy for PanPalz, the world's first nonprofit social app",
     },
-    { name: "Leadership", level: "expert", endorsements: 28, experiences: 6 },
+    {
+      name: "Leadership",
+      level: "expert",
+      endorsements: 28,
+      experiences: 6,
+      highlight:
+        "Founded and scaled Expired Solutions, leading 8-week pilot with Giant Eagle",
+    },
     {
       name: "Customer Research",
       level: "proficient",
       endorsements: 12,
       experiences: 6,
+      highlight:
+        "Conducted 250+ shopper surveys and 15+ exec interviews for Expired Solutions",
     },
     {
       name: "Cross-functional Collaborations",
       level: "proficient",
       endorsements: 13,
       experiences: 6,
+      highlight:
+        "Led engineering, design, and marketing teams across 6+ product launches",
     },
     {
       name: "A/B Testing",
       level: "proficient",
       endorsements: 8,
       experiences: 2,
+      highlight:
+        "Improved PM Happy Hour feature adoption by 20% via A/B testing",
     },
     {
       name: "SQL & Excel",
       level: "proficient",
       endorsements: 0,
       experiences: 6,
+      highlight:
+        "Built analytics workflows and data tracking systems for multiple products",
     },
-    { name: "Figma", level: "proficient", endorsements: 0, experiences: 2 },
+    {
+      name: "Figma",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 2,
+      highlight: "Refined 100+ Figma frames, improving UI consistency by 40%",
+    },
     {
       name: "Agile Methods",
       level: "proficient",
       endorsements: 0,
       experiences: 5,
+      highlight:
+        "Coordinated agile planning across firmware, Android, and test automation teams",
     },
     {
       name: "Lean Entrepreneurship",
       level: "familiar",
       endorsements: 0,
       experiences: 3,
+      highlight:
+        "Applied lean startup principles to validate Expired Solutions through rapid iteration",
     },
     {
       name: "Digital Transformation",
       level: "familiar",
       endorsements: 0,
       experiences: 4,
+      highlight:
+        "Led enterprise LLM tool development reducing decision time by 18 hours/week",
     },
     {
       name: "Project Management",
       level: "proficient",
       endorsements: 0,
       experiences: 7,
+      highlight:
+        "Managed product strategy, model deployment, and team operations for Expired",
     },
     {
       name: "Business Development",
       level: "familiar",
       endorsements: 0,
       experiences: 3,
+      highlight:
+        "Pitched and secured 8-week pilot with Giant Eagle for Expired Solutions",
     },
   ],
   data: [
@@ -591,43 +627,64 @@ const skillsData: {
       level: "expert",
       endorsements: 13,
       experiences: 4,
+      highlight:
+        "Built AI-powered freshness scoring platform using CV + GPT for grocery automation",
     },
     {
       name: "Computer Science",
       level: "expert",
       endorsements: 28,
       experiences: 4,
+      highlight:
+        "Developed embedded Android software for 15,000+ Motorola APX NEXT Smart Radios",
     },
     {
       name: "Machine Learning",
       level: "familiar",
       endorsements: 0,
       experiences: 3,
+      highlight:
+        "Developed KNN model analyzing 10M+ Netflix reviews with A/B testing",
     },
     {
       name: "Computer Vision",
       level: "familiar",
       endorsements: 7,
       experiences: 0,
+      highlight:
+        "Implemented CV-based freshness detection for automated grocery markdowns",
     },
-    { name: "Data Analysis", level: "expert", endorsements: 8, experiences: 9 },
+    {
+      name: "Data Analysis",
+      level: "expert",
+      endorsements: 8,
+      experiences: 9,
+      highlight:
+        "Reduced operational decision-making time by 26% with custom GPT-based prototype",
+    },
     {
       name: "Stakeholder Management",
       level: "familiar",
       endorsements: 6,
       experiences: 0,
+      highlight:
+        "Led collaboration across regulatory, technical, and product leads for crypto project",
     },
     {
       name: "Java & Python",
       level: "familiar",
       endorsements: 0,
       experiences: 4,
+      highlight:
+        "Built enterprise tool using OpenAI APIs, Flask, and JavaScript for Kearney",
     },
     {
       name: "Android Development",
       level: "familiar",
       endorsements: 0,
       experiences: 2,
+      highlight:
+        "Designed Android system extensions improving GPS accuracy and device security",
     },
   ],
   engineering: [
@@ -636,18 +693,24 @@ const skillsData: {
       level: "proficient",
       endorsements: 0,
       experiences: 3,
+      highlight:
+        "Maintained 95%+ customer satisfaction managing MacOS/Linux support for 200+ users",
     },
     {
       name: "Embedded Systems",
       level: "proficient",
       endorsements: 0,
       experiences: 2,
+      highlight:
+        "Developed embedded Android software for mission-critical communications systems",
     },
     {
       name: "API Development",
       level: "familiar",
       endorsements: 0,
       experiences: 2,
+      highlight:
+        "Built RESTful web services for distributed systems project combining Android + DB",
     },
   ],
   design: [
@@ -656,12 +719,16 @@ const skillsData: {
       level: "proficient",
       endorsements: 0,
       experiences: 3,
+      highlight:
+        "Led UI design for PanPalz, improving usability by 40% through design iteration",
     },
     {
       name: "Prototyping",
       level: "proficient",
       endorsements: 0,
       experiences: 2,
+      highlight:
+        "Created NFC-based feature prototype that won 1st place at Motorola Hackathon",
     },
   ],
 };
@@ -688,8 +755,11 @@ export default function Home() {
     "idle" | "success" | "error"
   >("idle");
   const [submitMessage, setSubmitMessage] = useState("");
-  const [scheduleMeeting, setScheduleMeeting] = useState(false);
+  const [contactMode, setContactMode] = useState<"meeting" | "message">(
+    "meeting",
+  );
   const [meetingDate, setMeetingDate] = useState<Date | null>(null);
+  const [meetingTime, setMeetingTime] = useState("");
 
   const expYears = Array.from(
     new Set(
@@ -731,7 +801,7 @@ export default function Home() {
     try {
       const payload = {
         ...formData,
-        meeting: scheduleMeeting ? meetingDate : null,
+        meeting: contactMode === "meeting" ? meetingDate : null,
       };
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -747,8 +817,8 @@ export default function Home() {
         setSubmitStatus("success");
         setSubmitMessage("Thank you! Your message has been sent successfully.");
         setFormData({ name: "", email: "", subject: "", message: "" });
-        setScheduleMeeting(false);
         setMeetingDate(null);
+        setMeetingTime("");
       } else {
         setSubmitStatus("error");
         setSubmitMessage(
@@ -1033,7 +1103,7 @@ export default function Home() {
         ? projectSections[projectSection as keyof typeof projectSections]
         : projectSections[projectSection as keyof typeof projectSections].slice(
             0,
-            5,
+            4,
           )
       : projectSections[projectSection as keyof typeof projectSections] || [];
   const projectTypes = ["all", "product", "engineering", "fun"];
@@ -1065,6 +1135,10 @@ export default function Home() {
     });
   };
 
+  // Calculate the number of additional projects for the 'View More Projects' button
+  const totalAllProjects = projectSections.all.length;
+  const moreProjectsCount = totalAllProjects > 4 ? totalAllProjects - 4 : 0;
+
   return (
     <main className="min-h-screen">
       <Navigation />
@@ -1072,36 +1146,13 @@ export default function Home() {
       {/* Combined Hero + About Section with Background */}
       <section
         id="about"
-        className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gray-900"
+        className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black"
         style={{ minHeight: "80vh" }}
       >
-        <div className="absolute inset-0 z-0 h-full w-full">
-          {!bgError ? (
-            <Image
-              src={
-                bgTriedAlt ? "/@backgroundlogo.png" : "/BackgroundImageLogo.png"
-              }
-              alt=""
-              fill
-              className="object-cover object-center"
-              style={{ filter: "brightness(0.5) blur(1px)" }}
-              priority
-              onError={() => {
-                if (!bgTriedAlt) setBgTriedAlt(true);
-                else setBgError(true);
-              }}
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gray-900 text-lg text-white opacity-80">
-              <span>
-                Background image failed to load. Showing fallback background.
-              </span>
-            </div>
-          )}
-        </div>
+        {/* Removed background image. Now solid black. */}
         <div className="relative z-10 flex w-full flex-col items-center justify-center px-0 py-20">
-          {/* Redesigned About Card */}
-          <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-8 rounded-3xl border border-blue-900/30 bg-gray-900/80 px-6 py-10 shadow-2xl backdrop-blur-lg">
+          {/* Redesigned About Card (Profile Box) */}
+          <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-8 rounded-3xl border border-blue-900/30 bg-gray-900/80 px-6 py-10 shadow-2xl backdrop-blur-lg">
             <div className="flex flex-col items-center gap-4">
               <div className="relative h-40 w-40 overflow-hidden rounded-full border-4 border-blue-600 bg-white shadow-lg md:h-56 md:w-56">
                 <Image
@@ -1149,11 +1200,217 @@ export default function Home() {
                   Talk to AI
                 </button>
               </div>
+              {/* Large CTA Button */}
+              <button
+                onClick={() => {
+                  const contactSection = document.getElementById("contact");
+                  if (contactSection)
+                    contactSection.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="mt-4 w-full max-w-lg rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-lg font-bold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-purple-700"
+                style={{ minWidth: "320px" }}
+              >
+                Looking for an APM or AI PM? Let's get in touch!
+              </button>
             </div>
           </div>
 
-          {/* Skills Section with Filtering and Segmentation */}
-          <div className="relative z-10 mt-8 w-full px-4 py-8">
+          {/* Recommendations Section - moved up */}
+          <section
+            id="recommendations"
+            className="section-container mt-10 w-full"
+          >
+            <div className="section-content">
+              <h2 className="section-title text-center">
+                <span
+                  className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-2xl font-extrabold tracking-tight text-transparent shadow-lg"
+                  style={{ WebkitBackgroundClip: "text" }}
+                >
+                  What colleagues and mentors say about my work and character
+                </span>
+              </h2>
+              <div className="recommendations-container">
+                <div className="animate-scroll">
+                  {/* Original Cards */}
+                  {/* JJ Xu */}
+                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
+                    <div className="mb-4 flex items-center gap-4">
+                      <Image
+                        src="/logos/JJ.jpeg"
+                        alt="JJ Xu"
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                      />
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">
+                          JJ Xu
+                        </h3>
+                        <p className="text-gray-400">
+                          Founder & CEO @ TalkMeUp
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-300">
+                      "Lawrence approached every challenge with curiosity, grit,
+                      and a clear desire to create something meaningful. He
+                      combined his technical background with a strong product
+                      mindset, conducting thoughtful customer discovery and
+                      iterating quickly based on feedback."
+                    </p>
+                  </div>
+
+                  {/* Wendy Williams */}
+                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
+                    <div className="mb-4 flex items-center gap-4">
+                      <Image
+                        src="/logos/Wendy.jpeg"
+                        alt="Wendy Williams"
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                      />
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">
+                          Wendy Williams
+                        </h3>
+                        <p className="text-gray-400">
+                          IT Director at University of Florida
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-300">
+                      "Lawrence was one of my top System Administrators. He is a
+                      conscientious worker and was ready to take on any task. He
+                      has a very pleasant demeanor and got along well with all
+                      the office staff and administration."
+                    </p>
+                  </div>
+
+                  {/* Shyam Sundar */}
+                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
+                    <div className="mb-4 flex items-center gap-4">
+                      <Image
+                        src="/logos/Shyam.jpeg"
+                        alt="Shyam Sundar"
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                      />
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">
+                          Shyam Sundar
+                        </h3>
+                        <p className="text-gray-400">
+                          Android Frameworks Engineer
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-300">
+                      "Lawrence exhibited great skills with his ability to solve
+                      complex issues on the front-end, dedication to stay
+                      motivated even through a fully online program and adapt to
+                      Motorola's technology quickly."
+                    </p>
+                  </div>
+
+                  {/* Duplicate Cards for Infinite Scroll */}
+                  {/* JJ Xu */}
+                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
+                    <div className="mb-4 flex items-center gap-4">
+                      <Image
+                        src="/logos/JJ.jpeg"
+                        alt="JJ Xu"
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                      />
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">
+                          JJ Xu
+                        </h3>
+                        <p className="text-gray-400">
+                          Founder & CEO @ TalkMeUp
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-300">
+                      "Lawrence approached every challenge with curiosity, grit,
+                      and a clear desire to create something meaningful. He
+                      combined his technical background with a strong product
+                      mindset, conducting thoughtful customer discovery and
+                      iterating quickly based on feedback."
+                    </p>
+                  </div>
+
+                  {/* Wendy Williams */}
+                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
+                    <div className="mb-4 flex items-center gap-4">
+                      <Image
+                        src="/logos/Wendy.jpeg"
+                        alt="Wendy Williams"
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                      />
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">
+                          Wendy Williams
+                        </h3>
+                        <p className="text-gray-400">
+                          IT Director at University of Florida
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-300">
+                      "Lawrence was one of my top System Administrators. He is a
+                      conscientious worker and was ready to take on any task. He
+                      has a very pleasant demeanor and got along well with all
+                      the office staff and administration."
+                    </p>
+                  </div>
+
+                  {/* Shyam Sundar */}
+                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
+                    <div className="mb-4 flex items-center gap-4">
+                      <Image
+                        src="/logos/Shyam.jpeg"
+                        alt="Shyam Sundar"
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                      />
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">
+                          Shyam Sundar
+                        </h3>
+                        <p className="text-gray-400">
+                          Android Frameworks Engineer
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-300">
+                      "Lawrence exhibited great skills with his ability to solve
+                      complex issues on the front-end, dedication to stay
+                      motivated even through a fully online program and adapt to
+                      Motorola's technology quickly."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Skills Section with Filtering and Segmentation - moved below recommendations */}
+          <h2 className="section-title mt-12 text-center">
+            <span
+              className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-2xl font-extrabold tracking-tight text-transparent shadow-lg"
+              style={{ WebkitBackgroundClip: "text" }}
+            >
+              How my experiences shaped my expertise
+            </span>
+          </h2>
+          <div className="relative z-10 w-full px-4 py-8">
             <div className="skills-container">
               {/* Filter Bar */}
               <div className="skills-filter-bar items-center justify-center text-center">
@@ -1216,10 +1473,10 @@ export default function Home() {
               </div>
 
               {/* Skills Info Popup */}
-              <div className="mx-auto mb-4 inline-block rounded-lg border border-blue-700/50 bg-blue-900/40 p-2 text-center">
-                <p className="text-xs text-blue-200">
-                  💡 Hover over skills to see proficiency levels and experience
-                  details
+              <div className="mx-auto mb-4 inline-block rounded-lg border border-blue-700/50 bg-blue-900/40 p-3 text-center">
+                <p className="text-sm text-blue-200">
+                  💡 Hover over skills to see proficiency levels, experience
+                  details, and key achievements
                 </p>
               </div>
 
@@ -1228,20 +1485,32 @@ export default function Home() {
                 {filteredSkills.map((skill, index) => (
                   <div
                     key={skill.name}
-                    className="skill-item"
+                    className="skill-item text-base font-medium"
                     data-level={skill.level}
                     title={`${skill.level.charAt(0).toUpperCase() + skill.level.slice(1)}: ${skill.endorsements} endorsements • ${skill.experiences} experiences`}
                   >
                     {skill.name}
-                    <div className="skill-tooltip">
-                      <div className="font-semibold">{skill.name}</div>
-                      <div>
+                    <div className="skill-tooltip text-sm">
+                      <div className="mb-2 text-lg font-bold">{skill.name}</div>
+                      <div className="mb-1">
                         Level:{" "}
-                        {skill.level.charAt(0).toUpperCase() +
-                          skill.level.slice(1)}
+                        <span className="font-semibold">
+                          {skill.level.charAt(0).toUpperCase() +
+                            skill.level.slice(1)}
+                        </span>
                       </div>
-                      <div>Endorsements: {skill.endorsements}</div>
-                      <div>Experiences: {skill.experiences}</div>
+                      <div className="mb-1">
+                        Endorsements: {skill.endorsements}
+                      </div>
+                      <div className="mb-3">
+                        Experiences: {skill.experiences}
+                      </div>
+                      <div className="border-t border-blue-300/30 pt-2">
+                        <div className="mb-1 font-semibold text-blue-200">
+                          Key Achievement:
+                        </div>
+                        <div className="text-blue-100">{skill.highlight}</div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1260,7 +1529,7 @@ export default function Home() {
 
           {/* Experience Section */}
           <h3 className="mb-6 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-center text-3xl font-semibold text-transparent">
-            Experience
+            Work Experience
           </h3>
 
           {/* Year Navigation */}
@@ -1434,7 +1703,14 @@ export default function Home() {
       {/* Projects Section */}
       <section className="section-container">
         <div className="section-content">
-          <h2 className="section-title">Projects</h2>
+          <h2 className="section-title mt-12 mb-4 text-center">
+            <span
+              className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-4xl font-extrabold tracking-tight text-transparent shadow-lg"
+              style={{ WebkitBackgroundClip: "text" }}
+            >
+              Projects
+            </span>
+          </h2>
           <p className="section-subtitle">
             A showcase of my work across different domains
           </p>
@@ -1493,62 +1769,61 @@ export default function Home() {
 
           {/* Project Carousel */}
           <div className="project-carousel">
-            <button className="project-arrow left" onClick={prevProject}>
-              <svg
-                className="h-8 w-8 rotate-180 transform text-blue-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </button>
+            {/* REMOVE ARROW BUTTONS */}
+            {/* <button className="project-arrow left" onClick={prevProject}> ... </button> */}
             <div className="project-container">
-              <div className="project-grid">
+              <div className="project-grid grid grid-cols-1 justify-items-center gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 {currentProjects.map((project, index) => (
-                  <div key={project.title} className="project-card">
-                    <div className="project-image">
+                  <div
+                    key={project.title}
+                    className="project-card mx-auto flex max-w-[340px] min-w-[260px] flex-col overflow-hidden rounded-2xl border border-blue-900/40 bg-gray-900/90 shadow-lg transition-all duration-200 hover:scale-[1.025] hover:shadow-2xl"
+                    style={{ minHeight: "420px" }}
+                  >
+                    <div className="relative aspect-[16/9] w-full overflow-hidden border-b border-blue-900/30 bg-gray-800">
                       <Image
                         src={project.image}
                         alt={project.title}
                         fill
-                        className="object-cover"
+                        className="rounded-t-2xl border-b border-blue-900/30 object-cover object-center"
+                        style={{
+                          borderTopLeftRadius: "1rem",
+                          borderTopRightRadius: "1rem",
+                        }}
                       />
                     </div>
-                    <div className="project-details">
-                      <h3 className="mb-2 text-xl font-bold text-white">
+                    <div className="flex flex-1 flex-col gap-2 px-5 py-4">
+                      <h3
+                        className="mb-1 text-lg leading-tight font-bold break-words whitespace-normal text-white"
+                        title={project.title}
+                      >
                         {project.title}
                       </h3>
-                      <p className="mb-4 text-gray-300">
+                      <p className="mb-2 line-clamp-3 min-h-[48px] text-sm text-blue-100">
                         {project.description}
                       </p>
-                      <div className="project-tags">
+                      <div className="mb-2 flex flex-wrap gap-2">
                         {project.tags.map((tag, tagIndex) => (
                           <span
                             key={tag + "-" + tagIndex}
-                            className="mr-2 mb-2 rounded bg-blue-600 px-2 py-1 text-xs text-white"
+                            className="rounded-full bg-blue-700/80 px-3 py-1 text-xs font-medium text-blue-100 shadow-sm"
                           >
                             {tag}
                           </span>
                         ))}
                       </div>
-                      <div className="project-actions">
+                      <div className="flex-1" />
+                      <div className="mt-2">
                         <Link
                           href={project.link}
                           target="_blank"
-                          className="inline-flex items-center text-blue-400 hover:text-blue-300"
+                          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow transition-colors hover:bg-blue-700"
                         >
                           {project.linkText}
                           {project.linkIcon === "external" && (
-                            <FiExternalLink className="ml-2 h-4 w-4" />
+                            <FiExternalLink className="h-4 w-4" />
                           )}
                           {project.linkIcon === "github" && (
-                            <FiGithub className="ml-2 h-4 w-4" />
+                            <FiGithub className="h-4 w-4" />
                           )}
                         </Link>
                       </div>
@@ -1557,259 +1832,96 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <button className="project-arrow right" onClick={nextProject}>
-              <svg
-                className="h-6 w-6 text-blue-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <line
-                  x1="4"
-                  y1="12"
-                  x2="20"
-                  y2="12"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <polyline
-                  points="16,8 20,12 16,16"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+            {/* REMOVE ARROW BUTTONS */}
+            {/* <button className="project-arrow right" onClick={nextProject}> ... </button> */}
           </div>
 
-          {/* View More Button for All Projects */}
-          {projectSection === "all" && !showAllProjects && (
-            <div className="mt-8 flex justify-center">
-              <button
-                onClick={() => setShowAllProjects(true)}
-                className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white transition-all duration-200 hover:scale-105 hover:bg-blue-700"
-              >
-                <span>View More Projects</span>
-                <svg
-                  className="h-5 w-5 transform transition-transform duration-200"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+          {/* View More/View Less Button only for 'all' category */}
+          {projectSection === "all" &&
+            (!showAllProjects ? (
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={() => setShowAllProjects(true)}
+                  className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white transition-all duration-200 hover:scale-105 hover:bg-blue-700"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-            </div>
-          )}
-
-          {/* View Less Button for All Projects */}
-          {projectSection === "all" && showAllProjects && (
-            <div className="mt-8 flex justify-center">
-              <button
-                onClick={() => setShowAllProjects(false)}
-                className="flex items-center gap-2 rounded-lg bg-gray-600 px-6 py-3 text-white transition-all duration-200 hover:scale-105 hover:bg-gray-700"
-              >
-                <span>View Less</span>
-                <svg
-                  className="h-5 w-5 rotate-180 transform transition-transform duration-200"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                  <span>
+                    View {moreProjectsCount} more project
+                    {moreProjectsCount === 1 ? "" : "s"}
+                  </span>
+                  <svg
+                    className="h-5 w-5 transform transition-transform duration-200"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={() => setShowAllProjects(false)}
+                  className="flex items-center gap-2 rounded-lg bg-gray-600 px-6 py-3 text-white transition-all duration-200 hover:scale-105 hover:bg-gray-700"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Recommendations Section */}
-      <section id="recommendations" className="section-container">
-        <div className="section-content">
-          <h2 className="section-title">Recommendations</h2>
-          <p className="section-subtitle">
-            What colleagues and mentors say about my work and character
-          </p>
-
-          <div className="recommendations-container">
-            <div className="animate-scroll">
-              {/* Original Cards */}
-              {/* JJ Xu */}
-              <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                <div className="mb-4 flex items-center gap-4">
-                  <Image
-                    src="/logos/JJ.jpeg"
-                    alt="JJ Xu"
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">JJ Xu</h3>
-                    <p className="text-gray-400">Founder & CEO @ TalkMeUp</p>
-                  </div>
-                </div>
-                <p className="text-gray-300">
-                  "Lawrence approached every challenge with curiosity, grit, and
-                  a clear desire to create something meaningful. He combined his
-                  technical background with a strong product mindset, conducting
-                  thoughtful customer discovery and iterating quickly based on
-                  feedback."
-                </p>
+                  <span>View Less</span>
+                  <svg
+                    className="h-5 w-5 rotate-180 transform transition-transform duration-200"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
               </div>
-
-              {/* Wendy Williams */}
-              <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                <div className="mb-4 flex items-center gap-4">
-                  <Image
-                    src="/logos/Wendy.jpeg"
-                    alt="Wendy Williams"
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      Wendy Williams
-                    </h3>
-                    <p className="text-gray-400">
-                      IT Director at University of Florida
-                    </p>
-                  </div>
-                </div>
-                <p className="text-gray-300">
-                  "Lawrence was one of my top System Administrators. He is a
-                  conscientious worker and was ready to take on any task. He has
-                  a very pleasant demeanor and got along well with all the
-                  office staff and administration."
-                </p>
-              </div>
-
-              {/* Shyam Sundar */}
-              <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                <div className="mb-4 flex items-center gap-4">
-                  <Image
-                    src="/logos/Shyam.jpeg"
-                    alt="Shyam Sundar"
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      Shyam Sundar
-                    </h3>
-                    <p className="text-gray-400">Android Frameworks Engineer</p>
-                  </div>
-                </div>
-                <p className="text-gray-300">
-                  "Lawrence exhibited great skills with his ability to solve
-                  complex issues on the front-end, dedication to stay motivated
-                  even through a fully online program and adapt to Motorola's
-                  technology quickly."
-                </p>
-              </div>
-
-              {/* Duplicate Cards for Infinite Scroll */}
-              {/* JJ Xu */}
-              <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                <div className="mb-4 flex items-center gap-4">
-                  <Image
-                    src="/logos/JJ.jpeg"
-                    alt="JJ Xu"
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">JJ Xu</h3>
-                    <p className="text-gray-400">Founder & CEO @ TalkMeUp</p>
-                  </div>
-                </div>
-                <p className="text-gray-300">
-                  "Lawrence approached every challenge with curiosity, grit, and
-                  a clear desire to create something meaningful. He combined his
-                  technical background with a strong product mindset, conducting
-                  thoughtful customer discovery and iterating quickly based on
-                  feedback."
-                </p>
-              </div>
-
-              {/* Wendy Williams */}
-              <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                <div className="mb-4 flex items-center gap-4">
-                  <Image
-                    src="/logos/Wendy.jpeg"
-                    alt="Wendy Williams"
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      Wendy Williams
-                    </h3>
-                    <p className="text-gray-400">
-                      IT Director at University of Florida
-                    </p>
-                  </div>
-                </div>
-                <p className="text-gray-300">
-                  "Lawrence was one of my top System Administrators. He is a
-                  conscientious worker and was ready to take on any task. He has
-                  a very pleasant demeanor and got along well with all the
-                  office staff and administration."
-                </p>
-              </div>
-
-              {/* Shyam Sundar */}
-              <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                <div className="mb-4 flex items-center gap-4">
-                  <Image
-                    src="/logos/Shyam.jpeg"
-                    alt="Shyam Sundar"
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      Shyam Sundar
-                    </h3>
-                    <p className="text-gray-400">Android Frameworks Engineer</p>
-                  </div>
-                </div>
-                <p className="text-gray-300">
-                  "Lawrence exhibited great skills with his ability to solve
-                  complex issues on the front-end, dedication to stay motivated
-                  even through a fully online program and adapt to Motorola's
-                  technology quickly."
-                </p>
-              </div>
-            </div>
-          </div>
+            ))}
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="section-container">
-        <div className="section-content">
-          <h2 className="section-title">Get In Touch</h2>
-          <p className="section-subtitle">
-            Let's discuss opportunities, collaborations, or just say hello
-          </p>
-
+      <section id="contact" className="section-container bg-black py-20">
+        <div className="section-content mx-auto max-w-2xl rounded-2xl border border-blue-900/30 bg-gray-900/80 px-8 py-12 shadow-2xl">
+          <h2 className="section-title mb-6 text-center">
+            <span
+              className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-2xl font-extrabold tracking-tight text-transparent shadow-lg"
+              style={{ WebkitBackgroundClip: "text" }}
+            >
+              Get in Touch
+            </span>
+          </h2>
+          <div className="mb-6 text-center text-lg font-semibold text-blue-200">
+            <span className="inline-block rounded-lg bg-blue-900/40 px-4 py-2">
+              Recruiters: I'm actively seeking APM/AI PM roles. Schedule a
+              meeting or send a message below!
+            </span>
+          </div>
+          <div className="mb-8 flex justify-center gap-4">
+            <button
+              className={`skills-filter-button ${contactMode === "meeting" ? "active" : ""}`}
+              onClick={() => setContactMode("meeting")}
+              style={{ minWidth: "180px" }}
+            >
+              Schedule a Meeting
+            </button>
+            <button
+              className={`skills-filter-button ${contactMode === "message" ? "active" : ""}`}
+              onClick={() => setContactMode("message")}
+              style={{ minWidth: "180px" }}
+            >
+              Send a Message
+            </button>
+          </div>
           <div className="contact-form">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -1887,39 +1999,44 @@ export default function Home() {
                   disabled={isSubmitting}
                 ></textarea>
               </div>
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="scheduleMeeting"
-                  checked={scheduleMeeting}
-                  onChange={() => setScheduleMeeting((v) => !v)}
-                  className="form-checkbox h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <label
-                  htmlFor="scheduleMeeting"
-                  className="cursor-pointer font-medium text-gray-300 select-none"
-                >
-                  Schedule a meeting with me
-                </label>
-              </div>
-              {scheduleMeeting && (
-                <div className="mt-2">
-                  <label
-                    htmlFor="meetingDate"
-                    className="mb-2 block text-sm font-medium text-gray-300"
-                  >
-                    Select a date
-                  </label>
-                  <DatePicker
-                    id="meetingDate"
-                    selected={meetingDate}
-                    onChange={setMeetingDate}
-                    minDate={new Date()}
-                    className="form-input w-full"
-                    placeholderText="Pick a date"
-                    dateFormat="MMMM d, yyyy"
-                    required
-                  />
+              {contactMode === "meeting" && (
+                <div className="mt-2 grid grid-cols-1 items-end gap-4 md:grid-cols-2">
+                  <div>
+                    <label
+                      htmlFor="meetingDate"
+                      className="mb-2 block text-sm font-medium text-gray-300"
+                    >
+                      Select a date
+                    </label>
+                    <DatePicker
+                      id="meetingDate"
+                      selected={meetingDate}
+                      onChange={setMeetingDate}
+                      minDate={new Date()}
+                      className="form-input w-full"
+                      placeholderText="Pick a date"
+                      dateFormat="MMMM d, yyyy"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="meetingTime"
+                      className="mb-2 block text-sm font-medium text-gray-300"
+                    >
+                      Select a time (EST)
+                    </label>
+                    <input
+                      type="time"
+                      id="meetingTime"
+                      name="meetingTime"
+                      className="form-input w-full"
+                      step="900"
+                      onChange={(e) => setMeetingTime(e.target.value)}
+                      value={meetingTime || ""}
+                      required
+                    />
+                  </div>
                 </div>
               )}
 
@@ -1953,6 +2070,8 @@ export default function Home() {
                     </svg>
                     Sending...
                   </>
+                ) : contactMode === "meeting" ? (
+                  "Schedule Meeting"
                 ) : (
                   "Send Message"
                 )}
