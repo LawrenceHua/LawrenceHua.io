@@ -821,12 +821,6 @@ section {
     padding: 0.5rem 0.75rem;
   }
 
-  /* Commented out to avoid conflicts with education section */
-  /* .timeline-card {
-    min-width: 280px;
-    max-width: 320px;
-  } */
-
   .education-arrow {
     width: 2.5rem;
     height: 2.5rem;
@@ -928,13 +922,6 @@ section {
     padding: 0.375rem 0.5rem;
   }
 
-  /* Commented out to avoid conflicts with education section */
-  /* .timeline-card {
-    min-width: 260px;
-    max-width: 300px;
-    padding: 0.75rem;
-  } */
-
   .education-arrow {
     width: 2.5rem;
     height: 2.5rem;
@@ -1018,31 +1005,43 @@ section {
 
 /* Education section mobile responsiveness */
 @media (max-width: 768px) {
-  /* Make education cards stack vertically on mobile */
-  .education-section .flex {
-    flex-direction: column;
-    gap: 2rem;
+  .education-carousel {
+    padding: 0 1rem;
   }
 
-  .education-section .flex > div {
-    max-width: 100% !important;
-    min-width: auto !important;
-    width: 100%;
+  .education-arrow {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
-  .education-section .timeline-card {
-    max-width: 100% !important;
-    min-width: auto !important;
-    width: 100%;
+  .education-arrow.left {
+    left: 0.5rem;
   }
 
-  /* Hide arrows on mobile since we're stacking vertically */
-  .education-section .flex > div:has(svg) {
-    display: none;
+  .education-arrow.right {
+    right: 0.5rem;
+  }
+
+  .education-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .education-grid {
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+
+  .education-card {
+    flex: 0 0 280px;
+  }
+
+  .education-card .timeline-card {
+    min-height: 240px;
   }
 
   /* Adjust timeline year circle for mobile */
-  .education-section .timeline-year-circle {
+  .education-card .timeline-year-circle {
     width: 3.5rem;
     height: 3.5rem;
     font-size: 1rem;
@@ -1051,25 +1050,140 @@ section {
 }
 
 @media (max-width: 480px) {
-  .education-section .timeline-card {
+  .education-carousel {
+    padding: 0 0.5rem;
+  }
+
+  .education-arrow {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .education-arrow.left {
+    left: 0.25rem;
+  }
+
+  .education-arrow.right {
+    right: 0.25rem;
+  }
+
+  .education-card {
+    flex: 0 0 260px;
+  }
+
+  .education-card .timeline-card {
+    min-height: 220px;
     padding: 1rem;
   }
 
-  .education-section .timeline-card h3 {
+  .education-card .timeline-card h3 {
     font-size: 1.125rem;
   }
 
-  .education-section .timeline-card p {
+  .education-card .timeline-card p {
     font-size: 0.875rem;
   }
 
-  .education-section .timeline-card ul {
+  .education-card .timeline-card ul {
     font-size: 0.75rem;
   }
 
-  .education-section .timeline-year-circle {
+  .education-card .timeline-year-circle {
     width: 3rem;
     height: 3rem;
     font-size: 0.875rem;
   }
+}
+
+/* Education carousel - scrollable gallery */
+.education-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.education-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.education-arrow:hover {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.6);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.education-arrow.left {
+  left: -24px;
+}
+
+.education-arrow.right {
+  right: -24px;
+}
+
+.education-container {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.5) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.education-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.education-container::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 4px;
+}
+
+.education-container::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5);
+  border-radius: 4px;
+}
+
+.education-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
+}
+
+.education-grid {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem;
+  min-width: max-content;
+}
+
+.education-card {
+  flex: 0 0 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.education-card .timeline-card {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
 }

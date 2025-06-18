@@ -1197,15 +1197,40 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Education Section - Static */}
+          {/* Education Section - Scrollable Gallery */}
           <h3 className="mt-16 mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-3xl font-semibold text-transparent">
             Education
           </h3>
-          <div className="education-section mx-auto w-full max-w-6xl">
-            <div className="flex w-full items-stretch justify-center gap-0">
-              {sortedEducationEvents.map((item, idx) => (
-                <React.Fragment key={item.year + "-" + idx}>
-                  <div className="flex max-w-[340px] min-w-[340px] flex-1 flex-col items-center">
+          <div className="education-carousel">
+            <button
+              className="education-arrow left"
+              onClick={() => {
+                const container = document.querySelector(
+                  ".education-container",
+                );
+                if (container) {
+                  container.scrollBy({ left: -400, behavior: "smooth" });
+                }
+              }}
+            >
+              <svg
+                className="h-8 w-8 rotate-180 transform text-blue-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            </button>
+            <div className="education-container">
+              <div className="education-grid">
+                {sortedEducationEvents.map((item, idx) => (
+                  <div key={item.year + "-" + idx} className="education-card">
                     <div className="timeline-card flex h-full w-full flex-col text-left">
                       <Image
                         src={item.logo}
@@ -1229,34 +1254,42 @@ export default function Home() {
                     </div>
                     <div className="timeline-year-circle mt-4">{item.year}</div>
                   </div>
-                  {idx < sortedEducationEvents.length - 1 && (
-                    <div className="flex w-12 items-center justify-center">
-                      <svg
-                        className="h-8 w-8 text-blue-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <line
-                          x1="20"
-                          y1="12"
-                          x2="4"
-                          y2="12"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                        <polyline
-                          points="8,8 4,12 8,16"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
+                ))}
+              </div>
             </div>
+            <button
+              className="education-arrow right"
+              onClick={() => {
+                const container = document.querySelector(
+                  ".education-container",
+                );
+                if (container) {
+                  container.scrollBy({ left: 400, behavior: "smooth" });
+                }
+              }}
+            >
+              <svg
+                className="h-6 w-6 text-blue-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <line
+                  x1="4"
+                  y1="12"
+                  x2="20"
+                  y2="12"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <polyline
+                  points="16,8 20,12 16,16"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </section>
