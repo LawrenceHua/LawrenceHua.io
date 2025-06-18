@@ -1712,7 +1712,8 @@ export default function Home() {
             </span>
           </h2>
           <p className="section-subtitle">
-            A showcase of my work across different domains
+            A showcase of my work across different domains of Retail, Social
+            Media, Engineering, Management Consulting, and more.
           </p>
 
           {/* Project Filters */}
