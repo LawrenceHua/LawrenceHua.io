@@ -1701,7 +1701,7 @@ export default function Home() {
       </section>
 
       {/* Projects Section */}
-      <section className="section-container">
+      <section id="projects" className="section-container">
         <div className="section-content">
           <h2 className="section-title mt-12 mb-4 text-center">
             <span
