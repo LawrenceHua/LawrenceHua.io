@@ -339,6 +339,11 @@ const sortedTimelineEvents = [...timelineEvents].sort((a, b) => {
   return getEndDateNum(b.date) - getEndDateNum(a.date);
 });
 
+// Sort education events chronologically (ascending) for timeline display
+const sortedEducationEvents = [...timelineEvents.filter(e => e.type === 'education')].sort((a, b) => {
+  return getEndDateNum(a.date) - getEndDateNum(b.date);
+});
+
 // Skills data with proper categorization and levels
 const skillsData: {
   [key: string]: Array<{
@@ -937,7 +942,7 @@ export default function Home() {
           <h3 className="text-3xl font-semibold mb-6 mt-16 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Education</h3>
           <div className="w-full max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full relative">
-              {sortedTimelineEvents.filter(e => e.type === 'education').map((item, idx) => (
+              {sortedEducationEvents.map((item, idx) => (
                 <div key={item.year + '-' + idx} className="flex flex-col items-center relative">
                   <div className="timeline-card text-left w-full h-full flex flex-col">
                     <Image src={item.logo} alt={item.org} width={40} height={40} className="rounded mb-3 mx-auto" />
@@ -953,7 +958,7 @@ export default function Home() {
                   <div className="timeline-year-circle mt-4">{item.year}</div>
                   
                   {/* Connecting arrows */}
-                  {idx < sortedTimelineEvents.filter(e => e.type === 'education').length - 1 && (
+                  {idx < sortedEducationEvents.length - 1 && (
                     <div className="education-arrow hidden lg:block">
                       <svg 
                         className="w-6 h-6" 
