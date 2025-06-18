@@ -8,14 +8,14 @@ const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 // Read system prompt from experience.txt file
 function getSystemPrompt(): string {
   try {
-    const filePath = join(process.cwd(), "..", "..", "experience.txt");
+    const filePath = join(process.cwd(), "public", "experience.txt");
     const content = readFileSync(filePath, "utf-8");
     return content;
   } catch (error) {
     console.error("Error reading experience.txt:", error);
     // Try alternative path
     try {
-      const altPath = join(process.cwd(), "..", "experience.txt");
+      const altPath = join(process.cwd(), "..", "..", "experience.txt");
       const content = readFileSync(altPath, "utf-8");
       return content;
     } catch (altError) {
