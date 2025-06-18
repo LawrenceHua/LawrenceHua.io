@@ -329,7 +329,7 @@ section {
   padding: 0.5rem 0.75rem;
   border-radius: 1.5rem;
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -821,10 +821,11 @@ section {
     padding: 0.5rem 0.75rem;
   }
 
-  .timeline-card {
+  /* Commented out to avoid conflicts with education section */
+  /* .timeline-card {
     min-width: 280px;
     max-width: 320px;
-  }
+  } */
 
   .education-arrow {
     width: 2.5rem;
@@ -927,10 +928,16 @@ section {
     padding: 0.375rem 0.5rem;
   }
 
-  .timeline-card {
+  /* Commented out to avoid conflicts with education section */
+  /* .timeline-card {
     min-width: 260px;
     max-width: 300px;
     padding: 0.75rem;
+  } */
+
+  .education-arrow {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
   /* Education cards extra small screen improvements */
@@ -1006,5 +1013,63 @@ section {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+}
+
+/* Education section mobile responsiveness */
+@media (max-width: 768px) {
+  /* Make education cards stack vertically on mobile */
+  .education-section .flex {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .education-section .flex > div {
+    max-width: 100% !important;
+    min-width: auto !important;
+    width: 100%;
+  }
+
+  .education-section .timeline-card {
+    max-width: 100% !important;
+    min-width: auto !important;
+    width: 100%;
+  }
+
+  /* Hide arrows on mobile since we're stacking vertically */
+  .education-section .flex > div:has(svg) {
+    display: none;
+  }
+
+  /* Adjust timeline year circle for mobile */
+  .education-section .timeline-year-circle {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .education-section .timeline-card {
+    padding: 1rem;
+  }
+
+  .education-section .timeline-card h3 {
+    font-size: 1.125rem;
+  }
+
+  .education-section .timeline-card p {
+    font-size: 0.875rem;
+  }
+
+  .education-section .timeline-card ul {
+    font-size: 0.75rem;
+  }
+
+  .education-section .timeline-year-circle {
+    width: 3rem;
+    height: 3rem;
+    font-size: 0.875rem;
   }
 }

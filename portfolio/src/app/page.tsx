@@ -1201,7 +1201,7 @@ export default function Home() {
           <h3 className="mt-16 mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-3xl font-semibold text-transparent">
             Education
           </h3>
-          <div className="mx-auto w-full max-w-6xl">
+          <div className="education-section mx-auto w-full max-w-6xl">
             <div className="flex w-full items-stretch justify-center gap-0">
               {sortedEducationEvents.map((item, idx) => (
                 <React.Fragment key={item.year + "-" + idx}>
