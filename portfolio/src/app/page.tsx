@@ -358,17 +358,6 @@ export default function Home() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [expYear, setExpYear] = useState('All');
   const [projectSection, setProjectSection] = useState('all');
-  
-  // Contact form state
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [submitMessage, setSubmitMessage] = useState('');
 
   const expYears = Array.from(new Set(sortedTimelineEvents.filter(e => e.type === 'experience').map(e => e.year))).sort((a, b) => b - a);
   const filteredExperiences = expYear === 'All'
@@ -378,49 +367,6 @@ export default function Home() {
   const filteredSkills = activeFilter === 'all' 
     ? Object.values(skillsData).flat()
     : skillsData[activeFilter] || [];
-
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-    setSubmitMessage('');
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setSubmitStatus('success');
-        setSubmitMessage('Thank you! Your message has been sent successfully.');
-        setFormData({ name: '', email: '', subject: '', message: '' });
-      } else {
-        setSubmitStatus('error');
-        setSubmitMessage(result.error || 'Failed to send message. Please try again.');
-      }
-    } catch (error) {
-      setSubmitStatus('error');
-      setSubmitMessage('Network error. Please check your connection and try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   // Project data organized by sections
   const projectSections = {
@@ -644,10 +590,6 @@ export default function Home() {
   const prevProject = () => {
     const prevIndex = (currentTypeIndex - 1 + projectTypes.length) % projectTypes.length;
     setProjectSection(projectTypes[prevIndex]);
-  };
-
-  const handleSectionChange = (section) => {
-    setProjectSection(section);
   };
 
   return (
@@ -922,28 +864,28 @@ export default function Home() {
           <div className="project-filters">
             <button 
               className={`project-filter ${projectSection === 'all' ? 'active' : ''}`}
-              onClick={() => handleSectionChange('all')}
+              onClick={() => setProjectSection('all')}
             >
               <span className="project-filter-label">All Projects</span>
               <span className="project-filter-count">{projectSections.all.length}</span>
             </button>
             <button 
               className={`project-filter ${projectSection === 'product' ? 'active' : ''}`}
-              onClick={() => handleSectionChange('product')}
+              onClick={() => setProjectSection('product')}
             >
               <span className="project-filter-label">Product Related</span>
               <span className="project-filter-count">{projectSections.product.length}</span>
             </button>
             <button 
               className={`project-filter ${projectSection === 'engineering' ? 'active' : ''}`}
-              onClick={() => handleSectionChange('engineering')}
+              onClick={() => setProjectSection('engineering')}
             >
               <span className="project-filter-label">Engineering Related</span>
               <span className="project-filter-count">{projectSections.engineering.length}</span>
             </button>
             <button 
               className={`project-filter ${projectSection === 'fun' ? 'active' : ''}`}
-              onClick={() => handleSectionChange('fun')}
+              onClick={() => setProjectSection('fun')}
             >
               <span className="project-filter-label">Fun</span>
               <span className="project-filter-count">{projectSections.fun.length}</span>
@@ -1127,7 +1069,11 @@ export default function Home() {
           <p className="section-subtitle">Let's discuss opportunities, collaborations, or just say hello</p>
           
           <div className="contact-form">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form 
+              action="https://formspree.io/f/xpzgwvzg" 
+              method="POST"
+              className="space-y-6"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">Name</label>
@@ -1135,12 +1081,9 @@ export default function Home() {
                     type="text"
                     id="name"
                     name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
                     className="form-input w-full"
                     placeholder="Your name"
                     required
-                    disabled={isSubmitting}
                   />
                 </div>
                 <div>
@@ -1149,12 +1092,9 @@ export default function Home() {
                     type="email"
                     id="email"
                     name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
                     className="form-input w-full"
                     placeholder="your.email@example.com"
                     required
-                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -1164,12 +1104,9 @@ export default function Home() {
                   type="text"
                   id="subject"
                   name="subject"
-                  value={formData.subject}
-                  onChange={handleInputChange}
                   className="form-input w-full"
                   placeholder="What's this about?"
                   required
-                  disabled={isSubmitting}
                 />
               </div>
               <div>
@@ -1177,46 +1114,20 @@ export default function Home() {
                 <textarea
                   id="message"
                   name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
                   rows={6}
                   className="form-input w-full resize-none"
                   placeholder="Tell me more about your project or opportunity..."
                   required
-                  disabled={isSubmitting}
                 ></textarea>
               </div>
-              
-              {/* Status Messages */}
-              {submitStatus === 'success' && (
-                <div className="p-4 bg-green-900/50 border border-green-700/50 rounded-lg">
-                  <p className="text-green-300 text-center">{submitMessage}</p>
-                </div>
-              )}
-              
-              {submitStatus === 'error' && (
-                <div className="p-4 bg-red-900/50 border border-red-700/50 rounded-lg">
-                  <p className="text-red-300 text-center">{submitMessage}</p>
-                </div>
-              )}
               
               <div className="flex justify-center">
                 <button 
                   type="submit" 
-                  className={`form-button flex items-center justify-center ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  disabled={isSubmitting}
+                  className="form-button flex items-center justify-center"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <FiSend className="w-4 h-4 mr-2" />
-                      Send Message
-                    </>
-                  )}
+                  <FiSend className="w-4 h-4 mr-2" />
+                  Send Message
                 </button>
               </div>
             </form>
