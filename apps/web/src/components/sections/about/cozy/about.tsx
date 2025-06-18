@@ -14,27 +14,27 @@ function About() {
           <div className="space-y-4">
             <TextReveal
               as="h2"
-              className="text-4xl leading-tight font-bold tracking-tighter sm:text-5xl md:text-5xl md:leading-tight lg:text-6xl lg:leading-tight"
+              className="text-3xl sm:text-4xl leading-tight font-bold tracking-tighter md:text-5xl md:leading-tight lg:text-6xl lg:leading-tight"
             >
               About Me
             </TextReveal>
             <div className="space-y-4">
               <TextReveal
                 as="p"
-                className="max-w-[700px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400"
+                className="max-w-[700px] text-sm sm:text-base md:text-lg lg:text-xl text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400"
               >
                 I am a passionate and creative Web Developer with a love for
                 beautiful and functional websites. I have experience working
                 with a variety of web technologies and frameworks and I am
                 always eager to learn new things and take on new challenges.
               </TextReveal>
-              <div className="flex gap-2">
-                <Button asChild variant={"outline"}>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button asChild variant={"outline"} className="w-full sm:w-auto">
                   <a href="resume.pdf" target="_blank">
                     View Resume <Icons.arrowUpRight className="ml-2 size-5" />
                   </a>
                 </Button>
-                <Button asChild>
+                <Button asChild className="w-full sm:w-auto">
                   <Link href="/about">Learn More</Link>
                 </Button>
               </div>

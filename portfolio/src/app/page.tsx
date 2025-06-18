@@ -29,10 +29,12 @@ const timelineData = [
       date: "Mar 2025 - Present · 4 mos",
       logo: "/logos/pm_happy_hour_logo.jpeg",
       bullets: [
-        "Scaled PM Happy Hour's community by 30% through AIGC, targeted engagement campaigns, and continuous feedback loops.",
-        "Led MBTI-themed campaign boosting engagement by 50%+",
-        "Created AIGC-driven posts expanding social visibility",
-        "Improved feature adoption by 20% via A/B testing",
+        "Scaled PM Happy Hour's community by 30% through a combination of AIGC, targeted engagement campaigns (like MBTI x PM), and continuous feedback loops. Launched interactive content initiatives and analytics workflows to improve user retention and product adoption by 20%.",
+        "Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement",
+        "Created and iterated on AIGC-driven posts (e.g. polls, storytelling, AI-generated insights), expanding Discord and social channel visibility",
+        "Improved feature adoption by 20% via A/B testing and feedback integration from PM community members",
+        "Developed content calendar, analytics tracking, and engagement benchmarks to guide strategy",
+        "Collaborated across marketing, content, and community leads to optimize growth and retention",
       ],
     },
   },
@@ -50,14 +52,17 @@ const timelineData = [
       ],
     },
     right: {
-      title: "Founder & CEO",
+      title: "Founder",
       org: "Expired Solutions · Full-time",
       date: "Aug 2024 - Present · 11 mos",
       logo: "/logos/expired_solutions_logo.jpeg",
       bullets: [
-        "Built an AI platform using CV + GPT to automate markdowns and reduce grocery shrink by up to 20%.",
-        "Finalist, McGinnis Venture Competition",
-        "Led technical development (Azure, GPT, Vision AI)",
+        "As Founder and CEO, I led strategy, technical buildout, and GTM for Expired, an AI platform using CV + GPT to automate markdowns and reduce grocery shrink by up to 20%. Pitched an 8-week pilot with Giant Eagle and validated the solution through 15+ exec interviews and 250+ shopper surveys. Oversaw product strategy, model deployment, mobile dev, and team ops.",
+        "Built an AI-powered freshness scoring platform to automate pricing, placement, and inventory workflows",
+        "Launched shopper companion app to improve produce confidence and affordability",
+        "Finalist, McGinnis Venture Competition (Top 4 – Social Enterprise Track); Gerhalt Sandbox Fund Scholar",
+        "Led business formation, technical development (Azure, GPT, Vision AI), and compliance planning",
+        "Created and executed onboarding strategy for pilot retailers",
       ],
     },
   },
@@ -70,9 +75,11 @@ const timelineData = [
       date: "Aug 2024 - Jan 2025 · 6 mos",
       logo: "/logos/Panpalz logo.jpeg",
       bullets: [
-        "Refined 100+ Figma frames, improving UI consistency by 40%",
-        "Supported GTM planning for the world's first nonprofit social app",
-        "Contributed to team alignment and brand messaging",
+        "Led roadmap planning and UI design for PanPalz, a nonprofit social media platform. Improved product readiness through design iteration and alignment with launch goals.",
+        "Defined and maintained product roadmap across engineering and design teams",
+        "Refined 100+ Figma frames, improving UI consistency and usability by 40%",
+        "Supported GTM planning for the launch of the world's first nonprofit social app",
+        "Contributed to team alignment and brand messaging prior to release",
       ],
     },
   },
@@ -81,13 +88,15 @@ const timelineData = [
     left: null,
     right: {
       title: "Student Consultant, Technical Lead",
-      org: "Kearney · 4 mos",
-      date: "Sep 2024 - Dec 2024",
+      org: "Kearney",
+      date: "Sep 2024 - Dec 2024 · 4 mos",
       logo: "/logos/kearney_logo.jpeg",
       bullets: [
-        "Reduced operational decision-making time by 26%",
+        "Built an enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Handled research, competitive analysis, and prototyping using OpenAI, Python, and Flask.",
+        "Reduced operational decision-making time by 26% with custom GPT-based prototype",
         "Designed and built enterprise tool using OpenAI APIs, Flask, and JavaScript",
         "Conducted user research, system architecture design, and stakeholder presentations",
+        "Prioritized use cases and implementation roadmap with client sponsors",
       ],
     },
   },
@@ -100,9 +109,30 @@ const timelineData = [
       date: "Feb 2025 - May 2025 · 4 mos",
       logo: "/logos/giant_eagle_logo.jpeg",
       bullets: [
-        "Reduced shrink by 1% in produce within 30 days",
-        "Increased Flashfoods adoption by 300%",
-        "Led backroom process improvements and cleaning compliance",
+        "Hands-on leadership role focused on reducing shrink, improving freshness, and optimizing inventory operations in the grocery's highest-loss department. Leveraged data and tools like Flashfoods and Periscope to drive measurable results in a 1-month window.",
+        "Reduced shrink by 1% in produce within 30 days by optimizing markdown execution and inventory rotation strategy",
+        "Increased Flashfoods adoption by 300% and Periscope audits by 200%, improving freshness visibility and sell-through",
+        "Optimized ordering decisions using sales trends, weather forecasts, and shrink reports to reduce overstock and waste",
+        "Led backroom process improvements and cleaning compliance efforts, increasing team adherence by 80%",
+        "Trained and coached team members on BOH operations, freshness standards, and food safety compliance",
+      ],
+    },
+  },
+  {
+    year: "2024",
+    left: null,
+    right: {
+      title: "Cryptocurrency Researcher",
+      org: "Carnegie Mellon University · Internship",
+      date: "Jul 2024 - Aug 2024 · 2 mos",
+      logo: "/logos/carnegie_mellon_university_logo.jpeg",
+      bullets: [
+        "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across a cross-functional team to shape product positioning and long-term scalability.",
+        "Developed a strategic launch plan for a novel gaming-focused cryptocurrency, backed by market and competitor analysis",
+        "Designed user adoption initiatives and engagement funnels tailored for gamer behavior and blockchain onboarding",
+        "Led collaboration across regulatory, technical, and product leads to ensure feasibility and compliance",
+        "Created and delivered final presentation to university stakeholders and faculty advisors",
+        "Presentation link: https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
       ],
     },
   },
@@ -115,9 +145,12 @@ const timelineData = [
       date: "Aug 2021 - Aug 2023 · 2 yrs 1 mo",
       logo: "/logos/Motorola logo.jpeg",
       bullets: [
-        "Designed and shipped Android system extensions for 15,000+ field units",
-        "Diagnosed and resolved 80+ firmware and application-level defects",
-        "Led debugging and testing initiatives with global teams",
+        "Developed embedded Android software for Motorola's APX NEXT Smart Radios, supporting mission-critical communications for public safety professionals. Owned features across GPS, authentication, and UI, contributing to product stability and scale.",
+        "Designed and shipped Android system extensions that improved GPS accuracy, device security, and UI responsiveness for 15,000+ field units",
+        "Diagnosed and resolved 80+ firmware and application-level defects across network, location, and UI components",
+        "Led debugging and testing initiatives with global teams, reducing integration delays by 25% and improving time to resolution",
+        "Coordinated agile planning and knowledge sharing across firmware, Android, and test automation teams",
+        "Contributed to NFC-based feature prototype that won 1st place at Motorola Product Hackathon",
       ],
     },
   },
@@ -140,9 +173,61 @@ const timelineData = [
       date: "Mar 2021 - Present · 4 yrs 4 mos",
       logo: "/logos/Tutora Logo.jpeg",
       bullets: [
-        "Saved 15+ hours/week through AI-driven scheduling and grading",
-        "Developed 50+ TI-BASIC math programs, improving test scores by 35%",
-        "Taught core computer science principles including data structures and Java programming",
+        "Redesigned tutoring operations by building both backend automation tools and student-facing programs. Delivered scalable AI systems for internal workflows and custom-built math and computer science curriculum that improved student performance and operational efficiency.",
+        "Consulted business owners to identify bottlenecks and build 0→1 unified AI tools using Otter.ai, Dola, WhatsApp, and App Scripts for automation and adoption",
+        "Saved 15+ hours/week and cut review time by 50% through AI-driven scheduling, grading, and substitution flows",
+        "Developed and launched 50+ TI-BASIC math programs, improving standardized test scores by 35% across 50+ students",
+        "Taught core computer science principles including data structures, Java programming, and project-based learning using Code.org and AP CS content",
+        "Delivered training and documentation to ensure long-term adoption of both AI workflows and instructional tools",
+      ],
+    },
+  },
+  {
+    year: "2021",
+    left: null,
+    right: {
+      title: "System Administrator",
+      org: "University of Florida · Part-time",
+      date: "May 2019 - Jun 2021 · 2 yrs 2 mos",
+      logo: "/logos/UF logo.jpeg",
+      bullets: [
+        "Provided IT support and system management for CALS' academic labs and research teams. Built internal tools and led technician teams to improve service reliability and hardware asset tracking.",
+        "Maintained 95%+ customer satisfaction over 2 years while managing MacOS/Linux support for 200+ users",
+        "Designed and deployed a Microsoft Power Platform app to track 100+ laptops and lab devices, reducing manual errors by 60%",
+        "Supervised and trained a 20-person tech team, streamlining onboarding and troubleshooting procedures",
+        "Handled system configuration, software deployment, and tier-2 escalations for lab environments",
+        "Created SOP documentation to ensure consistency across support requests and technical resolution workflows",
+      ],
+    },
+  },
+  {
+    year: "2020",
+    left: null,
+    right: {
+      title: "Android Software Developer",
+      org: "Motorola Solutions · Internship",
+      date: "Jun 2020 - Aug 2020 · 3 mos",
+      logo: "/logos/Motorola logo.jpeg",
+      bullets: [
+        "Developed and updated Android Applications in the APX NEXT device while using various technologies (Android studio, git, ADB, shell, JIRA, Bitbucket).",
+        "Learned how to adapt quickly in a completely virtual agile development setting.",
+        "Created and presented end-to-end solutions for developer applications during end of program presentation.",
+      ],
+    },
+  },
+  {
+    year: "2018",
+    left: null,
+    right: {
+      title: "Store Cashier",
+      org: "5-Spice Asian Street Market · Full-time",
+      date: "Jan 2016 - Jan 2018 · 2 yrs 1 mo",
+      logo: "/logos/5spice_logo.jpeg",
+      bullets: [
+        "Family-owned restaurant business, started working as an unpaid intern at age 6, made my way to a paid full-time worker by 2016!",
+        "Orders taken using Point-of-Sale software to secure communication with the chef and accuracy for the bill.",
+        "Managed orders and interacted with customers to ensure positive customer experience",
+        "Demonstrated flexibility through a range of jobs such as barista, tip calculator, and dining hall cleaner.",
       ],
     },
   },
@@ -209,23 +294,28 @@ const timelineEvents: Array<{
     date: "Mar 2025 - Present · 4 mos",
     logo: "/logos/pm_happy_hour_logo.jpeg",
     bullets: [
-      "Scaled PM Happy Hour's community by 30% through AIGC, targeted engagement campaigns, and continuous feedback loops.",
-      "Led MBTI-themed campaign boosting engagement by 50%+",
-      "Created AIGC-driven posts expanding social visibility",
-      "Improved feature adoption by 20% via A/B testing",
+      "Scaled PM Happy Hour's community by 30% through a combination of AIGC, targeted engagement campaigns (like MBTI x PM), and continuous feedback loops. Launched interactive content initiatives and analytics workflows to improve user retention and product adoption by 20%.",
+      "Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement",
+      "Created and iterated on AIGC-driven posts (e.g. polls, storytelling, AI-generated insights), expanding Discord and social channel visibility",
+      "Improved feature adoption by 20% via A/B testing and feedback integration from PM community members",
+      "Developed content calendar, analytics tracking, and engagement benchmarks to guide strategy",
+      "Collaborated across marketing, content, and community leads to optimize growth and retention",
     ],
   },
   {
     type: "experience",
     year: "2025",
-    title: "Founder & CEO",
+    title: "Founder",
     org: "Expired Solutions · Full-time",
     date: "Aug 2024 - Present",
     logo: "/logos/expired_solutions_logo.jpeg",
     bullets: [
-      "Built an AI platform using CV + GPT to automate markdowns and reduce grocery shrink by up to 20%.",
-      "Finalist, McGinnis Venture Competition",
-      "Led technical development (Azure, GPT, Vision AI)",
+      "As Founder and CEO, I led strategy, technical buildout, and GTM for Expired, an AI platform using CV + GPT to automate markdowns and reduce grocery shrink by up to 20%. Pitched an 8-week pilot with Giant Eagle and validated the solution through 15+ exec interviews and 250+ shopper surveys. Oversaw product strategy, model deployment, mobile dev, and team ops.",
+      "Built an AI-powered freshness scoring platform to automate pricing, placement, and inventory workflows",
+      "Launched shopper companion app to improve produce confidence and affordability",
+      "Finalist, McGinnis Venture Competition (Top 4 – Social Enterprise Track); Gerhalt Sandbox Fund Scholar",
+      "Led business formation, technical development (Azure, GPT, Vision AI), and compliance planning",
+      "Created and executed onboarding strategy for pilot retailers",
     ],
   },
   {
@@ -236,22 +326,26 @@ const timelineEvents: Array<{
     date: "Aug 2024 - Jan 2025",
     logo: "/logos/Panpalz logo.jpeg",
     bullets: [
-      "Refined 100+ Figma frames, improving UI consistency by 40%",
-      "Supported GTM planning for the world's first nonprofit social app",
-      "Contributed to team alignment and brand messaging",
+      "Led roadmap planning and UI design for PanPalz, a nonprofit social media platform. Improved product readiness through design iteration and alignment with launch goals.",
+      "Defined and maintained product roadmap across engineering and design teams",
+      "Refined 100+ Figma frames, improving UI consistency and usability by 40%",
+      "Supported GTM planning for the launch of the world's first nonprofit social app",
+      "Contributed to team alignment and brand messaging prior to release",
     ],
   },
   {
     type: "experience",
     year: "2024",
     title: "Student Consultant, Technical Lead",
-    org: "Kearney · 4 mos",
-    date: "Sep 2024 - Dec 2024",
+    org: "Kearney",
+    date: "Sep 2024 - Dec 2024 · 4 mos",
     logo: "/logos/kearney_logo.jpeg",
     bullets: [
-      "Reduced operational decision-making time by 26%",
+      "Built an enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Handled research, competitive analysis, and prototyping using OpenAI, Python, and Flask.",
+      "Reduced operational decision-making time by 26% with custom GPT-based prototype",
       "Designed and built enterprise tool using OpenAI APIs, Flask, and JavaScript",
       "Conducted user research, system architecture design, and stakeholder presentations",
+      "Prioritized use cases and implementation roadmap with client sponsors",
     ],
   },
   {
@@ -262,9 +356,28 @@ const timelineEvents: Array<{
     date: "Feb 2025 - May 2025 · 4 mos",
     logo: "/logos/giant_eagle_logo.jpeg",
     bullets: [
-      "Reduced shrink by 1% in produce within 30 days",
-      "Increased Flashfoods adoption by 300%",
-      "Led backroom process improvements and cleaning compliance",
+      "Hands-on leadership role focused on reducing shrink, improving freshness, and optimizing inventory operations in the grocery's highest-loss department. Leveraged data and tools like Flashfoods and Periscope to drive measurable results in a 1-month window.",
+      "Reduced shrink by 1% in produce within 30 days by optimizing markdown execution and inventory rotation strategy",
+      "Increased Flashfoods adoption by 300% and Periscope audits by 200%, improving freshness visibility and sell-through",
+      "Optimized ordering decisions using sales trends, weather forecasts, and shrink reports to reduce overstock and waste",
+      "Led backroom process improvements and cleaning compliance efforts, increasing team adherence by 80%",
+      "Trained and coached team members on BOH operations, freshness standards, and food safety compliance",
+    ],
+  },
+  {
+    type: "experience",
+    year: "2024",
+    title: "Cryptocurrency Researcher",
+    org: "Carnegie Mellon University · Internship",
+    date: "Jul 2024 - Aug 2024 · 2 mos",
+    logo: "/logos/carnegie_mellon_university_logo.jpeg",
+    bullets: [
+      "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across a cross-functional team to shape product positioning and long-term scalability.",
+      "Developed a strategic launch plan for a novel gaming-focused cryptocurrency, backed by market and competitor analysis",
+      "Designed user adoption initiatives and engagement funnels tailored for gamer behavior and blockchain onboarding",
+      "Led collaboration across regulatory, technical, and product leads to ensure feasibility and compliance",
+      "Created and delivered final presentation to university stakeholders and faculty advisors",
+      "Presentation link: https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
     ],
   },
   {
@@ -275,9 +388,12 @@ const timelineEvents: Array<{
     date: "Aug 2021 - Aug 2023 · 2 yrs 1 mo",
     logo: "/logos/Motorola logo.jpeg",
     bullets: [
-      "Designed and shipped Android system extensions for 15,000+ field units",
-      "Diagnosed and resolved 80+ firmware and application-level defects",
-      "Led debugging and testing initiatives with global teams",
+      "Developed embedded Android software for Motorola's APX NEXT Smart Radios, supporting mission-critical communications for public safety professionals. Owned features across GPS, authentication, and UI, contributing to product stability and scale.",
+      "Designed and shipped Android system extensions that improved GPS accuracy, device security, and UI responsiveness for 15,000+ field units",
+      "Diagnosed and resolved 80+ firmware and application-level defects across network, location, and UI components",
+      "Led debugging and testing initiatives with global teams, reducing integration delays by 25% and improving time to resolution",
+      "Coordinated agile planning and knowledge sharing across firmware, Android, and test automation teams",
+      "Contributed to NFC-based feature prototype that won 1st place at Motorola Product Hackathon",
     ],
   },
   {
@@ -288,34 +404,55 @@ const timelineEvents: Array<{
     date: "Mar 2021 - Present",
     logo: "/logos/Tutora Logo.jpeg",
     bullets: [
-      "Saved 15+ hours/week through AI-driven scheduling and grading",
-      "Developed 50+ TI-BASIC math programs, improving test scores by 35%",
-      "Taught core computer science principles including data structures and Java programming",
+      "Redesigned tutoring operations by building both backend automation tools and student-facing programs. Delivered scalable AI systems for internal workflows and custom-built math and computer science curriculum that improved student performance and operational efficiency.",
+      "Consulted business owners to identify bottlenecks and build 0→1 unified AI tools using Otter.ai, Dola, WhatsApp, and App Scripts for automation and adoption",
+      "Saved 15+ hours/week and cut review time by 50% through AI-driven scheduling, grading, and substitution flows",
+      "Developed and launched 50+ TI-BASIC math programs, improving standardized test scores by 35% across 50+ students",
+      "Taught core computer science principles including data structures, Java programming, and project-based learning using Code.org and AP CS content",
+      "Delivered training and documentation to ensure long-term adoption of both AI workflows and instructional tools",
     ],
   },
   {
     type: "experience",
     year: "2021",
     title: "System Administrator",
-    org: "University of Florida",
-    date: "Jan 2019 - May 2021",
+    org: "University of Florida · Part-time",
+    date: "May 2019 - Jun 2021 · 2 yrs 2 mos",
     logo: "/logos/UF logo.jpeg",
     bullets: [
-      "Managed Linux/Windows servers for the College of Liberal Arts and Sciences",
-      "Provided IT support for 100+ faculty and staff",
-      "Automated system backups and improved network reliability",
+      "Provided IT support and system management for CALS' academic labs and research teams. Built internal tools and led technician teams to improve service reliability and hardware asset tracking.",
+      "Maintained 95%+ customer satisfaction over 2 years while managing MacOS/Linux support for 200+ users",
+      "Designed and deployed a Microsoft Power Platform app to track 100+ laptops and lab devices, reducing manual errors by 60%",
+      "Supervised and trained a 20-person tech team, streamlining onboarding and troubleshooting procedures",
+      "Handled system configuration, software deployment, and tier-2 escalations for lab environments",
+      "Created SOP documentation to ensure consistency across support requests and technical resolution workflows",
     ],
   },
   {
     type: "experience",
-    year: "2024",
-    title: "Cryptocurrency Research",
-    org: "Carnegie Mellon University",
-    date: "Jan 2024 - May 2024",
-    logo: "/logos/carnegie_mellon_university_logo.jpeg",
+    year: "2020",
+    title: "Android Software Developer",
+    org: "Motorola Solutions · Internship",
+    date: "Jun 2020 - Aug 2020 · 3 mos",
+    logo: "/logos/Motorola logo.jpeg",
     bullets: [
-      "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry.",
-      "Collaborated with cross-functional teams to analyze market trends and user adoption.",
+      "Developed and updated Android Applications in the APX NEXT device while using various technologies (Android studio, git, ADB, shell, JIRA, Bitbucket).",
+      "Learned how to adapt quickly in a completely virtual agile development setting.",
+      "Created and presented end-to-end solutions for developer applications during end of program presentation.",
+    ],
+  },
+  {
+    type: "experience",
+    year: "2018",
+    title: "Store Cashier",
+    org: "5-Spice Asian Street Market · Full-time",
+    date: "Jan 2016 - Jan 2018 · 2 yrs 1 mo",
+    logo: "/logos/5spice_logo.jpeg",
+    bullets: [
+      "Family-owned restaurant business, started working as an unpaid intern at age 6, made my way to a paid full-time worker by 2016!",
+      "Orders taken using Point-of-Sale software to secure communication with the chef and accuracy for the bill.",
+      "Managed orders and interacted with customers to ensure positive customer experience",
+      "Demonstrated flexibility through a range of jobs such as barista, tip calculator, and dining hall cleaner.",
     ],
   },
 ];
@@ -537,6 +674,7 @@ export default function Home() {
   const [projectSection, setProjectSection] = useState("all");
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   // Contact form state
   const [formData, setFormData] = useState({
@@ -646,8 +784,8 @@ export default function Home() {
           "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
         image: "/logos/expired_solutions_logo.jpeg",
         tags: ["AI/ML", "Product", "Startup"],
-        link: "#",
-        linkText: "Learn More",
+        link: "https://expiredsolutions.com",
+        linkText: "Visit Site",
         linkIcon: "external",
       },
       {
@@ -686,7 +824,7 @@ export default function Home() {
           "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
         image: "/logos/netflixlogo.jpeg",
         tags: ["Machine Learning", "Data Analysis", "A/B Testing"],
-        link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0",
+        link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
         linkText: "View Project",
         linkIcon: "external",
       },
@@ -746,8 +884,8 @@ export default function Home() {
           "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry.",
         image: "/logos/carnegie_mellon_university_logo.jpeg",
         tags: ["Research", "Strategy", "Crypto"],
-        link: "#",
-        linkText: "Learn More",
+        link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
+        linkText: "View Presentation",
         linkIcon: "external",
       },
       {
@@ -768,8 +906,8 @@ export default function Home() {
           "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
         image: "/logos/expired_solutions_logo.jpeg",
         tags: ["AI/ML", "Product", "Startup"],
-        link: "#",
-        linkText: "Learn More",
+        link: "https://expiredsolutions.com",
+        linkText: "Visit Site",
         linkIcon: "external",
       },
       {
@@ -810,7 +948,7 @@ export default function Home() {
           "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
         image: "/logos/netflixlogo.jpeg",
         tags: ["Machine Learning", "Data Analysis", "A/B Testing"],
-        link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0",
+        link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
         linkText: "View Project",
         linkIcon: "external",
       },
@@ -872,8 +1010,8 @@ export default function Home() {
           "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry.",
         image: "/logos/carnegie_mellon_university_logo.jpeg",
         tags: ["Research", "Strategy", "Crypto"],
-        link: "#",
-        linkText: "Learn More",
+        link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
+        linkText: "View Presentation",
         linkIcon: "external",
       },
       {
@@ -912,6 +1050,19 @@ export default function Home() {
       (currentTypeIndex - 1 + projectTypes.length) % projectTypes.length;
     setProjectSection(projectTypes[prevIndex]);
     setShowAllProjects(false);
+  };
+
+  // Toggle card expansion
+  const toggleCardExpansion = (cardId: string) => {
+    setExpandedCards((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(cardId)) {
+        newSet.delete(cardId);
+      } else {
+        newSet.add(cardId);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -1134,43 +1285,61 @@ export default function Home() {
           </div>
 
           {/* Career Timeline Row with Arrows */}
-          <div className="mx-auto w-full max-w-7xl overflow-x-auto">
+          <div className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-auto">
             <div className="flex min-w-max items-center justify-center gap-4 px-8">
               {(expYear === "All"
                 ? filteredExperiences
                 : filteredExperiences.slice(0, 6)
               ).map((item, idx, arr) => (
                 <React.Fragment key={item.title + "-" + item.year + "-" + idx}>
-                  <div className="flex max-w-[220px] min-w-[200px] flex-col items-center">
-                    <div className="timeline-card relative flex w-full flex-col items-center rounded-2xl border border-blue-900/30 bg-gray-900/90 p-4 shadow-xl">
-                      <div className="timeline-year-circle top">
-                        {item.year}
+                  <div className="timeline-card-container relative flex max-w-[220px] min-w-[200px] flex-col items-center">
+                    <div className="timeline-circle top">
+                      <div className="circle-svg">
+                        <span className="circle-year">{item.year}</span>
                       </div>
-                      <Image
-                        src={item.logo}
-                        alt={item.org}
-                        width={60}
-                        height={60}
-                        className="mb-3 rounded-full"
-                      />
-                      <h3 className="mb-1 text-center text-base leading-tight font-bold text-white">
-                        {item.title}
-                      </h3>
-                      <p className="mb-1 text-center text-xs font-semibold text-blue-300">
-                        {item.org}
-                      </p>
-                      <p className="mb-2 text-center text-xs text-gray-400">
-                        {item.date}
-                      </p>
-                      {item.bullets && (
-                        <ul className="w-full list-inside list-disc space-y-1 text-left text-xs text-gray-300">
-                          {item.bullets.slice(0, 1).map((b, i) => (
-                            <li key={b + "-" + i} className="text-xs">
-                              {b}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                    </div>
+                    <div className="education-card improved-ui timeline-card-container">
+                      <div
+                        className="timeline-card mx-auto flex h-full w-full flex-col text-left"
+                        onClick={() =>
+                          toggleCardExpansion(item.title + "-" + item.year)
+                        }
+                      >
+                        <Image
+                          src={item.logo}
+                          alt={item.org}
+                          width={40}
+                          height={40}
+                          className="logo mx-auto rounded"
+                        />
+                        <div
+                          className="text-center text-base font-bold text-white"
+                          style={{ margin: 0, padding: 0 }}
+                        >
+                          <span>{item.title}</span>
+                        </div>
+                        <p className="text-sm text-gray-400">{item.org}</p>
+                        <p className="text-xs text-gray-400">{item.date}</p>
+                        {item.bullets && (
+                          <ul className="flex-grow list-inside list-disc space-y-0 text-left text-xs text-gray-300">
+                            {expandedCards.has(item.title + "-" + item.year)
+                              ? item.bullets.map((b, i) => (
+                                  <li key={b + "-" + i}>{b}</li>
+                                ))
+                              : item.bullets
+                                  .slice(0, 1)
+                                  .map((b, i) => (
+                                    <li key={b + "-" + i}>{b}</li>
+                                  ))}
+                            {!expandedCards.has(item.title + "-" + item.year) &&
+                              item.bullets.length > 1 && (
+                                <li className="font-medium text-blue-400">
+                                  Click to see {item.bullets.length - 1} more...
+                                </li>
+                              )}
+                          </ul>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -1201,103 +1370,62 @@ export default function Home() {
           <h3 className="mt-16 mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-3xl font-semibold text-transparent">
             Education
           </h3>
-          <div className="education-carousel improved-ui">
-            <div className="education-scroll-area">
-              <button
-                className="education-arrow left"
-                onClick={() => {
-                  const container = document.querySelector(
-                    ".education-container",
-                  );
-                  if (container) {
-                    container.scrollBy({ left: -320, behavior: "smooth" });
-                  }
-                }}
-              >
-                <svg
-                  className="h-7 w-7 rotate-180 text-blue-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
-                </svg>
-              </button>
-              <div className="education-container">
-                <div className="education-grid">
-                  {sortedEducationEvents.map((item, idx) => (
-                    <div
-                      key={item.year + "-" + idx}
-                      className="education-card improved-ui"
-                    >
-                      <div className="timeline-year-circle top">
-                        {item.year}
-                      </div>
-                      <div className="timeline-card flex h-full w-full flex-col text-left">
-                        <Image
-                          src={item.logo}
-                          alt={item.org}
-                          width={40}
-                          height={40}
-                          className="mx-auto mb-3 rounded"
-                        />
-                        <h3 className="mb-2 text-lg font-bold text-white">
-                          {item.title}
-                        </h3>
-                        <p className="mb-2 text-sm text-gray-400">{item.org}</p>
-                        <p className="mb-3 text-xs text-gray-400">
-                          {item.date}
-                        </p>
-                        {item.details && (
-                          <ul className="flex-grow list-inside list-disc space-y-1 text-left text-xs text-gray-300">
-                            {item.details.map((d, i) => (
-                              <li key={d + "-" + i}>{d}</li>
-                            ))}
-                          </ul>
-                        )}
+          <div className="education-carousel improved-ui timeline-container-with-stars">
+            <div className="flex min-w-max items-center justify-center gap-4 px-8">
+              {sortedEducationEvents.map((item, idx) => (
+                <React.Fragment key={item.year + "-" + idx}>
+                  <div
+                    className={`timeline-card-container relative flex max-w-[280px] min-w-[240px] flex-col items-center${item.type === "education" ? "education" : ""}`}
+                  >
+                    <div className="timeline-circle top">
+                      <div className="circle-svg">
+                        <span className="circle-year">{item.year}</span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-              <button
-                className="education-arrow right"
-                onClick={() => {
-                  const container = document.querySelector(
-                    ".education-container",
-                  );
-                  if (container) {
-                    container.scrollBy({ left: 320, behavior: "smooth" });
-                  }
-                }}
-              >
-                <svg
-                  className="h-7 w-7 text-blue-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <line
-                    x1="4"
-                    y1="12"
-                    x2="20"
-                    y2="12"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <polyline
-                    points="16,8 20,12 16,16"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+                    <div className="timeline-card mx-auto flex h-full w-full flex-col text-left">
+                      <Image
+                        src={item.logo}
+                        alt={item.org}
+                        width={40}
+                        height={40}
+                        className="logo mx-auto rounded"
+                      />
+                      <div
+                        className="text-center text-base font-bold text-white"
+                        style={{ margin: 0, padding: 0 }}
+                      >
+                        <span>{item.title}</span>
+                      </div>
+                      <p className="text-sm text-gray-400">{item.org}</p>
+                      <p className="text-xs text-gray-400">{item.date}</p>
+                      {item.details && (
+                        <ul className="flex-grow list-inside list-disc space-y-0 text-left text-xs text-gray-300">
+                          {item.details.map((d, i) => (
+                            <li key={d + "-" + i}>{d}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                  {idx < sortedEducationEvents.length - 1 && (
+                    <div className="flex h-12 w-12 items-center justify-center">
+                      <svg
+                        className="h-8 w-8 rotate-180 transform text-blue-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 8l4 4m0 0l-4 4m4-4H3"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
           </div>
         </div>

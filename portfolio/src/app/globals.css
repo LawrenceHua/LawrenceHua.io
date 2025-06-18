@@ -218,15 +218,17 @@ section {
 }
 
 .timeline-card {
+  min-width: 280px;
+  max-width: 280px;
+  width: 280px;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1.5px solid transparent !important;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 0.25rem 1.25rem 1.5rem 1.25rem;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
-  min-height: 280px;
-  display: flex;
-  flex-direction: column;
 }
 
 .timeline-card:hover {
@@ -434,10 +436,11 @@ section {
 
 /* Section styling for projects, recommendations, contact */
 .section-container {
-  padding: 4rem 2rem;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  position: relative;
-  overflow: hidden;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  background: none !important;
 }
 
 .section-container::before {
@@ -472,7 +475,7 @@ section {
   font-size: 3rem;
   font-weight: 800;
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   background: linear-gradient(135deg, #60a5fa, #a78bfa);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -483,7 +486,7 @@ section {
   text-align: center;
   color: #94a3b8;
   font-size: 1.25rem;
-  margin-bottom: 3rem;
+  margin-bottom: 1.25rem;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
@@ -1225,8 +1228,16 @@ section {
 .education-carousel.improved-ui {
   width: 100%;
   max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem 0 1rem 0;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 3rem 0 1rem 0;
+  background: none !important;
+  box-shadow: none !important;
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  overflow-y: visible;
+  min-height: 420px;
 }
 .education-scroll-area {
   position: relative;
@@ -1281,19 +1292,23 @@ section {
   min-width: max-content;
 }
 .education-card.improved-ui {
-  flex: 0 0 290px;
-  max-width: 290px;
-  min-width: 220px;
-  background: rgba(23, 37, 84, 0.85);
+  flex: 0 0 280px;
+  max-width: 280px;
+  min-width: 240px;
+  background: none !important;
+  min-height: 520px;
+  max-height: 520px;
+  height: 520px;
   border: 1.5px solid #2563eb33;
   border-radius: 1.25rem;
   box-shadow: 0 2px 12px #2563eb22;
-  padding: 1.5rem 1.25rem 1.25rem 1.25rem;
+  padding: 0.25rem 1.25rem 1.5rem 1.25rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   position: relative;
   transition: box-shadow 0.2s;
+  padding-bottom: 2.5rem;
 }
 .education-card.improved-ui:hover {
   box-shadow: 0 4px 32px #2563eb55;
@@ -1321,10 +1336,10 @@ section {
 /* Mobile peek effect and responsiveness */
 @media (max-width: 900px) {
   .education-card.improved-ui {
-    flex: 0 0 220px;
-    max-width: 220px;
-    min-width: 180px;
-    padding: 1.1rem 0.7rem 1rem 0.7rem;
+    min-height: 420px;
+    max-height: 420px;
+    height: 420px;
+    padding-bottom: 2rem;
   }
   .education-container {
     padding: 1rem 1rem;
@@ -1344,13 +1359,13 @@ section {
     padding: 1rem 0 0.5rem 0;
   }
   .education-scroll-area {
-    min-height: 260px;
+    min-height: 320px;
   }
   .education-card.improved-ui {
-    flex: 0 0 80vw;
-    max-width: 80vw;
-    min-width: 65vw;
-    padding: 0.7rem 0.5rem 0.7rem 0.5rem;
+    min-height: 320px;
+    max-height: 320px;
+    height: 320px;
+    padding-bottom: 1.5rem;
   }
   .education-container {
     padding: 0.5rem 0.5rem;
@@ -1365,4 +1380,296 @@ section {
     font-size: 0.8rem;
     top: -0.7rem;
   }
+}
+
+/* Timeline container with star alignment */
+.timeline-container-with-stars {
+  padding-top: 5.5rem;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: visible;
+  min-height: 420px;
+}
+
+/* Timeline card container */
+.timeline-card-container {
+  position: relative;
+  width: 280px;
+  max-width: 280px;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.timeline-star.top {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 3;
+  top: -40px; /* Half the star height, so the bottom tip sits on the card */
+}
+
+.timeline-card,
+.education-card.improved-ui {
+  min-width: 280px;
+  max-width: 280px;
+  width: 280px;
+  min-height: 170px;
+  height: auto;
+  max-height: 340px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: normal;
+  word-break: break-word;
+  padding: 0.25rem 1.25rem 1.5rem 1.25rem;
+  background: none !important;
+  box-shadow: 0 2px 12px #2563eb22;
+  border: 1.5px solid #2563eb33;
+  border-radius: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+.timeline-card:hover,
+.education-card.improved-ui:hover {
+  box-shadow: 0 4px 32px #2563eb55;
+  border-color: #2563eb77;
+}
+
+.star-svg {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  left: 0;
+  top: 0;
+}
+
+.star-year {
+  position: relative;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  z-index: 4;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 2px 8px #2563eb99;
+}
+
+@media (max-width: 900px) {
+  .timeline-star.top,
+  .star-svg,
+  .star-year {
+    width: 60px;
+    height: 60px;
+    font-size: 0.75rem;
+    top: -1.8rem;
+  }
+  .timeline-container-with-stars {
+    padding-top: 2rem;
+  }
+  .timeline-card-container {
+    min-height: 280px;
+    max-width: 220px;
+    min-width: 180px;
+  }
+}
+@media (max-width: 600px) {
+  .timeline-star.top,
+  .star-svg,
+  .star-year {
+    width: 50px;
+    height: 50px;
+    font-size: 0.65rem;
+    top: -1.4rem;
+  }
+  .timeline-container-with-stars {
+    padding-top: 2rem;
+  }
+  .timeline-card-container {
+    min-height: 260px;
+    max-width: 160px;
+    min-width: 120px;
+  }
+}
+
+.bg-gray-800,
+.bg-gray-800.py-20,
+.bg-gray-900,
+.bg-gray-900\/90 {
+  background: none !important;
+}
+
+.py-20 {
+  padding-top: 1.25rem !important;
+  padding-bottom: 1.25rem !important;
+}
+
+.mt-16 {
+  margin-top: 1.25rem !important;
+}
+
+.mb-8 {
+  margin-bottom: 0.75rem !important;
+}
+
+.mb-6 {
+  margin-bottom: 0.5rem !important;
+}
+
+@media (max-width: 900px) {
+  .timeline-card {
+    min-height: 210px;
+    max-height: 210px;
+    height: 210px;
+    min-width: 220px;
+    max-width: 220px;
+    width: 220px;
+  }
+}
+@media (max-width: 600px) {
+  .timeline-card {
+    min-height: 160px;
+    max-height: 160px;
+    height: 160px;
+    min-width: 160px;
+    max-width: 160px;
+    width: 160px;
+  }
+}
+
+.timeline-card img,
+.timeline-card .logo {
+  margin-bottom: 0.25rem;
+  margin-top: 0;
+}
+
+/* Remove the card padding between the year circle and the card content */
+.timeline-card-container .timeline-card,
+.timeline-card-container.education .timeline-card {
+  margin-top: 0;
+}
+
+/* Add space between Experience/Education titles and their galleries */
+/* Experience title */
+section#timeline h3 {
+  margin-bottom: 2.5rem !important;
+}
+/* Education title (assuming it uses h3 as well) */
+section#timeline + section h3 {
+  margin-bottom: 2.5rem !important;
+}
+
+/* Make the card titles bigger */
+.timeline-card h3,
+.education-card.improved-ui h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+/* Remove margin above org line after title */
+.timeline-card h3 + p,
+.education-card.improved-ui h3 + p {
+  margin-top: 0;
+}
+
+/* Center arrows vertically with the card */
+.flex.h-12.w-12.items-center.justify-center {
+  height: auto;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline-circle.top {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 3;
+  top: -64px;
+}
+
+/* For education, float the circle higher above the card */
+.timeline-card-container.education .timeline-circle.top {
+  top: -64px;
+}
+
+.circle-svg {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb 60%, #38bdf8 100%);
+  border: 4px solid #7dd3fc;
+  box-shadow: 0 2px 16px 0 #38bdf8aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.circle-year {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-shadow: 0 2px 8px #2563eb99;
+  width: 100%;
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .timeline-circle.top,
+  .circle-svg {
+    width: 48px;
+    height: 48px;
+  }
+  .timeline-circle.top {
+    top: -24px;
+  }
+  .timeline-card-container.education .timeline-circle.top {
+    top: -24px;
+  }
+  .circle-year {
+    font-size: 0.95rem;
+  }
+}
+@media (max-width: 600px) {
+  .timeline-circle.top,
+  .circle-svg {
+    width: 36px;
+    height: 36px;
+  }
+  .timeline-circle.top {
+    top: -18px;
+  }
+  .timeline-card-container.education .timeline-circle.top {
+    top: -18px;
+  }
+  .circle-year {
+    font-size: 0.8rem;
+  }
+}
+
+/* Add padding after the filter container so the circles aren't cut off */
+.timeline-filter-container,
+.mb-8.flex.flex-wrap.items-center.justify-center.gap-4.text-center {
+  padding-bottom: 2.5rem;
 }

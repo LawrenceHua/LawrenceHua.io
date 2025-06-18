@@ -11,6 +11,7 @@ import {
   Testimonials,
 } from "@/components/sections";
 import SmoothScroll from "@/components/smooth-scroll";
+import Chatbot from "@/components/chatbot/chatbot";
 
 export default function Home() {
   return (
@@ -31,6 +32,7 @@ export default function Home() {
         </footer>
       </div>
       <Cursor />
+      <Chatbot />
     </SmoothScroll>
   );
 }

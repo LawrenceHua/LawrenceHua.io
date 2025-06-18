@@ -53,18 +53,20 @@ function ProjectCard({
               className="object-cover transition-transform duration-300 hover:scale-105"
             />
           </AspectRatio>
-          <TextReveal className="text-xl font-bold" as="h3">
+          <TextReveal className="text-lg sm:text-xl font-bold break-words" as="h3">
             {title}
           </TextReveal>
           <TextReveal
             as="p"
-            className="text-sm text-gray-500 dark:text-gray-400"
+            className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 break-words"
           >
             {description ?? ""}
           </TextReveal>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-2 flex flex-wrap gap-1 sm:gap-2">
             {tags?.map((tag, index) => (
-              <Badge key={`project-tag_${index}`}>{tag.label}</Badge>
+              <Badge key={`project-tag_${index}`} className="text-xs">
+                {tag.label}
+              </Badge>
             ))}
           </div>
         </div>

@@ -18,25 +18,25 @@ function ExperienceCard({
   return (
     <Card
       className={cn(
-        "flex min-h-full flex-col justify-between shadow-none",
+        "flex min-h-full flex-col justify-between shadow-none w-full max-w-sm",
         className,
       )}
     >
       <CardContent className="pt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <TextReveal as="h3" className="text-3xl font-semibold">
+          <TextReveal as="h3" className="text-xl sm:text-2xl md:text-3xl font-semibold break-words">
             {company}
           </TextReveal>
-          <TextReveal as="span" className="text-sm font-medium">
+          <TextReveal as="span" className="text-xs sm:text-sm font-medium whitespace-nowrap">
             {duration}
           </TextReveal>
         </div>
-        <TextReveal as="h4" className="mt-2 text-xl font-medium uppercase">
+        <TextReveal as="h4" className="mt-2 text-lg sm:text-xl font-medium uppercase break-words">
           {name}
         </TextReveal>
         <TextReveal
           as="p"
-          className="mt-2 max-w-2xl text-lg font-light text-zinc-700 dark:text-zinc-400"
+          className="mt-2 max-w-2xl text-sm sm:text-base md:text-lg font-light text-zinc-700 dark:text-zinc-400 break-words"
         >
           {description}
         </TextReveal>

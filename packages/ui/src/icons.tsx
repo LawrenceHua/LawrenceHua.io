@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   ArrowRight,
   ArrowUpRight,
+  Bot,
   Check,
   CheckCircle,
   ChevronDown,
@@ -21,10 +22,12 @@ import {
   LogOut,
   Mail,
   Menu,
+  MessageCircle,
   Moon,
   MoreVertical,
   Pizza,
   Plus,
+  Send,
   Settings,
   SunMedium,
   Trash,
@@ -65,6 +68,9 @@ export const Icons = {
   arrowUpRight: ArrowUpRight,
   chevronDown: ChevronDown,
   mail: Mail,
+  bot: Bot,
+  messageCircle: MessageCircle,
+  send: Send,
   gitHub: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"

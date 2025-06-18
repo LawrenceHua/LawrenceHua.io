@@ -134,7 +134,7 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask me anything about Lawrence..."
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-base focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-base text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none md:text-inherit dark:border-gray-600 dark:bg-gray-700 dark:text-white md:dark:text-white"
             disabled={isLoading}
           />
           <button

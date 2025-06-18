@@ -25,12 +25,12 @@ function Projects() {
             <div className="flex flex-col items-center lg:items-start">
               <TextReveal
                 as="h2"
-                className="flex flex-col -space-y-4 text-4xl leading-tight font-bold tracking-tighter sm:text-5xl md:text-5xl md:leading-tight lg:text-6xl lg:leading-tight"
+                className="flex flex-col -space-y-2 sm:-space-y-4 text-3xl sm:text-4xl leading-tight font-bold tracking-tighter md:text-5xl md:leading-tight lg:text-6xl lg:leading-tight"
               >
                 My Projects
               </TextReveal>
             </div>
-            <p className="mt-4 hidden text-gray-500 lg:mt-0 lg:block lg:w-[35%] dark:text-gray-400">
+            <p className="mt-4 text-sm sm:text-base text-gray-500 lg:mt-0 lg:block lg:w-[35%] dark:text-gray-400">
               Here are some of my projects where I&apos;ve turned code into
               cool, functional stuff.
             </p>
@@ -47,7 +47,7 @@ function Projects() {
                 {projects.map((project, index) => (
                   <CarouselItem
                     key={`project_${index}`}
-                    className="md:basis-1/2 xl:basis-1/3 2xl:basis-1/4"
+                    className="basis-full sm:basis-1/2 md:basis-1/2 xl:basis-1/3 2xl:basis-1/4"
                   >
                     <div className="h-full">
                       <ProjectCard
