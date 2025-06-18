@@ -27,7 +27,7 @@ const testimonials: Testimonial[] = [
     image: "/images/person/sarahwilliams.jpg",
     username: "sarahwilliams",
     testimonial:
-      "John has an exceptional ability to communicate complex ideas clearly. His contributions were crucial to the project’s success.",
+      "John has an exceptional ability to communicate complex ideas clearly. His contributions were crucial to the project's success.",
   },
   {
     name: "David Brown",
@@ -55,56 +55,56 @@ const testimonials: Testimonial[] = [
     image: "/images/person/sophiaturner.jpg",
     username: "sophiaturner",
     testimonial:
-      "John’s expertise in software development is second to none. He was a vital asset in our team’s success.",
+      "John's expertise in software development is second to none. He was a vital asset in our team's success.",
   },
   {
     name: "Noah Scott",
     image: "/images/person/noahscott.jpg",
     username: "noahscott",
     testimonial:
-      "John’s ability to troubleshoot and resolve issues quickly was critical to our project staying on track.",
+      "John's ability to troubleshoot and resolve issues quickly was critical to our project staying on track.",
   },
   {
     name: "Lily Johnson",
     image: "/images/person/lilyjohnson.jpg",
     username: "lilyjohnson",
     testimonial:
-      "John’s guidance and attention to detail greatly enhanced the quality of our project. He’s a pleasure to work with.",
+      "John's guidance and attention to detail greatly enhanced the quality of our project. He's a pleasure to work with.",
   },
   {
     name: "James White",
     image: "/images/person/jameswhite.jpg", // todo
     username: "jameswhite",
     testimonial:
-      "John’s technical prowess and collaborative spirit made him an indispensable part of the project.",
+      "John's technical prowess and collaborative spirit made him an indispensable part of the project.",
   },
   {
     name: "Isabella Evans",
     image: "/images/person/isabellaevans.jpg",
     username: "isabellaevans",
     testimonial:
-      "John's contributions were instrumental to our project’s success. His work ethic and creativity were outstanding.",
+      "John's contributions were instrumental to our project's success. His work ethic and creativity were outstanding.",
   },
   {
     name: "Henry Adams",
     image: "/images/person/henryadams.jpg",
     username: "henryadams",
     testimonial:
-      "John’s professionalism and dedication were crucial in delivering the project on time and with high quality.",
+      "John's professionalism and dedication were crucial in delivering the project on time and with high quality.",
   },
   {
     name: "Ava Davis",
     image: "/images/person/avadavis.jpg",
     username: "avadavis",
     testimonial:
-      "John’s ability to lead complex projects with ease made the difference in achieving our goals.",
+      "John's ability to lead complex projects with ease made the difference in achieving our goals.",
   },
   {
     name: "William Harris",
     image: "/images/person/williamharris.jpg",
     username: "williamharris",
     testimonial:
-      "John’s thoroughness and problem-solving skills ensured the project’s success. I highly recommend working with him.",
+      "John's thoroughness and problem-solving skills ensured the project's success. I highly recommend working with him.",
   },
   {
     name: "Mia Clark",
@@ -118,14 +118,14 @@ const testimonials: Testimonial[] = [
     image: "/images/person/alexanderlewis.jpg",
     username: "alexanderlewis",
     testimonial:
-      "John’s dedication and expertise were instrumental in overcoming the challenges we faced during the project.",
+      "John's dedication and expertise were instrumental in overcoming the challenges we faced during the project.",
   },
   {
     name: "Charlotte Young",
     image: "/images/person/charlotteyoung.jpg", // todo
     username: "charlotteyoung",
     testimonial:
-      "John’s creative thinking and attention to detail played a significant role in our project’s success.",
+      "John's creative thinking and attention to detail played a significant role in our project's success.",
   },
   {
     name: "Liam Walker",
@@ -139,14 +139,14 @@ const testimonials: Testimonial[] = [
     image: "/images/person/ameliahall.jpg",
     username: "ameliahall",
     testimonial:
-      "John’s strategic thinking and ability to solve complex problems were key to the success of our project.",
+      "John's strategic thinking and ability to solve complex problems were key to the success of our project.",
   },
   {
     name: "Ethan King",
     image: "/images/person/ethanking.jpg",
     username: "ethanking",
     testimonial:
-      "John’s technical expertise and dedication ensured that we delivered a high-quality project on time.",
+      "John's technical expertise and dedication ensured that we delivered a high-quality project on time.",
   },
   {
     name: "Olivia Wright",
@@ -160,14 +160,38 @@ const testimonials: Testimonial[] = [
     image: "/images/person/benjaminhill.jpg",
     username: "benjaminhill",
     testimonial:
-      "John’s leadership and technical knowledge were instrumental in navigating the complexities of our project.",
+      "John's leadership and technical knowledge were instrumental in navigating the complexities of our project.",
   },
   {
     name: "Eleanor Scott",
     image: "/images/person/eleanorscott.jpg",
     username: "eleanorscott",
     testimonial:
-      "John’s ability to bring clarity and structure to the project was invaluable. He’s a pleasure to work with.",
+      "John's ability to bring clarity and structure to the project was invaluable. He's a pleasure to work with.",
+  },
+  {
+    name: "JJ Xu",
+    image: "/images/person/jjxu.jpg",
+    username: "jjxu",
+    testimonial:
+      "JJ is an inspiring mentor and leader, always pushing the team to new heights.",
+    linkedin: "https://www.linkedin.com/in/jj-jiaojiao-xu/",
+  },
+  {
+    name: "Shyam Sundar",
+    image: "/images/person/shyam.jpeg",
+    username: "shyamsundarn",
+    testimonial:
+      "Shyam's technical depth and collaborative spirit make every project a success.",
+    linkedin: "https://www.linkedin.com/in/shyamsundarn/",
+  },
+  {
+    name: "Wendy Williams",
+    image: "/images/person/wendy.jpeg",
+    username: "wendywilliams",
+    testimonial:
+      "Wendy's strategic thinking and mentorship have been invaluable to my growth.",
+    linkedin: "https://www.linkedin.com/in/wendy-williams-873b7538/",
   },
   // todo: add attribution for portfolio unsplash images
 ];
