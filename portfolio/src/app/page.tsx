@@ -1197,99 +1197,108 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Education Section - Scrollable Gallery */}
+          {/* Education Section - Improved UI */}
           <h3 className="mt-16 mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-3xl font-semibold text-transparent">
             Education
           </h3>
-          <div className="education-carousel">
-            <button
-              className="education-arrow left"
-              onClick={() => {
-                const container = document.querySelector(
-                  ".education-container",
-                );
-                if (container) {
-                  container.scrollBy({ left: -400, behavior: "smooth" });
-                }
-              }}
-            >
-              <svg
-                className="h-8 w-8 rotate-180 transform text-blue-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <div className="education-carousel improved-ui">
+            <div className="education-scroll-area">
+              <button
+                className="education-arrow left"
+                onClick={() => {
+                  const container = document.querySelector(
+                    ".education-container",
+                  );
+                  if (container) {
+                    container.scrollBy({ left: -320, behavior: "smooth" });
+                  }
+                }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </button>
-            <div className="education-container">
-              <div className="education-grid">
-                {sortedEducationEvents.map((item, idx) => (
-                  <div key={item.year + "-" + idx} className="education-card">
-                    <div className="timeline-card flex h-full w-full flex-col text-left">
-                      <Image
-                        src={item.logo}
-                        alt={item.org}
-                        width={40}
-                        height={40}
-                        className="mx-auto mb-3 rounded"
-                      />
-                      <h3 className="mb-2 text-lg font-bold text-white">
-                        {item.title}
-                      </h3>
-                      <p className="mb-2 text-sm text-gray-400">{item.org}</p>
-                      <p className="mb-3 text-xs text-gray-400">{item.date}</p>
-                      {item.details && (
-                        <ul className="flex-grow list-inside list-disc space-y-1 text-left text-xs text-gray-300">
-                          {item.details.map((d, i) => (
-                            <li key={d + "-" + i}>{d}</li>
-                          ))}
-                        </ul>
-                      )}
+                <svg
+                  className="h-7 w-7 rotate-180 text-blue-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </button>
+              <div className="education-container">
+                <div className="education-grid">
+                  {sortedEducationEvents.map((item, idx) => (
+                    <div
+                      key={item.year + "-" + idx}
+                      className="education-card improved-ui"
+                    >
+                      <div className="timeline-year-circle top">
+                        {item.year}
+                      </div>
+                      <div className="timeline-card flex h-full w-full flex-col text-left">
+                        <Image
+                          src={item.logo}
+                          alt={item.org}
+                          width={40}
+                          height={40}
+                          className="mx-auto mb-3 rounded"
+                        />
+                        <h3 className="mb-2 text-lg font-bold text-white">
+                          {item.title}
+                        </h3>
+                        <p className="mb-2 text-sm text-gray-400">{item.org}</p>
+                        <p className="mb-3 text-xs text-gray-400">
+                          {item.date}
+                        </p>
+                        {item.details && (
+                          <ul className="flex-grow list-inside list-disc space-y-1 text-left text-xs text-gray-300">
+                            {item.details.map((d, i) => (
+                              <li key={d + "-" + i}>{d}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
                     </div>
-                    <div className="timeline-year-circle mt-4">{item.year}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-            <button
-              className="education-arrow right"
-              onClick={() => {
-                const container = document.querySelector(
-                  ".education-container",
-                );
-                if (container) {
-                  container.scrollBy({ left: 400, behavior: "smooth" });
-                }
-              }}
-            >
-              <svg
-                className="h-6 w-6 text-blue-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <button
+                className="education-arrow right"
+                onClick={() => {
+                  const container = document.querySelector(
+                    ".education-container",
+                  );
+                  if (container) {
+                    container.scrollBy({ left: 320, behavior: "smooth" });
+                  }
+                }}
               >
-                <line
-                  x1="4"
-                  y1="12"
-                  x2="20"
-                  y2="12"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <polyline
-                  points="16,8 20,12 16,16"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+                <svg
+                  className="h-7 w-7 text-blue-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <line
+                    x1="4"
+                    y1="12"
+                    x2="20"
+                    y2="12"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <polyline
+                    points="16,8 20,12 16,16"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </section>
