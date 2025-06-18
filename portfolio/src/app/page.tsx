@@ -968,6 +968,16 @@ export default function Home() {
         linkText: "Play Game",
         linkIcon: "external",
       },
+      {
+        title: "McGinnis Venture Competition Finalist: Expired Solutions",
+        description:
+          "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Led strategy, technical buildout, and go-to-market for the pilot with Giant Eagle.",
+        image: "/logos/expired_solutions_logo.jpeg",
+        tags: ["Competition", "AI/ML", "Startup", "Award"],
+        link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
+        linkText: "View Pitch Deck",
+        linkIcon: "external",
+      },
     ],
     product: [
       {
@@ -1243,8 +1253,15 @@ export default function Home() {
                         className="rounded-full"
                       />
                       <div>
-                        <h3 className="text-lg font-semibold text-white">
+                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           JJ Xu
+                          <Link
+                            href="https://www.linkedin.com/in/jj-xu/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                          </Link>
                         </h3>
                         <p className="text-gray-400">
                           Founder & CEO @ TalkMeUp
@@ -1271,8 +1288,15 @@ export default function Home() {
                         className="rounded-full"
                       />
                       <div>
-                        <h3 className="text-lg font-semibold text-white">
+                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Wendy Williams
+                          <Link
+                            href="https://www.linkedin.com/in/wendy-williams-0b7b8b8/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                          </Link>
                         </h3>
                         <p className="text-gray-400">
                           IT Director at University of Florida
@@ -1298,8 +1322,15 @@ export default function Home() {
                         className="rounded-full"
                       />
                       <div>
-                        <h3 className="text-lg font-semibold text-white">
+                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Shyam Sundar
+                          <Link
+                            href="https://www.linkedin.com/in/shyam-sundar-1b2b3b4b/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                          </Link>
                         </h3>
                         <p className="text-gray-400">
                           Android Frameworks Engineer
@@ -1326,8 +1357,15 @@ export default function Home() {
                         className="rounded-full"
                       />
                       <div>
-                        <h3 className="text-lg font-semibold text-white">
+                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           JJ Xu
+                          <Link
+                            href="https://www.linkedin.com/in/jj-xu/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                          </Link>
                         </h3>
                         <p className="text-gray-400">
                           Founder & CEO @ TalkMeUp
@@ -1354,8 +1392,15 @@ export default function Home() {
                         className="rounded-full"
                       />
                       <div>
-                        <h3 className="text-lg font-semibold text-white">
+                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Wendy Williams
+                          <Link
+                            href="https://www.linkedin.com/in/wendy-williams-0b7b8b8/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                          </Link>
                         </h3>
                         <p className="text-gray-400">
                           IT Director at University of Florida
@@ -1381,8 +1426,15 @@ export default function Home() {
                         className="rounded-full"
                       />
                       <div>
-                        <h3 className="text-lg font-semibold text-white">
+                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Shyam Sundar
+                          <Link
+                            href="https://www.linkedin.com/in/shyam-sundar-1b2b3b4b/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                          </Link>
                         </h3>
                         <p className="text-gray-400">
                           Android Frameworks Engineer
