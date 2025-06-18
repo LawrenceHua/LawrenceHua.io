@@ -936,27 +936,41 @@ export default function Home() {
           {/* Education Section - Static */}
           <h3 className="text-3xl font-semibold mb-6 mt-16 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Education</h3>
           <div className="w-full max-w-6xl mx-auto">
-            <div className="flex justify-start items-center gap-8 w-full">
-              {sortedTimelineEvents.filter(e => e.type === 'education').map((item, idx, arr) => (
-                <React.Fragment key={item.year + '-' + idx}>
-                  <div className="flex flex-col items-center">
-                    <div className="timeline-card text-left">
-                      <Image src={item.logo} alt={item.org} width={40} height={40} className="rounded mb-3 mx-auto" />
-                      <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-gray-400 text-sm mb-2">{item.org}</p>
-                      <p className="text-gray-400 text-xs mb-3">{item.date}</p>
-                      {item.details && (
-                        <ul className="list-disc list-inside text-gray-300 space-y-1 text-xs text-left">
-                          {item.details.map((d, i) => <li key={d + '-' + i}>{d}</li>)}
-                        </ul>
-                      )}
-                    </div>
-                    <div className="timeline-year-circle">{item.year}</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full relative">
+              {sortedTimelineEvents.filter(e => e.type === 'education').map((item, idx) => (
+                <div key={item.year + '-' + idx} className="flex flex-col items-center relative">
+                  <div className="timeline-card text-left w-full h-full flex flex-col">
+                    <Image src={item.logo} alt={item.org} width={40} height={40} className="rounded mb-3 mx-auto" />
+                    <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+                    <p className="text-gray-400 text-sm mb-2">{item.org}</p>
+                    <p className="text-gray-400 text-xs mb-3">{item.date}</p>
+                    {item.details && (
+                      <ul className="list-disc list-inside text-gray-300 space-y-1 text-xs text-left flex-grow">
+                        {item.details.map((d, i) => <li key={d + '-' + i}>{d}</li>)}
+                      </ul>
+                    )}
                   </div>
-                  {idx < arr.length - 1 && (
-                    <div className="timeline-connector-horizontal-static" />
+                  <div className="timeline-year-circle mt-4">{item.year}</div>
+                  
+                  {/* Connecting arrows */}
+                  {idx < sortedTimelineEvents.filter(e => e.type === 'education').length - 1 && (
+                    <div className="education-arrow hidden lg:block">
+                      <svg 
+                        className="w-6 h-6" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M7 8l4 4m0 0l4-4m-4 4H3"
+                        />
+                      </svg>
+                    </div>
                   )}
-                </React.Fragment>
+                </div>
               ))}
             </div>
           </div>
