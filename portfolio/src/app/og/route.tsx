@@ -150,7 +150,11 @@ export async function GET() {
       }
     )
   } catch (e) {
-    console.log(`${e.message}`)
+    if (e instanceof Error) {
+      console.log(e.message)
+    } else {
+      console.log(String(e))
+    }
     return new Response(`Failed to generate the image`, {
       status: 500,
     })
