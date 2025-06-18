@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     // Send email using Resend
     const { data, error } = await resend.emails.send({
       from: 'Lawrence Hua Portfolio <onboarding@resend.dev>',
-      to: ['lawrencehua@gmail.com'], // Replace with your email
+      to: ['lawrencehua2@gmail.com'], // Updated email address
       subject: `Portfolio Contact: ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
