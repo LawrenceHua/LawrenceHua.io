@@ -137,7 +137,16 @@ const timelineData = [
 ];
 
 // 1. Flatten timelineData into a single array of events
-const timelineEvents = [
+const timelineEvents: Array<{
+  type: 'education' | 'experience';
+  year: string;
+  title: string;
+  org: string;
+  date: string;
+  logo: string;
+  bullets?: string[];
+  details?: string[];
+}> = [
   // Education
   {
     type: 'education',
@@ -315,7 +324,14 @@ const sortedTimelineEvents = [...timelineEvents].sort((a, b) => {
 });
 
 // Skills data with proper categorization and levels
-const skillsData = {
+const skillsData: {
+  [key: string]: Array<{
+    name: string;
+    level: string;
+    endorsements: number;
+    experiences: number;
+  }>;
+} = {
   business: [
     { name: 'Product Management', level: 'expert', endorsements: 15, experiences: 3 },
     { name: 'Product Strategy', level: 'proficient', endorsements: 0, experiences: 7 },
@@ -424,7 +440,17 @@ export default function Home() {
   };
 
   // Project data organized by sections
-  const projectSections = {
+  const projectSections: {
+    [key: string]: Array<{
+      title: string;
+      description: string;
+      image: string;
+      tags: string[];
+      link: string;
+      linkText: string;
+      linkIcon: string;
+    }>;
+  } = {
     all: [
       {
         title: "Expired Solutions",
