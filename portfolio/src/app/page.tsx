@@ -174,6 +174,20 @@ const timelineEvents: Array<{
       "Awards: President's Honor Roll (Spring 2020), Cum Laude Graduate (GPA 3.65)",
     ],
   },
+  {
+    type: 'education',
+    year: '2017',
+    title: "High School Diploma",
+    org: 'Spanish River Community High School',
+    date: 'Aug 2013 - May 2017',
+    logo: '/logos/UF logo.jpeg', // Using UF logo as placeholder, you can replace with actual high school logo
+    details: [
+      'Drum Captain - Led marching band percussion section',
+      'Founded Asian American Club - 250 members, $10K cashflow management',
+      'Founded Autism Awareness Club - Organized 5 community service events',
+      'Leadership and community service focus',
+    ],
+  },
   // Experience
   {
     type: 'experience',
