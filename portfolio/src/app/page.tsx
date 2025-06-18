@@ -371,7 +371,7 @@ export default function Home() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
 
-  const expYears = Array.from(new Set(sortedTimelineEvents.filter(e => e.type === 'experience').map(e => e.year))).sort((a, b) => b - a);
+  const expYears = Array.from(new Set(sortedTimelineEvents.filter(e => e.type === 'experience').map(e => e.year))).sort((a, b) => Number(b) - Number(a));
   const filteredExperiences = expYear === 'All'
     ? sortedTimelineEvents.filter(e => e.type === 'experience')
     : sortedTimelineEvents.filter(e => e.type === 'experience' && e.year === expYear);
