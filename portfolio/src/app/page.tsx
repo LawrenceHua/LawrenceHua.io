@@ -1223,7 +1223,7 @@ export default function Home() {
             <div className="section-content">
               <h2 className="section-title text-center">
                 <span
-                  className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-2xl font-extrabold tracking-tight text-transparent shadow-lg"
+                  className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-4xl font-bold tracking-tight text-transparent shadow-lg"
                   style={{ WebkitBackgroundClip: "text" }}
                 >
                   What colleagues and mentors say about my work and character
@@ -1404,7 +1404,7 @@ export default function Home() {
           {/* Skills Section with Filtering and Segmentation - moved below recommendations */}
           <h2 className="section-title mt-12 text-center">
             <span
-              className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-2xl font-extrabold tracking-tight text-transparent shadow-lg"
+              className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-4xl font-bold tracking-tight text-transparent shadow-lg"
               style={{ WebkitBackgroundClip: "text" }}
             >
               How my experiences shaped my expertise
@@ -1705,7 +1705,7 @@ export default function Home() {
         <div className="section-content">
           <h2 className="section-title mt-12 mb-4 text-center">
             <span
-              className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-4xl font-extrabold tracking-tight text-transparent shadow-lg"
+              className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-4xl font-bold tracking-tight text-transparent shadow-lg"
               style={{ WebkitBackgroundClip: "text" }}
             >
               Projects
