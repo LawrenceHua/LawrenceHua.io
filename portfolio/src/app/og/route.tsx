@@ -4,6 +4,10 @@ export const runtime = 'edge'
 
 export async function GET() {
   try {
+    const profileImage = await fetch(
+      new URL('../../../public/profilepic.jpeg', import.meta.url)
+    ).then((res) => res.arrayBuffer())
+
     return new ImageResponse(
       (
         <div
@@ -47,24 +51,19 @@ export async function GET() {
               position: 'relative',
               zIndex: 10,
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)',
+              overflow: 'hidden',
             }}
           >
-            <div
+            <img
+              src={profileImage as any}
+              alt="Lawrence Hua"
               style={{
                 width: '120px',
                 height: '120px',
                 borderRadius: '50%',
-                backgroundColor: '#3b82f6',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '48px',
-                fontWeight: 'bold',
-                color: 'white',
+                objectFit: 'cover',
               }}
-            >
-              LH
-            </div>
+            />
           </div>
           
           {/* Text Content */}
