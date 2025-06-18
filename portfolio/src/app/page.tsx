@@ -394,7 +394,7 @@ export default function Home() {
 
   const filteredSkills = activeFilter === 'all' 
     ? Object.values(skillsData).flat()
-    : skillsData[activeFilter] || [];
+    : (skillsData[activeFilter as keyof typeof skillsData] || []);
 
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -660,8 +660,8 @@ export default function Home() {
   };
 
   const currentProjects = projectSection === 'all' 
-    ? (showAllProjects ? projectSections[projectSection] : projectSections[projectSection].slice(0, 5))
-    : projectSections[projectSection] || [];
+    ? (showAllProjects ? projectSections[projectSection as keyof typeof projectSections] : projectSections[projectSection as keyof typeof projectSections].slice(0, 5))
+    : (projectSections[projectSection as keyof typeof projectSections] || []);
   const projectTypes = ['all', 'product', 'engineering', 'fun'];
   const currentTypeIndex = projectTypes.indexOf(projectSection);
 
