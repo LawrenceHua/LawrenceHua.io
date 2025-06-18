@@ -39,7 +39,7 @@ function ExperienceCard({
         </TextReveal>
         <TextReveal
           as="p"
-          className="mt-2 max-w-2xl text-lg font-light text-zinc-700 dark:text-zinc-400"
+          className="dark:text-primary-200 mt-4 max-w-2xl text-2xl font-bold text-white drop-shadow-lg"
         >
           {mission}
         </TextReveal>
@@ -50,7 +50,7 @@ function ExperienceCard({
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="h-auto p-0 text-sm text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+              className="text-primary-300 hover:text-primary-100 dark:text-primary-300 dark:hover:text-primary-100 h-auto p-0 text-base"
             >
               {isExpanded ? (
                 <>
@@ -66,14 +66,16 @@ function ExperienceCard({
             </Button>
 
             {isExpanded && (
-              <div className="mt-3 space-y-2">
+              <div className="mt-3 space-y-3">
                 {bullets.map((bullet, index) => (
                   <div
                     key={index}
-                    className="flex items-start space-x-2 text-sm text-zinc-600 dark:text-zinc-400"
+                    className="text-primary-200 dark:text-primary-100 flex items-start space-x-2 text-lg"
                   >
-                    <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-zinc-400 dark:bg-zinc-500" />
-                    <span className="leading-relaxed">{bullet}</span>
+                    <span className="bg-primary-300 dark:bg-primary-200 mt-2 h-2 w-2 flex-shrink-0 rounded-full" />
+                    <span className="leading-relaxed font-medium">
+                      {bullet}
+                    </span>
                   </div>
                 ))}
               </div>
