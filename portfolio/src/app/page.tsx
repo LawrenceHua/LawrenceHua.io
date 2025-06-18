@@ -579,6 +579,15 @@ export default function Home() {
         link: "#",
         linkText: "Learn More",
         linkIcon: "external"
+      },
+      {
+        title: "ML Playground",
+        description: "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
+        image: "/images/projects/games/cover.jpg",
+        tags: ["Machine Learning", "Interactive", "Education"],
+        link: "/ml-playground",
+        linkText: "Play Game",
+        linkIcon: "external"
       }
     ],
     product: [
@@ -683,6 +692,15 @@ export default function Home() {
         tags: ["Research", "Strategy", "Crypto"],
         link: "#",
         linkText: "Learn More",
+        linkIcon: "external"
+      },
+      {
+        title: "ML Playground",
+        description: "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
+        image: "/images/projects/games/cover.jpg",
+        tags: ["Machine Learning", "Interactive", "Education"],
+        link: "/ml-playground",
+        linkText: "Play Game",
         linkIcon: "external"
       }
     ]
