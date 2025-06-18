@@ -1142,7 +1142,10 @@ export default function Home() {
               ).map((item, idx, arr) => (
                 <React.Fragment key={item.title + "-" + item.year + "-" + idx}>
                   <div className="flex max-w-[220px] min-w-[200px] flex-col items-center">
-                    <div className="timeline-card flex w-full flex-col items-center rounded-2xl border border-blue-900/30 bg-gray-900/90 p-4 shadow-xl">
+                    <div className="timeline-card relative flex w-full flex-col items-center rounded-2xl border border-blue-900/30 bg-gray-900/90 p-4 shadow-xl">
+                      <div className="timeline-year-circle top">
+                        {item.year}
+                      </div>
                       <Image
                         src={item.logo}
                         alt={item.org}
@@ -1168,9 +1171,6 @@ export default function Home() {
                           ))}
                         </ul>
                       )}
-                    </div>
-                    <div className="timeline-year-circle mt-2 text-sm">
-                      {item.year}
                     </div>
                   </div>
 
