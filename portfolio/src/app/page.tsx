@@ -358,6 +358,7 @@ export default function Home() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [expYear, setExpYear] = useState('All');
   const [projectSection, setProjectSection] = useState('all');
+  const [showAllProjects, setShowAllProjects] = useState(false);
 
   const expYears = Array.from(new Set(sortedTimelineEvents.filter(e => e.type === 'experience').map(e => e.year))).sort((a, b) => b - a);
   const filteredExperiences = expYear === 'All'
@@ -578,18 +579,22 @@ export default function Home() {
     ]
   };
 
-  const currentProjects = projectSections[projectSection] || [];
+  const currentProjects = projectSection === 'all' 
+    ? (showAllProjects ? projectSections[projectSection] : projectSections[projectSection].slice(0, 5))
+    : projectSections[projectSection] || [];
   const projectTypes = ['all', 'product', 'engineering', 'fun'];
   const currentTypeIndex = projectTypes.indexOf(projectSection);
 
   const nextProject = () => {
     const nextIndex = (currentTypeIndex + 1) % projectTypes.length;
     setProjectSection(projectTypes[nextIndex]);
+    setShowAllProjects(false);
   };
 
   const prevProject = () => {
     const prevIndex = (currentTypeIndex - 1 + projectTypes.length) % projectTypes.length;
     setProjectSection(projectTypes[prevIndex]);
+    setShowAllProjects(false);
   };
 
   return (
@@ -864,28 +869,40 @@ export default function Home() {
           <div className="project-filters">
             <button 
               className={`project-filter ${projectSection === 'all' ? 'active' : ''}`}
-              onClick={() => setProjectSection('all')}
+              onClick={() => {
+                setProjectSection('all');
+                setShowAllProjects(false);
+              }}
             >
               <span className="project-filter-label">All Projects</span>
               <span className="project-filter-count">{projectSections.all.length}</span>
             </button>
             <button 
               className={`project-filter ${projectSection === 'product' ? 'active' : ''}`}
-              onClick={() => setProjectSection('product')}
+              onClick={() => {
+                setProjectSection('product');
+                setShowAllProjects(false);
+              }}
             >
               <span className="project-filter-label">Product Related</span>
               <span className="project-filter-count">{projectSections.product.length}</span>
             </button>
             <button 
               className={`project-filter ${projectSection === 'engineering' ? 'active' : ''}`}
-              onClick={() => setProjectSection('engineering')}
+              onClick={() => {
+                setProjectSection('engineering');
+                setShowAllProjects(false);
+              }}
             >
               <span className="project-filter-label">Engineering Related</span>
               <span className="project-filter-count">{projectSections.engineering.length}</span>
             </button>
             <button 
               className={`project-filter ${projectSection === 'fun' ? 'active' : ''}`}
-              onClick={() => setProjectSection('fun')}
+              onClick={() => {
+                setProjectSection('fun');
+                setShowAllProjects(false);
+              }}
             >
               <span className="project-filter-label">Fun</span>
               <span className="project-filter-count">{projectSections.fun.length}</span>
@@ -961,6 +978,56 @@ export default function Home() {
               </svg>
             </button>
           </div>
+          
+          {/* View More Button for All Projects */}
+          {projectSection === 'all' && !showAllProjects && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={() => setShowAllProjects(true)}
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 hover:scale-105"
+              >
+                <span>View More Projects</span>
+                <svg 
+                  className="w-5 h-5 transform transition-transform duration-200" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
+          
+          {/* View Less Button for All Projects */}
+          {projectSection === 'all' && showAllProjects && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={() => setShowAllProjects(false)}
+                className="flex items-center gap-2 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-all duration-200 hover:scale-105"
+              >
+                <span>View Less</span>
+                <svg 
+                  className="w-5 h-5 transform rotate-180 transition-transform duration-200" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
