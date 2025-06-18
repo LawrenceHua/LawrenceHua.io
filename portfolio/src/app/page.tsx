@@ -341,7 +341,7 @@ const sortedTimelineEvents = [...timelineEvents].sort((a, b) => {
 
 // Sort education events chronologically (ascending) for timeline display
 const sortedEducationEvents = [...timelineEvents.filter(e => e.type === 'education')].sort((a, b) => {
-  return getEndDateNum(a.date) - getEndDateNum(b.date);
+  return getEndDateNum(b.date) - getEndDateNum(a.date);
 });
 
 // Skills data with proper categorization and levels
@@ -970,7 +970,7 @@ export default function Home() {
                           strokeLinecap="round" 
                           strokeLinejoin="round" 
                           strokeWidth={2} 
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
+                          d="M7 8l4 4m0 0l4-4m-4 4H3"
                         />
                       </svg>
                     </div>
