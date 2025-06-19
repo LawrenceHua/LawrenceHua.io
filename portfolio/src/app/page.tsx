@@ -926,20 +926,28 @@ const skillsData: {
         "Led Expired Solutions from 0→1, reducing grocery shrink by 20% using AI",
     },
     {
-      name: "Product Strategy",
-      level: "proficient",
-      endorsements: 0,
-      experiences: 7,
-      highlight:
-        "Defined go-to-market strategy for PanPalz, the world's first nonprofit social app",
-    },
-    {
       name: "Leadership",
       level: "expert",
       endorsements: 28,
       experiences: 6,
       highlight:
         "Founded and scaled Expired Solutions, leading 8-week pilot with Giant Eagle",
+    },
+    {
+      name: "Strategic Planning",
+      level: "expert",
+      endorsements: 12,
+      experiences: 4,
+      highlight:
+        "Developed comprehensive product roadmaps and go-to-market strategies for multiple startups",
+    },
+    {
+      name: "Product Strategy",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 7,
+      highlight:
+        "Defined go-to-market strategy for PanPalz, the world's first nonprofit social app",
     },
     {
       name: "Customer Research",
@@ -989,6 +997,22 @@ const skillsData: {
         "Coordinated agile planning across firmware, Android, and test automation teams",
     },
     {
+      name: "Project Management",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 7,
+      highlight:
+        "Managed product strategy, model deployment, and team operations for Expired",
+    },
+    {
+      name: "Market Analysis",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 4,
+      highlight:
+        "Conducted competitive analysis and market research for multiple product launches",
+    },
+    {
       name: "Lean Entrepreneurship",
       level: "familiar",
       endorsements: 0,
@@ -1005,20 +1029,36 @@ const skillsData: {
         "Led enterprise LLM tool development reducing decision time by 18 hours/week",
     },
     {
-      name: "Project Management",
-      level: "proficient",
-      endorsements: 0,
-      experiences: 7,
-      highlight:
-        "Managed product strategy, model deployment, and team operations for Expired",
-    },
-    {
       name: "Business Development",
       level: "familiar",
       endorsements: 0,
       experiences: 3,
       highlight:
         "Pitched and secured 8-week pilot with Giant Eagle for Expired Solutions",
+    },
+    {
+      name: "Financial Modeling",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 2,
+      highlight:
+        "Created financial projections and business models for startup fundraising",
+    },
+    {
+      name: "Sales Strategy",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 3,
+      highlight:
+        "Developed sales strategies and customer acquisition plans for B2B products",
+    },
+    {
+      name: "Team Building",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 4,
+      highlight:
+        "Built and managed cross-functional teams across multiple organizations",
     },
   ],
   data: [
@@ -1039,6 +1079,14 @@ const skillsData: {
         "Developed embedded Android software for 15,000+ Motorola APX NEXT Smart Radios",
     },
     {
+      name: "Data Analysis",
+      level: "expert",
+      endorsements: 8,
+      experiences: 9,
+      highlight:
+        "Reduced operational decision-making time by 26% with custom GPT-based prototype",
+    },
+    {
       name: "Machine Learning",
       level: "familiar",
       endorsements: 0,
@@ -1053,14 +1101,6 @@ const skillsData: {
       experiences: 0,
       highlight:
         "Implemented CV-based freshness detection for automated grocery markdowns",
-    },
-    {
-      name: "Data Analysis",
-      level: "expert",
-      endorsements: 8,
-      experiences: 9,
-      highlight:
-        "Reduced operational decision-making time by 26% with custom GPT-based prototype",
     },
     {
       name: "Stakeholder Management",
@@ -1085,6 +1125,30 @@ const skillsData: {
       experiences: 2,
       highlight:
         "Designed Android system extensions improving GPS accuracy and device security",
+    },
+    {
+      name: "Data Visualization",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 3,
+      highlight:
+        "Created interactive dashboards and data visualizations for business insights",
+    },
+    {
+      name: "Statistical Analysis",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 2,
+      highlight:
+        "Performed statistical analysis and hypothesis testing for product optimization",
+    },
+    {
+      name: "Big Data Processing",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 1,
+      highlight:
+        "Processed and analyzed large datasets for machine learning model training",
     },
   ],
   engineering: [
@@ -1112,6 +1176,70 @@ const skillsData: {
       highlight:
         "Built RESTful web services for distributed systems project combining Android + DB",
     },
+    {
+      name: "DevOps",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 3,
+      highlight:
+        "Implemented CI/CD pipelines and automated testing for software deployment",
+    },
+    {
+      name: "Cloud Architecture",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 2,
+      highlight:
+        "Designed and deployed cloud-based solutions using Azure and AWS services",
+    },
+    {
+      name: "Database Design",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 4,
+      highlight:
+        "Designed and optimized database schemas for scalable applications",
+    },
+    {
+      name: "Security Implementation",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 2,
+      highlight:
+        "Implemented security protocols and authentication systems for enterprise applications",
+    },
+    {
+      name: "Performance Optimization",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 3,
+      highlight:
+        "Optimized application performance and reduced load times by 40%",
+    },
+    {
+      name: "Microservices",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 1,
+      highlight:
+        "Architected microservices-based applications for improved scalability",
+    },
+    {
+      name: "Containerization",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 2,
+      highlight:
+        "Implemented Docker containers for consistent deployment environments",
+    },
+    {
+      name: "Mobile Development",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 3,
+      highlight:
+        "Developed cross-platform mobile applications using React Native",
+    },
   ],
   design: [
     {
@@ -1129,6 +1257,62 @@ const skillsData: {
       experiences: 2,
       highlight:
         "Created NFC-based feature prototype that won 1st place at Motorola Hackathon",
+    },
+    {
+      name: "User Research",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 4,
+      highlight:
+        "Conducted user interviews and usability testing to inform design decisions",
+    },
+    {
+      name: "Design Systems",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 2,
+      highlight:
+        "Created and maintained design systems for consistent user experiences",
+    },
+    {
+      name: "Wireframing",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 3,
+      highlight:
+        "Created detailed wireframes and user flow diagrams for complex applications",
+    },
+    {
+      name: "Visual Design",
+      level: "proficient",
+      endorsements: 0,
+      experiences: 2,
+      highlight:
+        "Designed visual assets and brand guidelines for multiple products",
+    },
+    {
+      name: "Accessibility Design",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 1,
+      highlight:
+        "Implemented WCAG guidelines for inclusive design and accessibility",
+    },
+    {
+      name: "Design Thinking",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 2,
+      highlight:
+        "Applied design thinking methodologies to solve complex user problems",
+    },
+    {
+      name: "Brand Identity",
+      level: "familiar",
+      endorsements: 0,
+      experiences: 2,
+      highlight:
+        "Developed brand identities and visual language for startup companies",
     },
   ],
 };
