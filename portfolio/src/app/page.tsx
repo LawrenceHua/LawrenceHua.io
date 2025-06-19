@@ -1822,20 +1822,7 @@ export default function Home() {
                     {/* Arrow between cards: left arrow, rotated 180deg */}
                     {idx < arr.length - 1 && (
                       <div className="flex items-center justify-center w-8 h-8 mx-1">
-                        <svg
-                          className="h-6 w-6 text-blue-400"
-                          style={{ transform: "rotate(180deg)" }}
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17 8l4 4m0 0l-4 4m4-4H3"
-                          />
-                        </svg>
+                        <span className="inline-block w-3 h-3 rounded-full bg-blue-400"></span>
                       </div>
                     )}
                   </React.Fragment>
@@ -1909,20 +1896,7 @@ export default function Home() {
                   </div>
                   {idx < sortedEducationEvents.length - 1 && (
                     <div className="flex items-center justify-center w-8 h-8 mx-1">
-                      <svg
-                        className="h-6 w-6 text-blue-400"
-                        style={{ transform: "rotate(90deg)" }}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
-                        />
-                      </svg>
+                      <span className="inline-block w-3 h-3 rounded-full bg-blue-400"></span>
                     </div>
                   )}
                 </React.Fragment>
