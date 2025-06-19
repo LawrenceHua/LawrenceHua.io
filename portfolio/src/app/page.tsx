@@ -803,18 +803,26 @@ export default function Home() {
 
   // 1. Add state for showing more experiences
   const [showAllExperiences, setShowAllExperiences] = useState(false);
-  const experiencesToShow = showAllExperiences
-    ? expYear === "All"
-      ? sortedTimelineEvents
-      : sortedTimelineEvents.slice(0, 6)
-    : expYear === "All"
-      ? sortedTimelineEvents.slice(0, 4)
-      : sortedTimelineEvents.slice(0, 4);
-  const moreExperiencesCount =
-    (expYear === "All"
-      ? sortedTimelineEvents.length
-      : sortedTimelineEvents.slice(0, 6).length) - 4;
+  const filteredExperiences = sortedTimelineEvents.filter((e) => {
+    // First check if it's an experience
+    if (e.type !== "experience") return false;
 
+    // Then check year filter
+    if (expYear !== "All" && e.year !== expYear) return false;
+
+    // Finally check category filter
+    if (expCategory !== "all" && e.category !== expCategory) return false;
+
+    return true;
+  });
+
+  // Show limited or all experiences based on showAllExperiences state
+  const experiencesToShow = showAllExperiences
+    ? filteredExperiences
+    : filteredExperiences.slice(0, 4);
+  const moreExperiencesCount = filteredExperiences.length - 4;
+
+  // Get unique years for the year filter
   const expYears = Array.from(
     new Set(
       sortedTimelineEvents
@@ -822,19 +830,6 @@ export default function Home() {
         .map((e) => e.year)
     )
   ).sort((a, b) => Number(b) - Number(a));
-  const filteredExperiences =
-    expYear === "All"
-      ? sortedTimelineEvents.filter(
-          (e) =>
-            e.type === "experience" &&
-            (expCategory === "all" || e.category === expCategory)
-        )
-      : sortedTimelineEvents.filter(
-          (e) =>
-            e.type === "experience" &&
-            e.year === expYear &&
-            (expCategory === "all" || e.category === expCategory)
-        );
 
   const filteredSkills =
     activeFilter === "all"
@@ -1236,72 +1231,85 @@ export default function Home() {
 
   useEffect(() => {
     console.log("Firebase useEffect starting...");
-    try {
-      // Firebase imports and config
-      const { initializeApp } = require("firebase/app");
-      const { getAnalytics, logEvent } = require("firebase/analytics");
-      const {
-        getFirestore,
-        collection,
-        addDoc,
-      } = require("firebase/firestore");
-      console.log("Firebase modules imported successfully");
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyA_HYWpbGRuNvcWyxfiUEZr7_mTw7PU0t8",
-        authDomain: "peronalsite-88d49.firebaseapp.com",
-        projectId: "peronalsite-88d49",
-        storageBucket: "peronalsite-88d49.firebasestorage.app",
-        messagingSenderId: "515222232116",
-        appId: "1:515222232116:web:b7a9b8735980ce8333fe61",
-        measurementId: "G-ZV5CR4EBB8",
-      };
-      console.log("Firebase config loaded");
+    async function initializeFirebase() {
+      try {
+        // Firebase imports and config
+        const { initializeApp } = require("firebase/app");
+        const { getAnalytics, logEvent } = require("firebase/analytics");
+        const {
+          getFirestore,
+          collection,
+          addDoc,
+        } = require("firebase/firestore");
+        console.log("Firebase modules imported successfully");
 
-      const app = initializeApp(firebaseConfig);
-      console.log("Firebase app initialized");
+        const firebaseConfig = {
+          apiKey: "AIzaSyA_HYWpbGRuNvcWyxfiUEZr7_mTw7PU0t8",
+          authDomain: "peronalsite-88d49.firebaseapp.com",
+          projectId: "peronalsite-88d49",
+          storageBucket: "peronalsite-88d49.firebasestorage.app",
+          messagingSenderId: "515222232116",
+          appId: "1:515222232116:web:b7a9b8735980ce8333fe61",
+          measurementId: "G-ZV5CR4EBB8",
+        };
+        console.log("Firebase config loaded");
 
-      const analytics = getAnalytics(app);
-      console.log("Firebase analytics initialized");
+        const app = initializeApp(firebaseConfig);
+        console.log("Firebase app initialized");
 
-      const db = getFirestore(app);
-      console.log("Firestore initialized");
+        const analytics = getAnalytics(app);
+        console.log("Firebase analytics initialized");
 
-      function getSessionId() {
-        let id = localStorage.getItem("firebase_session_id");
-        if (!id) {
-          id =
-            Math.random().toString(36).substring(2) + Date.now().toString(36);
-          localStorage.setItem("firebase_session_id", id);
+        const db = getFirestore(app);
+        console.log("Firestore initialized");
+
+        function getSessionId() {
+          let id = localStorage.getItem("firebase_session_id");
+          if (!id) {
+            id =
+              Math.random().toString(36).substring(2) + Date.now().toString(36);
+            localStorage.setItem("firebase_session_id", id);
+          }
+          return id;
         }
-        return id;
-      }
-      console.log("Session ID function created");
+        console.log("Session ID function created");
 
-      // Log analytics and visit
-      console.log("Attempting to log analytics event...");
-      logEvent(analytics, "visit", {
-        sessionId: getSessionId(),
-        timestamp: Date.now(),
-      });
-      console.log("Analytics event logged");
+        // Fetch geolocation
+        let location: any = {};
+        try {
+          const res = await fetch("https://ipapi.co/json/");
+          location = await res.json();
+        } catch (geoErr) {
+          console.warn("Geolocation fetch failed", geoErr);
+        }
 
-      console.log("Attempting to add visit to Firestore...");
-      addDoc(collection(db, "visits"), {
-        sessionId: getSessionId(),
-        timestamp: new Date(),
-        userAgent: navigator.userAgent,
-        path: window.location.pathname,
-      })
-        .then(() => {
-          console.log("Visit successfully added to Firestore");
-        })
-        .catch((error: any) => {
-          console.error("Error adding visit to Firestore:", error);
+        // Log analytics and visit
+        console.log("Attempting to log analytics event...");
+        logEvent(analytics, "visit", {
+          sessionId: getSessionId(),
+          timestamp: Date.now(),
         });
-    } catch (error: any) {
-      console.error("Error in Firebase useEffect:", error);
+        console.log("Analytics event logged");
+
+        console.log("Attempting to add visit to Firestore...");
+        await addDoc(collection(db, "visits"), {
+          sessionId: getSessionId(),
+          timestamp: new Date(),
+          userAgent: navigator.userAgent,
+          path: window.location.pathname,
+          city: location.city,
+          region: location.region,
+          country: location.country_name,
+          ip: location.ip,
+        });
+        console.log("Visit successfully added to Firestore");
+      } catch (error: any) {
+        console.error("Error in Firebase initialization:", error);
+      }
     }
+
+    initializeFirebase();
   }, []);
 
   // Add useRef and useEffect to control showScrollHint based on scroll position and overflow
@@ -1332,6 +1340,100 @@ export default function Home() {
     { key: "engineering", label: "Engineering" },
     { key: "retail", label: "Retail" },
   ];
+
+  // In the useEffect that logs visits to Firestore, add geolocation fetch:
+  useEffect(() => {
+    async function logVisitWithLocation() {
+      try {
+        // Firebase imports and config
+        const { initializeApp } = require("firebase/app");
+        const { getAnalytics, logEvent } = require("firebase/analytics");
+        const {
+          getFirestore,
+          collection,
+          addDoc,
+        } = require("firebase/firestore");
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyA_HYWpbGRuNvcWyxfiUEZr7_mTw7PU0t8",
+          authDomain: "peronalsite-88d49.firebaseapp.com",
+          projectId: "peronalsite-88d49",
+          storageBucket: "peronalsite-88d49.firebasestorage.app",
+          messagingSenderId: "515222232116",
+          appId: "1:515222232116:web:b7a9b8735980ce8333fe61",
+          measurementId: "G-ZV5CR4EBB8",
+        };
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        function getSessionId() {
+          let id = localStorage.getItem("firebase_session_id");
+          if (!id) {
+            id =
+              Math.random().toString(36).substring(2) + Date.now().toString(36);
+            localStorage.setItem("firebase_session_id", id);
+          }
+          return id;
+        }
+
+        // Fetch geolocation
+        let location: any = {};
+        try {
+          const res = await fetch("https://ipapi.co/json/");
+          location = await res.json();
+        } catch (geoErr) {
+          console.warn("Geolocation fetch failed", geoErr);
+        }
+
+        // Log analytics and visit
+        try {
+          logEvent(analytics, "visit", {
+            sessionId: getSessionId(),
+            timestamp: Date.now(),
+          });
+          await addDoc(collection(db, "visits"), {
+            sessionId: getSessionId(),
+            timestamp: new Date(),
+            userAgent: navigator.userAgent,
+            path: window.location.pathname,
+            city: location.city,
+            region: location.region,
+            country: location.country_name,
+            ip: location.ip,
+          });
+          console.log("Visit with location successfully added to Firestore");
+        } catch (error) {
+          console.error("Error logging visit with location:", error);
+        }
+      } catch (error) {
+        console.error("Error in Firebase initialization:", error);
+      }
+    }
+
+    logVisitWithLocation();
+  }, []);
+
+  // Add a second row of filters below the date filters in the work experience section:
+  // 1. Add state for expTypeFilter ("all", "product", "engineering", "other")
+  const [expTypeFilter, setExpTypeFilter] = useState("all");
+  // 2. Add filter buttons below the year/date filters:
+  <div className="mb-4 flex flex-wrap items-center justify-center gap-4 text-center">
+    {[
+      { key: "all", label: "All" },
+      { key: "product", label: "Product" },
+      { key: "engineering", label: "Engineering" },
+      { key: "other", label: "Other" },
+    ].map((f) => (
+      <button
+        key={f.key}
+        className={`timeline-filter-button ${expTypeFilter === f.key ? "active" : ""}`}
+        onClick={() => setExpTypeFilter(f.key)}
+      >
+        {f.label}
+      </button>
+    ))}
+  </div>;
 
   return (
     <main className="min-h-screen">
@@ -1787,6 +1889,34 @@ export default function Home() {
                 {year}
               </button>
             ))}
+          </div>
+
+          {/* Year Navigation */}
+          <div className="mb-4 flex flex-wrap items-center justify-center gap-4 text-center">
+            <button
+              className={`timeline-filter-button ${expCategory === "all" ? "active" : ""}`}
+              onClick={() => setExpCategory("all")}
+            >
+              All Experiences
+            </button>
+            <button
+              className={`timeline-filter-button ${expCategory === "product" ? "active" : ""}`}
+              onClick={() => setExpCategory("product")}
+            >
+              Product Management
+            </button>
+            <button
+              className={`timeline-filter-button ${expCategory === "engineering" ? "active" : ""}`}
+              onClick={() => setExpCategory("engineering")}
+            >
+              Engineering
+            </button>
+            <button
+              className={`timeline-filter-button ${expCategory === "retail" ? "active" : ""}`}
+              onClick={() => setExpCategory("retail")}
+            >
+              Retail
+            </button>
           </div>
 
           {/* Career Timeline Row with Arrows */}
