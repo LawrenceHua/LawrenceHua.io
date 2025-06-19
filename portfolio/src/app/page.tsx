@@ -101,7 +101,7 @@ const projectSectionsData: ProjectSection = {
       title: "Tutora AI Automation Platform",
       description:
         "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week. Developed 50+ TI-BASIC math programs improving test scores by 35%.",
-      image: "/logos/tutora_logo.jpeg",
+      image: "/logos/Tutora Logo.jpeg",
       tags: ["AI", "Automation", "Education", "Python"],
       link: "https://www.tutoraprep.com",
       linkText: "View Project",
@@ -141,7 +141,7 @@ const projectSectionsData: ProjectSection = {
       title: "Netflix A/B Testing Analysis",
       description:
         "Deep dive into Netflix's A/B testing methodologies and implementation. Comprehensive analysis of testing strategies and optimization techniques.",
-      image: "/logos/netflixlogo.jpeg",
+      image: "/logos/abtextingnetflix.png",
       tags: ["Analysis", "A/B Testing", "Data Science"],
       link: "https://docs.google.com/presentation/d/1ii-Se5r_kFOnujyRiOX3i0j58Svz270OvletCi6Dblo/edit?usp=sharing",
       linkText: "View Analysis",
@@ -161,7 +161,7 @@ const projectSectionsData: ProjectSection = {
       title: "Cryptocurrency Gaming Research",
       description:
         "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across cross-functional teams.",
-      image: "/logos/giant_eagle_logo.jpeg",
+      image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Research", "Strategy", "Crypto", "Gaming"],
       link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
       linkText: "View Presentation",
@@ -171,7 +171,7 @@ const projectSectionsData: ProjectSection = {
       title: "NFC Feature Prototype",
       description:
         "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
-      image: "/logos/motorola_logo.jpeg",
+      image: "/logos/nfc.jpeg",
       tags: ["NFC", "Prototype", "Hackathon", "Android"],
       link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
       linkText: "View LinkedIn Post",
@@ -181,7 +181,7 @@ const projectSectionsData: ProjectSection = {
       title: "Valohai AI Tutorial",
       description:
         "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control.",
-      image: "/logos/valohai_logo.jpeg",
+      image: "/logos/valohai.png",
       tags: ["ML Pipeline", "Python", "Valohai", "Tutorial"],
       link: "https://github.com/LawrenceHua/Valohai-AI-tutorial",
       linkText: "View Project",
@@ -201,7 +201,7 @@ const projectSectionsData: ProjectSection = {
       title: "Professional Speaking",
       description:
         "Presented to a class of 30 students, receiving an A+ grade. Demonstrated strong communication and presentation skills.",
-      image: "/images/projects/study_group/cover.jpg",
+      image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Presentation", "Education", "Communication"],
       link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
       linkText: "View Presentation",
@@ -211,28 +211,17 @@ const projectSectionsData: ProjectSection = {
       title: "ML Playground",
       description:
         "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
-      image: "/images/projects/coding_tutorials/cover.jpg",
+      image: "/logos/mlplayground.jpeg",
       tags: ["Machine Learning", "Interactive", "Education", "Simulation"],
       link: "/ml-playground",
       linkText: "Play Game",
       linkIcon: "external" as const,
     },
     {
-      title: "Motorola APX NEXT Smart Radios",
-      description:
-        "Developed embedded Android software for mission-critical communications supporting 15,000+ field units. Improved GPS accuracy and device security.",
-      image: "/images/projects/fitness_tracker/cover.jpg",
-      tags: ["Android", "Embedded Systems", "GPS", "Mission Critical"],
-      link: "https://www.motorolasolutions.com/en_us/products/p25-products/apx-next.html",
-      linkText: "Case Study",
-      linkIcon: "external" as const,
-    },
-
-    {
       title: "Portfolio Website",
       description:
         "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design. Fork it and build your own!",
-      image: "/images/projects/portfolio/cover.jpg",
+      image: "/logos/backgroundlogo.png",
       tags: ["Next.js", "React", "TailwindCSS", "TypeScript"],
       link: "https://github.com/LawrenceHua/LawrenceHua.io",
       linkText: "View Source",
@@ -292,7 +281,7 @@ const projectSectionsData: ProjectSection = {
       title: "Tutora AI Automation Platform",
       description:
         "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week. Developed 50+ TI-BASIC math programs improving test scores by 35%.",
-      image: "/logos/tutora_logo.jpeg",
+      image: "/logos/Tutora Logo.jpeg",
       tags: ["AI", "Automation", "Education", "Python"],
       link: "https://www.tutoraprep.com",
       linkText: "View Project",
@@ -312,7 +301,7 @@ const projectSectionsData: ProjectSection = {
       title: "NFC Feature Prototype",
       description:
         "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
-      image: "/logos/motorola_logo.jpeg",
+      image: "/logos/nfc.jpeg",
       tags: ["NFC", "Prototype", "Hackathon", "Android"],
       link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
       linkText: "View LinkedIn Post",
@@ -322,7 +311,7 @@ const projectSectionsData: ProjectSection = {
       title: "Valohai AI Tutorial",
       description:
         "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control.",
-      image: "/logos/valohai_logo.jpeg",
+      image: "/logos/valohai.png",
       tags: ["ML Pipeline", "Python", "Valohai", "Tutorial"],
       link: "https://github.com/LawrenceHua/Valohai-AI-tutorial",
       linkText: "View Project",
@@ -342,7 +331,7 @@ const projectSectionsData: ProjectSection = {
       title: "ML Playground",
       description:
         "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
-      image: "/images/projects/coding_tutorials/cover.jpg",
+      image: "/logos/mlplayground.jpeg",
       tags: ["Machine Learning", "Interactive", "Education", "Simulation"],
       link: "/ml-playground",
       linkText: "Play Game",
@@ -372,7 +361,7 @@ const projectSectionsData: ProjectSection = {
       title: "Portfolio Website",
       description:
         "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design. Fork it and build your own!",
-      image: "/images/projects/portfolio/cover.jpg",
+      image: "/logos/backgroundlogo.png",
       tags: ["Next.js", "React", "TailwindCSS", "TypeScript"],
       link: "https://github.com/LawrenceHua/LawrenceHua.io",
       linkText: "View Source",
@@ -394,7 +383,7 @@ const projectSectionsData: ProjectSection = {
       title: "Cryptocurrency Gaming Research",
       description:
         "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across cross-functional teams.",
-      image: "/logos/giant_eagle_logo.jpeg",
+      image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Research", "Strategy", "Crypto", "Gaming"],
       link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
       linkText: "View Presentation",
@@ -404,7 +393,7 @@ const projectSectionsData: ProjectSection = {
       title: "NFC Feature Prototype",
       description:
         "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
-      image: "/logos/motorola_logo.jpeg",
+      image: "/logos/nfc.jpeg",
       tags: ["NFC", "Prototype", "Hackathon", "Android"],
       link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
       linkText: "View LinkedIn Post",
@@ -414,7 +403,7 @@ const projectSectionsData: ProjectSection = {
       title: "ML Playground",
       description:
         "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
-      image: "/images/projects/coding_tutorials/cover.jpg",
+      image: "/logos/mlplayground.jpeg",
       tags: ["Machine Learning", "Interactive", "Education", "Simulation"],
       link: "/ml-playground",
       linkText: "Play Game",
@@ -424,7 +413,7 @@ const projectSectionsData: ProjectSection = {
       title: "Professional Speaking",
       description:
         "Presented to a class of 30 students, receiving an A+ grade. Demonstrated strong communication and presentation skills.",
-      image: "/images/projects/study_group/cover.jpg",
+      image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Presentation", "Education", "Communication"],
       link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
       linkText: "View Presentation",
@@ -2067,7 +2056,7 @@ export default function Home() {
                     </div>
                     <div className="flex flex-1 flex-col gap-2 px-5 py-4">
                       <h3
-                        className="mb-1 text-lg leading-tight font-bold break-words whitespace-normal text-white"
+                        className="mb-1 text-base leading-tight font-bold break-words whitespace-normal text-white"
                         title={project.title}
                       >
                         {project.title}
