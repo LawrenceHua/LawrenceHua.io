@@ -32,6 +32,7 @@ import {
 } from "firebase/firestore";
 
 import "react-datepicker/dist/react-datepicker.css";
+import { VERSION } from "../config/version";
 
 // Firebase config (same as in Chatbot.tsx)
 const firebaseConfig = {
@@ -1145,6 +1146,7 @@ export default function Home() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [showVenmoQR, setShowVenmoQR] = useState(false);
   const [db, setDb] = useState<Firestore | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string>("");
 
   // Form state
   const [formData, setFormData] = useState<{
@@ -1189,6 +1191,19 @@ export default function Home() {
       trackUserInteractions(firestore);
       trackDeviceInfo(firestore);
     }
+
+    // Set last updated timestamp
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      timeZoneName: "short",
+    };
+    setLastUpdated(now.toLocaleDateString("en-US", options));
   }, []);
 
   const getSessionId = () => {
@@ -2680,6 +2695,9 @@ export default function Home() {
             {/* Copyright */}
             <div className="text-center text-gray-400 text-sm">
               <p>&copy; 2025 Lawrence W. Hua. All rights reserved.</p>
+              <p className="mt-1">
+                Last updated: {lastUpdated} | V{VERSION}
+              </p>
               <p className="mt-1">
                 Built with ❤️ using Next.js, TypeScript, and TailwindCSS
               </p>
