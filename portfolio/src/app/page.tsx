@@ -777,6 +777,20 @@ export default function Home() {
   const [meetingDate, setMeetingDate] = useState<Date | null>(null);
   const [meetingTime, setMeetingTime] = useState("");
 
+  // 1. Add state for showing more experiences
+  const [showAllExperiences, setShowAllExperiences] = useState(false);
+  const experiencesToShow = showAllExperiences
+    ? expYear === "All"
+      ? sortedTimelineEvents
+      : sortedTimelineEvents.slice(0, 6)
+    : expYear === "All"
+      ? sortedTimelineEvents.slice(0, 4)
+      : sortedTimelineEvents.slice(0, 4);
+  const moreExperiencesCount =
+    (expYear === "All"
+      ? sortedTimelineEvents.length
+      : sortedTimelineEvents.slice(0, 6).length) - 4;
+
   const expYears = Array.from(
     new Set(
       sortedTimelineEvents
@@ -1708,20 +1722,24 @@ export default function Home() {
           </div>
 
           {/* Career Timeline Row with Arrows */}
-          <div className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-auto">
+          <div className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-visible pt-8">
             <div
               className={
-                "flex flex-row items-center justify-start gap-x-4 px-2 sm:px-8 " +
+                "flex flex-row items-start justify-start gap-x-4 px-2 sm:px-8 " +
                 timelineFlexClass
               }
             >
-              {(expYear === "All"
-                ? filteredExperiences
-                : filteredExperiences.slice(0, 6)
-              ).map((item, idx, arr) => (
+              {experiencesToShow.map((item, idx, arr) => (
                 <React.Fragment key={item.title + "-" + item.year + "-" + idx}>
                   <div className="timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[220px] sm:max-w-[280px] mx-2 flex-col items-center">
-                    <div className="timeline-circle top">
+                    <div
+                      className="timeline-circle top flex justify-center items-center mx-auto"
+                      style={{
+                        position: "relative",
+                        top: "-1.5rem",
+                        zIndex: 2,
+                      }}
+                    >
                       <div className="circle-svg">
                         <span className="circle-year">{item.year}</span>
                       </div>
@@ -1770,12 +1788,12 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-
-                  {/* Arrow between cards: right arrow on mobile, down on desktop */}
+                  {/* Arrow between cards: right arrow, rotated 90deg clockwise */}
                   {idx < arr.length - 1 && (
                     <div className="flex items-center justify-center w-8 h-8 mx-1">
                       <svg
-                        className="h-6 w-6 text-blue-400 block sm:hidden" // right arrow for mobile
+                        className="h-6 w-6 text-blue-400"
+                        style={{ transform: "rotate(90deg)" }}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1784,20 +1802,7 @@ export default function Home() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                      <svg
-                        className="h-6 w-6 text-blue-400 hidden sm:block" // down arrow for desktop
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
+                          d="M17 8l4 4m0 0l-4 4m4-4H3"
                         />
                       </svg>
                     </div>
@@ -1805,16 +1810,32 @@ export default function Home() {
                 </React.Fragment>
               ))}
             </div>
+            {/* View More/Less Button */}
+            {moreExperiencesCount > 0 && (
+              <div className="flex justify-center mt-4">
+                <button
+                  onClick={() => setShowAllExperiences((v) => !v)}
+                  className="rounded-lg bg-blue-600 px-6 py-2 text-white text-sm font-semibold shadow hover:bg-blue-700 transition-all"
+                >
+                  {showAllExperiences
+                    ? "View Less"
+                    : `View More (${moreExperiencesCount}) Experiences`}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Education Section - Improved UI */}
-          <h3 className="mt-16 mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-3xl font-semibold text-transparent">
+          <h3 className="mt-8 mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-3xl font-semibold text-transparent">
             Education
           </h3>
-          <div className="education-carousel improved-ui timeline-container-with-stars">
+          <div
+            className="education-carousel improved-ui timeline-container-with-stars overflow-visible pt-8"
+            style={{ overflow: "visible", paddingTop: "2.5rem" }}
+          >
             <div
               className={
-                "flex flex-row items-center justify-start gap-x-4 px-2 sm:px-8 " +
+                "flex flex-row items-start justify-start gap-x-4 px-2 sm:px-8 " +
                 timelineFlexClass
               }
             >
@@ -1823,7 +1844,14 @@ export default function Home() {
                   <div
                     className={`timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[240px] sm:max-w-[280px] mx-2 flex-col items-center${item.type === "education" ? " education" : ""}`}
                   >
-                    <div className="timeline-circle top">
+                    <div
+                      className="timeline-circle top flex justify-center items-center mx-auto"
+                      style={{
+                        position: "relative",
+                        top: "-1.5rem",
+                        zIndex: 2,
+                      }}
+                    >
                       <div className="circle-svg">
                         <span className="circle-year">{item.year}</span>
                       </div>
@@ -1856,7 +1884,8 @@ export default function Home() {
                   {idx < sortedEducationEvents.length - 1 && (
                     <div className="flex items-center justify-center w-8 h-8 mx-1">
                       <svg
-                        className="h-6 w-6 text-blue-400 block sm:hidden" // right arrow for mobile
+                        className="h-6 w-6 text-blue-400"
+                        style={{ transform: "rotate(90deg)" }}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1865,20 +1894,7 @@ export default function Home() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                      <svg
-                        className="h-6 w-6 text-blue-400 hidden sm:block" // down arrow for desktop
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
+                          d="M17 8l4 4m0 0l-4 4m4-4H3"
                         />
                       </svg>
                     </div>
