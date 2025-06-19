@@ -913,9 +913,19 @@ export default function Home() {
         description:
           "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
         image: "/logos/expired_solutions_logo.jpeg",
-        tags: ["AI/ML", "Product", "Startup"],
+        tags: ["AI/ML", "Product", "Startup", "Ongoing, 10 months*"],
         link: "https://expiredsolutions.com",
         linkText: "Visit Site",
+        linkIcon: "external",
+      },
+      {
+        title: "Tutora AI Automation",
+        description:
+          "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week.",
+        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995",
+        tags: ["AI", "Automation", "Education", "Ongoing, 6 months*"],
+        link: "https://www.tutoraprep.com",
+        linkText: "View Project",
         linkIcon: "external",
       },
       {
@@ -923,7 +933,15 @@ export default function Home() {
         description:
           "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Led strategy, technical buildout, and go-to-market for the pilot with Giant Eagle.",
         image: "/logos/Mcginnis.png",
-        tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch", "Fun"],
+        tags: [
+          "Competition",
+          "AI/ML",
+          "Startup",
+          "Award",
+          "Pitch",
+          "Fun",
+          "3 months",
+        ],
         link: "https://www.youtube.com/watch?v=WqzHP1G3LO8&ab_channel=CMUSwartzCenterforEntrepreneurship",
         linkText: "Watch Live Pitch to Investors!",
         linkIcon: "external",
@@ -933,7 +951,7 @@ export default function Home() {
         description:
           "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week.",
         image: "/logos/bbw.jpg",
-        tags: ["Enterprise", "AI", "Consulting"],
+        tags: ["Enterprise", "AI", "Consulting", "3 months"],
         link: "https://github.com/LawrenceHua/BBW_POC",
         linkText: "View Project",
         linkIcon: "github",
@@ -943,7 +961,7 @@ export default function Home() {
         description:
           "Nonprofit social media platform. Led roadmap planning and UI design, refined 100+ Figma frames.",
         image: "/logos/Panpalz logo.jpeg",
-        tags: ["Social Media", "UI/UX", "Nonprofit"],
+        tags: ["Social Media", "UI/UX", "Nonprofit", "6 months"],
         link: "https://panpalz.com",
         linkText: "View Project",
         linkIcon: "external",
@@ -953,7 +971,7 @@ export default function Home() {
         description:
           "Deep dive into Netflix's A/B testing methodologies and implementation.",
         image: "/logos/crypto.jpg", // Updated image path
-        tags: ["Analysis", "A/B Testing"],
+        tags: ["Analysis", "A/B Testing", "2 weeks"],
         link: "https://docs.google.com/presentation/d/1ii-Se5r_kFOnujyRiOX3i0j58Svz270OvletCi6Dblo/edit?usp=sharing",
         linkText: "View Analysis",
         linkIcon: "external",
@@ -963,9 +981,19 @@ export default function Home() {
         description:
           "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
         image: "/logos/netflixlogo.jpeg",
-        tags: ["Machine Learning", "Data Analysis", "A/B Testing"],
+        tags: ["Machine Learning", "Data Analysis", "A/B Testing", "2 months"],
         link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
         linkText: "View Project",
+        linkIcon: "external",
+      },
+      {
+        title: "Cryptocurrency Research",
+        description:
+          "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry.",
+        image: "/logos/carnegie_mellon_university_logo.jpeg",
+        tags: ["Research", "Strategy", "Crypto", "3 months"],
+        link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
+        linkText: "View Presentation",
         linkIcon: "external",
       },
       {
@@ -973,19 +1001,9 @@ export default function Home() {
         description:
           "NFC-based feature prototype that won 1st place at Motorola Product Hackathon.",
         image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12",
-        tags: ["NFC", "Prototype", "Hackathon"],
+        tags: ["NFC", "Prototype", "Hackathon", "2 days"],
         link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
         linkText: "View LinkedIn Post",
-        linkIcon: "external",
-      },
-      {
-        title: "Tutora AI Automation",
-        description:
-          "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week.",
-        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995",
-        tags: ["AI", "Automation", "Education"],
-        link: "https://www.tutoraprep.com",
-        linkText: "View Project",
         linkIcon: "external",
       },
       {
@@ -993,7 +1011,7 @@ export default function Home() {
         description:
           "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control.",
         image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
-        tags: ["ML Pipeline", "Python", "Valohai"],
+        tags: ["ML Pipeline", "Python", "Valohai", "1 day"],
         link: "https://github.com/LawrenceHua/Valohai-AI-tutorial",
         linkText: "View Project",
         linkIcon: "github",
@@ -1003,7 +1021,7 @@ export default function Home() {
         description:
           "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture.",
         image: "/logos/DS project.png",
-        tags: ["Android", "Database", "REST API"],
+        tags: ["Android", "Database", "REST API", "1 day"],
         link: "https://github.com/LawrenceHua/CMU-Projects/blob/main/Spring%202024/Distributed%20Systems/DS%20projects/Project%204%2C%20Android%20%2B%20DB%20%2B%20RESTful%20Webservice/README.pdf",
         linkText: "View Project",
         linkIcon: "external",
@@ -1013,18 +1031,8 @@ export default function Home() {
         description:
           "Presented to a class of 30 students, receiving an A+ grade.",
         image: "/logos/professional speak.jpeg",
-        tags: ["Presentation", "Education"],
+        tags: ["Presentation", "Education", "1 day"],
         link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
-        linkText: "View Presentation",
-        linkIcon: "external",
-      },
-      {
-        title: "Cryptocurrency Research",
-        description:
-          "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry.",
-        image: "/logos/carnegie_mellon_university_logo.jpeg",
-        tags: ["Research", "Strategy", "Crypto"],
-        link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
         linkText: "View Presentation",
         linkIcon: "external",
       },
@@ -1033,7 +1041,7 @@ export default function Home() {
         description:
           "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
         image: "/images/projects/games/cover.jpg",
-        tags: ["Machine Learning", "Interactive", "Education"],
+        tags: ["Machine Learning", "Interactive", "Education", "1 day"],
         link: "/ml-playground",
         linkText: "Play Game",
         linkIcon: "external",
