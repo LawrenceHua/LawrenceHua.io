@@ -44,18 +44,27 @@ function getSystemPrompt(): string {
     } catch (altError) {
       console.error("Alternative path also failed:", altError);
       // Fallback to a basic prompt if file can't be read
-      return `You are Lawrence Hua's AI assistant. You have extensive knowledge about Lawrence's background, experience, skills, and achievements. Answer questions about Lawrence professionally and accurately.`;
+      return `You are Lawrence Hua's AI assistant. You have extensive knowledge about Lawrence's background, experience, skills, and achievements. 
+
+IMPORTANT: When responding, use proper markdown formatting:
+- Use **bold** for emphasis and important points
+- Use *italic* for subtle emphasis
+- Use \`code\` for technical terms, skills, or code references
+- Use bullet points for lists
+- Keep responses conversational but professional
+
+Answer questions about Lawrence professionally and accurately. If users share files, analyze them and provide relevant insights about how they relate to Lawrence's experience or skills.`;
     }
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { message } = await request.json();
+    const { message, files } = await request.json();
 
-    if (!message) {
+    if (!message && (!files || files.length === 0)) {
       return NextResponse.json(
-        { error: "Message is required" },
+        { error: "Message or files are required" },
         { status: 400 }
       );
     }
@@ -71,20 +80,39 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Build user message content
+    let userContent = message || "";
+
+    // Add file information if files are provided
+    if (files && files.length > 0) {
+      userContent += "\n\n**Files shared:**\n";
+      files.forEach((file: any) => {
+        userContent += `- ${file.name} (${file.type}, ${(file.size / 1024).toFixed(1)} KB)\n`;
+      });
+      userContent +=
+        "\nPlease analyze these files and provide insights about how they relate to Lawrence's experience, skills, or background.";
+    }
+
     // Use OpenAI if available
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: message },
+        { role: "user", content: userContent },
       ],
-      max_tokens: 400,
+      max_tokens: 600,
       temperature: 0.7,
     });
 
-    const response =
+    let response =
       completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again.";
+
+    // Ensure proper markdown formatting
+    response = response
+      .replace(/\*\*(.*?)\*\*/g, "**$1**") // Ensure bold formatting
+      .replace(/\*(.*?)\*/g, "*$1*") // Ensure italic formatting
+      .replace(/`(.*?)`/g, "`$1`"); // Ensure code formatting
 
     return NextResponse.json({ response });
   } catch (error) {
@@ -93,7 +121,7 @@ export async function POST(request: NextRequest) {
     // Return a helpful fallback response
     return NextResponse.json({
       response:
-        "I'm having trouble connecting to my AI service right now, but I can tell you about Lawrence! He's an AI Product Manager and entrepreneur with experience in machine learning, product management, and technical development. Feel free to reach out to Lawrence directly for more detailed information.",
+        "I'm having trouble connecting to my AI service right now, but I can tell you about Lawrence! He's an **AI Product Manager** and entrepreneur with experience in **machine learning**, **product management**, and **technical development**. Feel free to reach out to Lawrence directly for more detailed information.",
     });
   }
 }

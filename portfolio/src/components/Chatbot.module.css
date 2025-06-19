@@ -1,0 +1,198 @@
+/* Chatbot Container */
+.chatbotContainer {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Message Bubbles */
+.messageBubble {
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Avatar Animation */
+.avatar {
+  animation: avatarPulse 2s infinite;
+}
+
+@keyframes avatarPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* File Upload Area */
+.fileUploadArea {
+  transition: all 0.2s ease-in-out;
+}
+
+.fileUploadArea:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: rgb(59, 130, 246);
+}
+
+/* Typing Indicator */
+.typingIndicator {
+  animation: typing 1.4s infinite;
+}
+
+@keyframes typing {
+  0%,
+  20%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  80% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Scrollbar Styling */
+.messagesContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messagesContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messagesContainer::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.messagesContainer::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+/* Dark mode scrollbar */
+.dark .messagesContainer::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+.dark .messagesContainer::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.7);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .chatbotContainer {
+    position: fixed !important;
+    inset: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    height: 100vh !important;
+    width: 100vw !important;
+  }
+}
+
+/* Minimized State */
+.minimized {
+  animation: minimize 0.3s ease-out;
+}
+
+@keyframes minimize {
+  from {
+    height: 600px;
+    opacity: 1;
+  }
+  to {
+    height: 64px;
+    opacity: 0.9;
+  }
+}
+
+/* Fullscreen State */
+.fullscreen {
+  animation: fullscreen 0.3s ease-out;
+}
+
+@keyframes fullscreen {
+  from {
+    border-radius: 12px;
+  }
+  to {
+    border-radius: 0;
+  }
+}
+
+/* Button Hover Effects */
+.actionButton {
+  transition: all 0.2s ease-in-out;
+}
+
+.actionButton:hover {
+  transform: scale(1.05);
+}
+
+.actionButton:active {
+  transform: scale(0.95);
+}
+
+/* File Item Hover */
+.fileItem {
+  transition: all 0.2s ease-in-out;
+}
+
+.fileItem:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Input Focus Effects */
+.inputField:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: rgb(59, 130, 246);
+}
+
+/* Gradient Text */
+.gradientText {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Status Indicator */
+.statusIndicator {
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
