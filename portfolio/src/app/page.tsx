@@ -1769,7 +1769,7 @@ export default function Home() {
           </h3>
 
           {/* Year Navigation */}
-          <div className="mb-8 flex flex-wrap items-center justify-center gap-4 text-center">
+          <div className="mb-2 flex flex-wrap items-center justify-center gap-4 text-center">
             <button
               className={`skills-filter-button${expYear === "All" ? "active" : ""}`}
               style={{ minWidth: "64px" }}
@@ -1807,82 +1807,64 @@ export default function Home() {
                   >
                     <div className="timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[220px] sm:max-w-[280px] mx-2 flex-col items-center">
                       <div
-                        className="timeline-circle top"
-                        style={{
-                          position: "absolute",
-                          top: "-18px",
-                          left: "-18px",
-                          zIndex: 2,
-                        }}
+                        className="timeline-card mx-auto flex h-full w-full flex-col text-left"
+                        onClick={() =>
+                          toggleCardExpansion(item.title + "-" + item.year)
+                        }
                       >
-                        <div className="circle-svg">
-                          <span className="circle-year">{item.year}</span>
-                        </div>
-                      </div>
-                      <div className="education-card improved-ui timeline-card-container">
-                        <div
-                          className="timeline-card mx-auto flex h-full w-full flex-col text-left"
-                          onClick={() =>
-                            toggleCardExpansion(item.title + "-" + item.year)
-                          }
-                        >
-                          <div className="flex items-center justify-center gap-2 mb-2">
-                            <div
-                              className="circle-svg"
-                              style={{
-                                width: 40,
-                                height: 40,
-                                minWidth: 40,
-                                minHeight: 40,
-                                borderWidth: 2,
-                              }}
-                            >
-                              <span
-                                className="circle-year"
-                                style={{ fontSize: "1rem" }}
-                              >
-                                {item.year}
-                              </span>
-                            </div>
-                            <Image
-                              src={item.logo}
-                              alt={item.org}
-                              width={40}
-                              height={40}
-                              className="logo rounded"
-                            />
-                          </div>
+                        <div className="flex items-center justify-center gap-2 mb-2">
                           <div
-                            className="text-center text-base font-bold text-white"
-                            style={{ margin: 0, padding: 0 }}
+                            className="circle-svg"
+                            style={{
+                              width: 40,
+                              height: 40,
+                              minWidth: 40,
+                              minHeight: 40,
+                              borderWidth: 2,
+                            }}
                           >
-                            <span>{item.title}</span>
+                            <span
+                              className="circle-year"
+                              style={{ fontSize: "1rem" }}
+                            >
+                              {item.year}
+                            </span>
                           </div>
-                          <p className="text-sm text-gray-400">{item.org}</p>
-                          <p className="text-xs text-gray-400">{item.date}</p>
-                          {item.bullets && (
-                            <ul className="flex-grow list-inside list-disc space-y-0 text-left text-xs text-gray-300">
-                              {expandedCards.has(item.title + "-" + item.year)
-                                ? item.bullets.map((b, i) => (
-                                    <li key={b + "-" + i}>{b}</li>
-                                  ))
-                                : item.bullets
-                                    .slice(0, 1)
-                                    .map((b, i) => (
-                                      <li key={b + "-" + i}>{b}</li>
-                                    ))}
-                              {!expandedCards.has(
-                                item.title + "-" + item.year
-                              ) &&
-                                item.bullets.length > 1 && (
-                                  <li className="font-medium text-blue-400">
-                                    Click to see {item.bullets.length - 1}{" "}
-                                    more...
-                                  </li>
-                                )}
-                            </ul>
-                          )}
+                          <Image
+                            src={item.logo}
+                            alt={item.org}
+                            width={40}
+                            height={40}
+                            className="logo rounded"
+                          />
                         </div>
+                        <div
+                          className="text-center text-base font-bold text-white"
+                          style={{ margin: 0, padding: 0 }}
+                        >
+                          <span>{item.title}</span>
+                        </div>
+                        <p className="text-sm text-gray-400">{item.org}</p>
+                        <p className="text-xs text-gray-400">{item.date}</p>
+                        {item.bullets && (
+                          <ul className="flex-grow list-inside list-disc space-y-0 text-left text-xs text-gray-300">
+                            {expandedCards.has(item.title + "-" + item.year)
+                              ? item.bullets.map((b, i) => (
+                                  <li key={b + "-" + i}>{b}</li>
+                                ))
+                              : item.bullets
+                                  .slice(0, 1)
+                                  .map((b, i) => (
+                                    <li key={b + "-" + i}>{b}</li>
+                                  ))}
+                            {!expandedCards.has(item.title + "-" + item.year) &&
+                              item.bullets.length > 1 && (
+                                <li className="font-medium text-blue-400">
+                                  Click to see {item.bullets.length - 1} more...
+                                </li>
+                              )}
+                          </ul>
+                        )}
                       </div>
                     </div>
                     {/* Arrow between cards: left arrow, rotated 180deg */}
@@ -1923,19 +1905,11 @@ export default function Home() {
                     className={`timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[240px] sm:max-w-[280px] mx-2 flex-col items-center${item.type === "education" ? " education" : ""}`}
                   >
                     <div
-                      className="timeline-circle top"
-                      style={{
-                        position: "absolute",
-                        top: "-18px",
-                        left: "-18px",
-                        zIndex: 2,
-                      }}
+                      className="timeline-card mx-auto flex h-full w-full flex-col text-left"
+                      onClick={() =>
+                        toggleCardExpansion(item.title + "-" + item.year)
+                      }
                     >
-                      <div className="circle-svg">
-                        <span className="circle-year">{item.year}</span>
-                      </div>
-                    </div>
-                    <div className="timeline-card mx-auto flex h-full w-full flex-col text-left">
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <div
                           className="circle-svg"
