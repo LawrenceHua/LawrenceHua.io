@@ -1626,7 +1626,7 @@ export default function Home() {
                   className="inline-flex items-center rounded-lg bg-purple-600 px-6 py-3 text-white transition-colors hover:bg-purple-700"
                 >
                   <FiMessageCircle className="mr-2 h-5 w-5" />
-                  Talk to AI
+                  Find out what I'm up to
                 </button>
               </div>
               {/* Large CTA Button */}
