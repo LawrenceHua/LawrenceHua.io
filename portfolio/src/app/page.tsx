@@ -2147,6 +2147,11 @@ export default function Home() {
                     data-level={skill.level}
                     title={`${skill.level.charAt(0).toUpperCase() + skill.level.slice(1)}: ${skill.endorsements} endorsements • ${skill.experiences} experiences`}
                   >
+                    {/* Floating bubbles for animation */}
+                    <div className="skill-bubble skill-bubble-1 absolute top-2 left-2 w-2 h-2 bg-blue-400/60 rounded-full"></div>
+                    <div className="skill-bubble skill-bubble-2 absolute top-1 right-3 w-1.5 h-1.5 bg-purple-400/60 rounded-full"></div>
+                    <div className="skill-bubble skill-bubble-3 absolute bottom-2 left-3 w-1 h-1 bg-cyan-400/60 rounded-full"></div>
+
                     {skill.name}
                     <div className="skill-tooltip text-sm">
                       <div className="mb-2 text-lg font-bold">{skill.name}</div>
