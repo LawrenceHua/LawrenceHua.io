@@ -1,106 +1,196 @@
-<p align="center">
-  <img alt="" src="/.github/assets/cover.png" />
-</p>
+# LawrenceHua.io - Personal Portfolio
 
-<h1 align="center">
-  shadcn-portfolio
-</h1>
+A modern, responsive portfolio website built with Next.js, featuring an AI-powered chatbot, interactive timeline, and dynamic project showcase.
 
-<p align="center">
-  <a aria-label="Framework" href="https://nextjs.org">
-    <img alt="" src="https://img.shields.io/badge/Next.js-000000.svg?style=for-the-badge&logo=Next.js&labelColor=000">
-  </a>
-  <img alt="" src="https://img.shields.io/github/languages/top/techwithanirudh/shadcn-portfolio?style=for-the-badge&labelColor=000">
-  <a aria-label="License" href="https://github.com/techwithanirudh/shadcn-portfolio/blob/main/LICENSE">
-    <img alt="" src="https://img.shields.io/github/license/techwithanirudh/shadcn-portfolio?style=for-the-badge&labelColor=000">
-  </a>
-</p>
+## 🌟 Features
 
-<p align="center"><i>
-  ⚡ This version is re-structured using TurboRepo.<br />
-  To use the old version, check out the <a href="https://github.com/techwithanirudh/shadcn-portfolio/tree/tailwind-v4">tailwind-v4 branch</a>.
-</i></p>
+- **Interactive Timeline**: Dynamic career timeline with filtering by year and category
+- **AI-Powered Chatbot**: Custom chatbot for job fit analysis and recruiter interactions
+- **Project Showcase**: Filterable project gallery with categories
+- **Skills Visualization**: Interactive skills display with proficiency levels
+- **Responsive Design**: Mobile-first approach with smooth animations
+- **Dark Mode**: Elegant dark theme optimized for readability
+- **Contact Form**: Integrated contact form with meeting scheduler
+- **Performance Optimized**: Built with Next.js for optimal loading speeds
 
-## 📋 Table of Contents
+## 🛠️ Tech Stack
 
-1. 🤖 [Introduction](#introduction)
-2. 🚀 [Tech Stack](#tech-stack)
-3. ✨ [Features](#features)
-4. 📚 [Getting Started](#getting-started)
-5. ❤️ [Credits](#credits)
+- **Framework**: Next.js 14
+- **Language**: TypeScript
+- **Styling**: TailwindCSS
+- **UI Components**: shadcn/ui
+- **Animations**: Framer Motion
+- **AI Integration**: OpenAI GPT
+- **Form Handling**: React Hook Form
+- **Date Picker**: React DatePicker
+- **Icons**: React Icons
+- **Development Tools**: ESLint, Prettier
 
-## <a name="introduction">🤖 Introduction</a>
+## 📁 Project Structure
 
-This is a portfolio template built using Next.JS, Framer Motion and Shadcn/UI.
+```
+LawrenceHua.io/
+├── apps/
+│   └── web/                 # Main web application
+├── packages/
+│   ├── auth/               # Authentication logic
+│   ├── comments/           # Comments system
+│   ├── db/                 # Database configuration
+│   ├── emails/            # Email templates
+│   ├── ui/                # Shared UI components
+│   └── validators/        # Form validators
+├── portfolio/             # Portfolio specific code
+│   ├── public/           # Static assets
+│   └── src/
+│       ├── app/          # Next.js app router
+│       ├── components/   # React components
+│       └── styles/       # Global styles
+└── tooling/              # Development tools
+```
 
-## <a name="tech-stack">🚀 Tech Stack</a>
+## 🚀 Getting Started
 
-- Next.js
-- shadcn/ui
-- Framer Motion
-- Tailwind CSS
+1. **Clone the repository**
 
-## <a name="features">✨ Features</a>
+   ```bash
+   git clone https://github.com/LawrenceHua/LawrenceHua.io.git
+   cd LawrenceHua.io
+   ```
 
-- ⚡️ Next.js 15 with App Router
-- 📝 Blog
-- 🎨 Tailwind CSS - for styling
-- 🌈 Shadcn UI - accessible UI components
-- 📱 Responsive design
-- 🌗 Light / Dark mode
-- 📈 SEO optimized with meta tags
-- 📊 Sentry (setup required)
-- 🎨 Animations - using Framer Motion
-- 🔨 Husky & Lint Staged - lint and format code before committing
-- 💄 Prettier - code formatting
-- 📞 Contact form (setup required)
-- 🛡️ Cloudflare Turnstile (setup required)
+2. **Install dependencies**
 
-## <a name="getting-started">📚 Getting Started</a>
+   ```bash
+   pnpm install
+   ```
 
-Please refer to the [getting started guide](./GETTING_STARTED.md) for information on how to configure and run the
-portfolio template.
+3. **Set up environment variables**
 
-## <a name="credits">❤️ Credits</a>
+   ```bash
+   cp .env.example .env.local
+   ```
 
-This project wouldn’t be possible without the following open-source projects:
+   Fill in your environment variables:
 
-- MDX Rendering and Logic from [fumadocs](https://github.com/fuma-nama/fumadocs)
-- MDX Data from [content-collections](https://www.content-collections.dev/)
-- UI from [shadcn/ui](https://ui.shadcn.com/)
-- Smooth Scrolling from [Lenis](https://github.com/darkroomengineering/lenis)
-- Turnstile from [react-turnstile](https://github.com/marsidev/react-turnstile)
+   - `OPENAI_API_KEY` - For AI chatbot functionality
+   - `DATABASE_URL` - Your database connection string
+   - `NEXT_PUBLIC_APP_URL` - Your application URL
 
-This project has been inspired by the following websites:
+4. **Run the development server**
 
-- [honghong.me](https://honghong.me/)
-- [cuberto.com](https://cuberto.com/)
-- [fuma-nama.vercel.app](https://fuma-nama.vercel.app/)
-- [fumadocs.vercel.app](https://fumadocs.vercel.app/)
-- [dennissnellenberg.com](https://dennissnellenberg.com/)
-- [bychristinakosik.com](https://www.bychristinakosik.com/)
-- [danmachado.com](https://www.danmachado.com/)
-- [ui.aceternity.com](https://ui.aceternity.com/)
-- [blog.olivierlarose.com](https://blog.olivierlarose.com/)
-- [props.studiolumio.com](https://props.studiolumio.com/)
-- [dennissnellenberg.com](https://dennissnellenberg.com/)
-- [davidhaz.com](https://davidhaz.com/)
-- [fellipeutaka.vercel.app](https://fellipeutaka.vercel.app/)
-- [a-bd.me](https://www.a-bd.me/)
-- [luge.cool](https://luge.cool/)
-- [nahelmoussi.com](https://nahelmoussi.com/)
-- [boyntonyards.com](https://boyntonyards.com/)
-- [ped.ro](https://ped.ro/)
-- [leerob.io](https://leerob.io/)
-- [portfolio hero challenge](https://x.com/thereal_apk/status/1829874339254321290)
-- [minimal homepage exploration](https://x.com/FonsMans/status/1829510586843152791)
-- [suxmaiya.framer.website](https://x.com/SumaiyaSsa/status/1828451225714471209)
-- [jrhu.me](https://jrhu.me/)
-- [github.com/ismamz/next-transition-router](https://github.com/ismamz/next-transition-router)
-- [jorisbrianti.fr](https://jorisbrianti.fr/)
-- [athos-dark.framer.ai](https://athos-dark.framer.ai/)
-- [fancycomponents.dev](https://www.fancycomponents.dev/)
+   ```bash
+   pnpm dev
+   ```
 
-and more
+5. **Build for production**
+   ```bash
+   pnpm build
+   ```
 
-#
+## 🎨 Customization
+
+### Adding Projects
+
+Add your projects in `portfolio/src/app/page.tsx` under the `projectSectionsData` object:
+
+```typescript
+{
+  title: "Your Project",
+  description: "Project description",
+  image: "/path/to/image.jpg",
+  tags: ["Tag1", "Tag2"],
+  link: "https://project-link.com",
+  linkText: "View Project",
+  linkIcon: "external" as const,
+}
+```
+
+### Updating Timeline
+
+Modify the `timelineData` array in `portfolio/src/app/page.tsx` to add your experiences:
+
+```typescript
+{
+  year: "2024",
+  title: "Your Position",
+  org: "Company Name",
+  date: "Jan 2024 - Present",
+  logo: "/path/to/logo.jpg",
+  category: "category",
+  bullets: ["Achievement 1", "Achievement 2"]
+}
+```
+
+### Customizing Skills
+
+Update the `skillsData` object to reflect your skills and expertise levels:
+
+```typescript
+{
+  name: "Skill Name",
+  level: "expert",
+  endorsements: 10,
+  experiences: 5,
+  highlight: "Key achievement with this skill"
+}
+```
+
+## 🤖 AI Chatbot Configuration
+
+The chatbot is configured to:
+
+1. Analyze job descriptions
+2. Provide 10-star ratings for job fit
+3. Offer detailed feedback on matching strengths
+4. Suggest areas for growth
+5. Give honest assessments based on experience
+
+To customize the chatbot:
+
+1. Update the system prompts in `portfolio/src/components/Chatbot.tsx`
+2. Modify the rating system logic
+3. Adjust the response format structure
+
+## 📱 Responsive Design
+
+The portfolio is fully responsive with:
+
+- Mobile-first approach
+- Breakpoint-specific layouts
+- Touch-friendly interactions
+- Optimized images
+- Adaptive typography
+
+## 🔍 SEO Optimization
+
+Implemented SEO best practices:
+
+- Meta tags
+- Semantic HTML
+- Structured data
+- Optimized images
+- Performance optimization
+
+## 🚀 Deployment
+
+The site is deployed on Vercel:
+
+1. Connect your GitHub repository
+2. Configure environment variables
+3. Set up custom domain if needed
+4. Enable automatic deployments
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [shadcn/ui](https://ui.shadcn.com/) for the beautiful UI components
+- [Framer Motion](https://www.framer.com/motion/) for smooth animations
+- [TailwindCSS](https://tailwindcss.com/) for styling
+- [Next.js](https://nextjs.org/) for the framework
+- All other open-source contributors
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

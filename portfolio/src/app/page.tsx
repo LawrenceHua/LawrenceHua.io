@@ -82,20 +82,355 @@ interface Project {
 const projectSectionsData: ProjectSection = {
   all: [
     {
+      title: "Expired Solutions - AI Grocery Platform",
+      description:
+        "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Built Azure-based solution with mobile companion app.",
+      image: "/images/projects/eco_marketplace/cover.jpg",
+      tags: [
+        "AI/ML",
+        "Computer Vision",
+        "Azure",
+        "Product Management",
+        "Startup",
+      ],
+      link: "https://expiredsolutions.com",
+      linkText: "Visit Site",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Tutora AI Automation Platform",
+      description:
+        "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week. Developed 50+ TI-BASIC math programs improving test scores by 35%.",
+      image: "/images/projects/study_group/cover.jpg",
+      tags: ["AI", "Automation", "Education", "Python"],
+      link: "https://www.tutoraprep.com",
+      linkText: "View Project",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "McGinnis Venture Competition Finalist",
+      description:
+        "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
+      image: "/images/projects/portfolio/cover.jpg",
+      tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
+      link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
+      linkText: "Watch Live Pitch",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "BBW Demo Presentation",
+      description:
+        "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Built with OpenAI APIs, Flask, and JavaScript.",
+      image: "/images/projects/coding_tutorials/cover.jpg",
+      tags: ["Enterprise", "AI", "Consulting", "LLM"],
+      link: "https://github.com/LawrenceHua/BBW_POC",
+      linkText: "View Project",
+      linkIcon: "github" as const,
+    },
+    {
+      title: "PanPalz - Nonprofit Social App",
+      description:
+        "Nonprofit social media platform. Led roadmap planning and UI design, refined 100+ Figma frames improving UI consistency by 40%.",
+      image: "/images/projects/portfolio/cover.jpg",
+      tags: ["Social Media", "UI/UX", "Nonprofit", "Product Management"],
+      link: "https://panpalz.com",
+      linkText: "View Project",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Netflix A/B Testing Analysis",
+      description:
+        "Deep dive into Netflix's A/B testing methodologies and implementation. Comprehensive analysis of testing strategies and optimization techniques.",
+      image: "/images/projects/coding_tutorials/cover.jpg",
+      tags: ["Analysis", "A/B Testing", "Data Science"],
+      link: "https://docs.google.com/presentation/d/1ii-Se5r_kFOnujyRiOX3i0j58Svz270OvletCi6Dblo/edit?usp=sharing",
+      linkText: "View Analysis",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Netflix Clone with KNN Model",
+      description:
+        "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
+      image: "/images/projects/coding_tutorials/cover.jpg",
+      tags: ["Machine Learning", "Data Analysis", "A/B Testing", "KNN"],
+      link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
+      linkText: "View Project",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Cryptocurrency Gaming Research",
+      description:
+        "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across cross-functional teams.",
+      image: "/images/projects/games/cover.jpg",
+      tags: ["Research", "Strategy", "Crypto", "Gaming"],
+      link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
+      linkText: "View Presentation",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "NFC Feature Prototype",
+      description:
+        "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
+      image: "/images/projects/fitness_tracker/cover.jpg",
+      tags: ["NFC", "Prototype", "Hackathon", "Android"],
+      link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
+      linkText: "View LinkedIn Post",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Valohai AI Tutorial",
+      description:
+        "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control.",
+      image: "/images/projects/coding_tutorials/cover.jpg",
+      tags: ["ML Pipeline", "Python", "Valohai", "Tutorial"],
+      link: "https://github.com/LawrenceHua/Valohai-AI-tutorial",
+      linkText: "View Project",
+      linkIcon: "github" as const,
+    },
+    {
+      title: "Android + DB + RESTful Webservice",
+      description:
+        "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture.",
+      image: "/images/projects/fitness_tracker/cover.jpg",
+      tags: ["Android", "Database", "REST API", "Distributed Systems"],
+      link: "https://github.com/LawrenceHua/CMU-Projects/blob/main/Spring%202024/Distributed%20Systems/DS%20projects/Project%204%2C%20Android%20%2B%20DB%20%2B%20RESTful%20Webservice/README.pdf",
+      linkText: "View Project",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Professional Speaking",
+      description:
+        "Presented to a class of 30 students, receiving an A+ grade. Demonstrated strong communication and presentation skills.",
+      image: "/images/projects/study_group/cover.jpg",
+      tags: ["Presentation", "Education", "Communication"],
+      link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
+      linkText: "View Presentation",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "ML Playground",
+      description:
+        "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
+      image: "/images/projects/coding_tutorials/cover.jpg",
+      tags: ["Machine Learning", "Interactive", "Education", "Simulation"],
+      link: "/ml-playground",
+      linkText: "Play Game",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Motorola APX NEXT Smart Radios",
+      description:
+        "Developed embedded Android software for mission-critical communications supporting 15,000+ field units. Improved GPS accuracy and device security.",
+      image: "/images/projects/fitness_tracker/cover.jpg",
+      tags: ["Android", "Embedded Systems", "GPS", "Mission Critical"],
+      link: "https://www.motorolasolutions.com/en_us/products/p25-products/apx-next.html",
+      linkText: "Case Study",
+      linkIcon: "external" as const,
+    },
+
+    {
       title: "Portfolio Website",
       description:
-        "My personal portfolio website built with Next.js and TailwindCSS",
+        "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design.",
       image: "/images/projects/portfolio/cover.jpg",
-      tags: ["Next.js", "React", "TailwindCSS"],
+      tags: ["Next.js", "React", "TailwindCSS", "TypeScript"],
+      link: "https://github.com/LawrenceHua/LawrenceHua.io",
+      linkText: "View Source",
+      linkIcon: "github" as const,
+    },
+  ],
+  product: [
+    {
+      title: "Expired Solutions - AI Grocery Platform",
+      description:
+        "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Built Azure-based solution with mobile companion app.",
+      image: "/images/projects/eco_marketplace/cover.jpg",
+      tags: [
+        "AI/ML",
+        "Computer Vision",
+        "Azure",
+        "Product Management",
+        "Startup",
+      ],
+      link: "https://expiredsolutions.com",
+      linkText: "Visit Site",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "PanPalz - Nonprofit Social App",
+      description:
+        "Nonprofit social media platform. Led roadmap planning and UI design, refined 100+ Figma frames improving UI consistency by 40%.",
+      image: "/images/projects/portfolio/cover.jpg",
+      tags: ["Social Media", "UI/UX", "Nonprofit", "Product Management"],
+      link: "https://panpalz.com",
+      linkText: "View Project",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "McGinnis Venture Competition Finalist",
+      description:
+        "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
+      image: "/images/projects/portfolio/cover.jpg",
+      tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
+      link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
+      linkText: "Watch Live Pitch",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "BBW Demo Presentation",
+      description:
+        "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Built with OpenAI APIs, Flask, and JavaScript.",
+      image: "/images/projects/coding_tutorials/cover.jpg",
+      tags: ["Enterprise", "AI", "Consulting", "LLM"],
+      link: "https://github.com/LawrenceHua/BBW_POC",
+      linkText: "View Project",
+      linkIcon: "github" as const,
+    },
+  ],
+  engineering: [
+    {
+      title: "Tutora AI Automation Platform",
+      description:
+        "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week. Developed 50+ TI-BASIC math programs improving test scores by 35%.",
+      image: "/images/projects/study_group/cover.jpg",
+      tags: ["AI", "Automation", "Education", "Python"],
+      link: "https://www.tutoraprep.com",
+      linkText: "View Project",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Netflix Clone with KNN Model",
+      description:
+        "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
+      image: "/images/projects/coding_tutorials/cover.jpg",
+      tags: ["Machine Learning", "Data Analysis", "A/B Testing", "KNN"],
+      link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
+      linkText: "View Project",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "NFC Feature Prototype",
+      description:
+        "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
+      image: "/images/projects/fitness_tracker/cover.jpg",
+      tags: ["NFC", "Prototype", "Hackathon", "Android"],
+      link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
+      linkText: "View LinkedIn Post",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Valohai AI Tutorial",
+      description:
+        "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control.",
+      image: "/images/projects/coding_tutorials/cover.jpg",
+      tags: ["ML Pipeline", "Python", "Valohai", "Tutorial"],
+      link: "https://github.com/LawrenceHua/Valohai-AI-tutorial",
+      linkText: "View Project",
+      linkIcon: "github" as const,
+    },
+    {
+      title: "Android + DB + RESTful Webservice",
+      description:
+        "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture.",
+      image: "/images/projects/fitness_tracker/cover.jpg",
+      tags: ["Android", "Database", "REST API", "Distributed Systems"],
+      link: "https://github.com/LawrenceHua/CMU-Projects/blob/main/Spring%202024/Distributed%20Systems/DS%20projects/Project%204%2C%20Android%20%2B%20DB%20%2B%20RESTful%20Webservice/README.pdf",
+      linkText: "View Project",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "ML Playground",
+      description:
+        "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
+      image: "/images/projects/coding_tutorials/cover.jpg",
+      tags: ["Machine Learning", "Interactive", "Education", "Simulation"],
+      link: "/ml-playground",
+      linkText: "Play Game",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Motorola APX NEXT Smart Radios",
+      description:
+        "Developed embedded Android software for mission-critical communications supporting 15,000+ field units. Improved GPS accuracy and device security.",
+      image: "/images/projects/fitness_tracker/cover.jpg",
+      tags: ["Android", "Embedded Systems", "GPS", "Mission Critical"],
+      link: "https://www.motorolasolutions.com/en_us/products/p25-products/apx-next.html",
+      linkText: "Case Study",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "UF System Administration Tools",
+      description:
+        "Designed Microsoft Power Platform app tracking 100+ devices, reducing manual errors by 60%. Managed MacOS/Linux support for 200+ users.",
+      image: "/images/projects/recipe_app/cover.jpg",
+      tags: ["System Admin", "Power Platform", "MacOS/Linux", "IT Support"],
+      link: "#",
+      linkText: "Case Study",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Portfolio Website",
+      description:
+        "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design.",
+      image: "/images/projects/portfolio/cover.jpg",
+      tags: ["Next.js", "React", "TailwindCSS", "TypeScript"],
       link: "https://github.com/yourusername/portfolio",
       linkText: "View Source",
       linkIcon: "github" as const,
     },
-    // Add more projects here...
   ],
-  product: [], // Add product projects
-  engineering: [], // Add engineering projects
-  fun: [], // Add fun projects
+  fun: [
+    {
+      title: "McGinnis Venture Competition Finalist",
+      description:
+        "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
+      image: "/images/projects/portfolio/cover.jpg",
+      tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
+      link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
+      linkText: "Watch Live Pitch",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Cryptocurrency Gaming Research",
+      description:
+        "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across cross-functional teams.",
+      image: "/images/projects/games/cover.jpg",
+      tags: ["Research", "Strategy", "Crypto", "Gaming"],
+      link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
+      linkText: "View Presentation",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "NFC Feature Prototype",
+      description:
+        "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
+      image: "/images/projects/fitness_tracker/cover.jpg",
+      tags: ["NFC", "Prototype", "Hackathon", "Android"],
+      link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
+      linkText: "View LinkedIn Post",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "ML Playground",
+      description:
+        "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
+      image: "/images/projects/coding_tutorials/cover.jpg",
+      tags: ["Machine Learning", "Interactive", "Education", "Simulation"],
+      link: "/ml-playground",
+      linkText: "Play Game",
+      linkIcon: "external" as const,
+    },
+    {
+      title: "Professional Speaking",
+      description:
+        "Presented to a class of 30 students, receiving an A+ grade. Demonstrated strong communication and presentation skills.",
+      image: "/images/projects/study_group/cover.jpg",
+      tags: ["Presentation", "Education", "Communication"],
+      link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
+      linkText: "View Presentation",
+      linkIcon: "external" as const,
+    },
+  ],
 };
 
 const timelineData = [
