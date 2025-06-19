@@ -88,7 +88,15 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: `Hi! I'm Lawrence's AI assistant. I can help you learn more about his experience, skills, and projects.\n**For recruiters: You can also share files with me for analysis.**\nWhat would you like to know?`,
+      content: `Hi! I'm Lawrence's AI assistant! 🤖 I can help you learn more about his:
+- Experience 💼
+- Skills 🛠️
+- Projects 🚀
+- and more!
+
+**Recruiters**: You can also share files with me for analysis. 📄
+
+What would you like to know?`,
       timestamp: new Date(),
     },
   ]);
