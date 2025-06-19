@@ -1169,7 +1169,7 @@ export default function Home() {
   const [expCategory, setExpCategory] = useState("all");
   const [activeFilter, setActiveFilter] = useState("all");
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
-  const [showScrollHint, setShowScrollHint] = useState(true);
+  const [showScrollHint, setShowScrollHint] = useState(false);
   const [projectSection, setProjectSection] = useState("all");
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -1474,6 +1474,34 @@ export default function Home() {
   const timelineFlexClass = isMobile
     ? "flex-col items-center gap-6 w-full"
     : "flex-row items-center gap-4";
+
+  // Check if timeline is scrollable and handle scroll hint
+  useEffect(() => {
+    const timeline = timelineRef.current;
+    if (timeline) {
+      const checkScroll = () => {
+        const hasHorizontalScroll = timeline.scrollWidth > timeline.clientWidth;
+        const isAtEnd =
+          Math.abs(
+            timeline.scrollLeft + timeline.clientWidth - timeline.scrollWidth
+          ) < 2;
+        setShowScrollHint(hasHorizontalScroll && !isAtEnd);
+      };
+
+      // Initial check
+      checkScroll();
+
+      // Check on scroll
+      timeline.addEventListener("scroll", checkScroll);
+      // Check on resize
+      window.addEventListener("resize", checkScroll);
+
+      return () => {
+        timeline.removeEventListener("scroll", checkScroll);
+        window.removeEventListener("resize", checkScroll);
+      };
+    }
+  }, [timelineRef.current]);
 
   // ... rest of the component code ...
 
@@ -2194,12 +2222,12 @@ export default function Home() {
                       />
                     </div>
                     <div className="flex flex-1 flex-col gap-2 px-5 py-4">
-                      <h3
+                      <h2
                         className="text-base leading-tight font-bold break-words whitespace-normal text-white"
                         title={project.title}
                       >
                         {project.title}
-                      </h3>
+                      </h2>
                       <p className="mb-2 text-sm text-blue-100">
                         {project.description}
                       </p>

@@ -47,7 +47,7 @@ const firebaseConfig = {
 interface ChatMessage {
   id: string;
   sessionId: string;
-  message: string;
+  message?: string;
   role: "user" | "assistant";
   timestamp: any;
 }
@@ -512,7 +512,7 @@ export default function AnalyticsPage() {
 
   const filteredSessions = sessions.filter((session) => {
     const matchesSearch = session.messages.some((msg) =>
-      msg.message.toLowerCase().includes(searchTerm.toLowerCase())
+      msg.message?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const matchesRole =
