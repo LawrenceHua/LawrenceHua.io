@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "**.md"
-      - ".github/workflows/version-increment.yml"
 
 jobs:
   version-increment:
