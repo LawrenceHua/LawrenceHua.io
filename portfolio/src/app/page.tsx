@@ -43,6 +43,7 @@ const timelineData = [
       org: "PM Happy Hour · Internship",
       date: "Mar 2025 - Present · 4 mos",
       logo: "/logos/pm_happy_hour_logo.jpeg",
+      category: "product",
       bullets: [
         "Scaled PM Happy Hour's community by 30% through a combination of AIGC, targeted engagement campaigns (like MBTI x PM), and continuous feedback loops. Launched interactive content initiatives and analytics workflows to improve user retention and product adoption by 20%.",
         "Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement",
@@ -71,6 +72,7 @@ const timelineData = [
       org: "Expired Solutions · Full-time",
       date: "Aug 2024 - Present · 11 mos",
       logo: "/logos/expired_solutions_logo.jpeg",
+      category: "product",
       bullets: [
         "As Founder and CEO, I led strategy, technical buildout, and GTM for Expired, an AI platform using CV + GPT to automate markdowns and reduce grocery shrink by up to 20%. Pitched an 8-week pilot with Giant Eagle and validated the solution through 15+ exec interviews and 250+ shopper surveys. Oversaw product strategy, model deployment, mobile dev, and team ops.",
         "Built an AI-powered freshness scoring platform to automate pricing, placement, and inventory workflows",
@@ -89,6 +91,7 @@ const timelineData = [
       org: "PanPalz · Internship",
       date: "Aug 2024 - Jan 2025 · 6 mos",
       logo: "/logos/Panpalz logo.jpeg",
+      category: "product",
       bullets: [
         "Led roadmap planning and UI design for PanPalz, a nonprofit social media platform. Improved product readiness through design iteration and alignment with launch goals.",
         "Defined and maintained product roadmap across engineering and design teams",
@@ -106,6 +109,7 @@ const timelineData = [
       org: "Kearney",
       date: "Sep 2024 - Dec 2024 · 4 mos",
       logo: "/logos/kearney_logo.jpeg",
+      category: "engineering",
       bullets: [
         "Built an enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Handled research, competitive analysis, and prototyping using OpenAI, Python, and Flask.",
         "Reduced operational decision-making time by 26% with custom GPT-based prototype",
@@ -123,6 +127,7 @@ const timelineData = [
       org: "Giant Eagle, Inc. · Full-time",
       date: "Feb 2025 - May 2025 · 4 mos",
       logo: "/logos/giant_eagle_logo.jpeg",
+      category: "retail",
       bullets: [
         "Hands-on leadership role focused on reducing shrink, improving freshness, and optimizing inventory operations in the grocery's highest-loss department. Leveraged data and tools like Flashfoods and Periscope to drive measurable results in a 1-month window.",
         "Reduced shrink by 1% in produce within 30 days by optimizing markdown execution and inventory rotation strategy",
@@ -141,6 +146,7 @@ const timelineData = [
       org: "Carnegie Mellon University · Internship",
       date: "Jul 2024 - Aug 2024 · 2 mos",
       logo: "/logos/carnegie_mellon_university_logo.jpeg",
+      category: "engineering",
       bullets: [
         "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across a cross-functional team to shape product positioning and long-term scalability.",
         "Developed a strategic launch plan for a novel gaming-focused cryptocurrency, backed by market and competitor analysis",
@@ -159,6 +165,7 @@ const timelineData = [
       org: "Motorola Solutions · Full-time",
       date: "Aug 2021 - Aug 2023 · 2 yrs 1 mo",
       logo: "/logos/Motorola logo.jpeg",
+      category: "engineering",
       bullets: [
         "Developed embedded Android software for Motorola's APX NEXT Smart Radios, supporting mission-critical communications for public safety professionals. Owned features across GPS, authentication, and UI, contributing to product stability and scale.",
         "Designed and shipped Android system extensions that improved GPS accuracy, device security, and UI responsiveness for 15,000+ field units",
@@ -187,6 +194,7 @@ const timelineData = [
       org: "Tutora · Part-time",
       date: "Mar 2021 - Present · 4 yrs 4 mos",
       logo: "/logos/Tutora Logo.jpeg",
+      category: "engineering",
       bullets: [
         "Redesigned tutoring operations by building both backend automation tools and student-facing programs. Delivered scalable AI systems for internal workflows and custom-built math and computer science curriculum that improved student performance and operational efficiency.",
         "Consulted business owners to identify bottlenecks and build 0→1 unified AI tools using Otter.ai, Dola, WhatsApp, and App Scripts for automation and adoption",
@@ -205,6 +213,7 @@ const timelineData = [
       org: "University of Florida · Part-time",
       date: "May 2019 - Jun 2021 · 2 yrs 2 mos",
       logo: "/logos/UF logo.jpeg",
+      category: "engineering",
       bullets: [
         "Provided IT support and system management for CALS' academic labs and research teams. Built internal tools and led technician teams to improve service reliability and hardware asset tracking.",
         "Maintained 95%+ customer satisfaction over 2 years while managing MacOS/Linux support for 200+ users",
@@ -223,6 +232,7 @@ const timelineData = [
       org: "Motorola Solutions · Internship",
       date: "Jun 2020 - Aug 2020 · 3 mos",
       logo: "/logos/Motorola logo.jpeg",
+      category: "engineering",
       bullets: [
         "Developed and updated Android Applications in the APX NEXT device while using various technologies (Android studio, git, ADB, shell, JIRA, Bitbucket).",
         "Learned how to adapt quickly in a completely virtual agile development setting.",
@@ -238,6 +248,7 @@ const timelineData = [
       org: "5-Spice Asian Street Market · Full-time",
       date: "Jan 2016 - Jan 2018 · 2 yrs 1 mo",
       logo: "/logos/5spice_logo.jpeg",
+      category: "retail",
       bullets: [
         "Family-owned restaurant business, started working as an unpaid intern at age 6, made my way to a paid full-time worker by 2016!",
         "Orders taken using Point-of-Sale software to secure communication with the chef and accuracy for the bill.",
@@ -256,6 +267,7 @@ const timelineEvents: Array<{
   org: string;
   date: string;
   logo: string;
+  category?: string;
   bullets?: string[];
   details?: string[];
 }> = [
@@ -308,6 +320,7 @@ const timelineEvents: Array<{
     org: "PM Happy Hour · Internship",
     date: "Mar 2025 - Present · 4 mos",
     logo: "/logos/pm_happy_hour_logo.jpeg",
+    category: "product",
     bullets: [
       "Scaled PM Happy Hour's community by 30% through a combination of AIGC, targeted engagement campaigns (like MBTI x PM), and continuous feedback loops. Launched interactive content initiatives and analytics workflows to improve user retention and product adoption by 20%.",
       "Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement",
@@ -324,6 +337,7 @@ const timelineEvents: Array<{
     org: "Expired Solutions · Full-time",
     date: "Aug 2024 - Present",
     logo: "/logos/expired_solutions_logo.jpeg",
+    category: "product",
     bullets: [
       "As Founder and CEO, I led strategy, technical buildout, and GTM for Expired, an AI platform using CV + GPT to automate markdowns and reduce grocery shrink by up to 20%. Pitched an 8-week pilot with Giant Eagle and validated the solution through 15+ exec interviews and 250+ shopper surveys. Oversaw product strategy, model deployment, mobile dev, and team ops.",
       "Built an AI-powered freshness scoring platform to automate pricing, placement, and inventory workflows",
@@ -340,6 +354,7 @@ const timelineEvents: Array<{
     org: "PanPalz · Internship",
     date: "Aug 2024 - Jan 2025",
     logo: "/logos/Panpalz logo.jpeg",
+    category: "product",
     bullets: [
       "Led roadmap planning and UI design for PanPalz, a nonprofit social media platform. Improved product readiness through design iteration and alignment with launch goals.",
       "Defined and maintained product roadmap across engineering and design teams",
@@ -355,6 +370,7 @@ const timelineEvents: Array<{
     org: "Kearney",
     date: "Sep 2024 - Dec 2024 · 4 mos",
     logo: "/logos/kearney_logo.jpeg",
+    category: "engineering",
     bullets: [
       "Built an enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Handled research, competitive analysis, and prototyping using OpenAI, Python, and Flask.",
       "Reduced operational decision-making time by 26% with custom GPT-based prototype",
@@ -370,6 +386,7 @@ const timelineEvents: Array<{
     org: "Giant Eagle, Inc. · Full-time",
     date: "Feb 2025 - May 2025 · 4 mos",
     logo: "/logos/giant_eagle_logo.jpeg",
+    category: "retail",
     bullets: [
       "Hands-on leadership role focused on reducing shrink, improving freshness, and optimizing inventory operations in the grocery's highest-loss department. Leveraged data and tools like Flashfoods and Periscope to drive measurable results in a 1-month window.",
       "Reduced shrink by 1% in produce within 30 days by optimizing markdown execution and inventory rotation strategy",
@@ -386,6 +403,7 @@ const timelineEvents: Array<{
     org: "Carnegie Mellon University · Internship",
     date: "Jul 2024 - Aug 2024 · 2 mos",
     logo: "/logos/carnegie_mellon_university_logo.jpeg",
+    category: "engineering",
     bullets: [
       "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across a cross-functional team to shape product positioning and long-term scalability.",
       "Developed a strategic launch plan for a novel gaming-focused cryptocurrency, backed by market and competitor analysis",
@@ -402,6 +420,7 @@ const timelineEvents: Array<{
     org: "Motorola Solutions · Full-time",
     date: "Aug 2021 - Aug 2023 · 2 yrs 1 mo",
     logo: "/logos/Motorola logo.jpeg",
+    category: "engineering",
     bullets: [
       "Developed embedded Android software for Motorola's APX NEXT Smart Radios, supporting mission-critical communications for public safety professionals. Owned features across GPS, authentication, and UI, contributing to product stability and scale.",
       "Designed and shipped Android system extensions that improved GPS accuracy, device security, and UI responsiveness for 15,000+ field units",
@@ -418,6 +437,7 @@ const timelineEvents: Array<{
     org: "Tutora · Part-time",
     date: "Mar 2021 - Present",
     logo: "/logos/Tutora Logo.jpeg",
+    category: "engineering",
     bullets: [
       "Redesigned tutoring operations by building both backend automation tools and student-facing programs. Delivered scalable AI systems for internal workflows and custom-built math and computer science curriculum that improved student performance and operational efficiency.",
       "Consulted business owners to identify bottlenecks and build 0→1 unified AI tools using Otter.ai, Dola, WhatsApp, and App Scripts for automation and adoption",
@@ -434,6 +454,7 @@ const timelineEvents: Array<{
     org: "University of Florida · Part-time",
     date: "May 2019 - Jun 2021 · 2 yrs 2 mos",
     logo: "/logos/UF logo.jpeg",
+    category: "engineering",
     bullets: [
       "Provided IT support and system management for CALS' academic labs and research teams. Built internal tools and led technician teams to improve service reliability and hardware asset tracking.",
       "Maintained 95%+ customer satisfaction over 2 years while managing MacOS/Linux support for 200+ users",
@@ -450,6 +471,7 @@ const timelineEvents: Array<{
     org: "Motorola Solutions · Internship",
     date: "Jun 2020 - Aug 2020 · 3 mos",
     logo: "/logos/Motorola logo.jpeg",
+    category: "engineering",
     bullets: [
       "Developed and updated Android Applications in the APX NEXT device while using various technologies (Android studio, git, ADB, shell, JIRA, Bitbucket).",
       "Learned how to adapt quickly in a completely virtual agile development setting.",
@@ -463,6 +485,7 @@ const timelineEvents: Array<{
     org: "5-Spice Asian Street Market · Full-time",
     date: "Jan 2016 - Jan 2018 · 2 yrs 1 mo",
     logo: "/logos/5spice_logo.jpeg",
+    category: "retail",
     bullets: [
       "Family-owned restaurant business, started working as an unpaid intern at age 6, made my way to a paid full-time worker by 2016!",
       "Orders taken using Point-of-Sale software to secure communication with the chef and accuracy for the bill.",
@@ -800,9 +823,16 @@ export default function Home() {
   ).sort((a, b) => Number(b) - Number(a));
   const filteredExperiences =
     expYear === "All"
-      ? sortedTimelineEvents.filter((e) => e.type === "experience")
+      ? sortedTimelineEvents.filter(
+          (e) =>
+            e.type === "experience" &&
+            (expCategory === "all" || e.category === expCategory)
+        )
       : sortedTimelineEvents.filter(
-          (e) => e.type === "experience" && e.year === expYear
+          (e) =>
+            e.type === "experience" &&
+            e.year === expYear &&
+            (expCategory === "all" || e.category === expCategory)
         );
 
   const filteredSkills =
@@ -1285,6 +1315,15 @@ export default function Home() {
       window.removeEventListener("resize", checkScroll);
     };
   }, []);
+
+  // 2. Add filter buttons for Product Management, Engineering, and Retail above the timeline
+  const [expCategory, setExpCategory] = useState("all");
+  const expCategories = [
+    { key: "all", label: "All" },
+    { key: "product", label: "Product Management" },
+    { key: "engineering", label: "Engineering" },
+    { key: "retail", label: "Retail" },
+  ];
 
   return (
     <main className="min-h-screen">
