@@ -921,7 +921,7 @@ const skillsData: {
       name: "Product Management",
       level: "expert",
       endorsements: 15,
-      experiences: 3,
+      experiences: 8,
       highlight:
         "Led Expired Solutions from 0→1, reducing grocery shrink by 20% using AI",
     },
@@ -929,7 +929,7 @@ const skillsData: {
       name: "Leadership",
       level: "expert",
       endorsements: 28,
-      experiences: 6,
+      experiences: 8,
       highlight:
         "Founded and scaled Expired Solutions, leading 8-week pilot with Giant Eagle",
     },
@@ -944,8 +944,8 @@ const skillsData: {
     {
       name: "Product Strategy",
       level: "proficient",
-      endorsements: 0,
-      experiences: 7,
+      endorsements: 12,
+      experiences: 8,
       highlight:
         "Defined go-to-market strategy for PanPalz, the world's first nonprofit social app",
     },
@@ -969,7 +969,7 @@ const skillsData: {
       name: "A/B Testing",
       level: "proficient",
       endorsements: 8,
-      experiences: 2,
+      experiences: 6,
       highlight:
         "Improved PM Happy Hour feature adoption by 20% via A/B testing",
     },
@@ -1066,7 +1066,7 @@ const skillsData: {
       name: "AI Product Management",
       level: "expert",
       endorsements: 13,
-      experiences: 4,
+      experiences: 6,
       highlight:
         "Built AI-powered freshness scoring platform using CV + GPT for grocery automation",
     },
@@ -1074,39 +1074,39 @@ const skillsData: {
       name: "Computer Science",
       level: "expert",
       endorsements: 28,
-      experiences: 4,
+      experiences: 8,
       highlight:
         "Developed embedded Android software for 15,000+ Motorola APX NEXT Smart Radios",
     },
     {
       name: "Data Analysis",
       level: "expert",
-      endorsements: 8,
+      endorsements: 9,
       experiences: 9,
       highlight:
         "Reduced operational decision-making time by 26% with custom GPT-based prototype",
     },
     {
       name: "Machine Learning",
-      level: "familiar",
-      endorsements: 0,
-      experiences: 3,
+      level: "proficient",
+      endorsements: 8,
+      experiences: 6,
       highlight:
         "Developed KNN model analyzing 10M+ Netflix reviews with A/B testing",
     },
     {
       name: "Computer Vision",
-      level: "familiar",
+      level: "proficient",
       endorsements: 7,
-      experiences: 0,
+      experiences: 3,
       highlight:
         "Implemented CV-based freshness detection for automated grocery markdowns",
     },
     {
       name: "Stakeholder Management",
-      level: "familiar",
+      level: "proficient",
       endorsements: 6,
-      experiences: 0,
+      experiences: 1,
       highlight:
         "Led collaboration across regulatory, technical, and product leads for crypto project",
     },
