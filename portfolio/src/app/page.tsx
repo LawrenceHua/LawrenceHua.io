@@ -2383,7 +2383,7 @@ export default function Home() {
       {/* Projects Section */}
       <section id="projects" className="section-container">
         <div className="section-content">
-          <h2 className="section-title mt-12 mb-4 text-center">
+          <h2 className="section-title mb-4 text-center">
             <span
               className="inline-block rounded-xl bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text px-10 py-5 text-4xl font-bold tracking-tight text-transparent shadow-lg"
               style={{ WebkitBackgroundClip: "text" }}

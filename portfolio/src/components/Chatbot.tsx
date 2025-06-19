@@ -12,6 +12,8 @@ import {
   FiTrash2,
   FiMaximize2,
   FiMinimize2,
+  FiUser,
+  FiCpu,
 } from "react-icons/fi";
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import {
@@ -108,11 +110,22 @@ What would you like to know?`,
   const [isFullscreen, setIsFullscreen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Focus input when chatbot opens
+  useEffect(() => {
+    if (isOpen && !isMinimized && inputRef.current) {
+      // Small delay to ensure the component is fully rendered
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen, isMinimized]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -278,22 +291,59 @@ What would you like to know?`,
                 <div
                   key={i}
                   className={
-                    styles.messageBubble +
-                    " messageBubble " +
-                    (msg.role === "assistant" ? "assistant" : "user")
+                    "flex flex-col " +
+                    (msg.role === "assistant" ? "items-start" : "items-end")
                   }
-                  dangerouslySetInnerHTML={{
-                    __html: formatMessage(msg.content),
-                  }}
-                />
+                >
+                  {/* Message Label */}
+                  <div className="flex items-center gap-2 mb-1 px-3">
+                    {msg.role === "assistant" ? (
+                      <>
+                        <FiCpu className="h-3 w-3 text-blue-400" />
+                        <span className="text-xs font-medium text-blue-400">
+                          Lawrence's AI
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <FiUser className="h-3 w-3 text-gray-400" />
+                        <span className="text-xs font-medium text-gray-400">
+                          You
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Message Bubble */}
+                  <div
+                    className={
+                      styles.messageBubble +
+                      " messageBubble " +
+                      (msg.role === "assistant" ? "assistant" : "user")
+                    }
+                    dangerouslySetInnerHTML={{
+                      __html: formatMessage(msg.content),
+                    }}
+                  />
+                </div>
               ))}
               {isLoading && (
-                <div
-                  className={styles.messageBubble + " messageBubble assistant"}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                    <span>Thinking...</span>
+                <div className="flex flex-col items-start">
+                  <div className="flex items-center gap-2 mb-1 px-3">
+                    <FiCpu className="h-3 w-3 text-blue-400" />
+                    <span className="text-xs font-medium text-blue-400">
+                      Lawrence's AI
+                    </span>
+                  </div>
+                  <div
+                    className={
+                      styles.messageBubble + " messageBubble assistant"
+                    }
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                      <span>Thinking...</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -339,7 +389,7 @@ What would you like to know?`,
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type your message..."
-                  autoFocus={isOpen}
+                  ref={inputRef}
                   style={{ minWidth: 0 }}
                   disabled={isLoading}
                 />
