@@ -80,13 +80,30 @@ export default function RootLayout({
       <body className={inter.className}>
         {children}
         <footer className="w-full text-center text-xs text-gray-400 py-6 border-t border-gray-800 bg-black/70 mt-12">
-          © 2026 Lawrence Hua. All Rights Reserved. Last updated: June 18,
-          2026. V1.0
+          © {new Date().getFullYear()} Lawrence Hua. All Rights Reserved. Last
+          updated:{" "}
+          {new Date().toLocaleString("en-US", {
+            timeZone: "America/New_York",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+          })}{" "}
+          EST. V1.0
         </footer>
         <div className="w-full text-center text-[10px] text-gray-500 pb-2">
           Dev @{" "}
           {new Date().toLocaleString("en-US", {
             timeZone: "America/New_York",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
             hour12: false,
           })}{" "}
           EST
