@@ -1812,24 +1812,8 @@ export default function Home() {
                           toggleCardExpansion(item.title + "-" + item.year)
                         }
                       >
+                        {/* REMOVED YEAR CIRCLE AND FLEX WRAPPER */}
                         <div className="flex items-center justify-center gap-2 mb-2">
-                          <div
-                            className="circle-svg"
-                            style={{
-                              width: 40,
-                              height: 40,
-                              minWidth: 40,
-                              minHeight: 40,
-                              borderWidth: 2,
-                            }}
-                          >
-                            <span
-                              className="circle-year"
-                              style={{ fontSize: "1rem" }}
-                            >
-                              {item.year}
-                            </span>
-                          </div>
                           <Image
                             src={item.logo}
                             alt={item.org}
@@ -1910,24 +1894,8 @@ export default function Home() {
                         toggleCardExpansion(item.title + "-" + item.year)
                       }
                     >
+                      {/* REMOVED YEAR CIRCLE AND FLEX WRAPPER */}
                       <div className="flex items-center justify-center gap-2 mb-2">
-                        <div
-                          className="circle-svg"
-                          style={{
-                            width: 40,
-                            height: 40,
-                            minWidth: 40,
-                            minHeight: 40,
-                            borderWidth: 2,
-                          }}
-                        >
-                          <span
-                            className="circle-year"
-                            style={{ fontSize: "1rem" }}
-                          >
-                            {item.year}
-                          </span>
-                        </div>
                         <Image
                           src={item.logo}
                           alt={item.org}
