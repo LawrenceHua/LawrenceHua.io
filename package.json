@@ -47,5 +47,8 @@
     "**/*": [
       "prettier --write --ignore-unknown"
     ]
+  },
+  "dependencies": {
+    "firebase": "^11.9.1"
   }
 }
