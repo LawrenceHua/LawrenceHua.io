@@ -5,11 +5,15 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
+
+    /** JSX Support */
+    "jsx": "preserve",
+    "jsxImportSource": "react",
 
     /** Keep TSC performant in monorepos */
     "incremental": true,

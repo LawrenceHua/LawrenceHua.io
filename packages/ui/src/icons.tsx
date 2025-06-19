@@ -25,6 +25,7 @@ import {
   MessageCircle,
   Moon,
   MoreVertical,
+  Paperclip,
   Pizza,
   Plus,
   Send,
@@ -40,6 +41,7 @@ export type Icon = typeof LucideIcon;
 export const Icons = {
   logo: Code,
   close: X,
+  x: X,
   menu: Menu,
   code: Code,
   success: CheckCircle,
@@ -71,6 +73,7 @@ export const Icons = {
   bot: Bot,
   messageCircle: MessageCircle,
   send: Send,
+  paperclip: Paperclip,
   gitHub: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"
