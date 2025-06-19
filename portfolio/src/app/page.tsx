@@ -1710,7 +1710,11 @@ export default function Home() {
           {/* Career Timeline Row with Arrows */}
           <div className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-auto">
             <div
-              className={`min-w-max items-center justify-center px-2 sm:px-8 ${timelineFlexClass}`}
+              className={
+                // Use flex-col on mobile, flex-row on desktop
+                "flex flex-col sm:flex-row items-center justify-center px-2 sm:px-8 " +
+                timelineFlexClass
+              }
             >
               {(expYear === "All"
                 ? filteredExperiences
@@ -1768,11 +1772,11 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Arrow pointing left (toward older items) */}
+                  {/* Arrow between cards: horizontal on desktop, down on mobile */}
                   {idx < arr.length - 1 && (
                     <div className="flex h-12 w-12 items-center justify-center">
                       <svg
-                        className="h-8 w-8 rotate-180 transform text-blue-400"
+                        className="h-8 w-8 text-blue-400 transform sm:rotate-180 rotate-90 sm:rotate-180"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1797,7 +1801,11 @@ export default function Home() {
           </h3>
           <div className="education-carousel improved-ui timeline-container-with-stars">
             <div
-              className={`min-w-max items-center justify-center px-2 sm:px-8 ${timelineFlexClass}`}
+              className={
+                // Use flex-col on mobile, flex-row on desktop
+                "flex flex-col sm:flex-row items-center justify-center px-2 sm:px-8 " +
+                timelineFlexClass
+              }
             >
               {sortedEducationEvents.map((item, idx) => (
                 <React.Fragment key={item.year + "-" + idx}>
@@ -1837,7 +1845,7 @@ export default function Home() {
                   {idx < sortedEducationEvents.length - 1 && (
                     <div className="flex h-12 w-12 items-center justify-center">
                       <svg
-                        className="h-8 w-8 rotate-180 transform text-blue-400"
+                        className="h-8 w-8 text-blue-400 transform sm:rotate-180 rotate-90 sm:rotate-180"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
