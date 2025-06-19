@@ -106,11 +106,36 @@
 @media (max-width: 768px) {
   .chatbotContainer {
     position: fixed !important;
-    inset: 0 !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
-    height: 100vh !important;
-    width: 100vw !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    margin: 0 8px 8px 8px !important;
+    border-radius: 12px !important;
+    height: 80vh !important;
+    max-height: 600px !important;
+    width: auto !important;
+  }
+
+  /* Ensure the input area is visible above the keyboard */
+  .messagesContainer {
+    max-height: calc(100% - 120px) !important;
+    padding-bottom: 16px !important;
+  }
+
+  /* Add padding to the bottom when keyboard is open */
+  @supports (-webkit-touch-callout: none) {
+    .chatbotContainer {
+      padding-bottom: env(safe-area-inset-bottom) !important;
+    }
+  }
+
+  /* Adjust input area for better visibility */
+  .inputArea {
+    position: sticky !important;
+    bottom: 0 !important;
+    background: inherit !important;
+    padding: 8px !important;
+    border-top: 1px solid rgba(156, 163, 175, 0.1) !important;
   }
 }
 

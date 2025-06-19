@@ -2338,18 +2338,18 @@ export default function Home() {
           </div>
           <div className="mb-8 flex justify-center gap-4">
             <button
-              className={`skills-filter-button ${contactMode === "meeting" ? "active" : ""}`}
-              onClick={() => setContactMode("meeting")}
-              style={{ minWidth: "180px" }}
-            >
-              Schedule a Meeting
-            </button>
-            <button
               className={`skills-filter-button ${contactMode === "message" ? "active" : ""}`}
               onClick={() => setContactMode("message")}
               style={{ minWidth: "180px" }}
             >
               Send a Message
+            </button>
+            <button
+              className={`skills-filter-button ${contactMode === "meeting" ? "active" : ""}`}
+              onClick={() => setContactMode("meeting")}
+              style={{ minWidth: "180px" }}
+            >
+              Schedule a Meeting
             </button>
           </div>
           <div className="contact-form">
