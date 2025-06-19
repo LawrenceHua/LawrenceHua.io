@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Chatbot from "@/components/Chatbot";
@@ -1265,6 +1265,27 @@ export default function Home() {
     }
   }, []);
 
+  // Add useRef and useEffect to control showScrollHint based on scroll position and overflow
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  useEffect(() => {
+    const el = timelineRef.current;
+    if (!el) return;
+    const checkScroll = () => {
+      setShowScrollHint(
+        el.scrollWidth > el.clientWidth &&
+          el.scrollLeft < el.scrollWidth - el.clientWidth - 10
+      );
+    };
+    checkScroll();
+    el.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, []);
+
   return (
     <main className="min-h-screen">
       <Navigation />
@@ -1722,95 +1743,111 @@ export default function Home() {
           </div>
 
           {/* Career Timeline Row with Arrows */}
-          <div className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-auto pt-8">
+          <div className="relative">
             <div
-              className={
-                "flex flex-row items-start justify-start gap-x-4 px-2 sm:px-8 " +
-                timelineFlexClass
-              }
+              className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-auto pt-8"
+              ref={timelineRef}
             >
-              {filteredExperiences.map((item, idx, arr) => (
-                <React.Fragment key={item.title + "-" + item.year + "-" + idx}>
-                  <div className="timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[220px] sm:max-w-[280px] mx-2 flex-col items-center">
-                    <div
-                      className="timeline-circle top"
-                      style={{
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        position: "absolute",
-                        zIndex: 2,
-                      }}
-                    >
-                      <div className="circle-svg">
-                        <span className="circle-year">{item.year}</span>
-                      </div>
-                    </div>
-                    <div className="education-card improved-ui timeline-card-container">
+              <div
+                className={
+                  "flex flex-row items-start justify-start gap-x-4 px-2 sm:px-8 " +
+                  timelineFlexClass
+                }
+              >
+                {filteredExperiences.map((item, idx, arr) => (
+                  <React.Fragment
+                    key={item.title + "-" + item.year + "-" + idx}
+                  >
+                    <div className="timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[220px] sm:max-w-[280px] mx-2 flex-col items-center">
                       <div
-                        className="timeline-card mx-auto flex h-full w-full flex-col text-left"
-                        onClick={() =>
-                          toggleCardExpansion(item.title + "-" + item.year)
-                        }
+                        className="timeline-circle top"
+                        style={{
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                          position: "absolute",
+                          zIndex: 2,
+                        }}
                       >
-                        <Image
-                          src={item.logo}
-                          alt={item.org}
-                          width={40}
-                          height={40}
-                          className="logo mx-auto rounded"
-                        />
-                        <div
-                          className="text-center text-base font-bold text-white"
-                          style={{ margin: 0, padding: 0 }}
-                        >
-                          <span>{item.title}</span>
+                        <div className="circle-svg">
+                          <span className="circle-year">{item.year}</span>
                         </div>
-                        <p className="text-sm text-gray-400">{item.org}</p>
-                        <p className="text-xs text-gray-400">{item.date}</p>
-                        {item.bullets && (
-                          <ul className="flex-grow list-inside list-disc space-y-0 text-left text-xs text-gray-300">
-                            {expandedCards.has(item.title + "-" + item.year)
-                              ? item.bullets.map((b, i) => (
-                                  <li key={b + "-" + i}>{b}</li>
-                                ))
-                              : item.bullets
-                                  .slice(0, 1)
-                                  .map((b, i) => (
+                      </div>
+                      <div className="education-card improved-ui timeline-card-container">
+                        <div
+                          className="timeline-card mx-auto flex h-full w-full flex-col text-left"
+                          onClick={() =>
+                            toggleCardExpansion(item.title + "-" + item.year)
+                          }
+                        >
+                          <Image
+                            src={item.logo}
+                            alt={item.org}
+                            width={40}
+                            height={40}
+                            className="logo mx-auto rounded"
+                          />
+                          <div
+                            className="text-center text-base font-bold text-white"
+                            style={{ margin: 0, padding: 0 }}
+                          >
+                            <span>{item.title}</span>
+                          </div>
+                          <p className="text-sm text-gray-400">{item.org}</p>
+                          <p className="text-xs text-gray-400">{item.date}</p>
+                          {item.bullets && (
+                            <ul className="flex-grow list-inside list-disc space-y-0 text-left text-xs text-gray-300">
+                              {expandedCards.has(item.title + "-" + item.year)
+                                ? item.bullets.map((b, i) => (
                                     <li key={b + "-" + i}>{b}</li>
-                                  ))}
-                            {!expandedCards.has(item.title + "-" + item.year) &&
-                              item.bullets.length > 1 && (
-                                <li className="font-medium text-blue-400">
-                                  Click to see {item.bullets.length - 1} more...
-                                </li>
-                              )}
-                          </ul>
-                        )}
+                                  ))
+                                : item.bullets
+                                    .slice(0, 1)
+                                    .map((b, i) => (
+                                      <li key={b + "-" + i}>{b}</li>
+                                    ))}
+                              {!expandedCards.has(
+                                item.title + "-" + item.year
+                              ) &&
+                                item.bullets.length > 1 && (
+                                  <li className="font-medium text-blue-400">
+                                    Click to see {item.bullets.length - 1}{" "}
+                                    more...
+                                  </li>
+                                )}
+                            </ul>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {/* Arrow between cards: left arrow, rotated 180deg */}
-                  {idx < arr.length - 1 && (
-                    <div className="flex items-center justify-center w-8 h-8 mx-1">
-                      <svg
-                        className="h-6 w-6 text-blue-400"
-                        style={{ transform: "rotate(180deg)" }}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
+                    {/* Arrow between cards: left arrow, rotated 180deg */}
+                    {idx < arr.length - 1 && (
+                      <div className="flex items-center justify-center w-8 h-8 mx-1">
+                        <svg
+                          className="h-6 w-6 text-blue-400"
+                          style={{ transform: "rotate(180deg)" }}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
             </div>
+            {/* Scroll hint animation/popup */}
+            {showScrollHint && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 animate-bounce bg-blue-700/90 text-white px-3 py-2 rounded-lg shadow-lg text-xs font-semibold pointer-events-none">
+                Scroll right to see more →
+              </div>
+            )}
           </div>
 
           {/* Education Section - Improved UI */}
@@ -1833,10 +1870,11 @@ export default function Home() {
                     className={`timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[240px] sm:max-w-[280px] mx-2 flex-col items-center${item.type === "education" ? " education" : ""}`}
                   >
                     <div
-                      className="timeline-circle top flex justify-center items-center mx-auto"
+                      className="timeline-circle top"
                       style={{
-                        position: "relative",
-                        top: "-1.5rem",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        position: "absolute",
                         zIndex: 2,
                       }}
                     >
