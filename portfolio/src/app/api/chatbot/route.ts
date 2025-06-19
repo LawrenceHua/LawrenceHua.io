@@ -6,9 +6,12 @@ import OpenAI from "openai";
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
+console.log("DEBUG: process.cwd() =", process.cwd());
+console.log("DEBUG: process.env.OPENAI_API_KEY =", process.env.OPENAI_API_KEY);
+
 if (!openaiApiKey) {
   console.warn(
-    "OPENAI_API_KEY environment variable is not set. Chatbot will return fallback responses.",
+    "OPENAI_API_KEY environment variable is not set. Chatbot will return fallback responses."
   );
 }
 
@@ -35,7 +38,7 @@ function getSystemPrompt(): string {
       const content = readFileSync(altPath, "utf-8");
       console.log(
         "Successfully read from alternative path, length:",
-        content.length,
+        content.length
       );
       return content;
     } catch (altError) {
@@ -53,7 +56,7 @@ export async function POST(request: NextRequest) {
     if (!message) {
       return NextResponse.json(
         { error: "Message is required" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 

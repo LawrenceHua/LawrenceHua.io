@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { FiMessageCircle, FiSend, FiX } from "react-icons/fi";
+import { initializeApp, getApps, FirebaseApp } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  Firestore,
+} from "firebase/firestore";
 
 interface Message {
   role: "user" | "assistant";
@@ -11,6 +18,37 @@ interface Message {
 interface ChatbotProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+// Firebase config (same as in page.tsx)
+const firebaseConfig = {
+  apiKey: "AIzaSyA_HYWpbGRuNvcWyxfiUEZr7_mTw7PU0t8",
+  authDomain: "peronalsite-88d49.firebaseapp.com",
+  projectId: "peronalsite-88d49",
+  storageBucket: "peronalsite-88d49.firebasestorage.app",
+  messagingSenderId: "515222232116",
+  appId: "1:515222232116:web:b7a9b8735980ce8333fe61",
+  measurementId: "G-ZV5CR4EBB8",
+};
+
+let app: FirebaseApp | undefined, db: Firestore | undefined;
+if (typeof window !== "undefined") {
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+  } else {
+    app = getApps()[0];
+  }
+  db = getFirestore(app);
+}
+
+function getSessionId() {
+  if (typeof window === "undefined") return "";
+  let id = localStorage.getItem("firebase_session_id");
+  if (!id) {
+    id = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    localStorage.setItem("firebase_session_id", id);
+  }
+  return id;
 }
 
 export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
@@ -34,6 +72,10 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
     setIsLoading(true);
 
     try {
+      if (db) {
+        await logMessageToFirebase(input, "user");
+      }
+
       const response = await fetch("/api/chatbot", {
         method: "POST",
         headers: {
@@ -51,6 +93,10 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
         ...prev,
         { role: "assistant", content: data.response },
       ]);
+
+      if (db && data && data.response) {
+        await logMessageToFirebase(data.response, "assistant");
+      }
     } catch (error) {
       console.error("Chatbot error:", error);
       setMessages((prev) => [
@@ -63,6 +109,32 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
       ]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const logMessageToFirebase = async (
+    message: string,
+    role: "user" | "assistant"
+  ) => {
+    console.log(
+      `Attempting to log ${role} message to Firebase:`,
+      message.substring(0, 50) + "..."
+    );
+    try {
+      if (typeof window !== "undefined" && db) {
+        console.log("Firebase db is available, adding document...");
+        await addDoc(collection(db, "chatbot_messages"), {
+          sessionId: getSessionId(),
+          message,
+          role,
+          timestamp: new Date(),
+        });
+        console.log(`${role} message successfully logged to Firebase`);
+      } else {
+        console.log("Firebase not available (window or db is undefined)");
+      }
+    } catch (error: any) {
+      console.error(`Error logging ${role} message to Firebase:`, error);
     }
   };
 

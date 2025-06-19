@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Chatbot from "@/components/Chatbot";
@@ -1160,6 +1160,82 @@ export default function Home() {
   const totalAllProjects = projectSections.all.length;
   const moreProjectsCount = totalAllProjects > 4 ? totalAllProjects - 4 : 0;
 
+  // Utility: Responsive flex direction for timeline containers
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+  const timelineFlexClass = isMobile
+    ? "flex-col items-center gap-6"
+    : "flex-row items-center gap-4";
+
+  useEffect(() => {
+    console.log("Firebase useEffect starting...");
+    try {
+      // Firebase imports and config
+      const { initializeApp } = require("firebase/app");
+      const { getAnalytics, logEvent } = require("firebase/analytics");
+      const {
+        getFirestore,
+        collection,
+        addDoc,
+      } = require("firebase/firestore");
+      console.log("Firebase modules imported successfully");
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyA_HYWpbGRuNvcWyxfiUEZr7_mTw7PU0t8",
+        authDomain: "peronalsite-88d49.firebaseapp.com",
+        projectId: "peronalsite-88d49",
+        storageBucket: "peronalsite-88d49.firebasestorage.app",
+        messagingSenderId: "515222232116",
+        appId: "1:515222232116:web:b7a9b8735980ce8333fe61",
+        measurementId: "G-ZV5CR4EBB8",
+      };
+      console.log("Firebase config loaded");
+
+      const app = initializeApp(firebaseConfig);
+      console.log("Firebase app initialized");
+
+      const analytics = getAnalytics(app);
+      console.log("Firebase analytics initialized");
+
+      const db = getFirestore(app);
+      console.log("Firestore initialized");
+
+      function getSessionId() {
+        let id = localStorage.getItem("firebase_session_id");
+        if (!id) {
+          id =
+            Math.random().toString(36).substring(2) + Date.now().toString(36);
+          localStorage.setItem("firebase_session_id", id);
+        }
+        return id;
+      }
+      console.log("Session ID function created");
+
+      // Log analytics and visit
+      console.log("Attempting to log analytics event...");
+      logEvent(analytics, "visit", {
+        sessionId: getSessionId(),
+        timestamp: Date.now(),
+      });
+      console.log("Analytics event logged");
+
+      console.log("Attempting to add visit to Firestore...");
+      addDoc(collection(db, "visits"), {
+        sessionId: getSessionId(),
+        timestamp: new Date(),
+        userAgent: navigator.userAgent,
+        path: window.location.pathname,
+      })
+        .then(() => {
+          console.log("Visit successfully added to Firestore");
+        })
+        .catch((error: any) => {
+          console.error("Error adding visit to Firestore:", error);
+        });
+    } catch (error: any) {
+      console.error("Error in Firebase useEffect:", error);
+    }
+  }, []);
+
   return (
     <main className="min-h-screen">
       <Navigation />
@@ -1618,7 +1694,9 @@ export default function Home() {
 
           {/* Career Timeline Row with Arrows */}
           <div className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-auto">
-            <div className="flex min-w-max items-center justify-center gap-4 px-8">
+            <div
+              className={`min-w-max items-center justify-center px-2 sm:px-8 ${timelineFlexClass}`}
+            >
               {(expYear === "All"
                 ? filteredExperiences
                 : filteredExperiences.slice(0, 6)
@@ -1703,7 +1781,9 @@ export default function Home() {
             Education
           </h3>
           <div className="education-carousel improved-ui timeline-container-with-stars">
-            <div className="flex min-w-max items-center justify-center gap-4 px-8">
+            <div
+              className={`min-w-max items-center justify-center px-2 sm:px-8 ${timelineFlexClass}`}
+            >
               {sortedEducationEvents.map((item, idx) => (
                 <React.Fragment key={item.year + "-" + idx}>
                   <div
