@@ -103,7 +103,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Expired Solutions - AI Grocery Platform",
       description:
-        "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Built Azure-based solution with mobile companion app.",
+        "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT with Azure-based solution and mobile companion app.",
       image: "/logos/expired_solutions_logo.jpeg",
       tags: [
         "AI/ML",
@@ -119,7 +119,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Tutora AI Automation Platform",
       description:
-        "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week. Developed 50+ TI-BASIC math programs improving test scores by 35%.",
+        "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week with 50+ TI-BASIC math programs improving test scores by 35%.",
       image: "/logos/Tutora Logo.jpeg",
       tags: ["AI", "Automation", "Education", "Python"],
       link: "https://www.tutoraprep.com",
@@ -129,7 +129,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "McGinnis Venture Competition Finalist",
       description:
-        "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
+        "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition pitching Expired Solutions AI platform for grocery automation.",
       image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
       link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
@@ -139,7 +139,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "BBW Demo Presentation",
       description:
-        "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Built with OpenAI APIs, Flask, and JavaScript.",
+        "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week using OpenAI APIs, Flask, and JavaScript.",
       image: "/logos/bbw.jpg",
       tags: ["Enterprise", "AI", "Consulting", "LLM"],
       link: "https://github.com/LawrenceHua/BBW_POC",
@@ -149,7 +149,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "PanPalz - Nonprofit Social App",
       description:
-        "Nonprofit social media platform. Led roadmap planning and UI design, refined 100+ Figma frames improving UI consistency by 40%.",
+        "Nonprofit social media platform with roadmap planning and UI design, refining 100+ Figma frames improving UI consistency by 40%.",
       image: "/logos/Panpalz logo.jpeg",
       tags: ["Social Media", "UI/UX", "Nonprofit", "Product Management"],
       link: "https://panpalz.com",
@@ -159,7 +159,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Netflix A/B Testing Analysis",
       description:
-        "Deep dive into Netflix's A/B testing methodologies and implementation. Comprehensive analysis of testing strategies and optimization techniques.",
+        "Comprehensive analysis of Netflix's A/B testing methodologies and optimization strategies for data-driven decision making.",
       image: "/logos/abtextingnetflix.png",
       tags: ["Analysis", "A/B Testing", "Data Science"],
       link: "https://docs.google.com/presentation/d/1ii-Se5r_kFOnujyRiOX3i0j58Svz270OvletCi6Dblo/edit?usp=sharing",
@@ -169,7 +169,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Netflix Clone with KNN Model",
       description:
-        "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
+        "Developed a KNN model analyzing 10M+ reviews with A/B testing implementation and Grafana visualization.",
       image: "/logos/netflixlogo.jpeg",
       tags: ["Machine Learning", "Data Analysis", "A/B Testing", "KNN"],
       link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
@@ -179,8 +179,8 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Cryptocurrency Gaming Research",
       description:
-        "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across cross-functional teams.",
-      image: "/logos/carnegie_mellon_university_logo.jpeg",
+        "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry with compliance and technical alignment.",
+      image: "/logos/gamingcrypto.jpeg",
       tags: ["Research", "Strategy", "Crypto", "Gaming"],
       link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
       linkText: "View Presentation",
@@ -189,7 +189,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "NFC Feature Prototype",
       description:
-        "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
+        "NFC-based feature prototype that won 1st place at Motorola Product Hackathon for innovative communication features on mission-critical devices.",
       image: "/logos/nfc.jpeg",
       tags: ["NFC", "Prototype", "Hackathon", "Android"],
       link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
@@ -199,7 +199,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Valohai AI Tutorial",
       description:
-        "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control.",
+        "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control in machine learning workflows.",
       image: "/logos/valohai.png",
       tags: ["ML Pipeline", "Python", "Valohai", "Tutorial"],
       link: "https://github.com/LawrenceHua/Valohai-AI-tutorial",
@@ -209,8 +209,8 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Android + DB + RESTful Webservice",
       description:
-        "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture.",
-      image: "/logos/carnegie_mellon_university_logo.jpeg",
+        "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture development.",
+      image: "/logos/DS project.png",
       tags: ["Android", "Database", "REST API", "Distributed Systems"],
       link: "https://github.com/LawrenceHua/CMU-Projects/blob/main/Spring%202024/Distributed%20Systems/DS%20projects/Project%204%2C%20Android%20%2B%20DB%20%2B%20RESTful%20Webservice/README.pdf",
       linkText: "View Project",
@@ -219,7 +219,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Professional Speaking",
       description:
-        "Presented to a class of 30 students, receiving an A+ grade. Demonstrated strong communication and presentation skills.",
+        "Presented to a class of 30 students receiving an A+ grade while demonstrating strong communication and presentation skills.",
       image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Presentation", "Education", "Communication"],
       link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
@@ -229,7 +229,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "ML Playground",
       description:
-        "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
+        "Interactive machine learning simulation featuring models from CMU 10601 including Decision Trees, Neural Networks, and KNN algorithms.",
       image: "/logos/mlplayground.jpeg",
       tags: ["Machine Learning", "Interactive", "Education", "Simulation"],
       link: "/ml-playground",
@@ -239,7 +239,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Portfolio Website",
       description:
-        "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design. Fork it and build your own!",
+        "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design for developers to fork and customize.",
       image: "/logos/backgroundlogo.png",
       tags: ["Next.js", "React", "TailwindCSS", "TypeScript"],
       link: "https://github.com/LawrenceHua/LawrenceHua.io",
@@ -251,7 +251,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Expired Solutions - AI Grocery Platform",
       description:
-        "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Built Azure-based solution with mobile companion app.",
+        "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT with Azure-based solution and mobile companion app.",
       image: "/logos/expired_solutions_logo.jpeg",
       tags: [
         "AI/ML",
@@ -267,7 +267,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "PanPalz - Nonprofit Social App",
       description:
-        "Nonprofit social media platform. Led roadmap planning and UI design, refined 100+ Figma frames improving UI consistency by 40%.",
+        "Nonprofit social media platform with roadmap planning and UI design, refining 100+ Figma frames improving UI consistency by 40%.",
       image: "/logos/Panpalz logo.jpeg",
       tags: ["Social Media", "UI/UX", "Nonprofit", "Product Management"],
       link: "https://panpalz.com",
@@ -277,7 +277,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "McGinnis Venture Competition Finalist",
       description:
-        "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
+        "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition pitching Expired Solutions AI platform for grocery automation.",
       image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
       link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
@@ -287,7 +287,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "BBW Demo Presentation",
       description:
-        "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Built with OpenAI APIs, Flask, and JavaScript.",
+        "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week using OpenAI APIs, Flask, and JavaScript.",
       image: "/logos/bbw.jpg",
       tags: ["Enterprise", "AI", "Consulting", "LLM"],
       link: "https://github.com/LawrenceHua/BBW_POC",
@@ -299,7 +299,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Tutora AI Automation Platform",
       description:
-        "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week. Developed 50+ TI-BASIC math programs improving test scores by 35%.",
+        "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week with 50+ TI-BASIC math programs improving test scores by 35%.",
       image: "/logos/Tutora Logo.jpeg",
       tags: ["AI", "Automation", "Education", "Python"],
       link: "https://www.tutoraprep.com",
@@ -309,7 +309,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Netflix Clone with KNN Model",
       description:
-        "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
+        "Developed a KNN model analyzing 10M+ reviews with A/B testing implementation and Grafana visualization.",
       image: "/logos/netflixlogo.jpeg",
       tags: ["Machine Learning", "Data Analysis", "A/B Testing", "KNN"],
       link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
@@ -319,7 +319,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "NFC Feature Prototype",
       description:
-        "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
+        "NFC-based feature prototype that won 1st place at Motorola Product Hackathon for innovative communication features on mission-critical devices.",
       image: "/logos/nfc.jpeg",
       tags: ["NFC", "Prototype", "Hackathon", "Android"],
       link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
@@ -339,8 +339,8 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Android + DB + RESTful Webservice",
       description:
-        "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture.",
-      image: "/logos/carnegie_mellon_university_logo.jpeg",
+        "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture development.",
+      image: "/logos/DS project.png",
       tags: ["Android", "Database", "REST API", "Distributed Systems"],
       link: "https://github.com/LawrenceHua/CMU-Projects/blob/main/Spring%202024/Distributed%20Systems/DS%20projects/Project%204%2C%20Android%20%2B%20DB%20%2B%20RESTful%20Webservice/README.pdf",
       linkText: "View Project",
@@ -391,7 +391,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "McGinnis Venture Competition Finalist",
       description:
-        "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
+        "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition pitching Expired Solutions AI platform for grocery automation.",
       image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
       link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
@@ -401,8 +401,8 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Cryptocurrency Gaming Research",
       description:
-        "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across cross-functional teams.",
-      image: "/logos/carnegie_mellon_university_logo.jpeg",
+        "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry with compliance and technical alignment.",
+      image: "/logos/gamingcrypto.jpeg",
       tags: ["Research", "Strategy", "Crypto", "Gaming"],
       link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
       linkText: "View Presentation",
@@ -411,7 +411,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "NFC Feature Prototype",
       description:
-        "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
+        "NFC-based feature prototype that won 1st place at Motorola Product Hackathon for innovative communication features on mission-critical devices.",
       image: "/logos/nfc.jpeg",
       tags: ["NFC", "Prototype", "Hackathon", "Android"],
       link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
@@ -421,7 +421,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "ML Playground",
       description:
-        "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
+        "Interactive machine learning simulation featuring models from CMU 10601 including Decision Trees, Neural Networks, and KNN algorithms.",
       image: "/logos/mlplayground.jpeg",
       tags: ["Machine Learning", "Interactive", "Education", "Simulation"],
       link: "/ml-playground",
@@ -431,7 +431,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Professional Speaking",
       description:
-        "Presented to a class of 30 students, receiving an A+ grade. Demonstrated strong communication and presentation skills.",
+        "Presented to a class of 30 students receiving an A+ grade while demonstrating strong communication and presentation skills.",
       image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Presentation", "Education", "Communication"],
       link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
@@ -2180,7 +2180,6 @@ export default function Home() {
                   <div
                     key={project.title}
                     className="project-card mx-auto flex max-w-[340px] min-w-[260px] flex-col overflow-hidden rounded-2xl border border-blue-900/40 bg-gray-900/90 shadow-lg transition-all duration-200 hover:scale-[1.025] hover:shadow-2xl"
-                    style={{ minHeight: "420px" }}
                   >
                     <div className="relative aspect-[16/9] w-full overflow-hidden border-b border-blue-900/30 bg-gray-800">
                       <Image
@@ -2196,12 +2195,12 @@ export default function Home() {
                     </div>
                     <div className="flex flex-1 flex-col gap-2 px-5 py-4">
                       <h3
-                        className="mb-1 text-base leading-tight font-bold break-words whitespace-normal text-white"
+                        className="text-base leading-tight font-bold break-words whitespace-normal text-white"
                         title={project.title}
                       >
                         {project.title}
                       </h3>
-                      <p className="mb-2 line-clamp-3 min-h-[48px] text-sm text-blue-100">
+                      <p className="mb-2 text-sm text-blue-100">
                         {project.description}
                       </p>
                       <div className="mb-2 flex flex-wrap gap-2">
