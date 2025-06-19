@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Chatbot from "@/components/Chatbot";
@@ -25,79 +19,6 @@ import {
 
 import "react-datepicker/dist/react-datepicker.css";
 
-// useMediaQuery hook (local copy)
-function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    if (media.matches !== matches) {
-      setMatches(media.matches);
-    }
-    const listener = () => setMatches(media.matches);
-    media.addEventListener("change", listener);
-    return () => media.removeEventListener("change", listener);
-  }, [matches, query]);
-  return matches;
-}
-
-// Type definitions
-interface TimelineEvent {
-  type: "education" | "experience";
-  year: string;
-  title: string;
-  org: string;
-  date: string;
-  logo: string;
-  category?: string;
-  bullets?: string[];
-  details?: string[];
-}
-
-interface Skill {
-  name: string;
-  level: string;
-  endorsements: number;
-  experiences: number;
-  highlight: string;
-}
-
-interface ProjectSection {
-  all: Project[];
-  product: Project[];
-  engineering: Project[];
-  fun: Project[];
-}
-
-interface Project {
-  title: string;
-  description: string;
-  image: string;
-  tags: string[];
-  link: string;
-  linkText: string;
-  linkIcon: "external" | "github";
-}
-
-// Project sections data
-const projectSectionsData: ProjectSection = {
-  all: [
-    {
-      title: "Portfolio Website",
-      description:
-        "My personal portfolio website built with Next.js and TailwindCSS",
-      image: "/images/projects/portfolio/cover.jpg",
-      tags: ["Next.js", "React", "TailwindCSS"],
-      link: "https://github.com/yourusername/portfolio",
-      linkText: "View Source",
-      linkIcon: "github" as const,
-    },
-    // Add more projects here...
-  ],
-  product: [], // Add product projects
-  engineering: [], // Add engineering projects
-  fun: [], // Add fun projects
-};
-
 const timelineData = [
   {
     year: "2025",
@@ -107,7 +28,6 @@ const timelineData = [
       org: "PM Happy Hour · Internship",
       date: "Mar 2025 - Present · 4 mos",
       logo: "/logos/pm_happy_hour_logo.jpeg",
-      category: "product",
       bullets: [
         "Scaled PM Happy Hour's community by 30% through a combination of AIGC, targeted engagement campaigns (like MBTI x PM), and continuous feedback loops. Launched interactive content initiatives and analytics workflows to improve user retention and product adoption by 20%.",
         "Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement",
@@ -136,7 +56,6 @@ const timelineData = [
       org: "Expired Solutions · Full-time",
       date: "Aug 2024 - Present · 11 mos",
       logo: "/logos/expired_solutions_logo.jpeg",
-      category: "product",
       bullets: [
         "As Founder and CEO, I led strategy, technical buildout, and GTM for Expired, an AI platform using CV + GPT to automate markdowns and reduce grocery shrink by up to 20%. Pitched an 8-week pilot with Giant Eagle and validated the solution through 15+ exec interviews and 250+ shopper surveys. Oversaw product strategy, model deployment, mobile dev, and team ops.",
         "Built an AI-powered freshness scoring platform to automate pricing, placement, and inventory workflows",
@@ -155,7 +74,6 @@ const timelineData = [
       org: "PanPalz · Internship",
       date: "Aug 2024 - Jan 2025 · 6 mos",
       logo: "/logos/Panpalz logo.jpeg",
-      category: "product",
       bullets: [
         "Led roadmap planning and UI design for PanPalz, a nonprofit social media platform. Improved product readiness through design iteration and alignment with launch goals.",
         "Defined and maintained product roadmap across engineering and design teams",
@@ -173,7 +91,6 @@ const timelineData = [
       org: "Kearney",
       date: "Sep 2024 - Dec 2024 · 4 mos",
       logo: "/logos/kearney_logo.jpeg",
-      category: "engineering",
       bullets: [
         "Built an enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Handled research, competitive analysis, and prototyping using OpenAI, Python, and Flask.",
         "Reduced operational decision-making time by 26% with custom GPT-based prototype",
@@ -191,7 +108,6 @@ const timelineData = [
       org: "Giant Eagle, Inc. · Full-time",
       date: "Feb 2025 - May 2025 · 4 mos",
       logo: "/logos/giant_eagle_logo.jpeg",
-      category: "retail",
       bullets: [
         "Hands-on leadership role focused on reducing shrink, improving freshness, and optimizing inventory operations in the grocery's highest-loss department. Leveraged data and tools like Flashfoods and Periscope to drive measurable results in a 1-month window.",
         "Reduced shrink by 1% in produce within 30 days by optimizing markdown execution and inventory rotation strategy",
@@ -210,7 +126,6 @@ const timelineData = [
       org: "Carnegie Mellon University · Internship",
       date: "Jul 2024 - Aug 2024 · 2 mos",
       logo: "/logos/carnegie_mellon_university_logo.jpeg",
-      category: "engineering",
       bullets: [
         "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across a cross-functional team to shape product positioning and long-term scalability.",
         "Developed a strategic launch plan for a novel gaming-focused cryptocurrency, backed by market and competitor analysis",
@@ -229,7 +144,6 @@ const timelineData = [
       org: "Motorola Solutions · Full-time",
       date: "Aug 2021 - Aug 2023 · 2 yrs 1 mo",
       logo: "/logos/Motorola logo.jpeg",
-      category: "engineering",
       bullets: [
         "Developed embedded Android software for Motorola's APX NEXT Smart Radios, supporting mission-critical communications for public safety professionals. Owned features across GPS, authentication, and UI, contributing to product stability and scale.",
         "Designed and shipped Android system extensions that improved GPS accuracy, device security, and UI responsiveness for 15,000+ field units",
@@ -258,7 +172,6 @@ const timelineData = [
       org: "Tutora · Part-time",
       date: "Mar 2021 - Present · 4 yrs 4 mos",
       logo: "/logos/Tutora Logo.jpeg",
-      category: "engineering",
       bullets: [
         "Redesigned tutoring operations by building both backend automation tools and student-facing programs. Delivered scalable AI systems for internal workflows and custom-built math and computer science curriculum that improved student performance and operational efficiency.",
         "Consulted business owners to identify bottlenecks and build 0→1 unified AI tools using Otter.ai, Dola, WhatsApp, and App Scripts for automation and adoption",
@@ -277,7 +190,6 @@ const timelineData = [
       org: "University of Florida · Part-time",
       date: "May 2019 - Jun 2021 · 2 yrs 2 mos",
       logo: "/logos/UF logo.jpeg",
-      category: "engineering",
       bullets: [
         "Provided IT support and system management for CALS' academic labs and research teams. Built internal tools and led technician teams to improve service reliability and hardware asset tracking.",
         "Maintained 95%+ customer satisfaction over 2 years while managing MacOS/Linux support for 200+ users",
@@ -296,7 +208,6 @@ const timelineData = [
       org: "Motorola Solutions · Internship",
       date: "Jun 2020 - Aug 2020 · 3 mos",
       logo: "/logos/Motorola logo.jpeg",
-      category: "engineering",
       bullets: [
         "Developed and updated Android Applications in the APX NEXT device while using various technologies (Android studio, git, ADB, shell, JIRA, Bitbucket).",
         "Learned how to adapt quickly in a completely virtual agile development setting.",
@@ -312,7 +223,6 @@ const timelineData = [
       org: "5-Spice Asian Street Market · Full-time",
       date: "Jan 2016 - Jan 2018 · 2 yrs 1 mo",
       logo: "/logos/5spice_logo.jpeg",
-      category: "retail",
       bullets: [
         "Family-owned restaurant business, started working as an unpaid intern at age 6, made my way to a paid full-time worker by 2016!",
         "Orders taken using Point-of-Sale software to secure communication with the chef and accuracy for the bill.",
@@ -324,7 +234,16 @@ const timelineData = [
 ];
 
 // 1. Flatten timelineData into a single array of events
-const timelineEvents: Array<TimelineEvent> = [
+const timelineEvents: Array<{
+  type: "education" | "experience";
+  year: string;
+  title: string;
+  org: string;
+  date: string;
+  logo: string;
+  bullets?: string[];
+  details?: string[];
+}> = [
   // Education
   {
     type: "education",
@@ -374,7 +293,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "PM Happy Hour · Internship",
     date: "Mar 2025 - Present · 4 mos",
     logo: "/logos/pm_happy_hour_logo.jpeg",
-    category: "product",
     bullets: [
       "Scaled PM Happy Hour's community by 30% through a combination of AIGC, targeted engagement campaigns (like MBTI x PM), and continuous feedback loops. Launched interactive content initiatives and analytics workflows to improve user retention and product adoption by 20%.",
       "Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement",
@@ -391,7 +309,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "Expired Solutions · Full-time",
     date: "Aug 2024 - Present",
     logo: "/logos/expired_solutions_logo.jpeg",
-    category: "product",
     bullets: [
       "As Founder and CEO, I led strategy, technical buildout, and GTM for Expired, an AI platform using CV + GPT to automate markdowns and reduce grocery shrink by up to 20%. Pitched an 8-week pilot with Giant Eagle and validated the solution through 15+ exec interviews and 250+ shopper surveys. Oversaw product strategy, model deployment, mobile dev, and team ops.",
       "Built an AI-powered freshness scoring platform to automate pricing, placement, and inventory workflows",
@@ -408,7 +325,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "PanPalz · Internship",
     date: "Aug 2024 - Jan 2025",
     logo: "/logos/Panpalz logo.jpeg",
-    category: "product",
     bullets: [
       "Led roadmap planning and UI design for PanPalz, a nonprofit social media platform. Improved product readiness through design iteration and alignment with launch goals.",
       "Defined and maintained product roadmap across engineering and design teams",
@@ -424,7 +340,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "Kearney",
     date: "Sep 2024 - Dec 2024 · 4 mos",
     logo: "/logos/kearney_logo.jpeg",
-    category: "engineering",
     bullets: [
       "Built an enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Handled research, competitive analysis, and prototyping using OpenAI, Python, and Flask.",
       "Reduced operational decision-making time by 26% with custom GPT-based prototype",
@@ -440,7 +355,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "Giant Eagle, Inc. · Full-time",
     date: "Feb 2025 - May 2025 · 4 mos",
     logo: "/logos/giant_eagle_logo.jpeg",
-    category: "retail",
     bullets: [
       "Hands-on leadership role focused on reducing shrink, improving freshness, and optimizing inventory operations in the grocery's highest-loss department. Leveraged data and tools like Flashfoods and Periscope to drive measurable results in a 1-month window.",
       "Reduced shrink by 1% in produce within 30 days by optimizing markdown execution and inventory rotation strategy",
@@ -457,7 +371,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "Carnegie Mellon University · Internship",
     date: "Jul 2024 - Aug 2024 · 2 mos",
     logo: "/logos/carnegie_mellon_university_logo.jpeg",
-    category: "engineering",
     bullets: [
       "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across a cross-functional team to shape product positioning and long-term scalability.",
       "Developed a strategic launch plan for a novel gaming-focused cryptocurrency, backed by market and competitor analysis",
@@ -474,7 +387,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "Motorola Solutions · Full-time",
     date: "Aug 2021 - Aug 2023 · 2 yrs 1 mo",
     logo: "/logos/Motorola logo.jpeg",
-    category: "engineering",
     bullets: [
       "Developed embedded Android software for Motorola's APX NEXT Smart Radios, supporting mission-critical communications for public safety professionals. Owned features across GPS, authentication, and UI, contributing to product stability and scale.",
       "Designed and shipped Android system extensions that improved GPS accuracy, device security, and UI responsiveness for 15,000+ field units",
@@ -491,7 +403,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "Tutora · Part-time",
     date: "Mar 2021 - Present",
     logo: "/logos/Tutora Logo.jpeg",
-    category: "engineering",
     bullets: [
       "Redesigned tutoring operations by building both backend automation tools and student-facing programs. Delivered scalable AI systems for internal workflows and custom-built math and computer science curriculum that improved student performance and operational efficiency.",
       "Consulted business owners to identify bottlenecks and build 0→1 unified AI tools using Otter.ai, Dola, WhatsApp, and App Scripts for automation and adoption",
@@ -508,7 +419,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "University of Florida · Part-time",
     date: "May 2019 - Jun 2021 · 2 yrs 2 mos",
     logo: "/logos/UF logo.jpeg",
-    category: "engineering",
     bullets: [
       "Provided IT support and system management for CALS' academic labs and research teams. Built internal tools and led technician teams to improve service reliability and hardware asset tracking.",
       "Maintained 95%+ customer satisfaction over 2 years while managing MacOS/Linux support for 200+ users",
@@ -525,7 +435,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "Motorola Solutions · Internship",
     date: "Jun 2020 - Aug 2020 · 3 mos",
     logo: "/logos/Motorola logo.jpeg",
-    category: "engineering",
     bullets: [
       "Developed and updated Android Applications in the APX NEXT device while using various technologies (Android studio, git, ADB, shell, JIRA, Bitbucket).",
       "Learned how to adapt quickly in a completely virtual agile development setting.",
@@ -539,7 +448,6 @@ const timelineEvents: Array<TimelineEvent> = [
     org: "5-Spice Asian Street Market · Full-time",
     date: "Jan 2016 - Jan 2018 · 2 yrs 1 mo",
     logo: "/logos/5spice_logo.jpeg",
-    category: "retail",
     bullets: [
       "Family-owned restaurant business, started working as an unpaid intern at age 6, made my way to a paid full-time worker by 2016!",
       "Orders taken using Point-of-Sale software to secure communication with the chef and accuracy for the bill.",
@@ -591,17 +499,22 @@ const sortedTimelineEvents = [...timelineEvents].sort((a, b) => {
   return getEndDateNum(b.date) - getEndDateNum(a.date);
 });
 
-// Sort education events chronologically (descending, most recent first) for timeline display
+// Sort education events chronologically (ascending) for timeline display
 const sortedEducationEvents = [
   ...timelineEvents.filter((e) => e.type === "education"),
 ].sort((a, b) => {
   return getEndDateNum(b.date) - getEndDateNum(a.date);
 });
-// The education section below will always show the most recent education first due to this sort.
 
 // Skills data with proper categorization and levels
 const skillsData: {
-  [key: string]: Array<Skill>;
+  [key: string]: Array<{
+    name: string;
+    level: string;
+    endorsements: number;
+    experiences: number;
+    highlight: string;
+  }>;
 } = {
   business: [
     {
@@ -821,23 +734,17 @@ const skillsData: {
 };
 
 export default function Home() {
-  // Timeline and filter state
-  const [expYear, setExpYear] = useState("All");
-  const [expCategory, setExpCategory] = useState("all");
+  const [bgError, setBgError] = useState(false);
+  const [bgTriedAlt, setBgTriedAlt] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
-  const [showScrollHint, setShowScrollHint] = useState(true);
+  const [expYear, setExpYear] = useState("All");
   const [projectSection, setProjectSection] = useState("all");
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-  // Form state
-  const [formData, setFormData] = useState<{
-    name: string;
-    email: string;
-    subject: string;
-    message: string;
-  }>({
+  // Contact form state
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
@@ -849,43 +756,384 @@ export default function Home() {
   >("idle");
   const [submitMessage, setSubmitMessage] = useState("");
   const [contactMode, setContactMode] = useState<"meeting" | "message">(
-    "message"
+    "meeting",
   );
   const [meetingDate, setMeetingDate] = useState<Date | null>(null);
-  const [meetingTime, setMeetingTime] = useState<string | null>(null);
+  const [meetingTime, setMeetingTime] = useState("");
 
-  // Refs
-  const timelineRef = useRef<HTMLDivElement>(null);
+  const expYears = Array.from(
+    new Set(
+      sortedTimelineEvents
+        .filter((e) => e.type === "experience")
+        .map((e) => e.year),
+    ),
+  ).sort((a, b) => Number(b) - Number(a));
+  const filteredExperiences =
+    expYear === "All"
+      ? sortedTimelineEvents.filter((e) => e.type === "experience")
+      : sortedTimelineEvents.filter(
+          (e) => e.type === "experience" && e.year === expYear,
+        );
 
-  // Project data
-  const projectSections = projectSectionsData;
+  const filteredSkills =
+    activeFilter === "all"
+      ? Object.values(skillsData).flat()
+      : skillsData[activeFilter as keyof typeof skillsData] || [];
 
-  // Filtered skills computation
-  const filteredSkills = useMemo(() => {
-    if (activeFilter === "all") {
-      return Object.values(skillsData).flat();
+  // Handle form input changes
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
+    setSubmitMessage("");
+
+    try {
+      const payload = {
+        ...formData,
+        meeting: contactMode === "meeting" ? meetingDate : null,
+      };
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus("success");
+        setSubmitMessage("Thank you! Your message has been sent successfully.");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+        setMeetingDate(null);
+        setMeetingTime("");
+      } else {
+        setSubmitStatus("error");
+        setSubmitMessage(
+          result.error || "Failed to send message. Please try again.",
+        );
+      }
+    } catch (error) {
+      setSubmitStatus("error");
+      setSubmitMessage(
+        "Network error. Please check your connection and try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
-    return skillsData[activeFilter] || [];
-  }, [activeFilter]);
+  };
 
-  // Current projects computation
-  const currentProjects = useMemo(() => {
-    const projects = projectSections[projectSection as keyof ProjectSection];
-    if (projectSection === "all" && !showAllProjects) {
-      return projects.slice(0, 8); // Show first 8 projects
-    }
-    return projects;
-  }, [projectSection, showAllProjects, projectSections]);
+  // Project data organized by sections
+  const projectSections: {
+    [key: string]: Array<{
+      title: string;
+      description: string;
+      image: string;
+      tags: string[];
+      link: string;
+      linkText: string;
+      linkIcon: string;
+    }>;
+  } = {
+    all: [
+      {
+        title: "Expired Solutions",
+        description:
+          "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
+        image: "/logos/expired_solutions_logo.jpeg",
+        tags: ["AI/ML", "Product", "Startup"],
+        link: "https://expiredsolutions.com",
+        linkText: "Visit Site",
+        linkIcon: "external",
+      },
+      {
+        title: "BBW Demo Presentation",
+        description:
+          "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week.",
+        image: "/logos/bbw.jpg",
+        tags: ["Enterprise", "AI", "Consulting"],
+        link: "https://github.com/LawrenceHua/BBW_POC",
+        linkText: "View Project",
+        linkIcon: "github",
+      },
+      {
+        title: "PanPalz",
+        description:
+          "Nonprofit social media platform. Led roadmap planning and UI design, refined 100+ Figma frames.",
+        image: "/logos/Panpalz logo.jpeg",
+        tags: ["Social Media", "UI/UX", "Nonprofit"],
+        link: "https://panpalz.com",
+        linkText: "View Project",
+        linkIcon: "external",
+      },
+      {
+        title: "Netflix A/B Testing Analysis",
+        description:
+          "Deep dive into Netflix's A/B testing methodologies and implementation.",
+        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+        tags: ["Analysis", "A/B Testing"],
+        link: "https://docs.google.com/presentation/d/1ii-Se5r_kFOnujyRiOX3i0j58Svz270OvletCi6Dblo/edit?usp=sharing",
+        linkText: "View Analysis",
+        linkIcon: "external",
+      },
+      {
+        title: "Netflix Clone with KNN Model",
+        description:
+          "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
+        image: "/logos/netflixlogo.jpeg",
+        tags: ["Machine Learning", "Data Analysis", "A/B Testing"],
+        link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
+        linkText: "View Project",
+        linkIcon: "external",
+      },
+      {
+        title: "NFC Feature Prototype",
+        description:
+          "NFC-based feature prototype that won 1st place at Motorola Product Hackathon.",
+        image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12",
+        tags: ["NFC", "Prototype", "Hackathon"],
+        link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
+        linkText: "View LinkedIn Post",
+        linkIcon: "external",
+      },
+      {
+        title: "Tutora AI Automation",
+        description:
+          "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week.",
+        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995",
+        tags: ["AI", "Automation", "Education"],
+        link: "https://www.tutoraprep.com",
+        linkText: "View Project",
+        linkIcon: "external",
+      },
+      {
+        title: "Valohai AI Tutorial",
+        description:
+          "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control.",
+        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+        tags: ["ML Pipeline", "Python", "Valohai"],
+        link: "https://github.com/LawrenceHua/Valohai-AI-tutorial",
+        linkText: "View Project",
+        linkIcon: "github",
+      },
+      {
+        title: "Android + DB + RESTful Webservice",
+        description:
+          "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture.",
+        image: "/logos/DS project.png",
+        tags: ["Android", "Database", "REST API"],
+        link: "https://github.com/LawrenceHua/CMU-Projects/blob/main/Spring%202024/Distributed%20Systems/DS%20projects/Project%204%2C%20Android%20%2B%20DB%20%2B%20RESTful%20Webservice/README.pdf",
+        linkText: "View Project",
+        linkIcon: "external",
+      },
+      {
+        title: "Professional Speaking",
+        description:
+          "Presented to a class of 30 students, receiving an A+ grade.",
+        image: "/logos/professional speak.jpeg",
+        tags: ["Presentation", "Education"],
+        link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
+        linkText: "View Presentation",
+        linkIcon: "external",
+      },
+      {
+        title: "Cryptocurrency Research",
+        description:
+          "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry.",
+        image: "/logos/carnegie_mellon_university_logo.jpeg",
+        tags: ["Research", "Strategy", "Crypto"],
+        link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
+        linkText: "View Presentation",
+        linkIcon: "external",
+      },
+      {
+        title: "ML Playground",
+        description:
+          "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
+        image: "/images/projects/games/cover.jpg",
+        tags: ["Machine Learning", "Interactive", "Education"],
+        link: "/ml-playground",
+        linkText: "Play Game",
+        linkIcon: "external",
+      },
+      {
+        title: "McGinnis Venture Competition Finalist: Expired Solutions",
+        description:
+          "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Led strategy, technical buildout, and go-to-market for the pilot with Giant Eagle.",
+        image: "/logos/expired_solutions_logo.jpeg",
+        tags: ["Competition", "AI/ML", "Startup", "Award"],
+        link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
+        linkText: "View Pitch Deck",
+        linkIcon: "external",
+      },
+    ],
+    product: [
+      {
+        title: "Expired Solutions",
+        description:
+          "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
+        image: "/logos/expired_solutions_logo.jpeg",
+        tags: ["AI/ML", "Product", "Startup"],
+        link: "https://expiredsolutions.com",
+        linkText: "Visit Site",
+        linkIcon: "external",
+      },
+      {
+        title: "BBW Demo Presentation",
+        description:
+          "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week.",
+        image: "/logos/bbw.jpg",
+        tags: ["Enterprise", "AI", "Consulting"],
+        link: "https://github.com/LawrenceHua/BBW_POC",
+        linkText: "View Project",
+        linkIcon: "github",
+      },
+      {
+        title: "PanPalz",
+        description:
+          "Nonprofit social media platform. Led roadmap planning and UI design, refined 100+ Figma frames.",
+        image: "/logos/Panpalz logo.jpeg",
+        tags: ["Social Media", "UI/UX", "Nonprofit"],
+        link: "https://panpalz.com",
+        linkText: "View Project",
+        linkIcon: "external",
+      },
+      {
+        title: "Netflix A/B Testing Analysis",
+        description:
+          "Deep dive into Netflix's A/B testing methodologies and implementation.",
+        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+        tags: ["Analysis", "A/B Testing"],
+        link: "https://docs.google.com/presentation/d/1ii-Se5r_kFOnujyRiOX3i0j58Svz270OvletCi6Dblo/edit?usp=sharing",
+        linkText: "View Analysis",
+        linkIcon: "external",
+      },
+    ],
+    engineering: [
+      {
+        title: "Netflix Clone with KNN Model",
+        description:
+          "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
+        image: "/logos/netflixlogo.jpeg",
+        tags: ["Machine Learning", "Data Analysis", "A/B Testing"],
+        link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
+        linkText: "View Project",
+        linkIcon: "external",
+      },
+      {
+        title: "NFC Feature Prototype",
+        description:
+          "NFC-based feature prototype that won 1st place at Motorola Product Hackathon.",
+        image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12",
+        tags: ["NFC", "Prototype", "Hackathon"],
+        link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
+        linkText: "View LinkedIn Post",
+        linkIcon: "external",
+      },
+      {
+        title: "Tutora AI Automation",
+        description:
+          "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week.",
+        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995",
+        tags: ["AI", "Automation", "Education"],
+        link: "https://www.tutoraprep.com",
+        linkText: "View Project",
+        linkIcon: "external",
+      },
+      {
+        title: "Valohai AI Tutorial",
+        description:
+          "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control.",
+        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+        tags: ["ML Pipeline", "Python", "Valohai"],
+        link: "https://github.com/LawrenceHua/Valohai-AI-tutorial",
+        linkText: "View Project",
+        linkIcon: "github",
+      },
+      {
+        title: "Android + DB + RESTful Webservice",
+        description:
+          "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture.",
+        image: "/logos/DS project.png",
+        tags: ["Android", "Database", "REST API"],
+        link: "https://github.com/LawrenceHua/CMU-Projects/blob/main/Spring%202024/Distributed%20Systems/DS%20projects/Project%204%2C%20Android%20%2B%20DB%20%2B%20RESTful%20Webservice/README.pdf",
+        linkText: "View Project",
+        linkIcon: "external",
+      },
+    ],
+    fun: [
+      {
+        title: "Professional Speaking",
+        description:
+          "Presented to a class of 30 students, receiving an A+ grade.",
+        image: "/logos/professional speak.jpeg",
+        tags: ["Presentation", "Education"],
+        link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
+        linkText: "View Presentation",
+        linkIcon: "external",
+      },
+      {
+        title: "Cryptocurrency Research",
+        description:
+          "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry.",
+        image: "/logos/carnegie_mellon_university_logo.jpeg",
+        tags: ["Research", "Strategy", "Crypto"],
+        link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
+        linkText: "View Presentation",
+        linkIcon: "external",
+      },
+      {
+        title: "ML Playground",
+        description:
+          "Interactive machine learning simulation featuring models from CMU 10601. Try Decision Trees, Neural Networks, KNN, and more!",
+        image: "/images/projects/games/cover.jpg",
+        tags: ["Machine Learning", "Interactive", "Education"],
+        link: "/ml-playground",
+        linkText: "Play Game",
+        linkIcon: "external",
+      },
+    ],
+  };
 
-  const moreProjectsCount = useMemo(() => {
-    if (projectSection === "all") {
-      return Math.max(0, projectSections.all.length - 8);
-    }
-    return 0;
-  }, [projectSection, projectSections.all.length]);
+  const currentProjects =
+    projectSection === "all"
+      ? showAllProjects
+        ? projectSections[projectSection as keyof typeof projectSections]
+        : projectSections[projectSection as keyof typeof projectSections].slice(
+            0,
+            4,
+          )
+      : projectSections[projectSection as keyof typeof projectSections] || [];
+  const projectTypes = ["all", "product", "engineering", "fun"];
+  const currentTypeIndex = projectTypes.indexOf(projectSection);
 
-  // Card expansion handler
-  const toggleCardExpansion = useCallback((cardId: string) => {
+  const nextProject = () => {
+    const nextIndex = (currentTypeIndex + 1) % projectTypes.length;
+    setProjectSection(projectTypes[nextIndex]);
+    setShowAllProjects(false);
+  };
+
+  const prevProject = () => {
+    const prevIndex =
+      (currentTypeIndex - 1 + projectTypes.length) % projectTypes.length;
+    setProjectSection(projectTypes[prevIndex]);
+    setShowAllProjects(false);
+  };
+
+  // Toggle card expansion
+  const toggleCardExpansion = (cardId: string) => {
     setExpandedCards((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(cardId)) {
@@ -895,123 +1143,11 @@ export default function Home() {
       }
       return newSet;
     });
-  }, []);
-
-  // Form handlers
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      // Implement your form submission logic here
-      setSubmitStatus("success");
-      setSubmitMessage("Message sent successfully!");
-    } catch (error) {
-      setSubmitStatus("error");
-      setSubmitMessage("Failed to send message. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Define types for experience categories
-  type ExperienceCategory = {
-    key: string;
-    label: string;
-  };
-
-  const expCategories: ExperienceCategory[] = [
-    { key: "all", label: "All" },
-    { key: "product", label: "Product Management" },
-    { key: "engineering", label: "Engineering" },
-    { key: "retail", label: "Retail" },
-  ];
-
-  // Helper function to check if an experience was active in a given year
-  const wasActiveInYear = (date: string, yearStr: string): boolean => {
-    const years = date.match(/\b20\d{2}\b/g);
-    if (!years || years.length === 0) return false;
-
-    const year = parseInt(yearStr);
-
-    // Handle "Present" case
-    if (date.includes("Present")) {
-      const startYear = parseInt(years[0]);
-      const currentYear = new Date().getFullYear();
-      return year >= startYear && year <= currentYear;
-    }
-
-    // For date ranges
-    if (years.length >= 2) {
-      const startYear = parseInt(years[0]);
-      const endYear = parseInt(years[years.length - 1]);
-      return year >= startYear && year <= endYear;
-    }
-
-    // For single year
-    return years.includes(yearStr);
-  };
-
-  // Get unique years for the year filter
-  const expYears = Array.from(
-    new Set(
-      sortedTimelineEvents
-        .filter((e): e is TimelineEvent => e.type === "experience")
-        .flatMap((e) => {
-          const matches = e.date.match(/\b20\d{2}\b/g);
-          return matches || [];
-        })
-    )
-  ).sort((a, b) => Number(b) - Number(a));
-
-  // Update filtered experiences logic
-  const filteredExperiences = sortedTimelineEvents.filter((e) => {
-    // First check if it's an experience
-    if (e.type !== "experience") return false;
-
-    // Then check year filter
-    if (expYear !== "All" && !wasActiveInYear(e.date, expYear)) return false;
-
-    // Finally check category filter
-    if (expCategory !== "all" && e.category !== expCategory) return false;
-
-    return true;
-  });
-
-  // Get experiences count for each year
-  const getYearCount = (yearStr: string): number => {
-    if (yearStr === "All")
-      return sortedTimelineEvents.filter((e) => e.type === "experience").length;
-    return sortedTimelineEvents.filter(
-      (e) => e.type === "experience" && wasActiveInYear(e.date, yearStr)
-    ).length;
-  };
-
-  // Get experiences count for each category
-  const getCategoryCount = (category: string): number => {
-    return sortedTimelineEvents.filter(
-      (e) =>
-        e.type === "experience" &&
-        (category === "all" || e.category === category)
-    ).length;
-  };
-
-  // Utility: Responsive flex direction for timeline containers
-  const isMobile = useMediaQuery("(max-width: 600px)");
-  const timelineFlexClass = isMobile
-    ? "flex-col items-center gap-6 w-full"
-    : "flex-row items-center gap-4";
-
-  // ... rest of the component code ...
+  // Calculate the number of additional projects for the 'View More Projects' button
+  const totalAllProjects = projectSections.all.length;
+  const moreProjectsCount = totalAllProjects > 4 ? totalAllProjects - 4 : 0;
 
   return (
     <main className="min-h-screen">
@@ -1120,7 +1256,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           JJ Xu
                           <Link
-                            href="https://www.linkedin.com/in/jj-jiaojiao-xu/"
+                            href="https://www.linkedin.com/in/jj-xu/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1155,7 +1291,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Wendy Williams
                           <Link
-                            href="https://www.linkedin.com/in/wendy-williams-873b7538"
+                            href="https://www.linkedin.com/in/wendy-williams-0b7b8b8/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1189,7 +1325,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Shyam Sundar
                           <Link
-                            href="https://www.linkedin.com/in/shyamsundarn/"
+                            href="https://www.linkedin.com/in/shyam-sundar-1b2b3b4b/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1224,7 +1360,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           JJ Xu
                           <Link
-                            href="https://www.linkedin.com/in/jj-jiaojiao-xu/"
+                            href="https://www.linkedin.com/in/jj-xu/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1259,7 +1395,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Wendy Williams
                           <Link
-                            href="https://www.linkedin.com/in/wendy-williams-873b7538"
+                            href="https://www.linkedin.com/in/wendy-williams-0b7b8b8/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1293,7 +1429,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Shyam Sundar
                           <Link
-                            href="https://www.linkedin.com/in/shyamsundarn/"
+                            href="https://www.linkedin.com/in/shyam-sundar-1b2b3b4b/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1449,84 +1585,54 @@ export default function Home() {
           </h3>
 
           {/* Year Navigation */}
-          <div className="mb-2 flex flex-wrap items-center justify-center gap-4 text-center">
+          <div className="mb-8 flex flex-wrap items-center justify-center gap-4 text-center">
             <button
-              className={`rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
-                expYear === "All"
-                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800"
-                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
-              }`}
+              className={`skills-filter-button${expYear === "All" ? "active" : ""}`}
+              style={{ minWidth: "64px" }}
               onClick={() => setExpYear("All")}
             >
-              All ({getYearCount("All")})
+              All
             </button>
             {expYears.map((year) => (
               <button
                 key={year}
-                className={`rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
-                  expYear === year
-                    ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
-                }`}
+                className={`skills-filter-button${expYear === year ? "active" : ""}`}
+                style={{ minWidth: "64px" }}
                 onClick={() => setExpYear(year)}
               >
-                {year} ({getYearCount(year)})
+                {year}
               </button>
             ))}
           </div>
-
-          {/* Category Navigation */}
-          <div className="mb-4 flex flex-wrap items-center justify-center gap-4 text-center">
-            {expCategories.map((cat) => (
-              <button
-                key={cat.key}
-                className={`rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
-                  expCategory === cat.key
-                    ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
-                }`}
-                onClick={() => setExpCategory(cat.key)}
-              >
-                {cat.label} ({getCategoryCount(cat.key)})
-              </button>
-            ))}
-          </div>
-
-          {/* Remove project filters section */}
 
           {/* Career Timeline Row with Arrows */}
-          <div className="relative">
-            <div
-              className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-auto pt-8"
-              ref={timelineRef}
-            >
-              <div
-                className={
-                  "flex flex-row items-start justify-start gap-x-4 px-2 sm:px-8 " +
-                  timelineFlexClass
-                }
-              >
-                {filteredExperiences.map((item, idx, arr) => (
-                  <React.Fragment
-                    key={item.title + "-" + item.year + "-" + idx}
-                  >
-                    <div className="timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[220px] sm:max-w-[280px] mx-2 flex-col items-center">
+          <div className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-auto">
+            <div className="flex min-w-max items-center justify-center gap-4 px-8">
+              {(expYear === "All"
+                ? filteredExperiences
+                : filteredExperiences.slice(0, 6)
+              ).map((item, idx, arr) => (
+                <React.Fragment key={item.title + "-" + item.year + "-" + idx}>
+                  <div className="timeline-card-container relative flex max-w-[220px] min-w-[200px] flex-col items-center">
+                    <div className="timeline-circle top">
+                      <div className="circle-svg">
+                        <span className="circle-year">{item.year}</span>
+                      </div>
+                    </div>
+                    <div className="education-card improved-ui timeline-card-container">
                       <div
                         className="timeline-card mx-auto flex h-full w-full flex-col text-left"
                         onClick={() =>
                           toggleCardExpansion(item.title + "-" + item.year)
                         }
                       >
-                        {/* REMOVED YEAR CIRCLE AND FLEX WRAPPER */}
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <Image
-                            src={item.logo}
-                            alt={item.org}
-                            width={40}
-                            height={40}
-                            className="logo rounded"
-                          />
-                        </div>
+                        <Image
+                          src={item.logo}
+                          alt={item.org}
+                          width={40}
+                          height={40}
+                          className="logo mx-auto rounded"
+                        />
                         <div
                           className="text-center text-base font-bold text-white"
                           style={{ margin: 0, padding: 0 }}
@@ -1556,59 +1662,55 @@ export default function Home() {
                         )}
                       </div>
                     </div>
-                    {/* Arrow between cards: left arrow, rotated 180deg */}
-                    {idx < arr.length - 1 && (
-                      <div className="flex items-center justify-center w-8 h-8 mx-1">
-                        <span className="inline-block w-3 h-3 rounded-full bg-blue-400"></span>
-                      </div>
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
+                  </div>
+
+                  {/* Arrow pointing left (toward older items) */}
+                  {idx < arr.length - 1 && (
+                    <div className="flex h-12 w-12 items-center justify-center">
+                      <svg
+                        className="h-8 w-8 rotate-180 transform text-blue-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 8l4 4m0 0l-4 4m4-4H3"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
-            {/* Scroll hint animation/popup */}
-            {showScrollHint && (
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 animate-bounce bg-blue-700/90 text-white px-3 py-2 rounded-lg shadow-lg text-xs font-semibold pointer-events-none">
-                Scroll right to see more →
-              </div>
-            )}
           </div>
 
           {/* Education Section - Improved UI */}
-          <h3 className="mt-8 mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-3xl font-semibold text-transparent">
+          <h3 className="mt-16 mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-3xl font-semibold text-transparent">
             Education
           </h3>
-          <div
-            className="education-carousel improved-ui timeline-container-with-stars overflow-visible pt-8"
-            style={{ overflow: "visible", paddingTop: "2.5rem" }}
-          >
-            <div
-              className={
-                "flex flex-row items-start justify-start gap-x-4 px-2 sm:px-8 " +
-                timelineFlexClass
-              }
-            >
+          <div className="education-carousel improved-ui timeline-container-with-stars">
+            <div className="flex min-w-max items-center justify-center gap-4 px-8">
               {sortedEducationEvents.map((item, idx) => (
                 <React.Fragment key={item.year + "-" + idx}>
                   <div
-                    className={`timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[240px] sm:max-w-[280px] mx-2 flex-col items-center${item.type === "education" ? " education" : ""}`}
+                    className={`timeline-card-container relative flex max-w-[280px] min-w-[240px] flex-col items-center${item.type === "education" ? "education" : ""}`}
                   >
-                    <div
-                      className="timeline-card mx-auto flex h-full w-full flex-col text-left"
-                      onClick={() =>
-                        toggleCardExpansion(item.title + "-" + item.year)
-                      }
-                    >
-                      {/* REMOVED YEAR CIRCLE AND FLEX WRAPPER */}
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <Image
-                          src={item.logo}
-                          alt={item.org}
-                          width={40}
-                          height={40}
-                          className="logo rounded"
-                        />
+                    <div className="timeline-circle top">
+                      <div className="circle-svg">
+                        <span className="circle-year">{item.year}</span>
                       </div>
+                    </div>
+                    <div className="timeline-card mx-auto flex h-full w-full flex-col text-left">
+                      <Image
+                        src={item.logo}
+                        alt={item.org}
+                        width={40}
+                        height={40}
+                        className="logo mx-auto rounded"
+                      />
                       <div
                         className="text-center text-base font-bold text-white"
                         style={{ margin: 0, padding: 0 }}
@@ -1627,8 +1729,20 @@ export default function Home() {
                     </div>
                   </div>
                   {idx < sortedEducationEvents.length - 1 && (
-                    <div className="flex items-center justify-center w-8 h-8 mx-1">
-                      <span className="inline-block w-3 h-3 rounded-full bg-blue-400"></span>
+                    <div className="flex h-12 w-12 items-center justify-center">
+                      <svg
+                        className="h-8 w-8 rotate-180 transform text-blue-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 8l4 4m0 0l-4 4m4-4H3"
+                        />
+                      </svg>
                     </div>
                   )}
                 </React.Fragment>
