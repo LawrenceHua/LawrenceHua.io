@@ -231,7 +231,7 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Portfolio Website",
       description:
-        "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design.",
+        "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design. Fork it and build your own!",
       image: "/images/projects/portfolio/cover.jpg",
       tags: ["Next.js", "React", "TailwindCSS", "TypeScript"],
       link: "https://github.com/LawrenceHua/LawrenceHua.io",
@@ -371,10 +371,10 @@ const projectSectionsData: ProjectSection = {
     {
       title: "Portfolio Website",
       description:
-        "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design.",
+        "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design. Fork it and build your own!",
       image: "/images/projects/portfolio/cover.jpg",
       tags: ["Next.js", "React", "TailwindCSS", "TypeScript"],
-      link: "https://github.com/yourusername/portfolio",
+      link: "https://github.com/LawrenceHua/LawrenceHua.io",
       linkText: "View Source",
       linkIcon: "github" as const,
     },
