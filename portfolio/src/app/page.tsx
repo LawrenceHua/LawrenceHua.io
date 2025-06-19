@@ -85,7 +85,7 @@ const projectSectionsData: ProjectSection = {
       title: "Expired Solutions - AI Grocery Platform",
       description:
         "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Built Azure-based solution with mobile companion app.",
-      image: "/images/projects/eco_marketplace/cover.jpg",
+      image: "/logos/expired_solutions_logo.jpeg",
       tags: [
         "AI/ML",
         "Computer Vision",
@@ -101,7 +101,7 @@ const projectSectionsData: ProjectSection = {
       title: "Tutora AI Automation Platform",
       description:
         "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week. Developed 50+ TI-BASIC math programs improving test scores by 35%.",
-      image: "/images/projects/study_group/cover.jpg",
+      image: "/logos/tutora_logo.jpeg",
       tags: ["AI", "Automation", "Education", "Python"],
       link: "https://www.tutoraprep.com",
       linkText: "View Project",
@@ -111,7 +111,7 @@ const projectSectionsData: ProjectSection = {
       title: "McGinnis Venture Competition Finalist",
       description:
         "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
-      image: "/images/projects/portfolio/cover.jpg",
+      image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
       link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
       linkText: "Watch Live Pitch",
@@ -121,7 +121,7 @@ const projectSectionsData: ProjectSection = {
       title: "BBW Demo Presentation",
       description:
         "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Built with OpenAI APIs, Flask, and JavaScript.",
-      image: "/images/projects/coding_tutorials/cover.jpg",
+      image: "/logos/bbw.jpg",
       tags: ["Enterprise", "AI", "Consulting", "LLM"],
       link: "https://github.com/LawrenceHua/BBW_POC",
       linkText: "View Project",
@@ -131,7 +131,7 @@ const projectSectionsData: ProjectSection = {
       title: "PanPalz - Nonprofit Social App",
       description:
         "Nonprofit social media platform. Led roadmap planning and UI design, refined 100+ Figma frames improving UI consistency by 40%.",
-      image: "/images/projects/portfolio/cover.jpg",
+      image: "/logos/Panpalz logo.jpeg",
       tags: ["Social Media", "UI/UX", "Nonprofit", "Product Management"],
       link: "https://panpalz.com",
       linkText: "View Project",
@@ -141,7 +141,7 @@ const projectSectionsData: ProjectSection = {
       title: "Netflix A/B Testing Analysis",
       description:
         "Deep dive into Netflix's A/B testing methodologies and implementation. Comprehensive analysis of testing strategies and optimization techniques.",
-      image: "/images/projects/coding_tutorials/cover.jpg",
+      image: "/logos/netflixlogo.jpeg",
       tags: ["Analysis", "A/B Testing", "Data Science"],
       link: "https://docs.google.com/presentation/d/1ii-Se5r_kFOnujyRiOX3i0j58Svz270OvletCi6Dblo/edit?usp=sharing",
       linkText: "View Analysis",
@@ -151,7 +151,7 @@ const projectSectionsData: ProjectSection = {
       title: "Netflix Clone with KNN Model",
       description:
         "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
-      image: "/images/projects/coding_tutorials/cover.jpg",
+      image: "/logos/netflixlogo.jpeg",
       tags: ["Machine Learning", "Data Analysis", "A/B Testing", "KNN"],
       link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
       linkText: "View Project",
@@ -161,7 +161,7 @@ const projectSectionsData: ProjectSection = {
       title: "Cryptocurrency Gaming Research",
       description:
         "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across cross-functional teams.",
-      image: "/images/projects/games/cover.jpg",
+      image: "/logos/giant_eagle_logo.jpeg",
       tags: ["Research", "Strategy", "Crypto", "Gaming"],
       link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
       linkText: "View Presentation",
@@ -171,7 +171,7 @@ const projectSectionsData: ProjectSection = {
       title: "NFC Feature Prototype",
       description:
         "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
-      image: "/images/projects/fitness_tracker/cover.jpg",
+      image: "/logos/motorola_logo.jpeg",
       tags: ["NFC", "Prototype", "Hackathon", "Android"],
       link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
       linkText: "View LinkedIn Post",
@@ -181,7 +181,7 @@ const projectSectionsData: ProjectSection = {
       title: "Valohai AI Tutorial",
       description:
         "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control.",
-      image: "/images/projects/coding_tutorials/cover.jpg",
+      image: "/logos/valohai_logo.jpeg",
       tags: ["ML Pipeline", "Python", "Valohai", "Tutorial"],
       link: "https://github.com/LawrenceHua/Valohai-AI-tutorial",
       linkText: "View Project",
@@ -191,7 +191,7 @@ const projectSectionsData: ProjectSection = {
       title: "Android + DB + RESTful Webservice",
       description:
         "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture.",
-      image: "/images/projects/fitness_tracker/cover.jpg",
+      image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Android", "Database", "REST API", "Distributed Systems"],
       link: "https://github.com/LawrenceHua/CMU-Projects/blob/main/Spring%202024/Distributed%20Systems/DS%20projects/Project%204%2C%20Android%20%2B%20DB%20%2B%20RESTful%20Webservice/README.pdf",
       linkText: "View Project",
@@ -244,7 +244,7 @@ const projectSectionsData: ProjectSection = {
       title: "Expired Solutions - AI Grocery Platform",
       description:
         "AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Built Azure-based solution with mobile companion app.",
-      image: "/images/projects/eco_marketplace/cover.jpg",
+      image: "/logos/expired_solutions_logo.jpeg",
       tags: [
         "AI/ML",
         "Computer Vision",
@@ -260,7 +260,7 @@ const projectSectionsData: ProjectSection = {
       title: "PanPalz - Nonprofit Social App",
       description:
         "Nonprofit social media platform. Led roadmap planning and UI design, refined 100+ Figma frames improving UI consistency by 40%.",
-      image: "/images/projects/portfolio/cover.jpg",
+      image: "/logos/Panpalz logo.jpeg",
       tags: ["Social Media", "UI/UX", "Nonprofit", "Product Management"],
       link: "https://panpalz.com",
       linkText: "View Project",
@@ -270,7 +270,7 @@ const projectSectionsData: ProjectSection = {
       title: "McGinnis Venture Competition Finalist",
       description:
         "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
-      image: "/images/projects/portfolio/cover.jpg",
+      image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
       link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
       linkText: "Watch Live Pitch",
@@ -280,7 +280,7 @@ const projectSectionsData: ProjectSection = {
       title: "BBW Demo Presentation",
       description:
         "Enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week. Built with OpenAI APIs, Flask, and JavaScript.",
-      image: "/images/projects/coding_tutorials/cover.jpg",
+      image: "/logos/bbw.jpg",
       tags: ["Enterprise", "AI", "Consulting", "LLM"],
       link: "https://github.com/LawrenceHua/BBW_POC",
       linkText: "View Project",
@@ -292,7 +292,7 @@ const projectSectionsData: ProjectSection = {
       title: "Tutora AI Automation Platform",
       description:
         "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week. Developed 50+ TI-BASIC math programs improving test scores by 35%.",
-      image: "/images/projects/study_group/cover.jpg",
+      image: "/logos/tutora_logo.jpeg",
       tags: ["AI", "Automation", "Education", "Python"],
       link: "https://www.tutoraprep.com",
       linkText: "View Project",
@@ -302,7 +302,7 @@ const projectSectionsData: ProjectSection = {
       title: "Netflix Clone with KNN Model",
       description:
         "Developed a KNN model analyzing 10M+ reviews, implemented A/B testing, and visualized results with Grafana.",
-      image: "/images/projects/coding_tutorials/cover.jpg",
+      image: "/logos/netflixlogo.jpeg",
       tags: ["Machine Learning", "Data Analysis", "A/B Testing", "KNN"],
       link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
       linkText: "View Project",
@@ -312,7 +312,7 @@ const projectSectionsData: ProjectSection = {
       title: "NFC Feature Prototype",
       description:
         "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
-      image: "/images/projects/fitness_tracker/cover.jpg",
+      image: "/logos/motorola_logo.jpeg",
       tags: ["NFC", "Prototype", "Hackathon", "Android"],
       link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
       linkText: "View LinkedIn Post",
@@ -322,7 +322,7 @@ const projectSectionsData: ProjectSection = {
       title: "Valohai AI Tutorial",
       description:
         "Reproducible ML pipeline tutorial using Valohai for clean experiment tracking and version control.",
-      image: "/images/projects/coding_tutorials/cover.jpg",
+      image: "/logos/valohai_logo.jpeg",
       tags: ["ML Pipeline", "Python", "Valohai", "Tutorial"],
       link: "https://github.com/LawrenceHua/Valohai-AI-tutorial",
       linkText: "View Project",
@@ -332,7 +332,7 @@ const projectSectionsData: ProjectSection = {
       title: "Android + DB + RESTful Webservice",
       description:
         "Distributed systems project combining Android app, database, and RESTful web services for scalable architecture.",
-      image: "/images/projects/fitness_tracker/cover.jpg",
+      image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Android", "Database", "REST API", "Distributed Systems"],
       link: "https://github.com/LawrenceHua/CMU-Projects/blob/main/Spring%202024/Distributed%20Systems/DS%20projects/Project%204%2C%20Android%20%2B%20DB%20%2B%20RESTful%20Webservice/README.pdf",
       linkText: "View Project",
@@ -384,7 +384,7 @@ const projectSectionsData: ProjectSection = {
       title: "McGinnis Venture Competition Finalist",
       description:
         "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT.",
-      image: "/images/projects/portfolio/cover.jpg",
+      image: "/logos/carnegie_mellon_university_logo.jpeg",
       tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
       link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
       linkText: "Watch Live Pitch",
@@ -394,7 +394,7 @@ const projectSectionsData: ProjectSection = {
       title: "Cryptocurrency Gaming Research",
       description:
         "Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry. Led compliance and technical alignment across cross-functional teams.",
-      image: "/images/projects/games/cover.jpg",
+      image: "/logos/giant_eagle_logo.jpeg",
       tags: ["Research", "Strategy", "Crypto", "Gaming"],
       link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
       linkText: "View Presentation",
@@ -404,7 +404,7 @@ const projectSectionsData: ProjectSection = {
       title: "NFC Feature Prototype",
       description:
         "NFC-based feature prototype that won 1st place at Motorola Product Hackathon. Developed innovative communication features for mission-critical devices.",
-      image: "/images/projects/fitness_tracker/cover.jpg",
+      image: "/logos/motorola_logo.jpeg",
       tags: ["NFC", "Prototype", "Hackathon", "Android"],
       link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
       linkText: "View LinkedIn Post",
