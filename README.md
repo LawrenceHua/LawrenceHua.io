@@ -1,4 +1,5 @@
 # LawrenceHua.io - Personal Portfolio
+checkout my website here to see what it looks like: www.lawrencehua.com
 
 A modern, responsive portfolio website built with Next.js, featuring an AI-powered chatbot, interactive timeline, and dynamic project showcase.
 
