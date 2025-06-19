@@ -1762,9 +1762,9 @@ export default function Home() {
                       <div
                         className="timeline-circle top"
                         style={{
-                          left: "50%",
-                          transform: "translateX(-50%)",
                           position: "absolute",
+                          top: "-18px",
+                          left: "-18px",
                           zIndex: 2,
                         }}
                       >
@@ -1859,9 +1859,9 @@ export default function Home() {
                     <div
                       className="timeline-circle top"
                       style={{
-                        left: "50%",
-                        transform: "translateX(-50%)",
                         position: "absolute",
+                        top: "-18px",
+                        left: "-18px",
                         zIndex: 2,
                       }}
                     >
