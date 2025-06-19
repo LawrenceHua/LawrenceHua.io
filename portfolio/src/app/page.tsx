@@ -777,6 +777,7 @@ export default function Home() {
   const [bgTriedAlt, setBgTriedAlt] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
   const [expYear, setExpYear] = useState("All");
+  const [expCategory, setExpCategory] = useState("all");
   const [projectSection, setProjectSection] = useState("all");
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -1325,7 +1326,6 @@ export default function Home() {
   }, []);
 
   // 2. Add filter buttons for Product Management, Engineering, and Retail above the timeline
-  const [expCategory, setExpCategory] = useState("all");
   const expCategories = [
     { key: "all", label: "All" },
     { key: "product", label: "Product Management" },
