@@ -1705,3 +1705,26 @@ section#timeline + section h3 {
 .mb-8.flex.flex-wrap.items-center.justify-center.gap-4.text-center {
   padding-bottom: 2.5rem;
 }
+
+@media (max-width: 600px) {
+  .timeline-card-container,
+  .education-card.improved-ui {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .timeline-container-with-stars,
+  .education-carousel.improved-ui {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1.5rem !important;
+  }
+  .flex.h-12.w-12.items-center.justify-center {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    margin: 0.5rem 0;
+  }
+}

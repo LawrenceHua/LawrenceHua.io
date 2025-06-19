@@ -1161,7 +1161,7 @@ export default function Home() {
   const moreProjectsCount = totalAllProjects > 4 ? totalAllProjects - 4 : 0;
 
   // Utility: Responsive flex direction for timeline containers
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 600;
   const timelineFlexClass = isMobile
     ? "flex-col items-center gap-6"
     : "flex-row items-center gap-4";
