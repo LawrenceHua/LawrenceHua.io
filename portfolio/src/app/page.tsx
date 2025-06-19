@@ -22,8 +22,27 @@ import {
   FiMessageCircle,
   FiSend,
 } from "react-icons/fi";
+import { initializeApp, getApps, FirebaseApp } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+  Firestore,
+} from "firebase/firestore";
 
 import "react-datepicker/dist/react-datepicker.css";
+
+// Firebase config (same as in Chatbot.tsx)
+const firebaseConfig = {
+  apiKey: "AIzaSyA_HYWpbGRuNvcWyxfiUEZr7_mTw7PU0t8",
+  authDomain: "peronalsite-88d49.firebaseapp.com",
+  projectId: "peronalsite-88d49",
+  storageBucket: "peronalsite-88d49.firebasestorage.app",
+  messagingSenderId: "515222232116",
+  appId: "1:515222232116:web:b7a9b8735980ce8333fe61",
+  measurementId: "G-ZV5CR4EBB8",
+};
 
 // useMediaQuery hook (local copy)
 function useMediaQuery(query: string): boolean {
@@ -1154,6 +1173,7 @@ export default function Home() {
   const [projectSection, setProjectSection] = useState("all");
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const [db, setDb] = useState<Firestore | null>(null);
 
   // Form state
   const [formData, setFormData] = useState<{
@@ -1180,6 +1200,126 @@ export default function Home() {
 
   // Refs
   const timelineRef = useRef<HTMLDivElement>(null);
+
+  // Initialize Firebase and start analytics tracking
+  useEffect(() => {
+    let app: FirebaseApp | undefined;
+    if (typeof window !== "undefined") {
+      if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+      } else {
+        app = getApps()[0];
+      }
+      const firestore = getFirestore(app);
+      setDb(firestore);
+
+      // Start analytics tracking
+      trackPageView(firestore);
+      trackUserInteractions(firestore);
+      trackDeviceInfo(firestore);
+    }
+  }, []);
+
+  const getSessionId = () => {
+    let sessionId = sessionStorage.getItem("analytics_session_id");
+    if (!sessionId) {
+      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      sessionStorage.setItem("analytics_session_id", sessionId);
+    }
+    return sessionId;
+  };
+
+  const trackPageView = async (firestore: Firestore) => {
+    const pageView = {
+      page: window.location.pathname,
+      userAgent: navigator.userAgent,
+      referrer: document.referrer || "direct",
+      screenSize: `${window.screen.width}x${window.screen.height}`,
+      timeOnPage: 0,
+      sessionId: getSessionId(),
+      timestamp: serverTimestamp(),
+    };
+
+    try {
+      await addDoc(collection(firestore, "page_views"), pageView);
+    } catch (error) {
+      console.error("Error tracking page view:", error);
+    }
+  };
+
+  const trackUserInteractions = (firestore: Firestore) => {
+    const sessionId = getSessionId();
+
+    // Track clicks
+    document.addEventListener("click", async (e) => {
+      const target = e.target as HTMLElement;
+      const interaction = {
+        type: "click",
+        element:
+          target.tagName.toLowerCase() +
+          (target.id ? `#${target.id}` : "") +
+          (target.className ? `.${target.className.split(" ")[0]}` : ""),
+        page: window.location.pathname,
+        sessionId,
+        timestamp: serverTimestamp(),
+      };
+
+      try {
+        await addDoc(collection(firestore, "user_interactions"), interaction);
+      } catch (error) {
+        console.error("Error tracking interaction:", error);
+      }
+    });
+
+    // Track scroll depth
+    let maxScroll = 0;
+    window.addEventListener("scroll", async () => {
+      const scrollPercent = Math.round(
+        (window.scrollY / (document.body.scrollHeight - window.innerHeight)) *
+          100
+      );
+      if (scrollPercent > maxScroll) {
+        maxScroll = scrollPercent;
+        if (maxScroll % 25 === 0) {
+          // Track every 25% scroll
+          const interaction = {
+            type: "scroll",
+            element: `scroll_${maxScroll}%`,
+            page: window.location.pathname,
+            sessionId,
+            timestamp: serverTimestamp(),
+          };
+
+          try {
+            await addDoc(
+              collection(firestore, "user_interactions"),
+              interaction
+            );
+          } catch (error) {
+            console.error("Error tracking scroll:", error);
+          }
+        }
+      }
+    });
+  };
+
+  const trackDeviceInfo = async (firestore: Firestore) => {
+    const deviceInfo = {
+      userAgent: navigator.userAgent,
+      screenSize: `${window.screen.width}x${window.screen.height}`,
+      viewportSize: `${window.innerWidth}x${window.innerHeight}`,
+      language: navigator.language,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      sessionId: getSessionId(),
+      timestamp: serverTimestamp(),
+    };
+
+    try {
+      await addDoc(collection(firestore, "device_info"), deviceInfo);
+    } catch (error) {
+      console.error("Error tracking device info:", error);
+    }
+  };
 
   // Project data
   const projectSections = projectSectionsData;

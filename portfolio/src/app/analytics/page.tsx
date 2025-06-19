@@ -9,8 +9,28 @@ import {
   query,
   orderBy,
   Firestore,
+  addDoc,
+  serverTimestamp,
+  where,
+  limit,
 } from "firebase/firestore";
-import { FiArrowLeft, FiSearch, FiFilter, FiDownload } from "react-icons/fi";
+import {
+  FiArrowLeft,
+  FiSearch,
+  FiFilter,
+  FiDownload,
+  FiEye,
+  FiUsers,
+  FiMessageCircle,
+  FiClock,
+  FiMonitor,
+  FiSmartphone,
+  FiGlobe,
+  FiTrendingUp,
+  FiActivity,
+  FiBarChart,
+  FiPieChart,
+} from "react-icons/fi";
 import Link from "next/link";
 
 // Firebase config (same as in Chatbot.tsx)
@@ -40,12 +60,54 @@ interface ChatSession {
   messageCount: number;
 }
 
+interface PageView {
+  id: string;
+  page: string;
+  timestamp: any;
+  userAgent: string;
+  referrer: string;
+  screenSize: string;
+  timeOnPage: number;
+  sessionId: string;
+}
+
+interface UserInteraction {
+  id: string;
+  type: string;
+  element: string;
+  timestamp: any;
+  sessionId: string;
+  page: string;
+}
+
+interface AnalyticsData {
+  totalPageViews: number;
+  uniqueVisitors: number;
+  totalChatSessions: number;
+  totalMessages: number;
+  avgSessionDuration: number;
+  topPages: { page: string; views: number }[];
+  deviceTypes: { device: string; count: number }[];
+  topReferrers: { referrer: string; count: number }[];
+  hourlyActivity: { hour: number; count: number }[];
+  dailyActivity: { date: string; count: number }[];
+  popularInteractions: { type: string; count: number }[];
+}
+
 export default function AnalyticsPage() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [pageViews, setPageViews] = useState<PageView[]>([]);
+  const [interactions, setInteractions] = useState<UserInteraction[]>([]);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "user" | "assistant">(
     "all"
+  );
+  const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d" | "all">(
+    "7d"
   );
   const [db, setDb] = useState<Firestore | null>(null);
 
@@ -65,21 +127,164 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (db) {
-      fetchChatData();
+      fetchAllData();
+      // Start real-time data collection
+      startDataCollection();
     }
-  }, [db]);
+  }, [db, timeRange]);
 
-  const fetchChatData = async () => {
+  const startDataCollection = () => {
+    // Track page view
+    trackPageView();
+
+    // Track user interactions
+    trackUserInteractions();
+
+    // Track device and browser info
+    trackDeviceInfo();
+  };
+
+  const trackPageView = async () => {
+    if (!db) return;
+
+    const pageView = {
+      page: window.location.pathname,
+      userAgent: navigator.userAgent,
+      referrer: document.referrer || "direct",
+      screenSize: `${window.screen.width}x${window.screen.height}`,
+      timeOnPage: 0,
+      sessionId: getSessionId(),
+      timestamp: serverTimestamp(),
+    };
+
+    try {
+      await addDoc(collection(db, "page_views"), pageView);
+    } catch (error) {
+      console.error("Error tracking page view:", error);
+    }
+  };
+
+  const trackUserInteractions = () => {
+    const sessionId = getSessionId();
+
+    // Track clicks
+    document.addEventListener("click", async (e) => {
+      const target = e.target as HTMLElement;
+      const interaction = {
+        type: "click",
+        element:
+          target.tagName.toLowerCase() +
+          (target.id ? `#${target.id}` : "") +
+          (target.className ? `.${target.className.split(" ")[0]}` : ""),
+        page: window.location.pathname,
+        sessionId,
+        timestamp: serverTimestamp(),
+      };
+
+      if (db) {
+        try {
+          await addDoc(collection(db, "user_interactions"), interaction);
+        } catch (error) {
+          console.error("Error tracking interaction:", error);
+        }
+      }
+    });
+
+    // Track scroll depth
+    let maxScroll = 0;
+    window.addEventListener("scroll", async () => {
+      const scrollPercent = Math.round(
+        (window.scrollY / (document.body.scrollHeight - window.innerHeight)) *
+          100
+      );
+      if (scrollPercent > maxScroll) {
+        maxScroll = scrollPercent;
+        if (maxScroll % 25 === 0) {
+          // Track every 25% scroll
+          const interaction = {
+            type: "scroll",
+            element: `scroll_${maxScroll}%`,
+            page: window.location.pathname,
+            sessionId,
+            timestamp: serverTimestamp(),
+          };
+
+          if (db) {
+            try {
+              await addDoc(collection(db, "user_interactions"), interaction);
+            } catch (error) {
+              console.error("Error tracking scroll:", error);
+            }
+          }
+        }
+      }
+    });
+  };
+
+  const trackDeviceInfo = async () => {
+    if (!db) return;
+
+    const deviceInfo = {
+      userAgent: navigator.userAgent,
+      screenSize: `${window.screen.width}x${window.screen.height}`,
+      viewportSize: `${window.innerWidth}x${window.innerHeight}`,
+      language: navigator.language,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      sessionId: getSessionId(),
+      timestamp: serverTimestamp(),
+    };
+
+    try {
+      await addDoc(collection(db, "device_info"), deviceInfo);
+    } catch (error) {
+      console.error("Error tracking device info:", error);
+    }
+  };
+
+  const getSessionId = () => {
+    let sessionId = sessionStorage.getItem("analytics_session_id");
+    if (!sessionId) {
+      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      sessionStorage.setItem("analytics_session_id", sessionId);
+    }
+    return sessionId;
+  };
+
+  const fetchAllData = async () => {
     if (!db) return;
 
     try {
       setLoading(true);
+
+      // Calculate time filter
+      const now = new Date();
+      let startDate = new Date();
+      switch (timeRange) {
+        case "24h":
+          startDate.setHours(now.getHours() - 24);
+          break;
+        case "7d":
+          startDate.setDate(now.getDate() - 7);
+          break;
+        case "30d":
+          startDate.setDate(now.getDate() - 30);
+          break;
+        case "all":
+          startDate = new Date(0);
+          break;
+      }
+
+      // Fetch chat data
       const messagesRef = collection(db, "chatbot_messages");
-      const q = query(messagesRef, orderBy("timestamp", "desc"));
-      const querySnapshot = await getDocs(q);
+      const messagesQuery = query(
+        messagesRef,
+        orderBy("timestamp", "desc"),
+        where("timestamp", ">=", startDate)
+      );
+      const messagesSnapshot = await getDocs(messagesQuery);
 
       const messages: ChatMessage[] = [];
-      querySnapshot.forEach((doc) => {
+      messagesSnapshot.forEach((doc) => {
         const data = doc.data();
         messages.push({
           id: doc.id,
@@ -99,7 +304,6 @@ export default function AnalyticsPage() {
         sessionMap.get(msg.sessionId)!.push(msg);
       });
 
-      // Convert to sessions array
       const sessionsArray: ChatSession[] = Array.from(sessionMap.entries()).map(
         ([sessionId, msgs]) => {
           const sortedMsgs = msgs.sort(
@@ -117,12 +321,193 @@ export default function AnalyticsPage() {
         }
       );
 
+      // Fetch page views
+      const pageViewsRef = collection(db, "page_views");
+      const pageViewsQuery = query(
+        pageViewsRef,
+        orderBy("timestamp", "desc"),
+        where("timestamp", ">=", startDate)
+      );
+      const pageViewsSnapshot = await getDocs(pageViewsQuery);
+
+      const pageViewsArray: PageView[] = [];
+      pageViewsSnapshot.forEach((doc) => {
+        const data = doc.data();
+        pageViewsArray.push({
+          id: doc.id,
+          page: data.page,
+          timestamp: data.timestamp,
+          userAgent: data.userAgent,
+          referrer: data.referrer,
+          screenSize: data.screenSize,
+          timeOnPage: data.timeOnPage,
+          sessionId: data.sessionId,
+        });
+      });
+
+      // Fetch user interactions
+      const interactionsRef = collection(db, "user_interactions");
+      const interactionsQuery = query(
+        interactionsRef,
+        orderBy("timestamp", "desc"),
+        where("timestamp", ">=", startDate)
+      );
+      const interactionsSnapshot = await getDocs(interactionsQuery);
+
+      const interactionsArray: UserInteraction[] = [];
+      interactionsSnapshot.forEach((doc) => {
+        const data = doc.data();
+        interactionsArray.push({
+          id: doc.id,
+          type: data.type,
+          element: data.element,
+          timestamp: data.timestamp,
+          sessionId: data.sessionId,
+          page: data.page,
+        });
+      });
+
       setSessions(sessionsArray);
+      setPageViews(pageViewsArray);
+      setInteractions(interactionsArray);
+
+      // Calculate analytics data
+      const analytics = calculateAnalyticsData(
+        sessionsArray,
+        pageViewsArray,
+        interactionsArray
+      );
+      setAnalyticsData(analytics);
     } catch (error) {
-      console.error("Error fetching chat data:", error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const calculateAnalyticsData = (
+    sessions: ChatSession[],
+    pageViews: PageView[],
+    interactions: UserInteraction[]
+  ): AnalyticsData => {
+    // Unique visitors (unique session IDs)
+    const uniqueSessions = new Set([
+      ...sessions.map((s) => s.sessionId),
+      ...pageViews.map((p) => p.sessionId),
+    ]);
+
+    // Top pages
+    const pageCounts = new Map<string, number>();
+    pageViews.forEach((pv) => {
+      pageCounts.set(pv.page, (pageCounts.get(pv.page) || 0) + 1);
+    });
+    const topPages = Array.from(pageCounts.entries())
+      .map(([page, views]) => ({ page, views }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 5);
+
+    // Device types
+    const deviceCounts = new Map<string, number>();
+    pageViews.forEach((pv) => {
+      const isMobile = /Mobile|Android|iPhone|iPad/.test(pv.userAgent);
+      const isTablet = /iPad|Android(?=.*\bMobile\b)(?=.*\bSafari\b)/.test(
+        pv.userAgent
+      );
+      let device = "Desktop";
+      if (isTablet) device = "Tablet";
+      else if (isMobile) device = "Mobile";
+
+      deviceCounts.set(device, (deviceCounts.get(device) || 0) + 1);
+    });
+    const deviceTypes = Array.from(deviceCounts.entries())
+      .map(([device, count]) => ({ device, count }))
+      .sort((a, b) => b.count - a.count);
+
+    // Top referrers
+    const referrerCounts = new Map<string, number>();
+    pageViews.forEach((pv) => {
+      const referrer =
+        pv.referrer === "direct"
+          ? "Direct"
+          : pv.referrer.includes("google")
+            ? "Google"
+            : pv.referrer.includes("linkedin")
+              ? "LinkedIn"
+              : pv.referrer.includes("github")
+                ? "GitHub"
+                : "Other";
+      referrerCounts.set(referrer, (referrerCounts.get(referrer) || 0) + 1);
+    });
+    const topReferrers = Array.from(referrerCounts.entries())
+      .map(([referrer, count]) => ({ referrer, count }))
+      .sort((a, b) => b.count - a.count);
+
+    // Hourly activity
+    const hourlyCounts = new Map<number, number>();
+    pageViews.forEach((pv) => {
+      const hour = pv.timestamp.toDate().getHours();
+      hourlyCounts.set(hour, (hourlyCounts.get(hour) || 0) + 1);
+    });
+    const hourlyActivity = Array.from({ length: 24 }, (_, i) => ({
+      hour: i,
+      count: hourlyCounts.get(i) || 0,
+    }));
+
+    // Daily activity (last 7 days)
+    const dailyCounts = new Map<string, number>();
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      return date.toISOString().split("T")[0];
+    }).reverse();
+
+    pageViews.forEach((pv) => {
+      const date = pv.timestamp.toDate().toISOString().split("T")[0];
+      if (last7Days.includes(date)) {
+        dailyCounts.set(date, (dailyCounts.get(date) || 0) + 1);
+      }
+    });
+
+    const dailyActivity = last7Days.map((date) => ({
+      date,
+      count: dailyCounts.get(date) || 0,
+    }));
+
+    // Popular interactions
+    const interactionCounts = new Map<string, number>();
+    interactions.forEach((interaction) => {
+      interactionCounts.set(
+        interaction.type,
+        (interactionCounts.get(interaction.type) || 0) + 1
+      );
+    });
+    const popularInteractions = Array.from(interactionCounts.entries())
+      .map(([type, count]) => ({ type, count }))
+      .sort((a, b) => b.count - a.count);
+
+    // Average session duration
+    const totalDuration = sessions.reduce((sum, session) => {
+      return sum + (session.endTime.getTime() - session.startTime.getTime());
+    }, 0);
+    const avgSessionDuration =
+      sessions.length > 0 ? totalDuration / sessions.length / 1000 / 60 : 0; // in minutes
+
+    return {
+      totalPageViews: pageViews.length,
+      uniqueVisitors: uniqueSessions.size,
+      totalChatSessions: sessions.length,
+      totalMessages: sessions.reduce(
+        (sum, session) => sum + session.messageCount,
+        0
+      ),
+      avgSessionDuration,
+      topPages,
+      deviceTypes,
+      topReferrers,
+      hourlyActivity,
+      dailyActivity,
+      popularInteractions,
+    };
   };
 
   const filteredSessions = sessions.filter((session) => {
@@ -138,12 +523,20 @@ export default function AnalyticsPage() {
   });
 
   const exportData = () => {
-    const dataStr = JSON.stringify(filteredSessions, null, 2);
+    const data = {
+      sessions: filteredSessions,
+      pageViews,
+      interactions,
+      analytics: analyticsData,
+      exportDate: new Date().toISOString(),
+    };
+
+    const dataStr = JSON.stringify(data, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `chat-analytics-${new Date().toISOString().split("T")[0]}.json`;
+    link.download = `portfolio-analytics-${new Date().toISOString().split("T")[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -186,140 +579,369 @@ export default function AnalyticsPage() {
               <FiArrowLeft className="h-5 w-5" />
               Back to Portfolio
             </Link>
-            <h1 className="text-3xl font-bold">Chat Analytics</h1>
+            <h1 className="text-3xl font-bold">
+              Portfolio Analytics Dashboard
+            </h1>
           </div>
-          <button
-            onClick={exportData}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
-          >
-            <FiDownload className="h-4 w-4" />
-            Export Data
-          </button>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-gray-400 text-sm">Total Sessions</h3>
-            <p className="text-2xl font-bold">{sessions.length}</p>
-          </div>
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-gray-400 text-sm">Total Messages</h3>
-            <p className="text-2xl font-bold">
-              {sessions.reduce((sum, session) => sum + session.messageCount, 0)}
-            </p>
-          </div>
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-gray-400 text-sm">Avg Messages/Session</h3>
-            <p className="text-2xl font-bold">
-              {sessions.length > 0
-                ? Math.round(
-                    sessions.reduce(
-                      (sum, session) => sum + session.messageCount,
-                      0
-                    ) / sessions.length
-                  )
-                : 0}
-            </p>
-          </div>
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-gray-400 text-sm">Active Sessions</h3>
-            <p className="text-2xl font-bold">{filteredSessions.length}</p>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1 relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Search messages..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <FiFilter className="h-4 w-4 text-gray-400" />
+          <div className="flex items-center gap-4">
             <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value as any)}
+              value={timeRange}
+              onChange={(e) => setTimeRange(e.target.value as any)}
               className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
             >
-              <option value="all">All Messages</option>
-              <option value="user">User Messages</option>
-              <option value="assistant">Assistant Messages</option>
+              <option value="24h">Last 24 Hours</option>
+              <option value="7d">Last 7 Days</option>
+              <option value="30d">Last 30 Days</option>
+              <option value="all">All Time</option>
             </select>
+            <button
+              onClick={exportData}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
+            >
+              <FiDownload className="h-4 w-4" />
+              Export Data
+            </button>
           </div>
         </div>
 
-        {/* Sessions List */}
-        <div className="space-y-4">
-          {filteredSessions.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">
-              <p>No chat sessions found.</p>
-            </div>
-          ) : (
-            filteredSessions.map((session) => (
-              <div
-                key={session.sessionId}
-                className="bg-gray-800 rounded-lg p-6 border border-gray-700"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">
-                      Session {session.sessionId.slice(-8)}
-                    </h3>
-                    <p className="text-sm text-gray-400">
-                      {formatTimestamp(session.startTime)} -{" "}
-                      {formatTimestamp(session.endTime)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-400">
-                      Duration:{" "}
-                      {getSessionDuration(session.startTime, session.endTime)}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      {session.messageCount} messages
-                    </p>
-                  </div>
+        {/* Main Stats */}
+        {analyticsData && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-200 text-sm">Total Page Views</p>
+                  <p className="text-3xl font-bold">
+                    {analyticsData.totalPageViews}
+                  </p>
                 </div>
+                <FiEye className="h-8 w-8 text-blue-200" />
+              </div>
+            </div>
 
-                <div className="space-y-3">
-                  {session.messages.map((message, index) => (
-                    <div
-                      key={message.id}
-                      className={`p-3 rounded-lg ${
-                        message.role === "user"
-                          ? "bg-blue-900/30 border border-blue-700/30"
-                          : "bg-gray-700/50 border border-gray-600/30"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <span
-                          className={`text-xs font-medium px-2 py-1 rounded ${
-                            message.role === "user"
-                              ? "bg-blue-600 text-blue-100"
-                              : "bg-gray-600 text-gray-100"
-                          }`}
-                        >
-                          {message.role === "user" ? "User" : "Assistant"}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {formatTimestamp(message.timestamp)}
-                        </span>
+            <div className="bg-gradient-to-br from-green-600 to-green-700 p-6 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-green-200 text-sm">Unique Visitors</p>
+                  <p className="text-3xl font-bold">
+                    {analyticsData.uniqueVisitors}
+                  </p>
+                </div>
+                <FiUsers className="h-8 w-8 text-green-200" />
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-6 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-purple-200 text-sm">Chat Sessions</p>
+                  <p className="text-3xl font-bold">
+                    {analyticsData.totalChatSessions}
+                  </p>
+                </div>
+                <FiMessageCircle className="h-8 w-8 text-purple-200" />
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-6 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-orange-200 text-sm">Avg Session</p>
+                  <p className="text-3xl font-bold">
+                    {Math.round(analyticsData.avgSessionDuration)}m
+                  </p>
+                </div>
+                <FiClock className="h-8 w-8 text-orange-200" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Charts Section */}
+        {analyticsData && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Top Pages */}
+            <div className="bg-gray-800 p-6 rounded-xl">
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <FiBarChart className="h-5 w-5" />
+                Top Pages
+              </h3>
+              <div className="space-y-3">
+                {analyticsData.topPages.map((page, index) => (
+                  <div
+                    key={page.page}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-gray-400 w-6">
+                        {index + 1}
+                      </span>
+                      <span className="text-sm">
+                        {page.page === "/" ? "Home" : page.page}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 bg-gray-700 rounded-full h-2">
+                        <div
+                          className="bg-blue-500 h-2 rounded-full"
+                          style={{
+                            width: `${(page.views / analyticsData.topPages[0].views) * 100}%`,
+                          }}
+                        ></div>
                       </div>
-                      <p className="text-sm whitespace-pre-wrap">
-                        {message.message}
+                      <span className="text-sm font-medium">{page.views}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Device Types */}
+            <div className="bg-gray-800 p-6 rounded-xl">
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <FiPieChart className="h-5 w-5" />
+                Device Types
+              </h3>
+              <div className="space-y-3">
+                {analyticsData.deviceTypes.map((device, index) => (
+                  <div
+                    key={device.device}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      {device.device === "Desktop" && (
+                        <FiMonitor className="h-4 w-4 text-blue-400" />
+                      )}
+                      {device.device === "Mobile" && (
+                        <FiSmartphone className="h-4 w-4 text-green-400" />
+                      )}
+                      {device.device === "Tablet" && (
+                        <FiSmartphone className="h-4 w-4 text-purple-400" />
+                      )}
+                      <span className="text-sm">{device.device}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 bg-gray-700 rounded-full h-2">
+                        <div
+                          className="bg-green-500 h-2 rounded-full"
+                          style={{
+                            width: `${(device.count / analyticsData.deviceTypes[0].count) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-medium">
+                        {device.count}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Referrers */}
+            <div className="bg-gray-800 p-6 rounded-xl">
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <FiGlobe className="h-5 w-5" />
+                Traffic Sources
+              </h3>
+              <div className="space-y-3">
+                {analyticsData.topReferrers.map((referrer, index) => (
+                  <div
+                    key={referrer.referrer}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-gray-400 w-6">
+                        {index + 1}
+                      </span>
+                      <span className="text-sm">{referrer.referrer}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 bg-gray-700 rounded-full h-2">
+                        <div
+                          className="bg-purple-500 h-2 rounded-full"
+                          style={{
+                            width: `${(referrer.count / analyticsData.topReferrers[0].count) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-medium">
+                        {referrer.count}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Popular Interactions */}
+            <div className="bg-gray-800 p-6 rounded-xl">
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <FiActivity className="h-5 w-5" />
+                User Interactions
+              </h3>
+              <div className="space-y-3">
+                {analyticsData.popularInteractions.map((interaction, index) => (
+                  <div
+                    key={interaction.type}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-gray-400 w-6">
+                        {index + 1}
+                      </span>
+                      <span className="text-sm capitalize">
+                        {interaction.type}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 bg-gray-700 rounded-full h-2">
+                        <div
+                          className="bg-orange-500 h-2 rounded-full"
+                          style={{
+                            width: `${(interaction.count / analyticsData.popularInteractions[0].count) * 100}%`,
+                          }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-medium">
+                        {interaction.count}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Chat Analytics Section */}
+        <div className="bg-gray-800 rounded-xl p-6 mb-8">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <FiMessageCircle className="h-6 w-6" />
+            Chat Analytics
+          </h2>
+
+          {/* Chat Stats */}
+          {analyticsData && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-sm">Total Sessions</h3>
+                <p className="text-2xl font-bold">{sessions.length}</p>
+              </div>
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-sm">Total Messages</h3>
+                <p className="text-2xl font-bold">
+                  {analyticsData.totalMessages}
+                </p>
+              </div>
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-sm">Avg Messages/Session</h3>
+                <p className="text-2xl font-bold">
+                  {sessions.length > 0
+                    ? Math.round(analyticsData.totalMessages / sessions.length)
+                    : 0}
+                </p>
+              </div>
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-sm">Active Sessions</h3>
+                <p className="text-2xl font-bold">{filteredSessions.length}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Chat Filters */}
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1 relative">
+              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Search messages..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <FiFilter className="h-4 w-4 text-gray-400" />
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value as any)}
+                className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+              >
+                <option value="all">All Messages</option>
+                <option value="user">User Messages</option>
+                <option value="assistant">Assistant Messages</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Sessions List */}
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {filteredSessions.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">
+                <p>No chat sessions found.</p>
+              </div>
+            ) : (
+              filteredSessions.map((session) => (
+                <div
+                  key={session.sessionId}
+                  className="bg-gray-700 rounded-lg p-6 border border-gray-600"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold">
+                        Session {session.sessionId.slice(-8)}
+                      </h3>
+                      <p className="text-sm text-gray-400">
+                        {formatTimestamp(session.startTime)} -{" "}
+                        {formatTimestamp(session.endTime)}
                       </p>
                     </div>
-                  ))}
+                    <div className="text-right">
+                      <p className="text-sm text-gray-400">
+                        Duration:{" "}
+                        {getSessionDuration(session.startTime, session.endTime)}
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        {session.messageCount} messages
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {session.messages.map((message, index) => (
+                      <div
+                        key={message.id}
+                        className={`p-3 rounded-lg ${
+                          message.role === "user"
+                            ? "bg-blue-900/30 border border-blue-700/30"
+                            : "bg-gray-600/50 border border-gray-500/30"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <span
+                            className={`text-xs font-medium px-2 py-1 rounded ${
+                              message.role === "user"
+                                ? "bg-blue-600 text-blue-100"
+                                : "bg-gray-600 text-gray-100"
+                            }`}
+                          >
+                            {message.role === "user" ? "User" : "Assistant"}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {formatTimestamp(message.timestamp)}
+                          </span>
+                        </div>
+                        <p className="text-sm whitespace-pre-wrap">
+                          {message.message}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -53,12 +53,6 @@ const Navigation = () => {
             >
               Contact
             </Link>
-            <Link
-              href="/analytics"
-              className="text-gray-600 transition-colors hover:text-blue-600"
-            >
-              Analytics
-            </Link>
           </div>
 
           <div className="md:hidden">
@@ -135,13 +129,6 @@ const Navigation = () => {
                 className="text-gray-700 dark:text-gray-100 hover:text-blue-600"
               >
                 Contact
-              </Link>
-              <Link
-                href="/analytics"
-                onClick={handleNavClick}
-                className="text-gray-700 dark:text-gray-100 hover:text-blue-600"
-              >
-                Analytics
               </Link>
             </nav>
           </div>
