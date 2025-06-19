@@ -219,178 +219,95 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
     <>
       {isOpen && (
         <div
-          className={`fixed bottom-4 right-4 z-50 flex flex-col overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-800 ${
-            styles.chatbotContainer
-          } ${isMinimized ? styles.minimized : ""} ${
-            isFullscreen ? styles.fullscreen : ""
-          }`}
+          className={
+            `chatbotContainer ${styles.chatbotContainer} ` +
+            (isMinimized ? styles.minimized : "") +
+            (isFullscreen ? styles.fullscreen : "")
+          }
           style={{
-            width: isFullscreen ? "100vw" : "400px",
-            height: isMinimized ? "64px" : isFullscreen ? "100vh" : "600px",
+            maxWidth: isFullscreen ? "100vw" : undefined,
+            maxHeight: isFullscreen ? "100vh" : undefined,
+            width: isFullscreen ? "100vw" : undefined,
+            height: isMinimized ? "64px" : isFullscreen ? "100vh" : undefined,
+            bottom: isFullscreen ? 0 : undefined,
+            right: isFullscreen ? 0 : undefined,
+            left: isFullscreen ? 0 : undefined,
+            borderRadius: isFullscreen ? 0 : undefined,
           }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex items-center space-x-2">
-              <div className="relative">
-                <FiMessageCircle className="h-6 w-6 text-blue-500" />
-                <div className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-green-400"></div>
-              </div>
-              <h3 className="font-semibold">Chat with Lawrence's AI</h3>
-            </div>
-            <div className="flex items-center space-x-2">
+          <div
+            className={
+              styles.header + " header flex items-center justify-between"
+            }
+          >
+            <span className="flex items-center gap-2">
+              <FiMessageCircle className="inline-block mr-2" />
+              Lawrence's AI Assistant
+            </span>
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => setIsMinimized(!isMinimized)}
-                className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className={styles.actionButton + " actionButton"}
+                title={isMinimized ? "Expand" : "Minimize"}
+                onClick={() => setIsMinimized((v) => !v)}
               >
-                {isMinimized ? (
-                  <FiMaximize2 className="h-4 w-4" />
-                ) : (
-                  <FiMinimize2 className="h-4 w-4" />
-                )}
+                {isMinimized ? <FiMaximize2 /> : <FiMinimize2 />}
               </button>
               <button
+                className={styles.actionButton + " actionButton"}
+                title="Close"
                 onClick={onClose}
-                className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <FiX className="h-4 w-4" />
+                <FiX />
               </button>
             </div>
           </div>
 
+          {/* Messages */}
           {!isMinimized && (
-            <>
-              {/* Messages */}
-              <div
-                className={`flex-1 overflow-y-auto p-4 ${styles.messagesContainer}`}
-              >
-                {messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`mb-4 flex ${
-                      msg.role === "user" ? "justify-end" : "justify-start"
-                    } ${styles.messageBubble}`}
-                  >
-                    <div
-                      className={`rounded-lg px-4 py-2 ${
-                        msg.role === "user"
-                          ? "bg-blue-500 text-white"
-                          : "bg-gray-100 dark:bg-gray-700"
-                      } max-w-[80%]`}
-                    >
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: formatMessage(msg.content),
-                        }}
-                      />
-                      {msg.files && msg.files.length > 0 && (
-                        <div className="mt-2 space-y-1">
-                          {msg.files.map((file, fileIdx) => (
-                            <div
-                              key={fileIdx}
-                              className="flex items-center space-x-2 text-sm"
-                            >
-                              {getFileIcon(file)}
-                              <span>{file.name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="flex space-x-2 rounded-lg bg-gray-100 px-4 py-2 dark:bg-gray-700">
-                      <div
-                        className={`h-2 w-2 rounded-full bg-gray-400 ${styles.typingIndicator}`}
-                        style={{ animationDelay: "0s" }}
-                      />
-                      <div
-                        className={`h-2 w-2 rounded-full bg-gray-400 ${styles.typingIndicator}`}
-                        style={{ animationDelay: "0.2s" }}
-                      />
-                      <div
-                        className={`h-2 w-2 rounded-full bg-gray-400 ${styles.typingIndicator}`}
-                        style={{ animationDelay: "0.4s" }}
-                      />
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
+            <div className={styles.messagesContainer + " messagesContainer"}>
+              {messages.map((msg, i) => (
+                <div
+                  key={i}
+                  className={
+                    styles.messageBubble +
+                    " messageBubble " +
+                    (msg.role === "assistant" ? "assistant" : "user")
+                  }
+                  dangerouslySetInnerHTML={{
+                    __html: formatMessage(msg.content),
+                  }}
+                />
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
 
-              {/* Selected Files */}
-              {selectedFiles.length > 0 && (
-                <div className="border-t border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900">
-                  <div className="flex flex-wrap gap-2">
-                    {selectedFiles.map((file, idx) => (
-                      <div
-                        key={idx}
-                        className={`flex items-center space-x-2 rounded-lg bg-white px-3 py-1 text-sm dark:bg-gray-800 ${styles.fileItem}`}
-                      >
-                        {getFileIcon(file)}
-                        <span className="max-w-[150px] truncate">
-                          {file.name}
-                        </span>
-                        <button
-                          onClick={() => removeFile(idx)}
-                          className="text-gray-500 hover:text-red-500"
-                        >
-                          <FiTrash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Input Area */}
-              <div
-                className={`border-t border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800 ${styles.inputArea}`}
+          {/* Input Area */}
+          {!isMinimized && (
+            <form
+              className={styles.inputArea + " inputArea"}
+              onSubmit={handleSubmit}
+              autoComplete="off"
+            >
+              <input
+                className={styles.inputField + " inputField"}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your message..."
+                autoFocus={isOpen}
+                style={{ minWidth: 0 }}
+              />
+              <button
+                className={styles.sendButton + " sendButton"}
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                title="Send"
               >
-                <form
-                  onSubmit={handleSubmit}
-                  className="flex items-end space-x-2"
-                >
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder="Type your message..."
-                      className={`w-full rounded-lg border border-gray-300 bg-white px-4 py-2 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white ${styles.inputField}`}
-                    />
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className={`rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 ${styles.actionButton}`}
-                    >
-                      <FiPaperclip className="h-5 w-5" />
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={
-                        isLoading ||
-                        (!input.trim() && selectedFiles.length === 0)
-                      }
-                      className={`rounded-lg bg-blue-500 p-2 text-white hover:bg-blue-600 disabled:opacity-50 ${styles.actionButton}`}
-                    >
-                      <FiSend className="h-5 w-5" />
-                    </button>
-                  </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                </form>
-              </div>
-            </>
+                <FiSend />
+              </button>
+            </form>
           )}
         </div>
       )}

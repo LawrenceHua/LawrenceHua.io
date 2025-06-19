@@ -122,7 +122,7 @@ const projectSectionsData: ProjectSection = {
         "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week with 50+ TI-BASIC math programs improving test scores by 35%.",
       image: "/logos/Tutora Logo.jpeg",
       tags: ["AI", "Automation", "Education", "Python"],
-      link: "https://www.tutoraprep.com",
+      link: "https://docs.google.com/spreadsheets/d/1NCw2Rh4E5enRixTwTD4yNtayFH8Wnxgkg2mdEQz1f3A/edit?usp=sharing",
       linkText: "View Project",
       linkIcon: "external" as const,
     },
@@ -302,7 +302,7 @@ const projectSectionsData: ProjectSection = {
         "Built AI-driven scheduling, grading, and substitution flows saving 15+ hours/week with 50+ TI-BASIC math programs improving test scores by 35%.",
       image: "/logos/Tutora Logo.jpeg",
       tags: ["AI", "Automation", "Education", "Python"],
-      link: "https://www.tutoraprep.com",
+      link: "https://docs.google.com/spreadsheets/d/1NCw2Rh4E5enRixTwTD4yNtayFH8Wnxgkg2mdEQz1f3A/edit?usp=sharing",
       linkText: "View Project",
       linkIcon: "external" as const,
     },
@@ -1229,7 +1229,36 @@ export default function Home() {
     return sessionId;
   };
 
+  // Get geolocation data from IP
+  const getGeolocationData = async () => {
+    try {
+      const response = await fetch("https://ipapi.co/json/");
+      const data = await response.json();
+      return {
+        country: data.country_name || "Unknown",
+        region: data.region || "Unknown",
+        city: data.city || "Unknown",
+        latitude: data.latitude || null,
+        longitude: data.longitude || null,
+        timezone: data.timezone || "Unknown",
+        ip: data.ip || "Unknown",
+      };
+    } catch (error) {
+      console.error("Error fetching geolocation:", error);
+      return {
+        country: "Unknown",
+        region: "Unknown",
+        city: "Unknown",
+        latitude: null,
+        longitude: null,
+        timezone: "Unknown",
+        ip: "Unknown",
+      };
+    }
+  };
+
   const trackPageView = async (firestore: Firestore) => {
+    const geolocation = await getGeolocationData();
     const pageView = {
       page: window.location.pathname,
       userAgent: navigator.userAgent,
@@ -1238,6 +1267,14 @@ export default function Home() {
       timeOnPage: 0,
       sessionId: getSessionId(),
       timestamp: serverTimestamp(),
+      // Geolocation data
+      country: geolocation.country,
+      region: geolocation.region,
+      city: geolocation.city,
+      latitude: geolocation.latitude,
+      longitude: geolocation.longitude,
+      timezone: geolocation.timezone,
+      ip: geolocation.ip,
     };
 
     try {
@@ -1253,6 +1290,7 @@ export default function Home() {
     // Track clicks
     document.addEventListener("click", async (e) => {
       const target = e.target as HTMLElement;
+      const geolocation = await getGeolocationData();
       const interaction = {
         type: "click",
         element:
@@ -1262,6 +1300,14 @@ export default function Home() {
         page: window.location.pathname,
         sessionId,
         timestamp: serverTimestamp(),
+        // Geolocation data
+        country: geolocation.country,
+        region: geolocation.region,
+        city: geolocation.city,
+        latitude: geolocation.latitude,
+        longitude: geolocation.longitude,
+        timezone: geolocation.timezone,
+        ip: geolocation.ip,
       };
 
       try {
@@ -1282,12 +1328,21 @@ export default function Home() {
         maxScroll = scrollPercent;
         if (maxScroll % 25 === 0) {
           // Track every 25% scroll
+          const geolocation = await getGeolocationData();
           const interaction = {
             type: "scroll",
             element: `scroll_${maxScroll}%`,
             page: window.location.pathname,
             sessionId,
             timestamp: serverTimestamp(),
+            // Geolocation data
+            country: geolocation.country,
+            region: geolocation.region,
+            city: geolocation.city,
+            latitude: geolocation.latitude,
+            longitude: geolocation.longitude,
+            timezone: geolocation.timezone,
+            ip: geolocation.ip,
           };
 
           try {
@@ -1304,14 +1359,22 @@ export default function Home() {
   };
 
   const trackDeviceInfo = async (firestore: Firestore) => {
+    const geolocation = await getGeolocationData();
     const deviceInfo = {
       userAgent: navigator.userAgent,
       screenSize: `${window.screen.width}x${window.screen.height}`,
       viewportSize: `${window.innerWidth}x${window.innerHeight}`,
       language: navigator.language,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       sessionId: getSessionId(),
       timestamp: serverTimestamp(),
+      // Geolocation data
+      country: geolocation.country,
+      region: geolocation.region,
+      city: geolocation.city,
+      latitude: geolocation.latitude,
+      longitude: geolocation.longitude,
+      timezone: geolocation.timezone,
+      ip: geolocation.ip,
     };
 
     try {
