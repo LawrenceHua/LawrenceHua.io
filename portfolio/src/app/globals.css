@@ -1714,17 +1714,27 @@ section#timeline + section h3 {
     min-width: 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
+    box-sizing: border-box;
   }
   .timeline-container-with-stars,
   .education-carousel.improved-ui {
     flex-direction: column !important;
     align-items: center !important;
     gap: 1.5rem !important;
+    width: 100% !important;
   }
   .flex.h-12.w-12.items-center.justify-center {
     width: 100%;
     justify-content: center;
     align-items: center;
-    margin: 0.5rem 0;
+    margin: 1rem 0;
+    box-sizing: border-box;
+  }
+  .timeline-circle.top,
+  .circle-svg {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 }

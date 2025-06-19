@@ -19,6 +19,21 @@ import {
 
 import "react-datepicker/dist/react-datepicker.css";
 
+// useMediaQuery hook (local copy)
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) {
+      setMatches(media.matches);
+    }
+    const listener = () => setMatches(media.matches);
+    media.addEventListener("change", listener);
+    return () => media.removeEventListener("change", listener);
+  }, [matches, query]);
+  return matches;
+}
+
 const timelineData = [
   {
     year: "2025",
@@ -893,7 +908,7 @@ export default function Home() {
         title: "Netflix A/B Testing Analysis",
         description:
           "Deep dive into Netflix's A/B testing methodologies and implementation.",
-        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+        image: "/logos/crypto.jpg", // Updated image path
         tags: ["Analysis", "A/B Testing"],
         link: "https://docs.google.com/presentation/d/1ii-Se5r_kFOnujyRiOX3i0j58Svz270OvletCi6Dblo/edit?usp=sharing",
         linkText: "View Analysis",
@@ -1161,9 +1176,9 @@ export default function Home() {
   const moreProjectsCount = totalAllProjects > 4 ? totalAllProjects - 4 : 0;
 
   // Utility: Responsive flex direction for timeline containers
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 600;
+  const isMobile = useMediaQuery("(max-width: 600px)");
   const timelineFlexClass = isMobile
-    ? "flex-col items-center gap-6"
+    ? "flex-col items-center gap-6 w-full"
     : "flex-row items-center gap-4";
 
   useEffect(() => {
