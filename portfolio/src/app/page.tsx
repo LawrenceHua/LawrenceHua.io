@@ -1329,6 +1329,8 @@ export default function Home() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [showVenmoQR, setShowVenmoQR] = useState(false);
   const [db, setDb] = useState<Firestore | null>(null);
+  const [version, setVersion] = useState("1.0.0");
+  const [lastUpdated, setLastUpdated] = useState(new Date());
 
   // Form state
   const [formData, setFormData] = useState<{
@@ -1723,6 +1725,22 @@ export default function Home() {
       };
     }
   }, [timelineRef.current, filteredExperiences.length]);
+
+  // Fetch version and timestamp on component mount
+  useEffect(() => {
+    const fetchVersion = async () => {
+      try {
+        const response = await fetch("/api/version");
+        const data = await response.json();
+        setVersion(data.version);
+        setLastUpdated(new Date(data.timestamp));
+      } catch (error) {
+        console.log("Could not fetch version info");
+      }
+    };
+
+    fetchVersion();
+  }, []);
 
   // ... rest of the component code ...
 
@@ -2869,7 +2887,7 @@ export default function Home() {
               </p>
               <p className="mt-1 text-xs">
                 Last updated:{" "}
-                {new Date().toLocaleString("en-US", {
+                {lastUpdated.toLocaleString("en-US", {
                   timeZone: "America/New_York",
                   year: "numeric",
                   month: "long",
@@ -2879,7 +2897,7 @@ export default function Home() {
                   second: "2-digit",
                   hour12: false,
                 })}{" "}
-                EST. V{require("../package.json").version}
+                EST. V{version}
               </p>
             </div>
           </div>
