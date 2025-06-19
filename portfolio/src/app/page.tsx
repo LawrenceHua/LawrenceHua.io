@@ -1711,8 +1711,7 @@ export default function Home() {
           <div className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-auto">
             <div
               className={
-                // Use flex-col on mobile, flex-row on desktop
-                "flex flex-col sm:flex-row items-center justify-center px-2 sm:px-8 " +
+                "flex flex-row items-center justify-start gap-x-4 px-2 sm:px-8 " +
                 timelineFlexClass
               }
             >
@@ -1721,7 +1720,7 @@ export default function Home() {
                 : filteredExperiences.slice(0, 6)
               ).map((item, idx, arr) => (
                 <React.Fragment key={item.title + "-" + item.year + "-" + idx}>
-                  <div className="timeline-card-container relative flex max-w-[220px] min-w-[200px] flex-col items-center">
+                  <div className="timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[220px] sm:max-w-[280px] mx-2 flex-col items-center">
                     <div className="timeline-circle top">
                       <div className="circle-svg">
                         <span className="circle-year">{item.year}</span>
@@ -1772,11 +1771,11 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Arrow between cards: horizontal on desktop, down on mobile */}
+                  {/* Arrow between cards: right arrow on mobile, down on desktop */}
                   {idx < arr.length - 1 && (
-                    <div className="flex h-12 w-12 items-center justify-center">
+                    <div className="flex items-center justify-center w-8 h-8 mx-1">
                       <svg
-                        className="h-8 w-8 text-blue-400 transform sm:rotate-180 rotate-90 sm:rotate-180"
+                        className="h-6 w-6 text-blue-400 block sm:hidden" // right arrow for mobile
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1785,7 +1784,20 @@ export default function Home() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                      <svg
+                        className="h-6 w-6 text-blue-400 hidden sm:block" // down arrow for desktop
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
                         />
                       </svg>
                     </div>
@@ -1802,15 +1814,14 @@ export default function Home() {
           <div className="education-carousel improved-ui timeline-container-with-stars">
             <div
               className={
-                // Use flex-col on mobile, flex-row on desktop
-                "flex flex-col sm:flex-row items-center justify-center px-2 sm:px-8 " +
+                "flex flex-row items-center justify-start gap-x-4 px-2 sm:px-8 " +
                 timelineFlexClass
               }
             >
               {sortedEducationEvents.map((item, idx) => (
                 <React.Fragment key={item.year + "-" + idx}>
                   <div
-                    className={`timeline-card-container relative flex max-w-[280px] min-w-[240px] flex-col items-center${item.type === "education" ? "education" : ""}`}
+                    className={`timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[240px] sm:max-w-[280px] mx-2 flex-col items-center${item.type === "education" ? " education" : ""}`}
                   >
                     <div className="timeline-circle top">
                       <div className="circle-svg">
@@ -1843,9 +1854,9 @@ export default function Home() {
                     </div>
                   </div>
                   {idx < sortedEducationEvents.length - 1 && (
-                    <div className="flex h-12 w-12 items-center justify-center">
+                    <div className="flex items-center justify-center w-8 h-8 mx-1">
                       <svg
-                        className="h-8 w-8 text-blue-400 transform sm:rotate-180 rotate-90 sm:rotate-180"
+                        className="h-6 w-6 text-blue-400 block sm:hidden" // right arrow for mobile
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1854,7 +1865,20 @@ export default function Home() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M17 8l4 4m0 0l-4 4m4-4H3"
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                      <svg
+                        className="h-6 w-6 text-blue-400 hidden sm:block" // down arrow for desktop
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
                         />
                       </svg>
                     </div>
