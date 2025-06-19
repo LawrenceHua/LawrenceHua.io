@@ -294,8 +294,6 @@ const projectSectionsData: ProjectSection = {
       linkText: "View Project",
       linkIcon: "github" as const,
     },
-  ],
-  engineering: [
     {
       title: "Tutora AI Automation Platform",
       description:
@@ -307,16 +305,6 @@ const projectSectionsData: ProjectSection = {
       linkIcon: "external" as const,
     },
     {
-      title: "Netflix Clone with KNN Model",
-      description:
-        "Developed a KNN model analyzing 10M+ reviews with A/B testing implementation and Grafana visualization.",
-      image: "/logos/netflixlogo.jpeg",
-      tags: ["Machine Learning", "Data Analysis", "A/B Testing", "KNN"],
-      link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
-      linkText: "View Project",
-      linkIcon: "external" as const,
-    },
-    {
       title: "NFC Feature Prototype",
       description:
         "NFC-based feature prototype that won 1st place at Motorola Product Hackathon for innovative communication features on mission-critical devices.",
@@ -324,6 +312,18 @@ const projectSectionsData: ProjectSection = {
       tags: ["NFC", "Prototype", "Hackathon", "Android"],
       link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
       linkText: "View LinkedIn Post",
+      linkIcon: "external" as const,
+    },
+  ],
+  engineering: [
+    {
+      title: "Netflix Clone with KNN Model",
+      description:
+        "Developed a KNN model analyzing 10M+ reviews with A/B testing implementation and Grafana visualization.",
+      image: "/logos/netflixlogo.jpeg",
+      tags: ["Machine Learning", "Data Analysis", "A/B Testing", "KNN"],
+      link: "https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0",
+      linkText: "View Project",
       linkIcon: "external" as const,
     },
     {
@@ -386,16 +386,6 @@ const projectSectionsData: ProjectSection = {
       tags: ["Research", "Strategy", "Crypto", "Gaming"],
       link: "https://docs.google.com/presentation/d/16JXTVzGa05PTkKWciSSzWvvTNbTZ9kaPNtfiEZu0gPU/edit?slide=id.p#slide=id.p",
       linkText: "View Presentation",
-      linkIcon: "external" as const,
-    },
-    {
-      title: "NFC Feature Prototype",
-      description:
-        "NFC-based feature prototype that won 1st place at Motorola Product Hackathon for innovative communication features on mission-critical devices.",
-      image: "/logos/nfc.jpeg",
-      tags: ["NFC", "Prototype", "Hackathon", "Android"],
-      link: "https://www.linkedin.com/posts/lawrencehua_hackathon-firstplace-innovation-activity-6862193706758393856-fjSi?utm_source=share&utm_medium=member_desktop&rcm=ACoAACoaVQoBe5_rWJwAB8-Fm4Zdm96i2nyD8xM",
-      linkText: "View LinkedIn Post",
       linkIcon: "external" as const,
     },
     {
@@ -1527,8 +1517,11 @@ export default function Home() {
         const isAtEnd =
           Math.abs(
             timeline.scrollLeft + timeline.clientWidth - timeline.scrollWidth
-          ) < 2;
-        setShowScrollHint(hasHorizontalScroll && !isAtEnd);
+          ) < 5;
+        const hasEnoughItems = filteredExperiences.length >= 4;
+
+        // Show hint only if there's horizontal scroll, enough items, and not at the end
+        setShowScrollHint(hasHorizontalScroll && hasEnoughItems && !isAtEnd);
       };
 
       // Initial check
@@ -1544,7 +1537,7 @@ export default function Home() {
         window.removeEventListener("resize", checkScroll);
       };
     }
-  }, [timelineRef.current]);
+  }, [timelineRef.current, filteredExperiences.length]);
 
   // ... rest of the component code ...
 
