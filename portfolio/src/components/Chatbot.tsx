@@ -88,8 +88,7 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content:
-        "Hi! I'm Lawrence's AI assistant. I can help you learn more about his experience, skills, and projects. You can also share files with me for analysis. What would you like to know?",
+      content: `Hi! I'm Lawrence's AI assistant. I can help you learn more about his experience, skills, and projects.\n**For recruiters: You can also share files with me for analysis.**\nWhat would you like to know?`,
       timestamp: new Date(),
     },
   ]);
@@ -241,7 +240,7 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
               styles.header + " header flex items-center justify-between"
             }
           >
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2 font-semibold">
               <FiMessageCircle className="inline-block mr-2" />
               Lawrence's AI Assistant
             </span>
@@ -279,6 +278,16 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
                   }}
                 />
               ))}
+              {isLoading && (
+                <div
+                  className={styles.messageBubble + " messageBubble assistant"}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                    <span>Thinking...</span>
+                  </div>
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -290,23 +299,72 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
               onSubmit={handleSubmit}
               autoComplete="off"
             >
-              <input
-                className={styles.inputField + " inputField"}
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your message..."
-                autoFocus={isOpen}
-                style={{ minWidth: 0 }}
-              />
-              <button
-                className={styles.sendButton + " sendButton"}
-                type="submit"
-                disabled={isLoading || !input.trim()}
-                title="Send"
-              >
-                <FiSend />
-              </button>
+              {/* File attachments display */}
+              {selectedFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-t border-b">
+                  {selectedFiles.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 bg-white dark:bg-gray-700 px-2 py-1 rounded text-xs"
+                    >
+                      {getFileIcon(file)}
+                      <span className="truncate max-w-[120px]">
+                        {file.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <FiTrash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-2 p-2">
+                <input
+                  className={styles.inputField + " inputField flex-1"}
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Type your message..."
+                  autoFocus={isOpen}
+                  style={{ minWidth: 0 }}
+                  disabled={isLoading}
+                />
+
+                {/* File attachment button */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  onChange={handleFileSelect}
+                  style={{ display: "none" }}
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                  title="Attach files"
+                  disabled={isLoading}
+                >
+                  <FiPaperclip className="h-4 w-4" />
+                </button>
+
+                <button
+                  className={styles.sendButton + " sendButton"}
+                  type="submit"
+                  disabled={
+                    isLoading || (!input.trim() && selectedFiles.length === 0)
+                  }
+                  title="Send"
+                >
+                  <FiSend />
+                </button>
+              </div>
             </form>
           )}
         </div>
