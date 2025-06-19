@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+// @jsxImportSource react
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@repo/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card";
@@ -21,7 +22,7 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      text: "Hello! I'm Lawrence's virtual assistant. How can I help you today?",
+      text: `Hi! I'm Lawrence's AI assistant. I can help you learn more about his experience, skills, and projects.\n**For recruiters: You can also share files with me for analysis.**\nWhat would you like to know?`,
       isUser: false,
       timestamp: new Date(),
     },
@@ -29,6 +30,7 @@ export default function Chatbot() {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attachment, setAttachment] = useState<File | null>(null);
 
   useEffect(() => {
     const handleOpenChatbot = () => {
@@ -41,25 +43,33 @@ export default function Chatbot() {
   }, []);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() && !attachment) return;
     setError(null);
-    const userMessage: Message = {
+    let userMessage: Message = {
       id: Date.now().toString(),
       text: inputValue,
       isUser: true,
       timestamp: new Date(),
     };
-    setMessages(prev => [...prev, userMessage]);
+    if (attachment) {
+      userMessage = {
+        ...userMessage,
+        text: inputValue ? `${inputValue}\n[Attachment: ${attachment.name}]` : `[Attachment: ${attachment.name}]`,
+      };
+    }
+    setMessages((prev: Message[]) => [...prev, userMessage]);
     setInputValue("");
+    setAttachment(null);
     setIsTyping(true);
 
+    // TODO: Send attachment to backend if needed
     try {
       const res = await fetch("/api/chatbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: userMessage.text,
-          history: messages.map(({ text, isUser }) => ({ text, isUser })),
+          history: messages.map(({ text, isUser }: { text: string; isUser: boolean }) => ({ text, isUser })),
         }),
       });
       if (!res.ok) {
@@ -73,7 +83,7 @@ export default function Chatbot() {
         isUser: false,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages((prev: Message[]) => [...prev, aiMessage]);
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -81,7 +91,7 @@ export default function Chatbot() {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -99,17 +109,20 @@ export default function Chatbot() {
             transition={{ duration: 0.2 }}
             className="mb-4"
           >
-            <Card className="w-72 sm:w-80 h-80 sm:h-96 shadow-lg border-2">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                  <Icons.bot className="h-4 w-4 sm:h-5 sm:w-5" />
-                  Virtual Assistant
+            <Card className="w-80 sm:w-96 h-[32rem] sm:h-[36rem] shadow-2xl border bg-white dark:bg-neutral-900 flex flex-col justify-between">
+              <CardHeader className="pb-2 border-b bg-gradient-to-r from-blue-50 via-white to-blue-50 dark:from-neutral-800 dark:via-neutral-900 dark:to-neutral-800">
+                <CardTitle className="text-lg flex items-center gap-2 font-semibold text-black dark:text-white">
+                  <Icons.bot className="h-5 w-5" />
+                  Lawrence's AI Assistant
                 </CardTitle>
+                <div className="mt-1 text-xs text-gray-600 dark:text-gray-300 font-medium">
+                  Your private, professional assistant
+                </div>
               </CardHeader>
-              <CardContent className="p-0">
-                <ScrollArea className="h-48 sm:h-64 px-3 sm:px-4">
-                  <div className="space-y-2 sm:space-y-3 pb-4">
-                    {messages.map((message) => (
+              <CardContent className="p-0 flex-1 flex flex-col">
+                <ScrollArea className="h-full px-4 py-2">
+                  <div className="space-y-3 pb-4">
+                    {messages.map((message: Message, idx: number) => (
                       <div
                         key={message.id}
                         className={cn(
@@ -119,19 +132,28 @@ export default function Chatbot() {
                       >
                         <div
                           className={cn(
-                            "max-w-[85%] rounded-lg px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm",
+                            "max-w-[85%] rounded-2xl px-4 py-2 text-sm break-words",
                             message.isUser
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted"
+                              ? "bg-blue-600 text-white shadow-md"
+                              : "bg-gray-100 dark:bg-neutral-800 text-black dark:text-white shadow"
                           )}
+                          style={{
+                            fontWeight: !message.isUser && idx === 0 ? 500 : undefined,
+                            fontSize: idx === 0 ? '1rem' : undefined,
+                            lineHeight: 1.5,
+                          }}
                         >
-                          {message.text}
+                          {!message.isUser && idx === 0 ? (
+                            <span dangerouslySetInnerHTML={{ __html: message.text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br/>') }} />
+                          ) : (
+                            message.text
+                          )}
                         </div>
                       </div>
                     ))}
                     {isTyping && (
                       <div className="flex justify-start">
-                        <div className="bg-muted rounded-lg px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm flex items-center gap-2">
+                        <div className="bg-gray-100 dark:bg-neutral-800 rounded-2xl px-4 py-2 text-sm flex items-center gap-2 text-black dark:text-white">
                           <Icons.spinner className="animate-spin h-4 w-4 mr-1" />
                           <span>Thinking...</span>
                         </div>
@@ -139,32 +161,63 @@ export default function Chatbot() {
                     )}
                     {error && (
                       <div className="flex justify-center">
-                        <div className="bg-destructive/10 text-destructive rounded-lg px-2 py-1 text-xs">
+                        <div className="bg-red-100 text-red-700 rounded-lg px-2 py-1 text-xs">
                           {error}
                         </div>
                       </div>
                     )}
                   </div>
                 </ScrollArea>
-                <div className="p-3 sm:p-4 border-t">
-                  <div className="flex gap-2">
+                <form
+                  className="p-4 border-t bg-white dark:bg-neutral-900 flex flex-col gap-2"
+                  style={{ position: 'sticky', bottom: 0, zIndex: 10 }}
+                  onSubmit={e => { e.preventDefault(); handleSendMessage(); }}
+                  autoComplete="off"
+                >
+                  <div className="flex gap-2 items-end">
                     <Input
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Type your message..."
-                      className="flex-1 text-xs sm:text-sm"
+                      className="flex-1 text-base bg-gray-50 dark:bg-neutral-800 text-black dark:text-white rounded-2xl px-4 py-2 border border-gray-200 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      disabled={isTyping}
+                      style={{ minHeight: 44 }}
+                    />
+                    <input
+                      type="file"
+                      id="chatbot-attachment"
+                      style={{ display: 'none' }}
+                      onChange={e => setAttachment(e.target.files?.[0] || null)}
                       disabled={isTyping}
                     />
+                    <label htmlFor="chatbot-attachment" className="cursor-pointer text-xs text-blue-600 underline px-2 py-1 rounded hover:bg-blue-50 dark:hover:bg-neutral-800 transition">
+                      <Icons.paperclip className="inline h-4 w-4 mr-1 align-text-bottom" />Attach
+                    </label>
                     <Button
                       onClick={handleSendMessage}
-                      disabled={!inputValue.trim() || isTyping}
+                      disabled={(!inputValue.trim() && !attachment) || isTyping}
                       size="sm"
+                      type="submit"
+                      className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 shadow"
                     >
-                      <Icons.send className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <Icons.send className="h-4 w-4" />
                     </Button>
                   </div>
-                </div>
+                  {attachment && (
+                    <div className="flex items-center gap-2 mt-1 text-xs text-gray-700 dark:text-gray-300">
+                      <Icons.paperclip className="h-4 w-4" />
+                      <span className="truncate max-w-[160px]">{attachment.name}</span>
+                      <button
+                        type="button"
+                        className="ml-2 text-red-500 hover:underline"
+                        onClick={() => setAttachment(null)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </form>
               </CardContent>
             </Card>
           </motion.div>

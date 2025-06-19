@@ -130,7 +130,7 @@ const projectSectionsData: ProjectSection = {
       title: "McGinnis Venture Competition Finalist",
       description:
         "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition pitching Expired Solutions AI platform for grocery automation.",
-      image: "/logos/carnegie_mellon_university_logo.jpeg",
+      image: "/logos/Mcginnis.png",
       tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
       link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
       linkText: "Watch Live Pitch",
@@ -220,7 +220,7 @@ const projectSectionsData: ProjectSection = {
       title: "Professional Speaking",
       description:
         "Presented to a class of 30 students receiving an A+ grade while demonstrating strong communication and presentation skills.",
-      image: "/logos/carnegie_mellon_university_logo.jpeg",
+      image: "/logos/professional speak.jpeg",
       tags: ["Presentation", "Education", "Communication"],
       link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
       linkText: "View Presentation",
@@ -278,7 +278,7 @@ const projectSectionsData: ProjectSection = {
       title: "McGinnis Venture Competition Finalist",
       description:
         "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition pitching Expired Solutions AI platform for grocery automation.",
-      image: "/logos/carnegie_mellon_university_logo.jpeg",
+      image: "/logos/Mcginnis.png",
       tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
       link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
       linkText: "Watch Live Pitch",
@@ -357,26 +357,6 @@ const projectSectionsData: ProjectSection = {
       linkIcon: "external" as const,
     },
     {
-      title: "Motorola APX NEXT Smart Radios",
-      description:
-        "Developed embedded Android software for mission-critical communications supporting 15,000+ field units. Improved GPS accuracy and device security.",
-      image: "/images/projects/fitness_tracker/cover.jpg",
-      tags: ["Android", "Embedded Systems", "GPS", "Mission Critical"],
-      link: "https://www.motorolasolutions.com/en_us/products/p25-products/apx-next.html",
-      linkText: "Case Study",
-      linkIcon: "external" as const,
-    },
-    {
-      title: "UF System Administration Tools",
-      description:
-        "Designed Microsoft Power Platform app tracking 100+ devices, reducing manual errors by 60%. Managed MacOS/Linux support for 200+ users.",
-      image: "/images/projects/recipe_app/cover.jpg",
-      tags: ["System Admin", "Power Platform", "MacOS/Linux", "IT Support"],
-      link: "#",
-      linkText: "Case Study",
-      linkIcon: "external" as const,
-    },
-    {
       title: "Portfolio Website",
       description:
         "Personal portfolio website built with Next.js and TailwindCSS featuring interactive timeline, chatbot, and responsive design. Fork it and build your own!",
@@ -392,7 +372,7 @@ const projectSectionsData: ProjectSection = {
       title: "McGinnis Venture Competition Finalist",
       description:
         "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition pitching Expired Solutions AI platform for grocery automation.",
-      image: "/logos/carnegie_mellon_university_logo.jpeg",
+      image: "/logos/Mcginnis.png",
       tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch"],
       link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
       linkText: "Watch Live Pitch",
@@ -432,7 +412,7 @@ const projectSectionsData: ProjectSection = {
       title: "Professional Speaking",
       description:
         "Presented to a class of 30 students receiving an A+ grade while demonstrating strong communication and presentation skills.",
-      image: "/logos/carnegie_mellon_university_logo.jpeg",
+      image: "/logos/professional speak.jpeg",
       tags: ["Presentation", "Education", "Communication"],
       link: "https://docs.google.com/presentation/d/1A4cpxYo7PuTrZURfcOFTfyF5IDOHKwfxnfmIXerjqVM/edit?usp=sharing",
       linkText: "View Presentation",
