@@ -13,68 +13,68 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
 1. **Product Manager – PM Happy Hour (Internship, Mar 2025-Present)**  
    • Scaled community 30% with AIGC campaigns; MBTI×PM event ↑ engagement 50%  
    • Drove A/B testing program → 20% lift in feature adoption  
-   • Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement
-   • Created and iterated on AIGC-driven posts (e.g. polls, storytelling, AI-generated insights), expanding Discord and social channel visibility
-   • Improved feature adoption by 20% via A/B testing and feedback integration from PM community members
-   • Developed content calendar, analytics tracking, and engagement benchmarks to guide strategy
-   • Collaborated across marketing, content, and community leads to optimize growth and retention
+• Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement
+• Created and iterated on AIGC-driven posts (e.g. polls, storytelling, AI-generated insights), expanding Discord and social channel visibility
+• Improved feature adoption by 20% via A/B testing and feedback integration from PM community members
+• Developed content calendar, analytics tracking, and engagement benchmarks to guide strategy
+• Collaborated across marketing, content, and community leads to optimize growth and retention
 
 2. **Founder / CEO – Expired Solutions (Full-time, Aug 2024-Present)**  
    • Built CV + GPT platform automating produce markdowns → up to 20% shrink reduction  
    • Led mobile dev (iOS/Android), Azure infra, compliance, GTM; secured 8-week Giant Eagle pilot after 15 exec interviews & 250 shopper surveys  
    • Finalist, *McGinnis Venture Competition* 2025 (Top-4 Social Enterprise) & Gerhalt *Sandbox* Scholar  
-   • Built an AI-powered freshness scoring platform to automate pricing, placement, and inventory workflows
-   • Launched shopper companion app to improve produce confidence and affordability
-   • Led business formation, technical development (Azure, GPT, Vision AI), and compliance planning
-   • Created and executed onboarding strategy for pilot retailers
+• Built an AI-powered freshness scoring platform to automate pricing, placement, and inventory workflows
+• Launched shopper companion app to improve produce confidence and affordability
+• Led business formation, technical development (Azure, GPT, Vision AI), and compliance planning
+• Created and executed onboarding strategy for pilot retailers
 
 3. **Produce Assistant Team Lead – Giant Eagle (Feb-May 2025)**  
    • Cut shrink 1% in 30 days; tripled Flashfoods adoption; led BOH process overhaul  
    • Hands-on leadership role focused on reducing shrink, improving freshness, and optimizing inventory operations in the grocery's highest-loss department
    • Leveraged data and tools like Flashfoods and Periscope to drive measurable results in a 1-month window
-   • Reduced shrink by 1% in produce within 30 days by optimizing markdown execution and inventory rotation strategy
-   • Increased Flashfoods adoption by 300% and Periscope audits by 200%, improving freshness visibility and sell-through
-   • Optimized ordering decisions using sales trends, weather forecasts, and shrink reports to reduce overstock and waste
-   • Led backroom process improvements and cleaning compliance efforts, increasing team adherence by 80%
-   • Trained and coached team members on BOH operations, freshness standards, and food safety compliance
+• Reduced shrink by 1% in produce within 30 days by optimizing markdown execution and inventory rotation strategy
+• Increased Flashfoods adoption by 300% and Periscope audits by 200%, improving freshness visibility and sell-through
+• Optimized ordering decisions using sales trends, weather forecasts, and shrink reports to reduce overstock and waste
+• Led backroom process improvements and cleaning compliance efforts, increasing team adherence by 80%
+• Trained and coached team members on BOH operations, freshness standards, and food safety compliance
 
 4. **Product Manager – PanPalz (Internship, Aug 2024-Jan 2025)**  
    • Owned product roadmap; refined 100+ Figma frames → UI consistency ↑ 40%  
    • Prepped launch of world's first nonprofit social media for genuine connections  
    • Led roadmap planning and UI design for PanPalz, a nonprofit social media platform
    • Improved product readiness through design iteration and alignment with launch goals
-   • Defined and maintained product roadmap across engineering and design teams
-   • Refined 100+ Figma frames, improving UI consistency and usability by 40%
+• Defined and maintained product roadmap across engineering and design teams
+• Refined 100+ Figma frames, improving UI consistency and usability by 40%
    • Supported GTM planning for the launch of the world's first nonprofit social app
-   • Contributed to team alignment and brand messaging prior to release
+• Contributed to team alignment and brand messaging prior to release
 
 5. **Student Consultant, Technical Lead – Kearney (Sep-Dec 2024)**  
    • Prototyped GPT+Flask decision-support tool → decision time ↓ 18 hrs/week (-26%)  
    • Built an enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week
    • Handled research, competitive analysis, and prototyping using OpenAI, Python, and Flask
-   • Reduced operational decision-making time by 26% with custom GPT-based prototype
-   • Designed and built enterprise tool using OpenAI APIs, Flask, and JavaScript
-   • Conducted user research, system architecture design, and stakeholder presentations
-   • Prioritized use cases and implementation roadmap with client sponsors
+• Reduced operational decision-making time by 26% with custom GPT-based prototype
+• Designed and built enterprise tool using OpenAI APIs, Flask, and JavaScript
+• Conducted user research, system architecture design, and stakeholder presentations
+• Prioritized use cases and implementation roadmap with client sponsors
 
 6. **Cryptocurrency Researcher – Carnegie Mellon (Jul-Aug 2024)**  
    • Devised GTM strategy for gaming-oriented digital asset; led compliance & tech alignment; delivered final pitch to faculty  
    • Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry
    • Led compliance and technical alignment across a cross-functional team to shape product positioning and long-term scalability
-   • Developed a strategic launch plan for a novel gaming-focused cryptocurrency, backed by market and competitor analysis
-   • Designed user adoption initiatives and engagement funnels tailored for gamer behavior and blockchain onboarding
-   • Led collaboration across regulatory, technical, and product leads to ensure feasibility and compliance
-   • Created and delivered final presentation to university stakeholders and faculty advisors
+• Developed a strategic launch plan for a novel gaming-focused cryptocurrency, backed by market and competitor analysis
+• Designed user adoption initiatives and engagement funnels tailored for gamer behavior and blockchain onboarding
+• Led collaboration across regulatory, technical, and product leads to ensure feasibility and compliance
+• Created and delivered final presentation to university stakeholders and faculty advisors
 
 7. **Embedded Android Engineer – Motorola Solutions (Aug 2021-Aug 2023)**  
    • Shipped GPS, NFC, auth, UI features for 15k+ APX NEXT radios; fixed 80+ defects; 1st-place Motorola Hackathon (NFC prototype)  
    • Developed embedded Android software for Motorola's APX NEXT Smart Radios, supporting mission-critical communications for public safety professionals
    • Owned features across GPS, authentication, and UI, contributing to product stability and scale
-   • Designed and shipped Android system extensions that improved GPS accuracy, device security, and UI responsiveness for 15,000+ field units
-   • Diagnosed and resolved 80+ firmware and application-level defects across network, location, and UI components
-   • Led debugging and testing initiatives with global teams, reducing integration delays by 25% and improving time to resolution
-   • Coordinated agile planning and knowledge sharing across firmware, Android, and test automation teams
-   • Contributed to NFC-based feature prototype that won 1st place at Motorola Product Hackathon
+• Designed and shipped Android system extensions that improved GPS accuracy, device security, and UI responsiveness for 15,000+ field units
+• Diagnosed and resolved 80+ firmware and application-level defects across network, location, and UI components
+• Led debugging and testing initiatives with global teams, reducing integration delays by 25% and improving time to resolution
+• Coordinated agile planning and knowledge sharing across firmware, Android, and test automation teams
+• Contributed to NFC-based feature prototype that won 1st place at Motorola Product Hackathon
 
 8. **AI Product Consultant & CS Instructor – Tutora (Part-time, Mar 2021-Present)**  
    • Automated scheduling, grading, communications (Otter.ai, Dola, WhatsApp, Apps Script) → 15 hrs/week saved  
@@ -82,21 +82,21 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Redesigned tutoring operations by building both backend automation tools and student-facing programs
    • Delivered scalable AI systems for internal workflows and custom-built math and computer science curriculum
    • Improved student performance and operational efficiency
-   • Consulted business owners to identify bottlenecks and build 0→1 unified AI tools using Otter.ai, Dola, WhatsApp, and App Scripts for automation and adoption
-   • Saved 15+ hours/week and cut review time by 50% through AI-driven scheduling, grading, and substitution flows
-   • Developed and launched 50+ TI-BASIC math programs, improving standardized test scores by 35% across 50+ students
-   • Taught core computer science principles including data structures, Java programming, and project-based learning using Code.org and AP CS content
-   • Delivered training and documentation to ensure long-term adoption of both AI workflows and instructional tools
+• Consulted business owners to identify bottlenecks and build 0→1 unified AI tools using Otter.ai, Dola, WhatsApp, and App Scripts for automation and adoption
+• Saved 15+ hours/week and cut review time by 50% through AI-driven scheduling, grading, and substitution flows
+• Developed and launched 50+ TI-BASIC math programs, improving standardized test scores by 35% across 50+ students
+• Taught core computer science principles including data structures, Java programming, and project-based learning using Code.org and AP CS content
+• Delivered training and documentation to ensure long-term adoption of both AI workflows and instructional tools
 
 9. **System Administrator – University of Florida (May 2019-Jun 2021)**  
    • Power Apps asset tracker cut manual errors 60%; supported 200+ users at 95%+ CSAT; led 20-person tech team  
    • Provided IT support and system management for CALS' academic labs and research teams
    • Built internal tools and led technician teams to improve service reliability and hardware asset tracking
-   • Maintained 95%+ customer satisfaction over 2 years while managing MacOS/Linux support for 200+ users
-   • Designed and deployed a Microsoft Power Platform app to track 100+ laptops and lab devices, reducing manual errors by 60%
-   • Supervised and trained a 20-person tech team, streamlining onboarding and troubleshooting procedures
-   • Handled system configuration, software deployment, and tier-2 escalations for lab environments
-   • Created SOP documentation to ensure consistency across support requests and technical resolution workflows
+• Maintained 95%+ customer satisfaction over 2 years while managing MacOS/Linux support for 200+ users
+• Designed and deployed a Microsoft Power Platform app to track 100+ laptops and lab devices, reducing manual errors by 60%
+• Supervised and trained a 20-person tech team, streamlining onboarding and troubleshooting procedures
+• Handled system configuration, software deployment, and tier-2 escalations for lab environments
+• Created SOP documentation to ensure consistency across support requests and technical resolution workflows
 
 10. **Android Software Developer Intern – Motorola Solutions (Jun-Aug 2020)**  
     • Built/updated Android apps in fully remote Agile setting; demoed end-to-end solutions  

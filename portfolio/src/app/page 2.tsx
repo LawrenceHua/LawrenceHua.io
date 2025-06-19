@@ -499,13 +499,12 @@ const sortedTimelineEvents = [...timelineEvents].sort((a, b) => {
   return getEndDateNum(b.date) - getEndDateNum(a.date);
 });
 
-// Sort education events chronologically (descending, most recent first) for timeline display
+// Sort education events chronologically (ascending) for timeline display
 const sortedEducationEvents = [
   ...timelineEvents.filter((e) => e.type === "education"),
 ].sort((a, b) => {
   return getEndDateNum(b.date) - getEndDateNum(a.date);
 });
-// The education section below will always show the most recent education first due to this sort.
 
 // Skills data with proper categorization and levels
 const skillsData: {
@@ -757,7 +756,7 @@ export default function Home() {
   >("idle");
   const [submitMessage, setSubmitMessage] = useState("");
   const [contactMode, setContactMode] = useState<"meeting" | "message">(
-    "meeting"
+    "meeting",
   );
   const [meetingDate, setMeetingDate] = useState<Date | null>(null);
   const [meetingTime, setMeetingTime] = useState("");
@@ -766,14 +765,14 @@ export default function Home() {
     new Set(
       sortedTimelineEvents
         .filter((e) => e.type === "experience")
-        .map((e) => e.year)
-    )
+        .map((e) => e.year),
+    ),
   ).sort((a, b) => Number(b) - Number(a));
   const filteredExperiences =
     expYear === "All"
       ? sortedTimelineEvents.filter((e) => e.type === "experience")
       : sortedTimelineEvents.filter(
-          (e) => e.type === "experience" && e.year === expYear
+          (e) => e.type === "experience" && e.year === expYear,
         );
 
   const filteredSkills =
@@ -783,7 +782,7 @@ export default function Home() {
 
   // Handle form input changes
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -823,13 +822,13 @@ export default function Home() {
       } else {
         setSubmitStatus("error");
         setSubmitMessage(
-          result.error || "Failed to send message. Please try again."
+          result.error || "Failed to send message. Please try again.",
         );
       }
     } catch (error) {
       setSubmitStatus("error");
       setSubmitMessage(
-        "Network error. Please check your connection and try again."
+        "Network error. Please check your connection and try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -857,16 +856,6 @@ export default function Home() {
         tags: ["AI/ML", "Product", "Startup"],
         link: "https://expiredsolutions.com",
         linkText: "Visit Site",
-        linkIcon: "external",
-      },
-      {
-        title: "McGinnis Venture Competition Finalist: Expired Solutions",
-        description:
-          "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Led strategy, technical buildout, and go-to-market for the pilot with Giant Eagle.",
-        image: "/logos/Mcginnis.png",
-        tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch", "Fun"],
-        link: "https://www.youtube.com/watch?v=WqzHP1G3LO8&ab_channel=CMUSwartzCenterforEntrepreneurship",
-        linkText: "Watch Live Pitch to Investors!",
         linkIcon: "external",
       },
       {
@@ -977,6 +966,16 @@ export default function Home() {
         tags: ["Machine Learning", "Interactive", "Education"],
         link: "/ml-playground",
         linkText: "Play Game",
+        linkIcon: "external",
+      },
+      {
+        title: "McGinnis Venture Competition Finalist: Expired Solutions",
+        description:
+          "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Led strategy, technical buildout, and go-to-market for the pilot with Giant Eagle.",
+        image: "/logos/expired_solutions_logo.jpeg",
+        tags: ["Competition", "AI/ML", "Startup", "Award"],
+        link: "https://docs.google.com/presentation/d/1GpSuwN0JYbjMlkA8Mb7yCoeakQXbRq09zBO6_RsQI9I/pub",
+        linkText: "View Pitch Deck",
         linkIcon: "external",
       },
     ],
@@ -1105,16 +1104,6 @@ export default function Home() {
         linkText: "Play Game",
         linkIcon: "external",
       },
-      {
-        title: "McGinnis Venture Competition Finalist: Expired Solutions",
-        description:
-          "Finalist (Top 4, Social Enterprise) at the 2025 McGinnis Venture Competition. Pitched Expired Solutions, an AI-powered platform reducing grocery shrink by up to 20% using computer vision and GPT. Led strategy, technical buildout, and go-to-market for the pilot with Giant Eagle.",
-        image: "/logos/Mcginnis.png",
-        tags: ["Competition", "AI/ML", "Startup", "Award", "Pitch", "Fun"],
-        link: "https://www.youtube.com/watch?v=WqzHP1G3LO8&ab_channel=CMUSwartzCenterforEntrepreneurship",
-        linkText: "Watch Live Pitch to Investors!",
-        linkIcon: "external",
-      },
     ],
   };
 
@@ -1124,7 +1113,7 @@ export default function Home() {
         ? projectSections[projectSection as keyof typeof projectSections]
         : projectSections[projectSection as keyof typeof projectSections].slice(
             0,
-            4
+            4,
           )
       : projectSections[projectSection as keyof typeof projectSections] || [];
   const projectTypes = ["all", "product", "engineering", "fun"];
@@ -1267,7 +1256,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           JJ Xu
                           <Link
-                            href="https://www.linkedin.com/in/jj-jiaojiao-xu/"
+                            href="https://www.linkedin.com/in/jj-xu/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1302,7 +1291,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Wendy Williams
                           <Link
-                            href="https://www.linkedin.com/in/wendy-williams-873b7538"
+                            href="https://www.linkedin.com/in/wendy-williams-0b7b8b8/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1336,7 +1325,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Shyam Sundar
                           <Link
-                            href="https://www.linkedin.com/in/shyamsundarn/"
+                            href="https://www.linkedin.com/in/shyam-sundar-1b2b3b4b/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1371,7 +1360,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           JJ Xu
                           <Link
-                            href="https://www.linkedin.com/in/jj-jiaojiao-xu/"
+                            href="https://www.linkedin.com/in/jj-xu/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1406,7 +1395,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Wendy Williams
                           <Link
-                            href="https://www.linkedin.com/in/wendy-williams-873b7538"
+                            href="https://www.linkedin.com/in/wendy-williams-0b7b8b8/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -1440,7 +1429,7 @@ export default function Home() {
                         <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
                           Shyam Sundar
                           <Link
-                            href="https://www.linkedin.com/in/shyamsundarn/"
+                            href="https://www.linkedin.com/in/shyam-sundar-1b2b3b4b/"
                             target="_blank"
                             rel="noopener noreferrer"
                           >

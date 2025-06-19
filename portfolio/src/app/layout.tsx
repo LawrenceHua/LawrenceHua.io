@@ -71,12 +71,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#3b82f6" />
         <meta name="msapplication-TileColor" content="#3b82f6" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+        <footer className="w-full text-center text-xs text-gray-400 py-6 border-t border-gray-800 bg-black/70 mt-12">
+          © 2026 Lawrence Hua. All Rights Reserved. Last updated: June 18,
+          2026. V1.0
+        </footer>
+      </body>
     </html>
   );
 }

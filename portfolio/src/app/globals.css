@@ -29,6 +29,7 @@ body {
 /* Smooth scrolling for anchor links */
 html {
   scroll-behavior: smooth;
+  font-size: 18px; /* Increase base font size for better mobile scaling */
 }
 
 /* Custom styles for form inputs */
@@ -261,6 +262,9 @@ section {
   min-width: 280px;
   max-width: 280px;
   width: 280px;
+  min-height: 320px;
+  height: auto;
+  max-height: 480px;
   overflow-y: auto;
   overflow-x: hidden;
   background: rgba(30, 41, 59, 0.8);
@@ -807,6 +811,12 @@ section {
 
 /* Mobile responsiveness improvements */
 @media (max-width: 768px) {
+  html {
+    font-size: 17px; /* Slightly larger for mobile */
+  }
+  body {
+    font-size: 1.1rem;
+  }
   .project-carousel {
     padding: 0 1rem;
   }
@@ -969,6 +979,12 @@ section {
 }
 
 @media (max-width: 480px) {
+  html {
+    font-size: 16px;
+  }
+  body {
+    font-size: 1.05rem;
+  }
   .project-grid {
     grid-template-columns: 1fr;
   }
@@ -1443,9 +1459,9 @@ section {
   min-width: 280px;
   max-width: 280px;
   width: 280px;
-  min-height: 170px;
+  min-height: 320px;
   height: auto;
-  max-height: 340px;
+  max-height: 480px;
   overflow-y: auto;
   overflow-x: hidden;
   white-space: normal;
@@ -1552,23 +1568,19 @@ section {
 }
 
 @media (max-width: 900px) {
-  .timeline-card {
-    min-height: 210px;
-    max-height: 210px;
-    height: 210px;
-    min-width: 220px;
-    max-width: 220px;
-    width: 220px;
+  .timeline-card,
+  .education-card.improved-ui {
+    min-height: 260px;
+    max-height: 340px;
+    height: 340px;
   }
 }
 @media (max-width: 600px) {
-  .timeline-card {
-    min-height: 160px;
-    max-height: 160px;
-    height: 160px;
-    min-width: 160px;
-    max-width: 160px;
-    width: 160px;
+  .timeline-card,
+  .education-card.improved-ui {
+    min-height: 200px;
+    max-height: 260px;
+    height: 260px;
   }
 }
 
