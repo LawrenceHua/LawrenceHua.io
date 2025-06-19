@@ -1738,3 +1738,36 @@ section#timeline + section h3 {
     margin-right: 0 !important;
   }
 }
+
+/* Flashing Alert Banner Animation */
+@keyframes flash {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+.flash-alert {
+  animation: flash 2s ease-in-out infinite;
+}
+
+.flash-alert .animate-pulse {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}

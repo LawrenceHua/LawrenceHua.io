@@ -1546,6 +1546,17 @@ export default function Home() {
     <main className="min-h-screen">
       <Navigation />
 
+      {/* Flashing Alert Banner */}
+      <div className="fixed top-0 left-0 z-50 w-full bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 p-3 shadow-lg flash-alert">
+        <div className="flex items-center justify-center space-x-2">
+          <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+          <span className="text-white font-bold text-sm md:text-base">
+            🚨 Actively Seeking AI Product Management Opportunities!!! 🚨
+          </span>
+          <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+        </div>
+      </div>
+
       {/* Combined Hero + About Section with Background */}
       <section
         id="about"
