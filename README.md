@@ -4,19 +4,44 @@
 
 🌐 **Live Site**: [www.lawrencehua.com](https://www.lawrencehua.com)
 
-Welcome to my personal portfolio! I'm Lawrence, an AI Product Manager passionate about building innovative solutions that drive real impact. This portfolio showcases my journey, projects, and expertise in product management, AI/ML, and software development.
+---
 
-## 🚀 About Me
+## 🚀 Create Your Own Portfolio
 
-I'm currently working as a Product Manager at PM Happy Hour, where I've scaled their community by 30% through AIGC and targeted engagement campaigns. Previously, I founded Expired Solutions, an AI platform that reduces grocery shrink by up to 20% using computer vision and GPT.
+Want a beautiful, AI-powered portfolio like this? Follow these steps to create your own:
 
-### Key Highlights:
+1. **Fork this repository**
+   - Click the "Fork" button at the top right of this page.
+2. **Clone your fork**
+   ```bash
+   git clone https://github.com/<your-username>/LawrenceHua.io.git
+   cd LawrenceHua.io/portfolio
+   ```
+3. **Install dependencies**
+   ```bash
+   pnpm install
+   # or
+   npm install
+   ```
+4. **Customize your content**
+   - Update your projects, timeline, and skills in `portfolio/src/app/page.tsx`.
+   - Replace images in `portfolio/portfolio/public/images/` and `portfolio/public/logos/`.
+   - Update the chatbot prompts in `portfolio/src/components/Chatbot.tsx`.
+   - Change your profile picture: replace `profile.jpg` in `portfolio/portfolio/public/images/`.
+5. **Set up environment variables**
+   - Copy `.env.example` to `.env.local` and fill in your API keys (e.g., OpenAI, Firebase).
+6. **Run locally**
+   ```bash
+   pnpm dev
+   # or
+   npm run dev
+   ```
+7. **Deploy to Vercel**
+   - Connect your GitHub repo to [Vercel](https://vercel.com/)
+   - Set environment variables in the Vercel dashboard
+   - Deploy and enjoy your new portfolio!
 
-- **Founder & CEO** at Expired Solutions (AI grocery automation platform)
-- **Finalist** at McGinnis Venture Competition 2025 (Top 4 - Social Enterprise)
-- **Master's Degree** in Information Systems Management from Carnegie Mellon University
-- **Product Manager** experience at PanPalz (nonprofit social platform)
-- **Technical Lead** at Kearney (enterprise LLM solutions)
+---
 
 ## 🌟 Portfolio Features
 
@@ -154,6 +179,25 @@ This portfolio features:
 
 ---
 
-_Built with ❤️ using Next.js, TypeScript, and TailwindCSS_
+## 👤 About Me
+
+<p align="center">
+  <img src="portfolio/portfolio/public/images/profile.jpg" alt="Lawrence Hua" width="160" style="border-radius: 50%; margin-bottom: 1rem;" />
+</p>
+
+**Lawrence W. Hua**  
+AI Product Manager | Builder | Innovator
+
+I'm passionate about transforming ideas into impactful digital solutions. My journey spans founding startups, leading product teams, and building AI-powered platforms that solve real-world problems. I thrive at the intersection of technology, business, and design—always seeking new challenges and opportunities to grow.
+
+- **Founder & CEO** of Expired Solutions (AI for grocery automation)
+- **Product Manager** at PM Happy Hour & PanPalz
+- **Technical Lead** at Kearney (enterprise LLM)
+- **Master's, Information Systems Management** (Carnegie Mellon University)
+- **Public Speaker** and competition finalist
+
+Let's connect and build something amazing together!
+
+_**Built with ❤️ using Next.js, TypeScript, and TailwindCSS**_
 
 _Last updated: January 2025_
