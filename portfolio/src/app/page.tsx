@@ -1779,13 +1779,32 @@ export default function Home() {
                             toggleCardExpansion(item.title + "-" + item.year)
                           }
                         >
-                          <Image
-                            src={item.logo}
-                            alt={item.org}
-                            width={40}
-                            height={40}
-                            className="logo mx-auto rounded"
-                          />
+                          <div className="flex items-center justify-center gap-2 mb-2">
+                            <div
+                              className="circle-svg"
+                              style={{
+                                width: 40,
+                                height: 40,
+                                minWidth: 40,
+                                minHeight: 40,
+                                borderWidth: 2,
+                              }}
+                            >
+                              <span
+                                className="circle-year"
+                                style={{ fontSize: "1rem" }}
+                              >
+                                {item.year}
+                              </span>
+                            </div>
+                            <Image
+                              src={item.logo}
+                              alt={item.org}
+                              width={40}
+                              height={40}
+                              className="logo rounded"
+                            />
+                          </div>
                           <div
                             className="text-center text-base font-bold text-white"
                             style={{ margin: 0, padding: 0 }}
@@ -1870,13 +1889,32 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="timeline-card mx-auto flex h-full w-full flex-col text-left">
-                      <Image
-                        src={item.logo}
-                        alt={item.org}
-                        width={40}
-                        height={40}
-                        className="logo mx-auto rounded"
-                      />
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <div
+                          className="circle-svg"
+                          style={{
+                            width: 40,
+                            height: 40,
+                            minWidth: 40,
+                            minHeight: 40,
+                            borderWidth: 2,
+                          }}
+                        >
+                          <span
+                            className="circle-year"
+                            style={{ fontSize: "1rem" }}
+                          >
+                            {item.year}
+                          </span>
+                        </div>
+                        <Image
+                          src={item.logo}
+                          alt={item.org}
+                          width={40}
+                          height={40}
+                          className="logo rounded"
+                        />
+                      </div>
                       <div
                         className="text-center text-base font-bold text-white"
                         style={{ margin: 0, padding: 0 }}
