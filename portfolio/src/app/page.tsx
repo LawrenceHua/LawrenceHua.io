@@ -1722,21 +1722,22 @@ export default function Home() {
           </div>
 
           {/* Career Timeline Row with Arrows */}
-          <div className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-visible pt-8">
+          <div className="timeline-container-with-stars mx-auto w-full max-w-7xl overflow-x-auto pt-8">
             <div
               className={
                 "flex flex-row items-start justify-start gap-x-4 px-2 sm:px-8 " +
                 timelineFlexClass
               }
             >
-              {experiencesToShow.map((item, idx, arr) => (
+              {filteredExperiences.map((item, idx, arr) => (
                 <React.Fragment key={item.title + "-" + item.year + "-" + idx}>
                   <div className="timeline-card-container relative flex min-w-[80vw] max-w-[90vw] sm:min-w-[220px] sm:max-w-[280px] mx-2 flex-col items-center">
                     <div
-                      className="timeline-circle top flex justify-center items-center mx-auto"
+                      className="timeline-circle top"
                       style={{
-                        position: "relative",
-                        top: "-1.5rem",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        position: "absolute",
                         zIndex: 2,
                       }}
                     >
@@ -1788,12 +1789,12 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  {/* Arrow between cards: right arrow, rotated 90deg clockwise */}
+                  {/* Arrow between cards: left arrow, rotated 180deg */}
                   {idx < arr.length - 1 && (
                     <div className="flex items-center justify-center w-8 h-8 mx-1">
                       <svg
                         className="h-6 w-6 text-blue-400"
-                        style={{ transform: "rotate(90deg)" }}
+                        style={{ transform: "rotate(180deg)" }}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1810,19 +1811,6 @@ export default function Home() {
                 </React.Fragment>
               ))}
             </div>
-            {/* View More/Less Button */}
-            {moreExperiencesCount > 0 && (
-              <div className="flex justify-center mt-4">
-                <button
-                  onClick={() => setShowAllExperiences((v) => !v)}
-                  className="rounded-lg bg-blue-600 px-6 py-2 text-white text-sm font-semibold shadow hover:bg-blue-700 transition-all"
-                >
-                  {showAllExperiences
-                    ? "View Less"
-                    : `View More (${moreExperiencesCount}) Experiences`}
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Education Section - Improved UI */}
