@@ -94,20 +94,6 @@ export default function RootLayout({
           })}{" "}
           EST. V1.0
         </footer>
-        <div className="w-full text-center text-[10px] text-gray-500 pb-2">
-          Dev @{" "}
-          {new Date().toLocaleString("en-US", {
-            timeZone: "America/New_York",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: false,
-          })}{" "}
-          EST
-        </div>
       </body>
     </html>
   );

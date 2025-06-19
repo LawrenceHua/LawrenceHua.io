@@ -1318,20 +1318,32 @@ export default function Home() {
   useEffect(() => {
     const el = timelineRef.current;
     if (!el) return;
+
     const checkScroll = () => {
-      setShowScrollHint(
-        el.scrollWidth > el.clientWidth &&
-          el.scrollLeft < el.scrollWidth - el.clientWidth - 10
-      );
+      const hasHorizontalScroll = el.scrollWidth > el.clientWidth;
+      const isScrolledToEnd =
+        el.scrollLeft >= el.scrollWidth - el.clientWidth - 10;
+
+      setShowScrollHint(hasHorizontalScroll && !isScrolledToEnd);
     };
+
+    // Initial check
     checkScroll();
+
+    // Check after a small delay to ensure content is rendered
+    const timeoutId = setTimeout(checkScroll, 100);
+
+    // Add event listeners
     el.addEventListener("scroll", checkScroll);
     window.addEventListener("resize", checkScroll);
+
+    // Cleanup
     return () => {
       el.removeEventListener("scroll", checkScroll);
       window.removeEventListener("resize", checkScroll);
+      clearTimeout(timeoutId);
     };
-  }, []);
+  }, [expYear, expCategory]); // Add dependencies here
 
   // 2. Add filter buttons for Product Management, Engineering, and Retail above the timeline
   const expCategories = [
@@ -1873,7 +1885,11 @@ export default function Home() {
           {/* Year Navigation */}
           <div className="mb-2 flex flex-wrap items-center justify-center gap-4 text-center">
             <button
-              className={`skills-filter-button${expYear === "All" ? "active" : ""}`}
+              className={`rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
+                expYear === "All"
+                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
               style={{ minWidth: "64px" }}
               onClick={() => setExpYear("All")}
             >
@@ -1882,7 +1898,11 @@ export default function Home() {
             {expYears.map((year) => (
               <button
                 key={year}
-                className={`skills-filter-button${expYear === year ? "active" : ""}`}
+                className={`rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
+                  expYear === year
+                    ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800"
+                    : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+                }`}
                 style={{ minWidth: "64px" }}
                 onClick={() => setExpYear(year)}
               >
@@ -1891,31 +1911,115 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Year Navigation */}
-          <div className="mb-4 flex flex-wrap items-center justify-center gap-4 text-center">
+          {/* Category Navigation */}
+          <div className="mb-8 flex flex-wrap items-center justify-center gap-4 text-center">
             <button
-              className={`timeline-filter-button ${expCategory === "all" ? "active" : ""}`}
+              className={`rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
+                expCategory === "all"
+                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
               onClick={() => setExpCategory("all")}
             >
               All Experiences
             </button>
             <button
-              className={`timeline-filter-button ${expCategory === "product" ? "active" : ""}`}
+              className={`rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
+                expCategory === "product"
+                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
               onClick={() => setExpCategory("product")}
             >
               Product Management
             </button>
             <button
-              className={`timeline-filter-button ${expCategory === "engineering" ? "active" : ""}`}
+              className={`rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
+                expCategory === "engineering"
+                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
               onClick={() => setExpCategory("engineering")}
             >
               Engineering
             </button>
             <button
-              className={`timeline-filter-button ${expCategory === "retail" ? "active" : ""}`}
+              className={`rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
+                expCategory === "retail"
+                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-800"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
               onClick={() => setExpCategory("retail")}
             >
               Retail
+            </button>
+          </div>
+
+          {/* Project Filters */}
+          <div className="project-filters mb-8 flex flex-wrap items-center justify-center gap-4">
+            <button
+              className={`flex items-center gap-2 rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
+                projectSection === "all"
+                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
+              onClick={() => {
+                setProjectSection("all");
+                setShowAllProjects(false);
+              }}
+            >
+              <span>All Projects</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-sm font-semibold text-white">
+                {projectSections.all.length}
+              </span>
+            </button>
+            <button
+              className={`flex items-center gap-2 rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
+                projectSection === "product"
+                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
+              onClick={() => {
+                setProjectSection("product");
+                setShowAllProjects(false);
+              }}
+            >
+              <span>Product Related</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-sm font-semibold text-white">
+                {projectSections.product.length}
+              </span>
+            </button>
+            <button
+              className={`flex items-center gap-2 rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
+                projectSection === "engineering"
+                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
+              onClick={() => {
+                setProjectSection("engineering");
+                setShowAllProjects(false);
+              }}
+            >
+              <span>Engineering Related</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-sm font-semibold text-white">
+                {projectSections.engineering.length}
+              </span>
+            </button>
+            <button
+              className={`flex items-center gap-2 rounded-lg px-6 py-2.5 font-medium transition-all duration-200 ${
+                projectSection === "fun"
+                  ? "bg-blue-600 text-white shadow-lg ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+              }`}
+              onClick={() => {
+                setProjectSection("fun");
+                setShowAllProjects(false);
+              }}
+            >
+              <span>Fun</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-sm font-semibold text-white">
+                {projectSections.fun.length}
+              </span>
             </button>
           </div>
 
