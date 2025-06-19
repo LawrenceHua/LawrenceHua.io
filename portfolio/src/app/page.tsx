@@ -1749,13 +1749,13 @@ export default function Home() {
       <Navigation />
 
       {/* Flashing Alert Banner */}
-      <div className="fixed top-0 left-0 z-50 w-full bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 p-3 shadow-lg flash-alert">
-        <div className="flex items-center justify-center space-x-2">
-          <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-          <span className="text-white font-bold text-sm md:text-base">
+      <div className="fixed top-4 left-4 z-50 bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 p-2 shadow-lg flash-alert rounded-lg">
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+          <span className="text-white font-bold text-xs">
             🚨 Actively Seeking AI Product Management Opportunities!!! 🚨
           </span>
-          <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
         </div>
       </div>
 
