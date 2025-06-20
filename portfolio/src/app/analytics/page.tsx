@@ -31,6 +31,7 @@ import {
   FiBarChart,
   FiPieChart,
   FiUserCheck,
+  FiLock,
 } from "react-icons/fi";
 import Link from "next/link";
 import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
@@ -128,8 +129,19 @@ export default function AnalyticsPage() {
     "30d"
   );
   const [db, setDb] = useState<Firestore | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
+    // Check for password in session storage
+    const storedPassword = sessionStorage.getItem("analytics_password");
+    if (storedPassword === process.env.NEXT_PUBLIC_SECRET_PASS) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
     // Initialize Firebase
     let app: FirebaseApp | undefined;
     if (typeof window !== "undefined") {
@@ -141,15 +153,15 @@ export default function AnalyticsPage() {
       const firestore = getFirestore(app);
       setDb(firestore);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    if (db) {
+    if (db && isAuthenticated) {
       fetchAllData();
       // Start real-time data collection
       startDataCollection();
     }
-  }, [db, timeRange, sortOrder]);
+  }, [db, timeRange, sortOrder, isAuthenticated]);
 
   const startDataCollection = () => {
     // Track page view
@@ -695,6 +707,51 @@ export default function AnalyticsPage() {
     const seconds = Math.floor((diff % 60000) / 1000);
     return `${minutes}m ${seconds}s`;
   };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === process.env.NEXT_PUBLIC_SECRET_PASS) {
+      sessionStorage.setItem(
+        "analytics_password",
+        process.env.NEXT_PUBLIC_SECRET_PASS || ""
+      );
+      setIsAuthenticated(true);
+    } else {
+      alert("Incorrect password");
+      window.location.href = "/";
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-8">
+        <div className="max-w-md w-full bg-gray-800 p-8 rounded-xl shadow-lg">
+          <form onSubmit={handlePasswordSubmit}>
+            <h2 className="text-2xl font-bold text-center mb-6 flex items-center justify-center gap-2">
+              <FiLock />
+              Analytics Dashboard
+            </h2>
+            <p className="text-center text-gray-400 mb-6">
+              This page is password protected.
+            </p>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+            />
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
+            >
+              Unlock
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

@@ -1,6 +1,6 @@
 # Lawrence Hua's Portfolio
 
-A modern, responsive portfolio website showcasing Lawrence's experience, skills, and projects.
+A modern, responsive portfolio website showcasing Lawrence's experience, skills, and projects, complete with a private analytics dashboard.
 
 ## Features
 
@@ -10,6 +10,11 @@ A modern, responsive portfolio website showcasing Lawrence's experience, skills,
 - **Interactive Timeline**: Career and education timeline
 - **Skills Showcase**: Categorized skills with proficiency levels
 - **Project Gallery**: Showcase of various projects
+- **Private Analytics Dashboard**:
+  - **Visitor Tracking**: Monitors total page views and unique visitors.
+  - **Chatbot Analytics**: Tracks total chat sessions, messages, and average messages per session.
+  - **Geolocation**: Shows top countries and cities of visitors.
+  - **Potential Recruiter Identification**: Flags potential recruiters based on site interactions, time spent, and chatbot keywords, and provides a breakdown of these KPIs.
 
 ## Setup
 
@@ -32,9 +37,13 @@ Create a `.env.local` file in the root directory with:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
+NEXT_PUBLIC_SECRET_PASS=your_secret_password_here
 ```
 
-**Note**: The chatbot will work without the API key using fallback responses, but for full AI functionality, add your OpenAI API key.
+**Note**:
+
+- The chatbot will work without the `OPENAI_API_KEY` using fallback responses, but for full AI functionality, add your OpenAI API key.
+- The `NEXT_PUBLIC_SECRET_PASS` is required to access the private analytics dashboard.
 
 ### Development
 
@@ -81,6 +90,7 @@ npm start
 - TypeScript
 - Tailwind CSS
 - OpenAI API
+- Firebase (for analytics data storage)
 - React Icons
 - React DatePicker
 
