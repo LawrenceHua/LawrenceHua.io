@@ -419,8 +419,8 @@ const timelineData = [
     left: null,
     right: {
       title: "Product Manager",
-      org: "PM Happy Hour · Internship",
-      date: "Mar 2025 - Present · 4 mos",
+      org: "PM Happy Hour",
+      date: "Mar 2025 - Present",
       logo: "/logos/pm_happy_hour_logo.jpeg",
       category: "product",
       bullets: [
@@ -686,8 +686,8 @@ const timelineEvents: Array<TimelineEvent> = [
     type: "experience",
     year: "2025",
     title: "Product Manager",
-    org: "PM Happy Hour · Internship",
-    date: "Mar 2025 - Present · 4 mos",
+    org: "PM Happy Hour",
+    date: "Mar 2025 - Present",
     logo: "/logos/pm_happy_hour_logo.jpeg",
     category: "product",
     bullets: [

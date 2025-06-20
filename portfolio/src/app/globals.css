@@ -1346,12 +1346,12 @@ section {
 
 .timeline-card,
 .education-card.improved-ui {
-  min-width: 320px;
-  max-width: 320px;
-  width: 320px;
-  height: 380px; /* Use a fixed height */
-  max-height: 380px; /* Ensure max-height matches */
-  overflow: hidden; /* Hide overflow on the main card */
+  min-width: 350px;
+  max-width: 350px;
+  width: 350px;
+  height: 380px;
+  max-height: 380px;
+  overflow: hidden;
   white-space: normal;
   word-break: break-word;
   padding: 0.5rem 1.5rem 1.75rem 1.5rem;
@@ -2052,4 +2052,12 @@ section {
 
 .group.relative.flex-col .self-start {
   align-self: center;
+}
+
+.timeline-card-content p {
+  text-align: center;
+}
+
+.timeline-container-with-stars .flex {
+  gap: 0.5rem;
 }
