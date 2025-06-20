@@ -133,7 +133,7 @@ What would you like to know?`,
     useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -149,6 +149,9 @@ What would you like to know?`,
       }, 100);
     }
   }, [isOpen, isMinimized]);
+
+  // Detect desktop
+  const isDesktop = typeof window !== "undefined" && window.innerWidth > 768;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -284,6 +287,20 @@ What would you like to know?`,
 
   return (
     <>
+      {isOpen && !isMinimized && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={isDesktop ? onClose : undefined}
+        />
+      )}
       {isOpen && (
         <div
           className={
@@ -293,15 +310,25 @@ What would you like to know?`,
             (isLoveMode ? styles.loveMode : "")
           }
           style={{
-            maxWidth: isFullscreen ? "100vw" : undefined,
+            maxWidth: isFullscreen || isDesktop ? "600px" : undefined,
             maxHeight: isFullscreen ? "100vh" : undefined,
-            width: isFullscreen ? "100vw" : undefined,
-            height: isMinimized ? "64px" : isFullscreen ? "100vh" : undefined,
-            bottom: isFullscreen ? 0 : undefined,
-            right: isFullscreen ? 0 : undefined,
+            width: isFullscreen ? "100vw" : isDesktop ? "600px" : undefined,
+            height: isMinimized
+              ? "64px"
+              : isFullscreen
+                ? "100vh"
+                : isDesktop
+                  ? "80vh"
+                  : undefined,
+            bottom: isFullscreen ? 0 : isDesktop ? "50%" : undefined,
+            right: isFullscreen ? 0 : isDesktop ? "50%" : undefined,
             left: isFullscreen ? 0 : undefined,
             borderRadius: isFullscreen ? 0 : undefined,
+            position: isDesktop ? "fixed" : undefined,
+            transform: isDesktop ? "translate(50%, 50%)" : undefined,
+            zIndex: 1000,
           }}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div
@@ -448,15 +475,25 @@ What would you like to know?`,
               )}
 
               <div className="flex gap-2 p-2">
-                <input
-                  className={styles.inputField + " inputField flex-1"}
-                  type="text"
+                <textarea
+                  className={
+                    styles.inputField +
+                    " inputField rounded-md border-gray-300 shadow-sm flex-1 min-h-[40px] max-h-[120px] resize-y"
+                  }
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type your message..."
                   ref={inputRef}
                   style={{ minWidth: 0 }}
                   disabled={isLoading}
+                  rows={1}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (input.trim() || selectedFiles.length > 0)
+                        handleSubmit(e);
+                    }
+                  }}
                 />
 
                 {/* File attachment button */}

@@ -58,9 +58,78 @@ Answer questions about Lawrence professionally and accurately. If users share fi
   }
 }
 
+// Add helper to extract info from context and message
+function extractContactInfo(
+  message: string,
+  context: Record<string, string> = {}
+) {
+  // Try to extract from context first
+  let recruiterName = context.recruiterName || "";
+  let company = context.company || "";
+  let email = context.email || "";
+  let recruiterMessage = context.recruiterMessage || "";
+
+  // Extract from message
+  recruiterName =
+    recruiterName ||
+    message.match(/name is\s+([A-Za-z\s]+)(?:,|$)/i)?.[1]?.trim() ||
+    message.match(/I'm\s+([A-Za-z\s]+)(?:,|$)/i)?.[1]?.trim() ||
+    message
+      .match(/name:\s*(.*?)(?:\n|email:|message:|company:|$)/i)?.[1]
+      ?.trim() ||
+    "";
+  company =
+    company ||
+    message.match(/from\s+([A-Za-z\s]+)(?:,|$)/i)?.[1]?.trim() ||
+    message
+      .match(/company:\s*(.*?)(?:\n|email:|message:|name:|$)/i)?.[1]
+      ?.trim() ||
+    "";
+  email =
+    email ||
+    message.match(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i)?.[0] ||
+    "";
+  recruiterMessage =
+    recruiterMessage ||
+    message.match(/message:\s*([\s\S]*)/i)?.[1]?.trim() ||
+    "";
+
+  // Fallback for unstructured messages
+  const tellLawrenceMatch = message.match(
+    /(?:tell|ask|send to)\s+lawrence\s+(.*)/i
+  );
+  if (tellLawrenceMatch && tellLawrenceMatch[1]) {
+    if (!recruiterMessage) recruiterMessage = tellLawrenceMatch[1].trim();
+    if (recruiterName.toLowerCase() === "hey") recruiterName = "";
+  } else if (!recruiterMessage && email) {
+    let remainingMessage = message
+      .replace(email, "")
+      .replace(/my name is\s+[A-Za-z\s]+/i, "")
+      .replace(/from\s+[A-Za-z\s]+/i, "")
+      .replace(/I'm\s+[A-Za-z\s]+/i, "")
+      .replace(/you can reach me at/i, "")
+      .replace(/[,;]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    recruiterMessage = remainingMessage;
+  }
+  if (recruiterName && !recruiterMessage) {
+    recruiterMessage =
+      message.split(recruiterName)[1]?.replace(/[,;]/g, " ").trim() || "";
+  }
+
+  // In extractContactInfo, extract phone number (simple regex for US/international numbers)
+  const phone =
+    message.match(
+      /\+?\d{1,3}[-.\s]?\(?\d{1,3}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/i
+    )?.[0] || "";
+
+  return { recruiterName, company, email, recruiterMessage, phone };
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { message, files, context } = await request.json();
+    const { message, files, context: convoContext } = await request.json();
 
     if (!message && (!files || files.length === 0)) {
       return NextResponse.json(
@@ -77,7 +146,7 @@ export async function POST(request: NextRequest) {
       );
     console.log("DEBUG: isGirlfriendQuestion:", isGirlfriendQuestion);
 
-    if (isGirlfriendQuestion || context === "girlfriend-password") {
+    if (isGirlfriendQuestion || convoContext === "girlfriend-password") {
       // Check if the message contains the secret password (August 21, 2024 in any format)
       const passwordPatterns = [
         /august\s*21\s*2024/i,
@@ -200,54 +269,14 @@ He's always writing little things for her. Here's one:
 
     if (mightBeContactInfo) {
       // --- Parsing Logic ---
-      let recruiterName =
-        message.match(/name is\s+([A-Za-z\s]+)(?:,|$)/i)?.[1]?.trim() ||
-        message.match(/I'm\s+([A-Za-z\s]+)(?:,|$)/i)?.[1]?.trim() ||
-        message
-          .match(/name:\s*(.*?)(?:\n|email:|message:|company:|$)/i)?.[1]
-          ?.trim() ||
-        "";
-      let company =
-        message.match(/from\s+([A-Za-z\s]+)(?:,|$)/i)?.[1]?.trim() ||
-        message
-          .match(/company:\s*(.*?)(?:\n|email:|message:|name:|$)/i)?.[1]
-          ?.trim() ||
-        "";
-      let email =
-        message.match(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i)?.[0] || "";
-      let recruiterMessage =
-        message.match(/message:\s*([\s\S]*)/i)?.[1]?.trim() || "";
-
-      // Fallback for unstructured messages
-      const tellLawrenceMatch = message.match(
-        /(?:tell|ask|send to)\s+lawrence\s+(.*)/i
-      );
-      if (tellLawrenceMatch && tellLawrenceMatch[1]) {
-        if (!recruiterMessage) {
-          recruiterMessage = tellLawrenceMatch[1].trim();
-        }
-        // If we got a message this way, we probably don't have a name yet
-        if (recruiterName.toLowerCase() === "hey") {
-          recruiterName = "";
-        }
-      } else if (!recruiterMessage && email) {
-        let remainingMessage = message
-          .replace(email, "")
-          .replace(/my name is\s+[A-Za-z\s]+/i, "")
-          .replace(/from\s+[A-Za-z\s]+/i, "")
-          .replace(/I'm\s+[A-Za-z\s]+/i, "")
-          .replace(/you can reach me at/i, "")
-          .replace(/[,;]/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-        recruiterMessage = remainingMessage;
-      }
-
-      // If a name was found but no message, assume the rest of the string is the message.
-      if (recruiterName && !recruiterMessage) {
-        recruiterMessage =
-          message.split(recruiterName)[1]?.replace(/[,;]/g, " ").trim() || "";
-      }
+      let contextObj: Record<string, string> = {};
+      try {
+        contextObj =
+          typeof convoContext === "string"
+            ? JSON.parse(convoContext)
+            : convoContext || {};
+      } catch {}
+      const info = extractContactInfo(message, contextObj);
 
       // Final check for message quality
       const lowQualityWords = [
@@ -260,41 +289,120 @@ He's always writing little things for her. Here's one:
         "email",
         "name",
       ];
-      const messageWords = recruiterMessage.toLowerCase().split(" ");
+      const tellLawrenceMatch = message.match(
+        /(?:tell|ask|send to)\s+lawrence\s+(.*)/i
+      );
+      const messageWords = info.recruiterMessage.toLowerCase().split(" ");
       if (
         !tellLawrenceMatch && // Don't invalidate messages captured with "tell lawrence"
         (messageWords.length < 3 ||
           messageWords.every((word: string) => lowQualityWords.includes(word)))
       ) {
-        recruiterMessage = ""; // Invalidate the message
+        info.recruiterMessage = ""; // Invalidate the message
       }
 
       // If we are still missing key info, ask for it.
-      if (!recruiterName || !recruiterMessage || !email) {
+      if (!info.recruiterName || !info.recruiterMessage || !info.email) {
         let clarification = "";
 
-        if (recruiterMessage && !recruiterName && !email) {
-          clarification = `Okay, I'll let him know you said: "${recruiterMessage}". But first, I need your name and email so he can get back to you.`;
-        } else if (email && !recruiterName && !recruiterMessage) {
-          clarification = `Thanks! I've got your email as **${email}**. If you'd like to send a message to Lawrence, please provide your name and what you'd like to say.`;
+        if (info.recruiterMessage && !info.recruiterName && !info.email) {
+          clarification = `Okay, I'll let him know you said: "${info.recruiterMessage}". But first, I need your name and email so he can get back to you.`;
+        } else if (
+          info.email &&
+          !info.recruiterName &&
+          !info.recruiterMessage
+        ) {
+          clarification = `Thanks! I've got your email as **${info.email}**. If you'd like to send a message to Lawrence, please provide your name and what you'd like to say.`;
         } else {
           clarification =
             "Thanks for providing some information! To connect you with Lawrence, I just need a bit more.\n\n";
-          if (!recruiterName) clarification += "**What is your name?**\n";
-          if (!email)
+          if (!info.recruiterName) clarification += "**What is your name?**\n";
+          if (!info.email)
             clarification += "**What is your email address?** (required)\n";
-          if (!recruiterMessage)
+          if (!info.recruiterMessage)
             clarification += "**What is the message you'd like to send?**\n";
 
           clarification += `\nHere's what I have so far:\n`;
-          if (recruiterName) clarification += `> **Name:** ${recruiterName}\n`;
-          if (company) clarification += `> **Company:** ${company}\n`;
-          if (email) clarification += `> **Email:** ${email}\n`;
+          if (info.recruiterName)
+            clarification += `> **Name:** ${info.recruiterName}\n`;
+          if (info.company) clarification += `> **Company:** ${info.company}\n`;
+          if (info.email) clarification += `> **Email:** ${info.email}\n`;
+          if (info.recruiterMessage)
+            clarification += `> **Message:** ${info.recruiterMessage}\n`;
         }
 
         return NextResponse.json({
           response: clarification,
           needsClarification: true,
+          context: JSON.stringify(info),
+        });
+      }
+
+      // If it's not contact info, check for recruiter intent phrases
+      const isRecruiterContactRequest =
+        message.toLowerCase().includes("contact lawrence") ||
+        message.toLowerCase().includes("get in touch") ||
+        message.toLowerCase().includes("reach out") ||
+        message.toLowerCase().includes("send message") ||
+        message.toLowerCase().includes("connect with lawrence") ||
+        message.toLowerCase().includes("talk with lawrence") ||
+        message.toLowerCase().includes("talk to lawrence") ||
+        message.toLowerCase().includes("speak with lawrence") ||
+        message.toLowerCase().includes("speak to lawrence") ||
+        message.toLowerCase().includes("meet with lawrence") ||
+        message.toLowerCase().includes("meet lawrence") ||
+        message.toLowerCase().includes("schedule a call") ||
+        message.toLowerCase().includes("set up a call") ||
+        message.toLowerCase().includes("have a call") ||
+        message.toLowerCase().includes("discuss with lawrence") ||
+        message.toLowerCase().includes("chat with lawrence") ||
+        message.toLowerCase().includes("interview lawrence") ||
+        message.toLowerCase().includes("hire lawrence") ||
+        message.toLowerCase().includes("work with lawrence") ||
+        message.toLowerCase().includes("bring lawrence on") ||
+        message.toLowerCase().includes("bring him on") ||
+        message.toLowerCase().includes("join our team") ||
+        message.toLowerCase().includes("join us") ||
+        message.toLowerCase().includes("opportunity for lawrence") ||
+        message.toLowerCase().includes("role for lawrence") ||
+        message.toLowerCase().includes("position for lawrence") ||
+        message.toLowerCase().includes("job for lawrence");
+
+      if (isRecruiterContactRequest) {
+        return NextResponse.json({
+          response: `I'd be happy to help you get in touch with Lawrence! I can collect your information and send him a message on your behalf.
+
+**Please provide the following information:**
+
+1. **Your name:**
+2. **Company (if applicable):**
+3. **Your email:**
+4. **Message to Lawrence:**
+
+Just reply with this information and I'll send it directly to Lawrence! 🚀`,
+          isRecruiterContact: true,
+        });
+      }
+
+      // Hardcoded rule for a common but problematic phrase
+      if (message.toLowerCase().startsWith("my email is")) {
+        const email =
+          message.match(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i)?.[0] ||
+          "";
+        if (email) {
+          return NextResponse.json({
+            response: `Thanks! I've got your email as **${email}**. Could you also provide your name and a short message for Lawrence?`,
+            needsClarification: true,
+          });
+        }
+      }
+
+      // For scheduling, if user says schedule/chat/meeting, prompt for times and collect availability
+      if (/schedule|chat|meeting|call|meet/i.test(message)) {
+        return NextResponse.json({
+          response: `Great! Please provide a few dates and times that work for you, and Lawrence will get back to you to confirm.`,
+          scheduling: true,
+          context: JSON.stringify(info),
         });
       }
 
@@ -306,10 +414,10 @@ He's always writing little things for her. Here's one:
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              recruiterName,
-              company,
-              email,
-              message: recruiterMessage,
+              recruiterName: info.recruiterName,
+              company: info.company,
+              email: info.email,
+              message: info.recruiterMessage,
               conversationContext: `This message was sent through the AI assistant. Original user message: ${message}`,
             }),
           }
@@ -320,9 +428,9 @@ He's always writing little things for her. Here's one:
             response: `Perfect! I've sent your message to Lawrence. Here's what I sent:
 
 **To:** Lawrence Hua
-**From:** ${recruiterName}${company ? ` (${company})` : ""}
-**Email:** ${email}
-**Message:** ${recruiterMessage}
+**From:** ${info.recruiterName}${info.company ? ` (${info.company})` : ""}
+**Email:** ${info.email}
+**Message:** ${info.recruiterMessage}
 
 Lawrence will get back to you soon! 🎯
 
@@ -341,64 +449,6 @@ Is there anything else you'd like to know about Lawrence's background or experie
         return NextResponse.json({
           response: `I encountered an error while trying to send your message. Please try again or contact Lawrence directly at lawrencehua2@gmail.com.`,
           recruiterContactError: true,
-        });
-      }
-    }
-
-    // If it's not contact info, check for recruiter intent phrases
-    const isRecruiterContactRequest =
-      message.toLowerCase().includes("contact lawrence") ||
-      message.toLowerCase().includes("get in touch") ||
-      message.toLowerCase().includes("reach out") ||
-      message.toLowerCase().includes("send message") ||
-      message.toLowerCase().includes("connect with lawrence") ||
-      message.toLowerCase().includes("talk with lawrence") ||
-      message.toLowerCase().includes("talk to lawrence") ||
-      message.toLowerCase().includes("speak with lawrence") ||
-      message.toLowerCase().includes("speak to lawrence") ||
-      message.toLowerCase().includes("meet with lawrence") ||
-      message.toLowerCase().includes("meet lawrence") ||
-      message.toLowerCase().includes("schedule a call") ||
-      message.toLowerCase().includes("set up a call") ||
-      message.toLowerCase().includes("have a call") ||
-      message.toLowerCase().includes("discuss with lawrence") ||
-      message.toLowerCase().includes("chat with lawrence") ||
-      message.toLowerCase().includes("interview lawrence") ||
-      message.toLowerCase().includes("hire lawrence") ||
-      message.toLowerCase().includes("work with lawrence") ||
-      message.toLowerCase().includes("bring lawrence on") ||
-      message.toLowerCase().includes("bring him on") ||
-      message.toLowerCase().includes("join our team") ||
-      message.toLowerCase().includes("join us") ||
-      message.toLowerCase().includes("opportunity for lawrence") ||
-      message.toLowerCase().includes("role for lawrence") ||
-      message.toLowerCase().includes("position for lawrence") ||
-      message.toLowerCase().includes("job for lawrence");
-
-    if (isRecruiterContactRequest) {
-      return NextResponse.json({
-        response: `I'd be happy to help you get in touch with Lawrence! I can collect your information and send him a message on your behalf.
-
-**Please provide the following information:**
-
-1. **Your name:**
-2. **Company (if applicable):**
-3. **Your email:**
-4. **Message to Lawrence:**
-
-Just reply with this information and I'll send it directly to Lawrence! 🚀`,
-        isRecruiterContact: true,
-      });
-    }
-
-    // Hardcoded rule for a common but problematic phrase
-    if (message.toLowerCase().startsWith("my email is")) {
-      const email =
-        message.match(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i)?.[0] || "";
-      if (email) {
-        return NextResponse.json({
-          response: `Thanks! I've got your email as **${email}**. Could you also provide your name and a short message for Lawrence?`,
-          needsClarification: true,
         });
       }
     }

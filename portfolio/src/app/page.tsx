@@ -1375,6 +1375,8 @@ export default function Home() {
     "message"
   );
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  // Add state to track if user has toggled a card
+  const [hasToggledCard, setHasToggledCard] = useState(false);
 
   // Set client flag on mount to prevent hydration mismatch
   useEffect(() => {
@@ -1592,15 +1594,12 @@ export default function Home() {
 
   // Card expansion handler
   const toggleCardExpansion = useCallback((cardId: string) => {
-    console.log("Toggling card expansion for:", cardId);
+    setHasToggledCard(true);
     setExpandedCards((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(cardId)) {
-        newSet.delete(cardId);
-      } else {
+      const newSet = new Set<string>();
+      if (!prev.has(cardId)) {
         newSet.add(cardId);
       }
-      console.log("Updated expanded cards:", Array.from(newSet));
       return newSet;
     });
   }, []);
@@ -1814,6 +1813,14 @@ export default function Home() {
       };
     }
   }, [filteredExperiences.length]);
+
+  // Find the most recent experience card
+  const mostRecentExperience =
+    filteredExperiences[0]?.title +
+    "-" +
+    filteredExperiences[0]?.org +
+    "-" +
+    filteredExperiences[0]?.year;
 
   return (
     <main className="min-h-screen">
@@ -2390,16 +2397,34 @@ export default function Home() {
                   >
                     {filteredExperiences.map((item, idx, arr) => (
                       <div
-                        key={item.title + "-" + item.year + "-" + idx}
+                        key={
+                          item.title +
+                          "-" +
+                          item.org +
+                          "-" +
+                          item.year +
+                          "-" +
+                          idx
+                        }
                         className="flex-shrink-0"
                       >
                         <div className="timeline-card-container relative flex min-w-[85vw] sm:w-[320px] flex-col items-center">
                           <div
-                            className={`timeline-card mx-auto flex h-full w-full flex-col items-center text-center`}
+                            className={`timeline-card mx-auto flex h-full w-full flex-col items-center text-center${
+                              expandedCards.has(
+                                item.title + "-" + item.org + "-" + item.year
+                              )
+                                ? " expanded"
+                                : ""
+                            }${!hasToggledCard ? " animate-pulse-ring" : ""}`}
                             onClick={() =>
-                              toggleCardExpansion(item.title + "-" + item.year)
+                              toggleCardExpansion(
+                                item.title + "-" + item.org + "-" + item.year
+                              )
                             }
+                            style={{ cursor: "pointer" }}
                           >
+                            {/* Header Section */}
                             <div className="flex flex-col items-center justify-center gap-2 mb-2 py-2">
                               <Image
                                 src={item.logo}
@@ -2411,10 +2436,10 @@ export default function Home() {
                               <h4 className="text-lg font-bold text-white mt-2">
                                 {item.title}
                               </h4>
-                              <p className="text-base text-gray-400">
+                              <p className="text-base text-gray-400 mb-1">
                                 {item.org}
                               </p>
-                              <p className="text-sm text-gray-400 mb-2">
+                              <p className="text-sm text-gray-400 mb-1">
                                 {item.date}
                               </p>
                             </div>
@@ -2423,7 +2448,11 @@ export default function Home() {
                               {item.bullets && item.bullets.length > 0 && (
                                 <ul className="list-disc space-y-1 pl-4 text-sm text-gray-300 text-left">
                                   {expandedCards.has(
-                                    item.title + "-" + item.year
+                                    item.title +
+                                      "-" +
+                                      item.org +
+                                      "-" +
+                                      item.year
                                   ) ? (
                                     item.bullets.map(
                                       (bullet: string, i: number) => (
@@ -2434,6 +2463,39 @@ export default function Home() {
                                     <li>{item.bullets[0]}</li>
                                   )}
                                 </ul>
+                              )}
+                              {item.bullets && item.bullets.length > 1 && (
+                                <button
+                                  className="mt-2 text-blue-400 hover:underline focus:outline-none text-xs font-semibold"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleCardExpansion(
+                                      item.title +
+                                        "-" +
+                                        item.org +
+                                        "-" +
+                                        item.year
+                                    );
+                                  }}
+                                  aria-expanded={expandedCards.has(
+                                    item.title +
+                                      "-" +
+                                      item.org +
+                                      "-" +
+                                      item.year
+                                  )}
+                                  aria-controls={`bullets-${item.title}-${item.org}-${item.year}`}
+                                >
+                                  {expandedCards.has(
+                                    item.title +
+                                      "-" +
+                                      item.org +
+                                      "-" +
+                                      item.year
+                                  )
+                                    ? "See less"
+                                    : `See more (${item.bullets.length - 1} more)`}
+                                </button>
                               )}
                             </div>
                           </div>
@@ -2494,10 +2556,10 @@ export default function Home() {
                         </div>
                         {/* Scrollable Content Section */}
                         <div className="education-card-content">
-                          <p className="text-lg text-gray-400 text-center">
+                          <p className="text-lg text-gray-400 text-center mb-1">
                             {item.org}
                           </p>
-                          <p className="text-sm text-gray-400 text-center mb-2">
+                          <p className="text-sm text-gray-400 text-center mb-1">
                             {item.date}
                           </p>
                           {item.details && (
@@ -2692,7 +2754,7 @@ export default function Home() {
                           placeholder="Your Name"
                           value={formData.name}
                           onChange={handleInputChange}
-                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 rounded-md border-gray-300 shadow-sm"
                           required
                         />
                       </div>
@@ -2701,7 +2763,7 @@ export default function Home() {
                           htmlFor="email"
                           className="block text-sm font-medium text-gray-300"
                         >
-                          Email (optional)
+                          Email
                         </label>
                         <input
                           type="email"
@@ -2710,7 +2772,8 @@ export default function Home() {
                           placeholder="your.email@example.com"
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 rounded-md border-gray-300 shadow-sm"
+                          required
                         />
                       </div>
                     </div>
@@ -2728,7 +2791,7 @@ export default function Home() {
                         placeholder="What's up? :D"
                         value={formData.subject}
                         onChange={handleInputChange}
-                        className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                        className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 rounded-md border-gray-300 shadow-sm"
                       />
                     </div>
                     <div className="space-y-2">
@@ -2745,7 +2808,7 @@ export default function Home() {
                         placeholder="Tell me more about your project, opportunity, or just say hi"
                         value={formData.message}
                         onChange={handleInputChange}
-                        className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 resize-none"
+                        className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 rounded-md border-gray-300 shadow-sm"
                         required
                       ></textarea>
                     </div>
@@ -2825,7 +2888,7 @@ export default function Home() {
                           placeholder="Your Name"
                           value={formData.name}
                           onChange={handleInputChange}
-                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 rounded-md border-gray-300 shadow-sm"
                           required
                         />
                       </div>
@@ -2834,7 +2897,7 @@ export default function Home() {
                           htmlFor="meeting-email"
                           className="block text-sm font-medium text-gray-300"
                         >
-                          Email (optional)
+                          Email
                         </label>
                         <input
                           type="email"
@@ -2843,7 +2906,8 @@ export default function Home() {
                           placeholder="your.email@example.com"
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 rounded-md border-gray-300 shadow-sm"
+                          required
                         />
                       </div>
                     </div>
@@ -2861,7 +2925,7 @@ export default function Home() {
                         placeholder="Tell me more about your project, opportunity, or just say hi"
                         value={formData.message}
                         onChange={handleInputChange}
-                        className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 resize-none"
+                        className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 rounded-md border-gray-300 shadow-sm"
                         required
                       ></textarea>
                     </div>
@@ -2874,14 +2938,14 @@ export default function Home() {
                           selected={meetingDate}
                           onChange={(date: Date | null) => setMeetingDate(date)}
                           inline
-                          className="rounded-lg border border-gray-700 bg-gray-800/50"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 rounded-md border-gray-300 shadow-sm"
                         />
                         <div className="w-full max-w-xs">
                           <input
                             type="time"
                             value={meetingTime || ""}
                             onChange={(e) => setMeetingTime(e.target.value)}
-                            className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 time-input-icon-white"
+                            className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 rounded-md border-gray-300 shadow-sm"
                             placeholder="Select time"
                           />
                         </div>

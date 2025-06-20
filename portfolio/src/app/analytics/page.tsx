@@ -145,17 +145,26 @@ export default function AnalyticsPage() {
   );
   const [hasMore, setHasMore] = useState(true);
   const PAGE_SIZE = 100;
+  const [showChatbotFullScreen, setShowChatbotFullScreen] = useState(false);
 
   // Track Firebase reads and writes for this session
-  let firebaseReads = Number(sessionStorage.getItem("firebaseReads") || 0);
-  let firebaseWrites = Number(sessionStorage.getItem("firebaseWrites") || 0);
+  let firebaseReads = 0;
+  let firebaseWrites = 0;
+  if (typeof window !== "undefined") {
+    firebaseReads = Number(sessionStorage.getItem("firebaseReads") || 0);
+    firebaseWrites = Number(sessionStorage.getItem("firebaseWrites") || 0);
+  }
   function incrementRead() {
-    firebaseReads++;
-    sessionStorage.setItem("firebaseReads", firebaseReads.toString());
+    if (typeof window !== "undefined") {
+      firebaseReads++;
+      sessionStorage.setItem("firebaseReads", firebaseReads.toString());
+    }
   }
   function incrementWrite() {
-    firebaseWrites++;
-    sessionStorage.setItem("firebaseWrites", firebaseWrites.toString());
+    if (typeof window !== "undefined") {
+      firebaseWrites++;
+      sessionStorage.setItem("firebaseWrites", firebaseWrites.toString());
+    }
   }
 
   useEffect(() => {
@@ -1492,6 +1501,82 @@ export default function AnalyticsPage() {
             </div>
           )}
         </div>
+
+        {/* Full Chatbot Sessions Modal */}
+        {showChatbotFullScreen && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
+            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-8 relative">
+              <button
+                className="absolute top-4 right-4 text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+                onClick={() => setShowChatbotFullScreen(false)}
+              >
+                Close
+              </button>
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <FiMessageCircle className="h-6 w-6" />
+                All Chatbot Sessions
+              </h2>
+              <div className="space-y-4">
+                {sessions.map((session) => (
+                  <div
+                    key={session.sessionId}
+                    className="bg-gray-800 rounded-lg p-4 border border-gray-700"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">
+                          Session {session.sessionId.slice(-8)}
+                        </h3>
+                        <p className="text-xs text-gray-400">
+                          {formatTimestamp(session.startTime)} -{" "}
+                          {formatTimestamp(session.endTime)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-400">
+                          Duration:{" "}
+                          {getSessionDuration(
+                            session.startTime,
+                            session.endTime
+                          )}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {session.messageCount} messages
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      {session.messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`p-2 rounded ${
+                            message.role === "user"
+                              ? "bg-blue-900/30 border border-blue-700/30"
+                              : "bg-gray-600/50 border border-gray-500/30"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <span
+                              className={`text-xs font-medium px-2 py-0.5 rounded ${message.role === "user" ? "bg-blue-600 text-blue-100" : "bg-gray-600 text-gray-100"}`}
+                            >
+                              {message.role === "user" ? "User" : "Assistant"}
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              {formatTimestamp(message.timestamp)}
+                            </span>
+                          </div>
+                          <p className="text-xs whitespace-pre-wrap">
+                            {message.message}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

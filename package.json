@@ -49,8 +49,25 @@
     ]
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.10",
+    "autoprefixer": "^10.4.21",
     "firebase": "^11.9.1",
     "lucide-react": "^0.518.0",
-    "react-datetime-picker": "^6.0.1"
+    "next": "14.1.0",
+    "openai": "^5.5.1",
+    "postcss": "^8.5.6",
+    "react-datepicker": "^8.4.0",
+    "react-datetime-picker": "^6.0.1",
+    "react-icons": "^5.5.0",
+    "resend": "^4.6.0",
+    "tailwindcss": "^4.1.10"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "18.2.0",
+      "react-dom": "18.2.0",
+      "@types/react": "18.2.14",
+      "@types/react-dom": "18.2.7"
+    }
   }
 }

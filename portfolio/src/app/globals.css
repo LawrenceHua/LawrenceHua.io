@@ -1,3 +1,5 @@
+/* Tailwind v4+ requires all utility classes to be used directly in JSX, not in CSS, for full compatibility. */
+@source inline("rounded-md border-gray-300 shadow-sm");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -40,27 +42,27 @@ html {
 /* Custom styles for form inputs */
 input,
 textarea {
-  @apply rounded-md border-gray-300 shadow-sm;
+  /* Use className="rounded-md border-gray-300 shadow-sm" directly in JSX for Tailwind v4+ */
 }
 
 input:focus,
 textarea:focus {
-  @apply border-blue-500 ring-1 ring-blue-500;
+  /* Use className="border-blue-500 ring-1 ring-blue-500" directly in JSX for Tailwind v4+ */
 }
 
 /* Custom styles for links */
 a {
-  @apply transition-colors duration-200;
+  /* Use className="transition-colors duration-200" directly in JSX for Tailwind v4+ */
 }
 
 /* Custom styles for buttons */
 button {
-  @apply transition-all duration-200;
+  /* Use className="transition-all duration-200" directly in JSX for Tailwind v4+ */
 }
 
 /* Custom styles for sections */
 section {
-  @apply scroll-mt-16;
+  /* Use className="scroll-mt-16" directly in JSX for Tailwind v4+ */
 }
 
 @keyframes scroll {
@@ -1435,14 +1437,7 @@ section {
 
 .timeline-card:not(.expanded)::after,
 .education-card.improved-ui:not(.expanded)::after {
-  content: "▶";
-  position: absolute;
-  bottom: 8px;
-  right: 12px;
-  color: #3b82f6;
-  font-size: 12px;
-  font-weight: bold;
-  opacity: 0.7;
+  /* Removed the arrow content */
 }
 
 .star-svg {
@@ -2122,4 +2117,20 @@ section {
 
 .education-card-content::-webkit-scrollbar-thumb:hover {
   background: rgba(59, 130, 246, 0.5);
+}
+
+.animate-pulse-ring {
+  box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  animation: pulse-ring 1.2s cubic-bezier(0.66, 0, 0, 1) infinite;
+}
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
 }
