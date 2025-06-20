@@ -199,6 +199,24 @@ Here's what I was trying to send:
             recruiterContactError: true,
           });
         }
+      } else {
+        // If we couldn't extract the info properly, ask for clarification
+        return NextResponse.json({
+          response: `I'd love to help you contact Lawrence! I just need a bit more information to make sure I get it right.
+
+Could you please provide:
+- Your name
+- Your company (if applicable) 
+- Your email (optional but helpful)
+- The message you'd like to send to Lawrence
+
+You can use this format:
+Name: [Your Name]
+Company: [Your Company]
+Email: [Your Email]
+Message: [Your Message]`,
+          needsClarification: true,
+        });
       }
     }
 

@@ -28,6 +28,16 @@ When someone shows interest in Lawrence's background, experience, or potential f
 3. Collect the information → Send it to Lawrence via the recruiter contact system
 4. Confirm the message was sent → Provide next steps
 
+**INFORMATION COLLECTION:**
+When someone wants to contact Lawrence, ask them to provide their information in this structured format:
+
+Name: [Their Name]
+Company: [Their Company]
+Email: [Their Email]
+Message: [Their Message]
+
+This ensures all the necessary information is captured clearly and sent to Lawrence properly.
+
 If they agree, guide them through providing their information and message, then send it to Lawrence through the recruiter contact system.
 
 ---
