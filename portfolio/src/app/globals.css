@@ -2008,3 +2008,24 @@ section {
 .group.relative.flex-col .space-y-2 > * + * {
   margin-top: 1rem;
 }
+
+.group.relative.flex-col > .flex.h-full.flex-col {
+  align-items: center;
+  text-align: center;
+}
+
+.group.relative.flex-col .text-sm.text-gray-400 {
+  margin-bottom: 0;
+}
+
+.group.relative.flex-col .text-xs.text-gray-500 {
+  margin-top: 0.1rem; /* Reduced from mt-1 */
+}
+
+.group.relative.flex-col .space-y-2.text-sm {
+  text-align: left;
+}
+
+.group.relative.flex-col .self-start {
+  align-self: center;
+}
