@@ -146,6 +146,18 @@ export default function AnalyticsPage() {
   const [hasMore, setHasMore] = useState(true);
   const PAGE_SIZE = 100;
 
+  // Track Firebase reads and writes for this session
+  let firebaseReads = Number(sessionStorage.getItem("firebaseReads") || 0);
+  let firebaseWrites = Number(sessionStorage.getItem("firebaseWrites") || 0);
+  function incrementRead() {
+    firebaseReads++;
+    sessionStorage.setItem("firebaseReads", firebaseReads.toString());
+  }
+  function incrementWrite() {
+    firebaseWrites++;
+    sessionStorage.setItem("firebaseWrites", firebaseWrites.toString());
+  }
+
   useEffect(() => {
     // Check for password in session storage
     const storedPassword = sessionStorage.getItem("analytics_password");
@@ -213,6 +225,7 @@ export default function AnalyticsPage() {
       };
 
       await addDoc(collection(db, "page_views"), pageView);
+      incrementWrite();
     } catch (error) {
       console.error("Error tracking page view:", error);
     }
@@ -347,6 +360,7 @@ export default function AnalyticsPage() {
       }
       console.log("Fetching messages with start date:", startDate);
       const messagesSnapshot = await getDocs(messagesQuery);
+      incrementRead();
       console.log("Found messages:", messagesSnapshot.size);
 
       // Group messages by sessionId to create chat sessions
@@ -404,6 +418,7 @@ export default function AnalyticsPage() {
         where("timestamp", ">=", startDate)
       );
       const pageViewsSnapshot = await getDocs(pageViewsQuery);
+      incrementRead();
 
       const pageViewsArray: PageView[] = [];
       pageViewsSnapshot.forEach((doc) => {
@@ -435,6 +450,7 @@ export default function AnalyticsPage() {
         where("timestamp", ">=", startDate)
       );
       const interactionsSnapshot = await getDocs(interactionsQuery);
+      incrementRead();
 
       const interactionsArray: UserInteraction[] = [];
       interactionsSnapshot.forEach((doc) => {
@@ -1313,6 +1329,18 @@ export default function AnalyticsPage() {
               <div className="bg-gray-700 p-4 rounded-lg">
                 <h3 className="text-gray-400 text-sm">Active Sessions</h3>
                 <p className="text-2xl font-bold">{filteredSessions.length}</p>
+              </div>
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-sm">
+                  Firebase Reads (this session)
+                </h3>
+                <p className="text-2xl font-bold">{firebaseReads}</p>
+              </div>
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-sm">
+                  Firebase Writes (this session)
+                </h3>
+                <p className="text-2xl font-bold">{firebaseWrites}</p>
               </div>
             </div>
           )}
