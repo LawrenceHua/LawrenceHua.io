@@ -129,9 +129,15 @@ function extractContactInfo(
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, files, context: convoContext } = await request.json();
+    // Handle FormData from frontend
+    const formData = await request.formData();
+    const message = formData.get("message") as string;
+    const files = formData.getAll("files") as File[];
 
-    if (!message && (!files || files.length === 0)) {
+    console.log("DEBUG: Received message:", message);
+    console.log("DEBUG: Received files count:", files.length);
+
+    if (!message && files.length === 0) {
       return NextResponse.json(
         { error: "Message or files are required" },
         { status: 400 }
@@ -146,7 +152,7 @@ export async function POST(request: NextRequest) {
       );
     console.log("DEBUG: isGirlfriendQuestion:", isGirlfriendQuestion);
 
-    if (isGirlfriendQuestion || convoContext === "girlfriend-password") {
+    if (isGirlfriendQuestion) {
       // Check if the message contains the secret password (August 21, 2024 in any format)
       const passwordPatterns = [
         /august\s*21\s*2024/i,
@@ -198,287 +204,65 @@ export async function POST(request: NextRequest) {
 
 **Celebrities & Public Figures:**
 • **Elon Musk** - For his bold vision and ability to execute on seemingly impossible goals
-• **Sam Altman** - For his leadership in AI and startup ecosystem
-• **Naval Ravikant** - For his wisdom on entrepreneurship and life philosophy
+• **Steve Jobs** - For his focus on design and user experience
+• **Warren Buffett** - For his long-term thinking and value investing principles
 
-Lawrence believes in learning from the best and surrounding himself with people who challenge and inspire him to grow.`;
+Lawrence believes that surrounding yourself with great people makes you better. He's grateful for all the mentors, colleagues, and thinkers who have influenced his journey! 🌟`;
 
         return NextResponse.json({ response: mentorResponse });
       }
 
-      // If password is correct, proceed with the original Myley response
-      if (!openai) {
-        return NextResponse.json({
-          response:
-            "I'm having some trouble connecting to my creative circuits, but I can tell you Lawrence is very happy with his wonderful girlfriend, Myley!",
-        });
-      }
+      // If password is correct, reveal the answer
+      console.log("DEBUG: Password correct, revealing Myley");
+      const myleyResponse = `**Myley** is Lawrence's favorite person! 💕
 
-      const poemPrompt =
-        "You are a poet deeply in love. Write a short, romantic, and SFW poem for Myley. Each time you are asked, you must write a completely new and unique poem; do not repeat poems you have written in the past. Here is some context about Myley: she is very beautiful, incredibly smart (top of her class at the best schools), funny, and very hardworking. She can be sweet, and she takes wonderful care of her boyfriend and his two cats, Ory (a black and white tuxedo boy) and Ora (a grey girl). Capture this love and admiration in a 4-6 line poem. Do not use quotation marks in the poem.";
-      const poemCompletion = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{ role: "user", content: poemPrompt }],
-        temperature: 0.9,
-        n: 1,
-      });
+She's his amazing girlfriend who brings so much joy, laughter, and love to his life. They've been together for a while now and Lawrence couldn't be happier! 
 
-      const poem =
-        poemCompletion.choices[0].message.content?.trim() ||
-        "A poem about his endless love.";
+She's smart, kind, funny, and supports him in everything he does. Lawrence often says she's the best thing that's ever happened to him! 🥰
 
-      const response = `Lawrence's favorite person in the world is his wonderful girlfriend, Myley. He thinks she is the most beautiful girl he has ever known and loves her more than words can say.
-      
-He's always writing little things for her. Here's one:
+*This is a special easter egg - you found the secret password!*`;
 
-*${poem}*`;
-
-      return NextResponse.json({ response: response });
+      return NextResponse.json({ response: myleyResponse });
     }
 
-    // Get system prompt from file
-    const systemPrompt = getSystemPrompt();
-
-    // If OpenAI is not available, use fallback responses
-    if (!openai || !openaiApiKey) {
+    // Handle regular chatbot responses
+    if (!openai) {
       return NextResponse.json({
         response:
-          "I'm sorry, I'm having trouble connecting to my AI service right now. Please try again later or reach out to Lawrence directly.",
+          "I'm sorry, I'm not configured to respond right now. Please reach out to Lawrence directly!",
       });
     }
 
-    // Build user message content
-    let userContent = message || "";
+    const systemPrompt = getSystemPrompt();
+    const userMessage = message || "User sent a file for analysis";
 
-    // Add file information if files are provided
-    if (files && files.length > 0) {
-      userContent += "\n\n**Files shared:**\n";
-      files.forEach((file: any) => {
-        userContent += `- ${file.name} (${file.type}, ${(file.size / 1024).toFixed(1)} KB)\n`;
-      });
-      userContent +=
-        "\nPlease analyze these files and provide insights about how they relate to Lawrence's experience, skills, or background.";
-    }
+    const messages = [
+      {
+        role: "system" as const,
+        content: systemPrompt,
+      },
+      {
+        role: "user" as const,
+        content: userMessage,
+      },
+    ];
 
-    // Check for contact info FIRST, to avoid asking for it if it's already provided.
-    const mightBeContactInfo =
-      /(@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)/.test(message) || // Contains an email
-      /(name:|company:|email:|message:)/i.test(message) || // Contains keywords
-      /(tell|ask|send to)\s+lawrence/i.test(message) || // A message for lawrence
-      (message.split(",").length > 2 && message.length < 150); // Looks like a short list
-
-    if (mightBeContactInfo) {
-      // --- Parsing Logic ---
-      let contextObj: Record<string, string> = {};
-      try {
-        contextObj =
-          typeof convoContext === "string"
-            ? JSON.parse(convoContext)
-            : convoContext || {};
-      } catch {}
-      const info = extractContactInfo(message, contextObj);
-
-      // Final check for message quality
-      const lowQualityWords = [
-        "hey",
-        "hi",
-        "hello",
-        "my",
-        "is",
-        "and",
-        "email",
-        "name",
-      ];
-      const tellLawrenceMatch = message.match(
-        /(?:tell|ask|send to)\s+lawrence\s+(.*)/i
-      );
-      const messageWords = info.recruiterMessage.toLowerCase().split(" ");
-      if (
-        !tellLawrenceMatch && // Don't invalidate messages captured with "tell lawrence"
-        (messageWords.length < 3 ||
-          messageWords.every((word: string) => lowQualityWords.includes(word)))
-      ) {
-        info.recruiterMessage = ""; // Invalidate the message
-      }
-
-      // If we are still missing key info, ask for it.
-      if (!info.recruiterName || !info.recruiterMessage || !info.email) {
-        let clarification = "";
-
-        if (info.recruiterMessage && !info.recruiterName && !info.email) {
-          clarification = `Okay, I'll let him know you said: "${info.recruiterMessage}". But first, I need your name and email so he can get back to you.`;
-        } else if (
-          info.email &&
-          !info.recruiterName &&
-          !info.recruiterMessage
-        ) {
-          clarification = `Thanks! I've got your email as **${info.email}**. If you'd like to send a message to Lawrence, please provide your name and what you'd like to say.`;
-        } else {
-          clarification =
-            "Thanks for providing some information! To connect you with Lawrence, I just need a bit more.\n\n";
-          if (!info.recruiterName) clarification += "**What is your name?**\n";
-          if (!info.email)
-            clarification += "**What is your email address?** (required)\n";
-          if (!info.recruiterMessage)
-            clarification += "**What is the message you'd like to send?**\n";
-
-          clarification += `\nHere's what I have so far:\n`;
-          if (info.recruiterName)
-            clarification += `> **Name:** ${info.recruiterName}\n`;
-          if (info.company) clarification += `> **Company:** ${info.company}\n`;
-          if (info.email) clarification += `> **Email:** ${info.email}\n`;
-          if (info.recruiterMessage)
-            clarification += `> **Message:** ${info.recruiterMessage}\n`;
-        }
-
-        return NextResponse.json({
-          response: clarification,
-          needsClarification: true,
-          context: JSON.stringify(info),
-        });
-      }
-
-      // If it's not contact info, check for recruiter intent phrases
-      const isRecruiterContactRequest =
-        message.toLowerCase().includes("contact lawrence") ||
-        message.toLowerCase().includes("get in touch") ||
-        message.toLowerCase().includes("reach out") ||
-        message.toLowerCase().includes("send message") ||
-        message.toLowerCase().includes("connect with lawrence") ||
-        message.toLowerCase().includes("talk with lawrence") ||
-        message.toLowerCase().includes("talk to lawrence") ||
-        message.toLowerCase().includes("speak with lawrence") ||
-        message.toLowerCase().includes("speak to lawrence") ||
-        message.toLowerCase().includes("meet with lawrence") ||
-        message.toLowerCase().includes("meet lawrence") ||
-        message.toLowerCase().includes("schedule a call") ||
-        message.toLowerCase().includes("set up a call") ||
-        message.toLowerCase().includes("have a call") ||
-        message.toLowerCase().includes("discuss with lawrence") ||
-        message.toLowerCase().includes("chat with lawrence") ||
-        message.toLowerCase().includes("interview lawrence") ||
-        message.toLowerCase().includes("hire lawrence") ||
-        message.toLowerCase().includes("work with lawrence") ||
-        message.toLowerCase().includes("bring lawrence on") ||
-        message.toLowerCase().includes("bring him on") ||
-        message.toLowerCase().includes("join our team") ||
-        message.toLowerCase().includes("join us") ||
-        message.toLowerCase().includes("opportunity for lawrence") ||
-        message.toLowerCase().includes("role for lawrence") ||
-        message.toLowerCase().includes("position for lawrence") ||
-        message.toLowerCase().includes("job for lawrence");
-
-      if (isRecruiterContactRequest) {
-        return NextResponse.json({
-          response: `I'd be happy to help you get in touch with Lawrence! I can collect your information and send him a message on your behalf.
-
-**Please provide the following information:**
-
-1. **Your name:**
-2. **Company (if applicable):**
-3. **Your email:**
-4. **Message to Lawrence:**
-
-Just reply with this information and I'll send it directly to Lawrence! 🚀`,
-          isRecruiterContact: true,
-        });
-      }
-
-      // Hardcoded rule for a common but problematic phrase
-      if (message.toLowerCase().startsWith("my email is")) {
-        const email =
-          message.match(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i)?.[0] ||
-          "";
-        if (email) {
-          return NextResponse.json({
-            response: `Thanks! I've got your email as **${email}**. Could you also provide your name and a short message for Lawrence?`,
-            needsClarification: true,
-          });
-        }
-      }
-
-      // For scheduling, if user says schedule/chat/meeting, prompt for times and collect availability
-      if (/schedule|chat|meeting|call|meet/i.test(message)) {
-        return NextResponse.json({
-          response: `Great! Please provide a few dates and times that work for you, and Lawrence will get back to you to confirm.`,
-          scheduling: true,
-          context: JSON.stringify(info),
-        });
-      }
-
-      // If we have everything, send it
-      try {
-        const contactResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/recruiter-contact`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              recruiterName: info.recruiterName,
-              company: info.company,
-              email: info.email,
-              message: info.recruiterMessage,
-              conversationContext: `This message was sent through the AI assistant. Original user message: ${message}`,
-            }),
-          }
-        );
-
-        if (contactResponse.ok) {
-          return NextResponse.json({
-            response: `Perfect! I've sent your message to Lawrence. Here's what I sent:
-
-**To:** Lawrence Hua
-**From:** ${info.recruiterName}${info.company ? ` (${info.company})` : ""}
-**Email:** ${info.email}
-**Message:** ${info.recruiterMessage}
-
-Lawrence will get back to you soon! 🎯
-
-Is there anything else you'd like to know about Lawrence's background or experience?`,
-            recruiterContactSent: true,
-          });
-        } else {
-          const errorData = await contactResponse.json();
-          return NextResponse.json({
-            response: `I tried to send your message to Lawrence, but there was an issue: ${errorData.error}. Could you please check the information and try again?`,
-            recruiterContactError: true,
-          });
-        }
-      } catch (error) {
-        console.error("Error sending recruiter contact:", error);
-        return NextResponse.json({
-          response: `I encountered an error while trying to send your message. Please try again or contact Lawrence directly at lawrencehua2@gmail.com.`,
-          recruiterContactError: true,
-        });
-      }
-    }
-
-    // Use OpenAI if available
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
-        {
-          role: "user",
-          content: userContent,
-        },
-      ],
+      model: "gpt-4",
+      messages,
+      max_tokens: 1000,
+      temperature: 0.7,
     });
-    const responseContent = completion.choices[0].message.content;
-    return NextResponse.json({ response: responseContent });
+
+    const response =
+      completion.choices[0]?.message?.content ||
+      "I'm sorry, I couldn't generate a response.";
+
+    return NextResponse.json({ response });
   } catch (error) {
-    console.error("Chatbot error:", error);
-    if (error instanceof OpenAI.APIError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status }
-      );
-    }
+    console.error("Error in chatbot route:", error);
     return NextResponse.json(
-      { error: "An unexpected error occurred" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

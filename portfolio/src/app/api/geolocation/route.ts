@@ -18,6 +18,22 @@ export async function GET(request: NextRequest) {
 
     // Fetch geolocation data from an API
     const response = await fetch(apiUrl);
+
+    // Handle rate limiting gracefully
+    if (response.status === 429) {
+      console.log("Geolocation API rate limited, returning null location");
+      return NextResponse.json({
+        country_name: null,
+        region: null,
+        city: null,
+        latitude: null,
+        longitude: null,
+        timezone: null,
+        ip: null,
+        rate_limited: true,
+      });
+    }
+
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(
@@ -25,13 +41,6 @@ export async function GET(request: NextRequest) {
       );
       throw new Error(
         `Failed to fetch geolocation data. Status: ${response.status}`
-      );
-    }
-
-    if (response.status === 429) {
-      return new Response(
-        JSON.stringify({ location: null, error: "rate_limited" }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }
 
