@@ -93,37 +93,6 @@ section {
   padding: 1rem 0;
 }
 
-/* Add a gradient fade effect on the sides - COMPLETELY STATIC */
-.recommendations-container::before,
-.recommendations-container::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 100px;
-  height: 100%;
-  z-index: 10; /* Higher z-index to ensure it stays on top */
-  pointer-events: none;
-  transform: translateZ(0); /* Force hardware acceleration */
-  will-change: auto; /* Disable will-change for better performance */
-  -webkit-transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  /* Ensure these elements don't move with scroll */
-  position: absolute !important;
-  left: 0 !important;
-  right: 0 !important;
-}
-
-.recommendations-container::before {
-  left: 0 !important;
-  background: linear-gradient(to right, rgb(17, 24, 39), transparent);
-}
-
-.recommendations-container::after {
-  right: 0 !important;
-  background: linear-gradient(to left, rgb(17, 24, 39), transparent);
-}
-
 /* Skill button styles */
 .skill-wrapper {
   position: relative;
@@ -202,6 +171,26 @@ section {
 
   .skills-grid {
     gap: 0.5rem;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .timeline-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .recommendations-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+
+  /* Stop animation on mobile, allow manual scroll */
+  .animate-scroll {
+    animation: none;
   }
 }
 
@@ -940,54 +929,6 @@ section {
   .skills-grid {
     grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
     gap: 0.375rem;
-  }
-}
-
-/* Prevent horizontal scroll on mobile */
-@media (max-width: 768px) {
-  body {
-    overflow-x: hidden;
-  }
-
-  .timeline-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .recommendations-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    /* Ensure blur effects stay static on mobile */
-    position: relative;
-  }
-
-  /* Ensure blur effects don't move with scroll on mobile */
-  .recommendations-container::before,
-  .recommendations-container::after {
-    position: absolute !important;
-    transform: translateZ(0) !important;
-    will-change: auto !important; /* Disable will-change on mobile for better performance */
-    -webkit-transform: translateZ(0) !important;
-    -webkit-backface-visibility: hidden !important;
-    backface-visibility: hidden !important;
-    /* Force static positioning on mobile */
-    top: 0 !important;
-    height: 100% !important;
-    z-index: 10 !important;
-    /* Prevent any movement */
-    left: 0 !important;
-    right: 0 !important;
-    pointer-events: none !important;
-  }
-
-  .recommendations-container::before {
-    left: 0 !important;
-    right: auto !important;
-  }
-
-  .recommendations-container::after {
-    right: 0 !important;
-    left: auto !important;
   }
 }
 
@@ -2173,4 +2114,31 @@ section {
   100% {
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
   }
+}
+
+.recommendation-card-wrapper {
+  position: relative;
+  background: linear-gradient(
+    to right,
+    #1e3a8a,
+    #4f46e5
+  ); /* Blue to Purple gradient */
+  padding: 3px;
+  border-radius: 1rem; /* 16px */
+  transition: all 0.3s ease-in-out;
+  width: 400px;
+  flex-shrink: 0;
+}
+
+.recommendation-card-content {
+  background: #0d1117; /* A very dark, slightly blueish gray */
+  color: white;
+  padding: 1.5rem; /* 24px */
+  border-radius: calc(1rem - 3px);
+  height: 100%;
+}
+
+.recommendation-card-wrapper:hover {
+  transform: scale(1.03) translateY(-5px);
+  box-shadow: 0 0 25px rgba(79, 70, 229, 0.5); /* Glowing shadow */
 }

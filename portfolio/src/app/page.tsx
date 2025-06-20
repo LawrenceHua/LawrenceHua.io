@@ -2026,210 +2026,222 @@ export default function Home() {
                 <div className="animate-scroll">
                   {/* Original Cards */}
                   {/* JJ Xu */}
-                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                    <div className="mb-4 flex items-center gap-4">
-                      <Image
-                        src="/logos/JJ.jpeg"
-                        alt="JJ Xu"
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                      />
-                      <div>
-                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
-                          JJ Xu
-                          <Link
-                            href="https://www.linkedin.com/in/jj-jiaojiao-xu/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
-                          </Link>
-                        </h3>
-                        <p className="text-gray-400">
-                          Founder & CEO @ TalkMeUp
-                        </p>
+                  <div className="recommendation-card-wrapper">
+                    <div className="recommendation-card-content">
+                      <div className="mb-4 flex items-center gap-4">
+                        <Image
+                          src="/logos/JJ.jpeg"
+                          alt="JJ Xu"
+                          width={48}
+                          height={48}
+                          className="rounded-full"
+                        />
+                        <div>
+                          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                            JJ Xu
+                            <Link
+                              href="https://www.linkedin.com/in/jj-jiaojiao-xu/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                            </Link>
+                          </h3>
+                          <p className="text-gray-400">
+                            Founder & CEO @ TalkMeUp
+                          </p>
+                        </div>
                       </div>
+                      <p className="text-gray-300">
+                        "Lawrence approached every challenge with curiosity,
+                        grit, and a clear desire to create something meaningful.
+                        He combined his technical background with a strong
+                        product mindset, conducting thoughtful customer
+                        discovery and iterating quickly based on feedback."
+                      </p>
                     </div>
-                    <p className="text-gray-300">
-                      "Lawrence approached every challenge with curiosity, grit,
-                      and a clear desire to create something meaningful. He
-                      combined his technical background with a strong product
-                      mindset, conducting thoughtful customer discovery and
-                      iterating quickly based on feedback."
-                    </p>
                   </div>
 
                   {/* Wendy Williams */}
-                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                    <div className="mb-4 flex items-center gap-4">
-                      <Image
-                        src="/logos/Wendy.jpeg"
-                        alt="Wendy Williams"
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                      />
-                      <div>
-                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
-                          Wendy Williams
-                          <Link
-                            href="https://www.linkedin.com/in/wendy-williams-873b7538"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
-                          </Link>
-                        </h3>
-                        <p className="text-gray-400">
-                          IT Director at University of Florida
-                        </p>
+                  <div className="recommendation-card-wrapper">
+                    <div className="recommendation-card-content">
+                      <div className="mb-4 flex items-center gap-4">
+                        <Image
+                          src="/logos/Wendy.jpeg"
+                          alt="Wendy Williams"
+                          width={48}
+                          height={48}
+                          className="rounded-full"
+                        />
+                        <div>
+                          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                            Wendy Williams
+                            <Link
+                              href="https://www.linkedin.com/in/wendy-williams-873b7538"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                            </Link>
+                          </h3>
+                          <p className="text-gray-400">
+                            IT Director at University of Florida
+                          </p>
+                        </div>
                       </div>
+                      <p className="text-gray-300">
+                        "Lawrence was one of my top System Administrators. He is
+                        a conscientious worker and was ready to take on any
+                        task. He has a very pleasant demeanor and got along well
+                        with all the office staff and administration."
+                      </p>
                     </div>
-                    <p className="text-gray-300">
-                      "Lawrence was one of my top System Administrators. He is a
-                      conscientious worker and was ready to take on any task. He
-                      has a very pleasant demeanor and got along well with all
-                      the office staff and administration."
-                    </p>
                   </div>
 
                   {/* Shyam Sundar */}
-                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                    <div className="mb-4 flex items-center gap-4">
-                      <Image
-                        src="/logos/Shyam.jpeg"
-                        alt="Shyam Sundar"
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                      />
-                      <div>
-                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
-                          Shyam Sundar
-                          <Link
-                            href="https://www.linkedin.com/in/shyamsundarn/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
-                          </Link>
-                        </h3>
-                        <p className="text-gray-400">
-                          Android Frameworks Engineer
-                        </p>
+                  <div className="recommendation-card-wrapper">
+                    <div className="recommendation-card-content">
+                      <div className="mb-4 flex items-center gap-4">
+                        <Image
+                          src="/logos/Shyam.jpeg"
+                          alt="Shyam Sundar"
+                          width={48}
+                          height={48}
+                          className="rounded-full"
+                        />
+                        <div>
+                          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                            Shyam Sundar
+                            <Link
+                              href="https://www.linkedin.com/in/shyamsundarn/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                            </Link>
+                          </h3>
+                          <p className="text-gray-400">
+                            Android Frameworks Engineer
+                          </p>
+                        </div>
                       </div>
+                      <p className="text-gray-300">
+                        "Lawrence exhibited great skills with his ability to
+                        solve complex issues on the front-end, dedication to
+                        stay motivated even through a fully online program and
+                        adapt to Motorola's technology quickly."
+                      </p>
                     </div>
-                    <p className="text-gray-300">
-                      "Lawrence exhibited great skills with his ability to solve
-                      complex issues on the front-end, dedication to stay
-                      motivated even through a fully online program and adapt to
-                      Motorola's technology quickly."
-                    </p>
                   </div>
 
                   {/* Duplicate Cards for Infinite Scroll */}
                   {/* JJ Xu */}
-                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                    <div className="mb-4 flex items-center gap-4">
-                      <Image
-                        src="/logos/JJ.jpeg"
-                        alt="JJ Xu"
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                      />
-                      <div>
-                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
-                          JJ Xu
-                          <Link
-                            href="https://www.linkedin.com/in/jj-jiaojiao-xu/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
-                          </Link>
-                        </h3>
-                        <p className="text-gray-400">
-                          Founder & CEO @ TalkMeUp
-                        </p>
+                  <div className="recommendation-card-wrapper">
+                    <div className="recommendation-card-content">
+                      <div className="mb-4 flex items-center gap-4">
+                        <Image
+                          src="/logos/JJ.jpeg"
+                          alt="JJ Xu"
+                          width={48}
+                          height={48}
+                          className="rounded-full"
+                        />
+                        <div>
+                          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                            JJ Xu
+                            <Link
+                              href="https://www.linkedin.com/in/jj-jiaojiao-xu/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                            </Link>
+                          </h3>
+                          <p className="text-gray-400">
+                            Founder & CEO @ TalkMeUp
+                          </p>
+                        </div>
                       </div>
+                      <p className="text-gray-300">
+                        "Lawrence approached every challenge with curiosity,
+                        grit, and a clear desire to create something meaningful.
+                        He combined his technical background with a strong
+                        product mindset, conducting thoughtful customer
+                        discovery and iterating quickly based on feedback."
+                      </p>
                     </div>
-                    <p className="text-gray-300">
-                      "Lawrence approached every challenge with curiosity, grit,
-                      and a clear desire to create something meaningful. He
-                      combined his technical background with a strong product
-                      mindset, conducting thoughtful customer discovery and
-                      iterating quickly based on feedback."
-                    </p>
                   </div>
 
                   {/* Wendy Williams */}
-                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                    <div className="mb-4 flex items-center gap-4">
-                      <Image
-                        src="/logos/Wendy.jpeg"
-                        alt="Wendy Williams"
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                      />
-                      <div>
-                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
-                          Wendy Williams
-                          <Link
-                            href="https://www.linkedin.com/in/wendy-williams-873b7538"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
-                          </Link>
-                        </h3>
-                        <p className="text-gray-400">
-                          IT Director at University of Florida
-                        </p>
+                  <div className="recommendation-card-wrapper">
+                    <div className="recommendation-card-content">
+                      <div className="mb-4 flex items-center gap-4">
+                        <Image
+                          src="/logos/Wendy.jpeg"
+                          alt="Wendy Williams"
+                          width={48}
+                          height={48}
+                          className="rounded-full"
+                        />
+                        <div>
+                          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                            Wendy Williams
+                            <Link
+                              href="https://www.linkedin.com/in/wendy-williams-873b7538"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                            </Link>
+                          </h3>
+                          <p className="text-gray-400">
+                            IT Director at University of Florida
+                          </p>
+                        </div>
                       </div>
+                      <p className="text-gray-300">
+                        "Lawrence was one of my top System Administrators. He is
+                        a conscientious worker and was ready to take on any
+                        task. He has a very pleasant demeanor and got along well
+                        with all the office staff and administration."
+                      </p>
                     </div>
-                    <p className="text-gray-300">
-                      "Lawrence was one of my top System Administrators. He is a
-                      conscientious worker and was ready to take on any task. He
-                      has a very pleasant demeanor and got along well with all
-                      the office staff and administration."
-                    </p>
                   </div>
 
                   {/* Shyam Sundar */}
-                  <div className="w-[400px] flex-shrink-0 rounded-lg border border-blue-900/30 bg-gray-900 p-6 backdrop-blur-sm">
-                    <div className="mb-4 flex items-center gap-4">
-                      <Image
-                        src="/logos/Shyam.jpeg"
-                        alt="Shyam Sundar"
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                      />
-                      <div>
-                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
-                          Shyam Sundar
-                          <Link
-                            href="https://www.linkedin.com/in/shyamsundarn/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
-                          </Link>
-                        </h3>
-                        <p className="text-gray-400">
-                          Android Frameworks Engineer
-                        </p>
+                  <div className="recommendation-card-wrapper">
+                    <div className="recommendation-card-content">
+                      <div className="mb-4 flex items-center gap-4">
+                        <Image
+                          src="/logos/Shyam.jpeg"
+                          alt="Shyam Sundar"
+                          width={48}
+                          height={48}
+                          className="rounded-full"
+                        />
+                        <div>
+                          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                            Shyam Sundar
+                            <Link
+                              href="https://www.linkedin.com/in/shyamsundarn/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FaLinkedin className="h-5 w-5 text-[#0077B5] hover:text-[#006399]" />
+                            </Link>
+                          </h3>
+                          <p className="text-gray-400">
+                            Android Frameworks Engineer
+                          </p>
+                        </div>
                       </div>
+                      <p className="text-gray-300">
+                        "Lawrence exhibited great skills with his ability to
+                        solve complex issues on the front-end, dedication to
+                        stay motivated even through a fully online program and
+                        adapt to Motorola's technology quickly."
+                      </p>
                     </div>
-                    <p className="text-gray-300">
-                      "Lawrence exhibited great skills with his ability to solve
-                      complex issues on the front-end, dedication to stay
-                      motivated even through a fully online program and adapt to
-                      Motorola's technology quickly."
-                    </p>
                   </div>
                 </div>
               </div>
