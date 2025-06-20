@@ -16,24 +16,22 @@ export async function POST(request: NextRequest) {
     });
 
     // Validate required fields
-    if (!recruiterName || !message) {
+    if (!recruiterName || !message || !email) {
       console.log("[DEBUG] Validation failed: missing required fields");
       return NextResponse.json(
-        { error: "Recruiter name and message are required" },
+        { error: "Recruiter name, email, and message are required" },
         { status: 400 }
       );
     }
 
-    // Validate email format if provided
-    if (email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        console.log("[DEBUG] Validation failed: invalid email format");
-        return NextResponse.json(
-          { error: "Invalid email format" },
-          { status: 400 }
-        );
-      }
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.log("[DEBUG] Validation failed: invalid email format");
+      return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 }
+      );
     }
 
     // Send email using Resend

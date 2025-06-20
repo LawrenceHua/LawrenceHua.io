@@ -43,6 +43,8 @@ Company: [Their Company]
 Email: [Their Email]
 Message: [Their Message]
 
+**Note:** Email is required so Lawrence can respond to their inquiry.
+
 This ensures all the necessary information is captured clearly and sent to Lawrence properly.
 
 If they agree, guide them through providing their information and message, then send it to Lawrence through the recruiter contact system.

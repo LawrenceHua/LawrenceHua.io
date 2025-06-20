@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
 
 1. **Your name:**
 2. **Company (if applicable):**
-3. **Your email (optional but recommended):**
+3. **Your email:**
 4. **Message to Lawrence:**
 
 Just reply with this information and I'll send it directly to Lawrence! 🚀`,
@@ -172,7 +172,7 @@ Just reply with this information and I'll send it directly to Lawrence! 🚀`,
       }
 
       // If we have the basic info, send it to Lawrence
-      if (recruiterName && recruiterMessage) {
+      if (recruiterName && recruiterMessage && email) {
         try {
           const contactResponse = await fetch(
             `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/recruiter-contact`,
@@ -197,6 +197,7 @@ Just reply with this information and I'll send it directly to Lawrence! 🚀`,
 
 **To:** Lawrence Hua
 **From:** ${recruiterName}${company ? ` (${company})` : ""}
+**Email:** ${email}
 **Message:** ${recruiterMessage}
 
 Lawrence will get back to you soon! 🎯
@@ -210,6 +211,7 @@ Is there anything else you'd like to know about Lawrence's background or experie
 
 Here's what I was trying to send:
 **From:** ${recruiterName}${company ? ` (${company})` : ""}
+**Email:** ${email}
 **Message:** ${recruiterMessage}`,
               recruiterContactError: true,
             });
@@ -229,7 +231,7 @@ Here's what I was trying to send:
 Could you please provide:
 - Your name
 - Your company (if applicable) 
-- Your email (optional but helpful)
+- Your email (required)
 - The message you'd like to send to Lawrence
 
 You can use this format:
