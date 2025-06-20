@@ -76,6 +76,64 @@ export async function POST(request: NextRequest) {
       );
 
     if (isGirlfriendQuestion) {
+      // Check if the message contains the secret password (August 21, 2024 in any format)
+      const passwordPatterns = [
+        /august\s*21\s*2024/i,
+        /8\/21\/2024/i,
+        /8-21-2024/i,
+        /8\.21\.2024/i,
+        /august\s*21st\s*2024/i,
+        /21st\s*august\s*2024/i,
+        /2024-08-21/i,
+        /08\/21\/24/i,
+        /8\/21\/24/i,
+        /august\s*21/i,
+        /8\/21/i,
+        /8-21/i,
+        /8\.21/i,
+      ];
+
+      const hasCorrectPassword = passwordPatterns.some((pattern) =>
+        pattern.test(message)
+      );
+
+      if (!hasCorrectPassword) {
+        // If no password provided, ask for it
+        if (
+          !message.toLowerCase().includes("august") &&
+          !message.toLowerCase().includes("8/") &&
+          !message.toLowerCase().includes("2024")
+        ) {
+          return NextResponse.json({
+            response: "...what's the secret password? 🤐",
+            needsPassword: true,
+          });
+        }
+
+        // If password was provided but incorrect, give the mentor response
+        const mentorResponse = `Lawrence admires many incredible people who have shaped his thinking and career:
+
+**Mentors & Colleagues:**
+• **Dr. Wendy** - His research mentor who taught him the importance of rigorous analysis and clear communication
+• **Shyam** - A brilliant colleague who inspires him with innovative problem-solving approaches
+• **JJ** - A mentor who showed him how to balance technical excellence with business impact
+
+**Philosophers & Thinkers:**
+• **Marcus Aurelius** - For his stoic philosophy and leadership principles
+• **Peter Drucker** - For his insights on management and innovation
+• **Clayton Christensen** - For his disruptive innovation theory
+
+**Celebrities & Public Figures:**
+• **Elon Musk** - For his bold vision and ability to execute on seemingly impossible goals
+• **Sam Altman** - For his leadership in AI and startup ecosystem
+• **Naval Ravikant** - For his wisdom on entrepreneurship and life philosophy
+
+Lawrence believes in learning from the best and surrounding himself with people who challenge and inspire him to grow.`;
+
+        return NextResponse.json({ response: mentorResponse });
+      }
+
+      // If password is correct, proceed with the original Myley response
       if (!openai) {
         return NextResponse.json({
           response:
