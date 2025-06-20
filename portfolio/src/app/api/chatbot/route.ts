@@ -99,7 +99,29 @@ export async function POST(request: NextRequest) {
       message.toLowerCase().includes("get in touch") ||
       message.toLowerCase().includes("reach out") ||
       message.toLowerCase().includes("send message") ||
-      message.toLowerCase().includes("connect with lawrence");
+      message.toLowerCase().includes("connect with lawrence") ||
+      message.toLowerCase().includes("talk with lawrence") ||
+      message.toLowerCase().includes("talk to lawrence") ||
+      message.toLowerCase().includes("speak with lawrence") ||
+      message.toLowerCase().includes("speak to lawrence") ||
+      message.toLowerCase().includes("meet with lawrence") ||
+      message.toLowerCase().includes("meet lawrence") ||
+      message.toLowerCase().includes("schedule a call") ||
+      message.toLowerCase().includes("set up a call") ||
+      message.toLowerCase().includes("have a call") ||
+      message.toLowerCase().includes("discuss with lawrence") ||
+      message.toLowerCase().includes("chat with lawrence") ||
+      message.toLowerCase().includes("interview lawrence") ||
+      message.toLowerCase().includes("hire lawrence") ||
+      message.toLowerCase().includes("work with lawrence") ||
+      message.toLowerCase().includes("bring lawrence on") ||
+      message.toLowerCase().includes("bring him on") ||
+      message.toLowerCase().includes("join our team") ||
+      message.toLowerCase().includes("join us") ||
+      message.toLowerCase().includes("opportunity for lawrence") ||
+      message.toLowerCase().includes("role for lawrence") ||
+      message.toLowerCase().includes("position for lawrence") ||
+      message.toLowerCase().includes("job for lawrence");
 
     if (isRecruiterContactRequest) {
       return NextResponse.json({
