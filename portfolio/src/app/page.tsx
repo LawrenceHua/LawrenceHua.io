@@ -620,23 +620,6 @@ const timelineData = [
     },
   },
   {
-    year: "2018",
-    left: null,
-    right: {
-      title: "Store Cashier",
-      org: "5-Spice Asian Street Market · Full-time",
-      date: "Jan 2016 - Jan 2018 · 2 yrs 1 mo",
-      logo: "/logos/5spice_logo.jpeg",
-      category: "retail",
-      bullets: [
-        "Family-owned restaurant business, started working as an unpaid intern at age 6, made my way to a paid full-time worker by 2016!",
-        "Orders taken using Point-of-Sale software to secure communication with the chef and accuracy for the bill.",
-        "Managed orders and interacted with customers to ensure positive customer experience",
-        "Demonstrated flexibility through a range of jobs such as barista, tip calculator, and dining hall cleaner.",
-      ],
-    },
-  },
-  {
     type: "experience",
     year: "2021",
     title: "AI Product Consultant & Computer Science Instructor",
@@ -2398,27 +2381,30 @@ export default function Home() {
                               toggleCardExpansion(item.title + "-" + item.year)
                             }
                           >
-                            <div className="flex items-center justify-center gap-2 mb-2 py-2">
-                              <Image
-                                src={item.logo}
-                                alt={item.org}
-                                width={56}
-                                height={56}
-                                className="logo mx-auto rounded object-contain"
-                              />
+                            {/* Fixed Header Section */}
+                            <div className="timeline-card-header">
+                              <div className="flex items-center justify-center gap-2 mb-2 py-2">
+                                <Image
+                                  src={item.logo}
+                                  alt={item.org}
+                                  width={56}
+                                  height={56}
+                                  className="logo mx-auto rounded object-contain"
+                                />
+                              </div>
+                              <h4 className="text-center text-lg font-bold text-white">
+                                {item.title}
+                              </h4>
+                              <p className="text-base text-gray-400">
+                                {item.org}
+                              </p>
+                              <p className="text-sm text-gray-400">
+                                {item.date}
+                              </p>
                             </div>
-                            <div
-                              className="text-center text-lg font-bold text-white"
-                              style={{ margin: 0, padding: 0 }}
-                            >
-                              <span>{item.title}</span>
-                            </div>
-                            <p className="text-base text-gray-400">
-                              {item.org}
-                            </p>
-                            <p className="text-sm text-gray-400">{item.date}</p>
 
-                            <div className="timeline-card-content mt-2">
+                            {/* Scrollable Content Section */}
+                            <div className="timeline-card-content">
                               {item.bullets && item.bullets.length > 0 && (
                                 <ul className="list-disc space-y-1 pl-4 text-sm text-gray-300">
                                   <li>{item.bullets[0]}</li>
@@ -2434,21 +2420,26 @@ export default function Home() {
                               )}
                             </div>
 
+                            {/* Fixed Footer Section */}
                             {item.bullets && item.bullets.length > 1 && (
-                              <button
-                                className="mt-auto pt-2 text-sm font-bold text-blue-400 hover:underline"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleCardExpansion(
+                              <div className="timeline-card-footer">
+                                <button
+                                  className="pt-2 text-sm font-bold text-blue-400 hover:underline"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleCardExpansion(
+                                      item.title + "-" + item.year
+                                    );
+                                  }}
+                                >
+                                  Click to see{" "}
+                                  {expandedCards.has(
                                     item.title + "-" + item.year
-                                  );
-                                }}
-                              >
-                                Click to see{" "}
-                                {expandedCards.has(item.title + "-" + item.year)
-                                  ? "less"
-                                  : `${item.bullets.length - 1} more...`}
-                              </button>
+                                  )
+                                    ? "less"
+                                    : `${item.bullets.length - 1} more...`}
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -2526,20 +2517,24 @@ export default function Home() {
                             </div>
 
                             {item.details && item.details.length > 1 && (
-                              <button
-                                className="mt-auto pt-2 text-sm font-bold text-blue-400 hover:underline"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleCardExpansion(
+                              <div className="timeline-card-footer">
+                                <button
+                                  className="pt-2 text-sm font-bold text-blue-400 hover:underline"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleCardExpansion(
+                                      item.title + "-" + item.year
+                                    );
+                                  }}
+                                >
+                                  Click to see{" "}
+                                  {expandedCards.has(
                                     item.title + "-" + item.year
-                                  );
-                                }}
-                              >
-                                Click to see{" "}
-                                {expandedCards.has(item.title + "-" + item.year)
-                                  ? "less"
-                                  : `${item.details.length - 1} more...`}
-                              </button>
+                                  )
+                                    ? "less"
+                                    : `${item.details.length - 1} more...`}
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>

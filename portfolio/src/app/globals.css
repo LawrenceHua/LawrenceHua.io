@@ -1368,14 +1368,29 @@ section {
     border-color 0.2s;
 }
 
+/* Fixed header section (logo, title, org, date) */
+.timeline-card-header {
+  flex-shrink: 0;
+  margin-bottom: 0.5rem;
+}
+
+/* Scrollable content section */
 .timeline-card-content {
-  flex-grow: 1;
+  flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 8px; /* Space for scrollbar */
   margin-right: -8px; /* Counteract padding */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+  min-height: 0; /* Allow flex item to shrink */
+}
+
+/* Fixed footer section (button) */
+.timeline-card-footer {
+  flex-shrink: 0;
+  margin-top: 0.5rem;
 }
 
 /* Custom scrollbar for webkit browsers */
