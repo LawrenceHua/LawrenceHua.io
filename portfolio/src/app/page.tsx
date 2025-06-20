@@ -2380,27 +2380,30 @@ export default function Home() {
                               <h4 className="text-center text-lg font-bold text-white">
                                 {item.title}
                               </h4>
-                              <p className="text-base text-gray-400">
-                                {item.org}
-                              </p>
-                              <p className="text-sm text-gray-400">
-                                {item.date}
-                              </p>
                             </div>
 
                             {/* Scrollable Content Section */}
                             <div className="timeline-card-content">
+                              <p className="text-base text-gray-400">
+                                {item.org}
+                              </p>
+                              <p className="text-sm text-gray-400 mb-2">
+                                {item.date}
+                              </p>
+
                               {item.bullets && item.bullets.length > 0 && (
                                 <ul className="list-disc space-y-1 pl-4 text-sm text-gray-300">
-                                  <li>{item.bullets[0]}</li>
                                   {expandedCards.has(
                                     item.title + "-" + item.year
-                                  ) &&
-                                    item.bullets
-                                      .slice(1)
-                                      .map((bullet: string, i: number) => (
+                                  ) ? (
+                                    item.bullets.map(
+                                      (bullet: string, i: number) => (
                                         <li key={i}>{bullet}</li>
-                                      ))}
+                                      )
+                                    )
+                                  ) : (
+                                    <li>{item.bullets[0]}</li>
+                                  )}
                                 </ul>
                               )}
                             </div>
@@ -2493,15 +2496,17 @@ export default function Home() {
                             <div className="timeline-card-content">
                               {item.details && item.details.length > 0 && (
                                 <ul className="space-y-2 text-base text-gray-300 pl-4 list-disc">
-                                  <li>{item.details[0]}</li>
                                   {expandedCards.has(
                                     item.title + "-" + item.year
-                                  ) &&
-                                    item.details
-                                      .slice(1)
-                                      .map((detail: string, i: number) => (
+                                  ) ? (
+                                    item.details.map(
+                                      (detail: string, i: number) => (
                                         <li key={i}>{detail}</li>
-                                      ))}
+                                      )
+                                    )
+                                  ) : (
+                                    <li>{item.details[0]}</li>
+                                  )}
                                 </ul>
                               )}
                             </div>
