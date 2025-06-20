@@ -286,27 +286,53 @@ export default function AnalyticsPage() {
       }
 
       // Fetch chat data
-      const sessionsRef = collection(db, "chats");
-      const sessionsQuery = query(
-        sessionsRef,
-        orderBy("startTime", sortOrder),
-        where("startTime", ">=", startDate)
+      const messagesRef = collection(db, "chatbot_messages");
+      const messagesQuery = query(
+        messagesRef,
+        orderBy("timestamp", sortOrder),
+        where("timestamp", ">=", startDate)
       );
-      console.log("Fetching sessions with start date:", startDate);
-      const sessionsSnapshot = await getDocs(sessionsQuery);
-      console.log("Found sessions:", sessionsSnapshot.size);
+      console.log("Fetching messages with start date:", startDate);
+      const messagesSnapshot = await getDocs(messagesQuery);
+      console.log("Found messages:", messagesSnapshot.size);
 
-      const sessionsArray: ChatSession[] = [];
-      sessionsSnapshot.forEach((doc) => {
+      // Group messages by sessionId to create chat sessions
+      const sessionsMap = new Map<string, ChatMessage[]>();
+      messagesSnapshot.forEach((doc) => {
         const data = doc.data();
-        sessionsArray.push({
-          sessionId: doc.id,
-          messages: data.messages || [],
-          startTime: data.startTime.toDate(),
-          endTime: data.endTime.toDate(),
-          messageCount: data.messages?.length || 0,
+        const sessionId = data.sessionId;
+        if (!sessionsMap.has(sessionId)) {
+          sessionsMap.set(sessionId, []);
+        }
+        sessionsMap.get(sessionId)!.push({
+          id: doc.id,
+          sessionId: data.sessionId,
+          message: data.message,
+          role: data.role,
+          timestamp: data.timestamp,
         });
       });
+
+      const sessionsArray: ChatSession[] = [];
+      sessionsMap.forEach((messages, sessionId) => {
+        if (messages.length > 0) {
+          // Sort messages by timestamp
+          messages.sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate());
+
+          const startTime = messages[0].timestamp.toDate();
+          const endTime = messages[messages.length - 1].timestamp.toDate();
+
+          sessionsArray.push({
+            sessionId,
+            messages,
+            startTime,
+            endTime,
+            messageCount: messages.length,
+          });
+        }
+      });
+
+      console.log("Created sessions:", sessionsArray.length);
 
       // Fetch page views
       const pageViewsRef = collection(db, "page_views");
