@@ -129,6 +129,8 @@ What would you like to know?`,
   const [isMinimized, setIsMinimized] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoveMode, setIsLoveMode] = useState(false);
+  const [awaitingGirlfriendPassword, setAwaitingGirlfriendPassword] =
+    useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -175,15 +177,21 @@ What would you like to know?`,
         fileData = await handleFileUpload(selectedFiles);
       }
 
+      // Send context if awaiting girlfriend password
+      const body: any = {
+        message: input,
+        files: fileData,
+      };
+      if (awaitingGirlfriendPassword) {
+        body.context = "girlfriend-password";
+      }
+
       const response = await fetch("/api/chatbot", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          message: input,
-          files: fileData,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -202,6 +210,7 @@ What would you like to know?`,
 
       // Check if password is needed
       const needsPassword = data.needsPassword;
+      setAwaitingGirlfriendPassword(!!needsPassword);
 
       if (isMyleyResponse && !needsPassword) {
         setIsLoveMode(true);

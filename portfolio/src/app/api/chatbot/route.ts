@@ -60,7 +60,7 @@ Answer questions about Lawrence professionally and accurately. If users share fi
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, files } = await request.json();
+    const { message, files, context } = await request.json();
 
     if (!message && (!files || files.length === 0)) {
       return NextResponse.json(
@@ -70,12 +70,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Easter Egg: Handle questions about Lawrence's girlfriend
+    console.log("DEBUG: Incoming message:", message);
     const isGirlfriendQuestion =
-      /who is lawrence's (girlfriend|favorite girl)|is lawrence (dating|single)|does lawrence have a (girlfriend|partner)/i.test(
+      /who\s+is\s+lawrence'?s?\s+(girlfriend|favorite girl|partner)|is\s+lawrence\s+(dating|single)|does\s+lawrence\s+have\s+a\s+(girlfriend|partner)|tell\s+me\s+about\s+lawrence'?s?\s+(girlfriend|love life|relationship)|who\s+is\s+lawrence\s+girlfriend/i.test(
         message
       );
+    console.log("DEBUG: isGirlfriendQuestion:", isGirlfriendQuestion);
 
-    if (isGirlfriendQuestion) {
+    if (isGirlfriendQuestion || context === "girlfriend-password") {
       // Check if the message contains the secret password (August 21, 2024 in any format)
       const passwordPatterns = [
         /august\s*21\s*2024/i,
@@ -92,10 +94,10 @@ export async function POST(request: NextRequest) {
         /8-21/i,
         /8\.21/i,
       ];
-
       const hasCorrectPassword = passwordPatterns.some((pattern) =>
         pattern.test(message)
       );
+      console.log("DEBUG: hasCorrectPassword:", hasCorrectPassword);
 
       if (!hasCorrectPassword) {
         // If no password provided, ask for it
@@ -104,6 +106,7 @@ export async function POST(request: NextRequest) {
           !message.toLowerCase().includes("8/") &&
           !message.toLowerCase().includes("2024")
         ) {
+          console.log("DEBUG: Asking for password");
           return NextResponse.json({
             response: "...what's the secret password? 🤐",
             needsPassword: true,
@@ -111,6 +114,7 @@ export async function POST(request: NextRequest) {
         }
 
         // If password was provided but incorrect, give the mentor response
+        console.log("DEBUG: Password incorrect, giving mentor response");
         const mentorResponse = `Lawrence admires many incredible people who have shaped his thinking and career:
 
 **Mentors & Colleagues:**
