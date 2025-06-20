@@ -111,7 +111,11 @@ interface AnalyticsData {
     longVisits: number;
     keyClicks: number;
   };
-  foundKeywords: { keyword: string; count: number }[];
+  foundKeywords: {
+    keyword: string;
+    count: number;
+    sessionIds: string[];
+  }[];
 }
 
 export default function AnalyticsPage() {
@@ -134,6 +138,7 @@ export default function AnalyticsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [showKeywordsModal, setShowKeywordsModal] = useState(false);
+  const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
 
   useEffect(() => {
     // Check for password in session storage
@@ -604,7 +609,10 @@ export default function AnalyticsPage() {
       "background",
       "experience",
     ];
-    const foundKeywordsMap = new Map<string, number>();
+    const foundKeywordsMap = new Map<
+      string,
+      { count: number; sessionIds: Set<string> }
+    >();
 
     sessions.forEach((session) => {
       let score = 0;
@@ -644,10 +652,15 @@ export default function AnalyticsPage() {
           recruiterMetrics.keywordHits++;
           recruiterKeywords.forEach((keyword) => {
             if (chatMessages.includes(keyword)) {
-              foundKeywordsMap.set(
-                keyword,
-                (foundKeywordsMap.get(keyword) || 0) + 1
-              );
+              if (!foundKeywordsMap.has(keyword)) {
+                foundKeywordsMap.set(keyword, {
+                  count: 0,
+                  sessionIds: new Set(),
+                });
+              }
+              const keywordData = foundKeywordsMap.get(keyword)!;
+              keywordData.count++;
+              keywordData.sessionIds.add(session.sessionId);
             }
           });
         }
@@ -657,7 +670,11 @@ export default function AnalyticsPage() {
     });
 
     const foundKeywords = Array.from(foundKeywordsMap.entries())
-      .map(([keyword, count]) => ({ keyword, count }))
+      .map(([keyword, data]) => ({
+        keyword,
+        count: data.count,
+        sessionIds: Array.from(data.sessionIds),
+      }))
       .sort((a, b) => b.count - a.count);
 
     return {
@@ -1183,11 +1200,71 @@ export default function AnalyticsPage() {
                     className="flex justify-between items-center bg-gray-700 p-3 rounded-lg"
                   >
                     <span className="font-medium">{keyword}</span>
-                    <span className="text-lg font-bold text-teal-400">
-                      {count}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-teal-400">
+                        {count}
+                      </span>
+                      <button
+                        onClick={() => setSelectedKeyword(keyword)}
+                        className="text-xs bg-blue-500/20 hover:bg-blue-500/40 text-blue-300 px-2 py-1 rounded"
+                      >
+                        View Sessions
+                      </button>
+                    </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sessions for Keyword Modal */}
+        {selectedKeyword && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-xl p-8 max-w-2xl w-full">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold">
+                  Sessions containing "{selectedKeyword}"
+                </h3>
+                <button
+                  onClick={() => setSelectedKeyword(null)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <FiX className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+                {sessions
+                  .filter((session) =>
+                    analyticsData?.foundKeywords
+                      .find((k) => k.keyword === selectedKeyword)
+                      ?.sessionIds.includes(session.sessionId)
+                  )
+                  .map((session) => (
+                    <div
+                      key={session.sessionId}
+                      className="bg-gray-700 rounded-lg p-4"
+                    >
+                      <h4 className="font-semibold text-lg mb-2">
+                        Session {session.sessionId.slice(-6)}
+                      </h4>
+                      {session.messages.map((message) => (
+                        <p
+                          key={message.id}
+                          className={`text-sm mb-1 ${
+                            message.role === "user"
+                              ? "text-blue-300"
+                              : "text-gray-300"
+                          }`}
+                        >
+                          <span className="font-bold">
+                            {message.role === "user" ? "User: " : "AI: "}
+                          </span>
+                          {message.message}
+                        </p>
+                      ))}
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
