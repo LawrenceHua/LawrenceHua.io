@@ -104,6 +104,11 @@ interface AnalyticsData {
   visitorLocations: { country: string; count: number }[];
   topCities: { city: string; country: string; count: number }[];
   potentialRecruiters: number;
+  recruiterMetrics: {
+    keywordHits: number;
+    longVisits: number;
+    keyClicks: number;
+  };
 }
 
 export default function AnalyticsPage() {
@@ -565,6 +570,11 @@ export default function AnalyticsPage() {
 
     // Potential Recruiter Identification
     let potentialRecruiters = 0;
+    const recruiterMetrics = {
+      keywordHits: 0,
+      longVisits: 0,
+      keyClicks: 0,
+    };
     const recruiterKeywords = [
       "hiring",
       "recruiting",
@@ -582,38 +592,41 @@ export default function AnalyticsPage() {
 
     sessions.forEach((session) => {
       let score = 0;
-      // Metric 1: Chatbot keywords
       const chatMessages = session.messages
         .map((m) => m.message?.toLowerCase() || "")
         .join(" ");
-      if (recruiterKeywords.some((keyword) => chatMessages.includes(keyword))) {
+      const hasKeyword = recruiterKeywords.some((keyword) =>
+        chatMessages.includes(keyword)
+      );
+      if (hasKeyword) {
         score += 3;
       }
 
-      // Metric 2: Time spent on site
       const sessionDurationMinutes =
         (session.endTime.getTime() - session.startTime.getTime()) / 60000;
-      if (sessionDurationMinutes > 3) {
+      const isLongVisit = sessionDurationMinutes > 3;
+      if (isLongVisit) {
         score += 1;
       }
       if (sessionDurationMinutes > 10) {
         score += 1;
       }
 
-      // Metric 3: Clicks on key links (assuming we track this in interactions)
       const sessionInteractions = interactions.filter(
         (i) => i.sessionId === session.sessionId
       );
-      if (
-        sessionInteractions.some(
-          (i) => i.element.includes("resume") || i.element.includes("linkedin")
-        )
-      ) {
+      const hasKeyClick = sessionInteractions.some(
+        (i) => i.element.includes("resume") || i.element.includes("linkedin")
+      );
+      if (hasKeyClick) {
         score += 2;
       }
 
       if (score >= 3) {
         potentialRecruiters++;
+        if (hasKeyword) recruiterMetrics.keywordHits++;
+        if (isLongVisit) recruiterMetrics.longVisits++;
+        if (hasKeyClick) recruiterMetrics.keyClicks++;
       }
     });
 
@@ -635,6 +648,7 @@ export default function AnalyticsPage() {
       visitorLocations,
       topCities,
       potentialRecruiters,
+      recruiterMetrics,
     };
   };
 
@@ -955,6 +969,34 @@ export default function AnalyticsPage() {
                 Visitors showing signs of recruitment interest based on
                 keywords, time spent, and interactions.
               </p>
+              {analyticsData.recruiterMetrics && (
+                <div className="mt-4 pt-4 border-t border-gray-700 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">
+                      Used Recruiter Keywords
+                    </span>
+                    <span className="font-semibold text-teal-400">
+                      {analyticsData.recruiterMetrics.keywordHits}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">
+                      Spent &gt;3 Mins on Site
+                    </span>
+                    <span className="font-semibold text-teal-400">
+                      {analyticsData.recruiterMetrics.longVisits}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">
+                      Clicked Resume/LinkedIn
+                    </span>
+                    <span className="font-semibold text-teal-400">
+                      {analyticsData.recruiterMetrics.keyClicks}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Visitor Locations */}
