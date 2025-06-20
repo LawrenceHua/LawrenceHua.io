@@ -69,6 +69,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Easter Egg: Handle questions about Lawrence's girlfriend
+    const isGirlfriendQuestion =
+      /who is lawrence's (girlfriend|favorite girl)|is lawrence (dating|single)|does lawrence have a (girlfriend|partner)/i.test(
+        message
+      );
+
+    if (isGirlfriendQuestion) {
+      if (!openai) {
+        return NextResponse.json({
+          response:
+            "I'm having some trouble connecting to my creative circuits, but I can tell you Lawrence is very happy with his wonderful girlfriend, Myley!",
+        });
+      }
+
+      const poemPrompt =
+        "Generate a short, unique, and romantic SFW poem for a person named Myley. The poem should express deep love and admiration for her beauty, spirit, and the joy she brings. Keep it to 4-6 lines. Do not use quotation marks in the poem.";
+      const poemCompletion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: poemPrompt }],
+        temperature: 0.9,
+        n: 1,
+      });
+
+      const poem =
+        poemCompletion.choices[0].message.content?.trim() ||
+        "A poem about his endless love.";
+
+      const response = `Lawrence's favorite person in the world is his wonderful girlfriend, Myley. He thinks she is the most beautiful girl he has ever known and loves her more than words can say.
+      
+He's always writing little things for her. Here's one:
+
+*${poem}*`;
+
+      return NextResponse.json({ response: response });
+    }
+
     // Get system prompt from file
     const systemPrompt = getSystemPrompt();
 
