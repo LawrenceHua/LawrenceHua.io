@@ -289,7 +289,6 @@ export default function AnalyticsPage() {
       const messagesRef = collection(db, "chatbot_messages");
       const messagesQuery = query(
         messagesRef,
-        orderBy("timestamp", sortOrder),
         where("timestamp", ">=", startDate)
       );
       console.log("Fetching messages with start date:", startDate);
@@ -329,6 +328,15 @@ export default function AnalyticsPage() {
             endTime,
             messageCount: messages.length,
           });
+        }
+      });
+
+      // Sort sessions by startTime based on sortOrder
+      sessionsArray.sort((a, b) => {
+        if (sortOrder === "desc") {
+          return b.startTime.getTime() - a.startTime.getTime();
+        } else {
+          return a.startTime.getTime() - b.startTime.getTime();
         }
       });
 
