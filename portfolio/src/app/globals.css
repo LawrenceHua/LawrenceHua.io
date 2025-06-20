@@ -32,6 +32,11 @@ html {
   font-size: 18px; /* Increase base font size for better mobile scaling */
 }
 
+/* Custom style for time input icon */
+.time-input-icon-white::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
 /* Custom styles for form inputs */
 input,
 textarea {

@@ -21,6 +21,7 @@ import {
   FiGithub,
   FiMessageCircle,
   FiSend,
+  FiX,
 } from "react-icons/fi";
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import {
@@ -30,6 +31,7 @@ import {
   serverTimestamp,
   Firestore,
 } from "firebase/firestore";
+// import { Clock } from "lucide-react";
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -1353,23 +1355,24 @@ export default function Home() {
   const [analyticsInitialized, setAnalyticsInitialized] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeLevel, setActiveLevel] = useState("all");
+  const [formType, setFormType] = useState<"message" | "meeting">("message");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
   });
+  const [meetingDate, setMeetingDate] = useState<Date | null>(new Date());
+  const [meetingTime, setMeetingTime] = useState<string | null>("10:30");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<
-    "idle" | "success" | "error"
-  >("idle");
+  const [submitStatus, setSubmitStatus] = useState<"success" | "error" | null>(
+    null
+  );
   const [submitMessage, setSubmitMessage] = useState("");
   const timelineRef = useRef<HTMLDivElement>(null);
   const [contactMode, setContactMode] = useState<"meeting" | "message">(
     "message"
   );
-  const [meetingDate, setMeetingDate] = useState<Date | null>(null);
-  const [meetingTime, setMeetingTime] = useState<string | null>(null);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
   console.log("Current activeTooltip:", activeTooltip); // DEBUG: Log active tooltip state
@@ -1617,65 +1620,53 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    let payload: any = { ...formData };
+    if (formType === "meeting") {
+      let finalMeetingDate = new Date();
+      if (meetingDate) {
+        finalMeetingDate = new Date(meetingDate);
+      }
+      if (meetingTime) {
+        const [hours, minutes] = meetingTime.split(":");
+        finalMeetingDate.setHours(parseInt(hours, 10));
+        finalMeetingDate.setMinutes(parseInt(minutes, 10));
+      }
+      payload = {
+        ...payload,
+        subject: `Meeting Request: ${
+          formData.name
+        } on ${finalMeetingDate.toLocaleDateString()}`,
+        meeting: finalMeetingDate.toISOString(),
+      };
+    }
+
+    console.log("Submitting form data:", payload); // Test the form data
+
     try {
-      if (contactMode === "meeting") {
-        // Handle meeting request
-        const meetingData = {
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-          date: meetingDate,
-          time: meetingTime,
-          type: "meeting_request",
-        };
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-        // Send meeting request data
-        const response = await fetch("/api/contact", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(meetingData),
+      if (response.ok) {
+        setSubmitStatus("success");
+        setSubmitMessage("Message sent successfully!");
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
         });
-
-        if (response.ok) {
-          setSubmitStatus("success");
-          setSubmitMessage(
-            "Meeting request sent successfully! I'll get back to you soon."
-          );
-          // Reset form
-          setFormData({ name: "", email: "", subject: "", message: "" });
-          setMeetingDate(null);
-          setMeetingTime(null);
-        } else {
-          throw new Error("Failed to send meeting request");
-        }
+        setMeetingDate(null);
+        setMeetingTime(null);
       } else {
-        // Handle regular message
-        const messageData = {
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-          type: "message",
-        };
-
-        // Send message data
-        const response = await fetch("/api/contact", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(messageData),
-        });
-
-        if (response.ok) {
-          setSubmitStatus("success");
-          setSubmitMessage("Message sent successfully!");
-          // Reset form
-          setFormData({ name: "", email: "", subject: "", message: "" });
-        } else {
-          throw new Error("Failed to send message");
-        }
+        throw new Error("Failed to send message");
       }
     } catch (error) {
       setSubmitStatus("error");
@@ -1813,7 +1804,7 @@ export default function Home() {
         window.removeEventListener("resize", checkScroll);
       };
     }
-  }, [timelineRef.current, filteredExperiences.length]);
+  }, [filteredExperiences.length]);
 
   return (
     <main className="min-h-screen">
@@ -2677,7 +2668,8 @@ export default function Home() {
                 Get in Touch
               </h2>
               <p className="mb-8 text-center text-lg text-gray-300">
-                Have a question or want to work together?
+                Ready to discuss opportunities? I'm excited to hear about your
+                project or role!
               </p>
 
               <div className="mx-auto max-w-2xl">
@@ -2710,15 +2702,6 @@ export default function Home() {
                     onSubmit={handleSubmit}
                     className="space-y-6 rounded-2xl border border-blue-900/30 bg-gradient-to-br from-gray-900/90 to-gray-800/90 p-8 shadow-2xl backdrop-blur-sm"
                   >
-                    <div className="text-center mb-6">
-                      <h3 className="text-2xl font-bold text-white mb-2">
-                        Send a Message
-                      </h3>
-                      <p className="text-gray-400">
-                        I'll get back to you as soon as possible!
-                      </p>
-                    </div>
-
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                       <div className="space-y-2">
                         <label
@@ -2743,7 +2726,7 @@ export default function Home() {
                           htmlFor="email"
                           className="block text-sm font-medium text-gray-300"
                         >
-                          Email
+                          Email (optional)
                         </label>
                         <input
                           type="email"
@@ -2753,13 +2736,12 @@ export default function Home() {
                           value={formData.email}
                           onChange={handleInputChange}
                           className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
-                          required
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <label
-                        htmlFor="subject"
+                        htmlFor="message-subject"
                         className="block text-sm font-medium text-gray-300"
                       >
                         Subject
@@ -2767,26 +2749,25 @@ export default function Home() {
                       <input
                         type="text"
                         name="subject"
-                        id="subject"
-                        placeholder="What's this about?"
+                        id="message-subject"
+                        placeholder="What's up? :D"
                         value={formData.subject}
                         onChange={handleInputChange}
                         className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
-                        required
                       />
                     </div>
                     <div className="space-y-2">
                       <label
-                        htmlFor="message"
+                        htmlFor="message-body"
                         className="block text-sm font-medium text-gray-300"
                       >
                         Message
                       </label>
                       <textarea
                         name="message"
-                        id="message"
-                        rows={5}
-                        placeholder="Tell me more about your project or question..."
+                        id="message-body"
+                        rows={4}
+                        placeholder="Tell me more about your project, opportunity, or just say hi"
                         value={formData.message}
                         onChange={handleInputChange}
                         className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 resize-none"
@@ -2846,10 +2827,11 @@ export default function Home() {
                   >
                     <div className="text-center mb-6">
                       <h3 className="text-2xl font-bold text-white mb-2">
-                        Schedule a Meeting
+                        Schedule a Discovery Call
                       </h3>
                       <p className="text-gray-400">
-                        Let's find a time to chat about your project!
+                        Let's explore how we can work together on your next
+                        project or opportunity!
                       </p>
                     </div>
 
@@ -2877,7 +2859,7 @@ export default function Home() {
                           htmlFor="meeting-email"
                           className="block text-sm font-medium text-gray-300"
                         >
-                          Email
+                          Email (optional)
                         </label>
                         <input
                           type="email"
@@ -2887,7 +2869,6 @@ export default function Home() {
                           value={formData.email}
                           onChange={handleInputChange}
                           className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
-                          required
                         />
                       </div>
                     </div>
@@ -2902,7 +2883,7 @@ export default function Home() {
                         name="message"
                         id="meeting-message"
                         rows={3}
-                        placeholder="Tell me about what you'd like to discuss..."
+                        placeholder="Tell me more about your project, opportunity, or just say hi"
                         value={formData.message}
                         onChange={handleInputChange}
                         className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 resize-none"
@@ -2925,7 +2906,7 @@ export default function Home() {
                             type="time"
                             value={meetingTime || ""}
                             onChange={(e) => setMeetingTime(e.target.value)}
-                            className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                            className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 time-input-icon-white"
                             placeholder="Select time"
                           />
                         </div>
