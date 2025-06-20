@@ -1355,7 +1355,6 @@ export default function Home() {
   const [analyticsInitialized, setAnalyticsInitialized] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeLevel, setActiveLevel] = useState("all");
-  const [formType, setFormType] = useState<"message" | "meeting">("message");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -1622,8 +1621,10 @@ export default function Home() {
     setIsSubmitting(true);
     setSubmitStatus(null);
 
+    console.log("[DEBUG] handleSubmit contactMode:", contactMode);
+
     let payload: any = { ...formData };
-    if (formType === "meeting") {
+    if (contactMode === "meeting") {
       let finalMeetingDate = new Date();
       if (meetingDate) {
         finalMeetingDate = new Date(meetingDate);
@@ -1633,16 +1634,19 @@ export default function Home() {
         finalMeetingDate.setHours(parseInt(hours, 10));
         finalMeetingDate.setMinutes(parseInt(minutes, 10));
       }
-      payload = {
-        ...payload,
-        subject: `Meeting Request: ${
-          formData.name
-        } on ${finalMeetingDate.toLocaleDateString()}`,
-        meeting: finalMeetingDate.toISOString(),
-      };
+      // Always set subject for meeting requests
+      payload.subject = `Meeting Request: ${formData.name || "(No Name)"} on ${finalMeetingDate.toLocaleDateString()}`;
+      payload.meeting = finalMeetingDate.toISOString();
+      payload.message =
+        formData.message && formData.message.trim() !== ""
+          ? formData.message
+          : "I'd like to schedule a meeting to discuss opportunities.";
     }
 
-    console.log("Submitting form data:", payload); // Test the form data
+    console.log(
+      "[DEBUG] Submitting form data:",
+      JSON.stringify(payload, null, 2)
+    ); // Debug log before sending
 
     try {
       const response = await fetch("/api/contact", {
@@ -1652,6 +1656,10 @@ export default function Home() {
         },
         body: JSON.stringify(payload),
       });
+
+      console.log("[DEBUG] Response status:", response.status); // Debug log response status
+      const responseData = await response.json();
+      console.log("[DEBUG] Response data:", responseData); // Debug log response data
 
       if (response.ok) {
         setSubmitStatus("success");
@@ -1666,9 +1674,10 @@ export default function Home() {
         setMeetingDate(null);
         setMeetingTime(null);
       } else {
-        throw new Error("Failed to send message");
+        throw new Error(responseData.error || "Failed to send message");
       }
     } catch (error) {
+      console.error("[DEBUG] Error submitting form:", error);
       setSubmitStatus("error");
       setSubmitMessage("Failed to send. Please try again.");
     } finally {

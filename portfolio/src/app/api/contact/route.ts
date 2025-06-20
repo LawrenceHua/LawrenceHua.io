@@ -6,9 +6,25 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: NextRequest) {
   try {
     const { name, email, subject, message, meeting } = await request.json();
+    console.log("[DEBUG] Received data:", {
+      name,
+      email,
+      subject,
+      message,
+      meeting,
+    });
 
     // Validate required fields (email is now optional)
+    console.log(
+      "[DEBUG] Validation - name:",
+      name,
+      "| subject:",
+      subject,
+      "| message:",
+      message
+    );
     if (!name || !subject || !message) {
+      console.log("[DEBUG] Validation failed: missing required fields");
       return NextResponse.json(
         { error: "Name, subject, and message are required" },
         { status: 400 }
@@ -17,8 +33,10 @@ export async function POST(request: NextRequest) {
 
     // Validate email format only if email is provided
     if (email) {
+      console.log("[DEBUG] Validating email format:", email);
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
+        console.log("[DEBUG] Validation failed: invalid email format");
         return NextResponse.json(
           { error: "Invalid email format" },
           { status: 400 }
