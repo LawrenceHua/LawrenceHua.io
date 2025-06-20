@@ -75,7 +75,7 @@ section {
 }
 
 .animate-scroll {
-  animation: scroll 15s linear infinite;
+  animation: scroll 30s linear infinite;
   display: flex;
   gap: 2rem;
   width: max-content;
@@ -188,9 +188,9 @@ section {
     position: relative;
   }
 
-  /* Stop animation on mobile, allow manual scroll */
+  /* Enable animation on mobile but make it touch-friendly */
   .animate-scroll {
-    animation: none;
+    animation: scroll 30s linear infinite;
   }
 }
 
@@ -2141,4 +2141,32 @@ section {
 .recommendation-card-wrapper:hover {
   transform: scale(1.03) translateY(-5px);
   box-shadow: 0 0 25px rgba(79, 70, 229, 0.5); /* Glowing shadow */
+}
+
+/* Custom styles for full-width DatePicker */
+.react-datepicker__month-container,
+.react-datepicker__month,
+.react-datepicker__week,
+.react-datepicker__day-names {
+  width: 100%;
+}
+
+.react-datepicker__day-names,
+.react-datepicker__week {
+  display: flex;
+  justify-content: space-around;
+}
+
+.react-datepicker__day,
+.react-datepicker__day-name {
+  margin: 0.1rem !important;
+}
+
+/* Ensure the calendar container takes full width */
+.react-datepicker-inline {
+  width: 100%;
+}
+
+.react-datepicker__header__dropdown {
+  margin: 0 0.5rem;
 }

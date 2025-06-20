@@ -8,15 +8,25 @@ interface GirlfriendEasterEggResponse {
 
 export async function handleGirlfriendEasterEgg(
   message: string,
+  history: Array<{ role: string; content: string }>,
   openai: OpenAI | null
 ): Promise<GirlfriendEasterEggResponse | null> {
-  // Check if this is a girlfriend-related question
+  const lastBotMessage =
+    history
+      .slice()
+      .reverse()
+      .find((m) => m.role === "assistant")?.content || "";
+  const needsPassword = lastBotMessage.includes(
+    "...what's the secret password? 🤐"
+  );
+
+  // Check if this is a girlfriend-related question OR if we're awaiting a password
   const isGirlfriendQuestion =
     /who\s+is\s+lawrence'?s?\s+(girlfriend|favorite girl|partner)|is\s+lawrence\s+(dating|single)|does\s+lawrence\s+have\s+a\s+(girlfriend|partner)|tell\s+me\s+about\s+lawrence'?s?\s+(girlfriend|love life|relationship)|who\s+is\s+lawrence\s+girlfriend/i.test(
       message
     );
 
-  if (!isGirlfriendQuestion) {
+  if (!isGirlfriendQuestion && !needsPassword) {
     return null;
   }
 
@@ -37,11 +47,18 @@ export async function handleGirlfriendEasterEgg(
     /8\/21/i,
     /8-21/i,
     /8\.21/i,
+    /8\.21\.24/i,
+    /08\.21\.2024/i,
+    /^8\.21$/i, // Exact match for 8.21
+    /^8\.21$/i, // Simple pattern for 8.21
   ];
 
-  const hasCorrectPassword = passwordPatterns.some((pattern) =>
-    pattern.test(message)
-  );
+  console.log("DEBUG: Checking password patterns for message:", message);
+  const hasCorrectPassword = passwordPatterns.some((pattern) => {
+    const matches = pattern.test(message);
+    console.log("DEBUG: Pattern", pattern, "matches:", matches);
+    return matches;
+  });
 
   console.log("DEBUG: hasCorrectPassword:", hasCorrectPassword);
 

@@ -183,30 +183,82 @@ function extractContactInfo(
   return { recruiterName, company, email, recruiterMessage, phone };
 }
 
+async function getFileContent(file: File): Promise<string | null> {
+  console.log("DEBUG: getFileContent called for file:", file.name);
+  const an = file.name.split(".");
+  const fileExtension = an[an.length - 1];
+  console.log("DEBUG: File extension:", fileExtension);
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    console.log("DEBUG: Buffer created, size:", buffer.length);
+
+    if (fileExtension === "pdf") {
+      console.log("DEBUG: Processing PDF file");
+      const pdf = (await import("pdf-parse")).default;
+      const data = await pdf(buffer);
+      console.log("DEBUG: PDF processed successfully");
+      return data.text;
+    } else if (fileExtension === "docx") {
+      console.log("DEBUG: Processing DOCX file");
+      const mammoth = (await import("mammoth")).default;
+      const { value } = await mammoth.extractRawText({ buffer });
+      console.log("DEBUG: DOCX processed successfully");
+      return value;
+    } else if (fileExtension === "txt") {
+      console.log("DEBUG: Processing TXT file");
+      const content = buffer.toString("utf-8");
+      console.log(
+        "DEBUG: TXT processed successfully, content length:",
+        content.length
+      );
+      return content;
+    }
+    console.log("DEBUG: Unsupported file type:", fileExtension);
+    return null;
+  } catch (error) {
+    console.error(`Error processing file ${file.name}:`, error);
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // Handle FormData from frontend
+    console.log("DEBUG: POST function called");
+
     const formData = await request.formData();
     const message = formData.get("message") as string;
     const files = formData.getAll("files") as File[];
+    const historyString = formData.get("history") as string;
+    const history = historyString ? JSON.parse(historyString) : [];
 
     console.log("DEBUG: Received message:", message);
     console.log("DEBUG: Received files count:", files.length);
 
-    if (!message && files.length === 0) {
-      return NextResponse.json(
-        { error: "Message or files are required" },
-        { status: 400 }
-      );
+    // Process files first
+    let fileContents = "";
+    if (files.length > 0) {
+      console.log("DEBUG: Processing files");
+      for (const file of files) {
+        console.log("DEBUG: Processing file:", file.name);
+        const content = await getFileContent(file);
+        if (content) {
+          fileContents += `\n\n--- Content of ${file.name} ---\n${content}`;
+          console.log("DEBUG: Added file content");
+        }
+      }
     }
 
-    // Check for girlfriend easter egg first
-    const easterEggResponse = await handleGirlfriendEasterEgg(message, openai);
+    // Check for girlfriend easter egg
+    const easterEggResponse = await handleGirlfriendEasterEgg(
+      message,
+      history,
+      openai
+    );
     if (easterEggResponse) {
       return NextResponse.json(easterEggResponse);
     }
 
-    // Handle regular chatbot responses
+    // Handle regular responses
     if (!openai) {
       return NextResponse.json({
         response:
@@ -214,98 +266,15 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Get system prompt with token management (reserve 3000 tokens for user message and response)
-    const systemPrompt = getSystemPrompt(4000); // Reduced from 6000 to 4000
-    const userMessage = message || "User sent a file for analysis";
+    const systemPrompt = getSystemPrompt(4000);
+    const userMessage =
+      (message || "User sent a file for analysis.") + fileContents;
 
-    // Check total token count
-    const systemTokens = estimateTokens(systemPrompt);
-    const userTokens = estimateTokens(userMessage);
-    const totalTokens = systemTokens + userTokens + 1000; // +1000 for response
-
-    console.log(
-      `Token breakdown: System=${systemTokens}, User=${userTokens}, Total=${totalTokens}`
-    );
-
-    // Use a more conservative limit (7000 instead of 8000)
-    if (totalTokens > 7000) {
-      // If still too long, truncate system prompt further
-      const maxSystemTokens = 7000 - userTokens - 1000;
-      const truncatedSystemPrompt = truncateToTokenLimit(
-        systemPrompt,
-        maxSystemTokens
-      );
-      console.log(
-        `Truncated system prompt to ${estimateTokens(truncatedSystemPrompt)} tokens`
-      );
-
-      // Final safety check - if still too long, use minimal prompt
-      const finalSystemTokens = estimateTokens(truncatedSystemPrompt);
-      const finalTotalTokens = finalSystemTokens + userTokens + 1000;
-
-      if (finalTotalTokens > 7000) {
-        console.log("Still too long, using minimal system prompt");
-        const minimalPrompt = `You are Lawrence Hua's AI assistant. Answer questions about Lawrence professionally and accurately.`;
-
-        const messages = [
-          {
-            role: "system" as const,
-            content: minimalPrompt,
-          },
-          {
-            role: "user" as const,
-            content: userMessage,
-          },
-        ];
-
-        const completion = await openai.chat.completions.create({
-          model: "gpt-4",
-          messages,
-          max_tokens: 1000,
-          temperature: 0.7,
-        });
-
-        const response =
-          completion.choices[0]?.message?.content ||
-          "I'm sorry, I couldn't generate a response.";
-
-        return NextResponse.json({ response });
-      }
-
-      const messages = [
-        {
-          role: "system" as const,
-          content: truncatedSystemPrompt,
-        },
-        {
-          role: "user" as const,
-          content: userMessage,
-        },
-      ];
-
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages,
-        max_tokens: 1000,
-        temperature: 0.7,
-      });
-
-      const response =
-        completion.choices[0]?.message?.content ||
-        "I'm sorry, I couldn't generate a response.";
-
-      return NextResponse.json({ response });
-    }
+    console.log("DEBUG: Final user message length:", userMessage.length);
 
     const messages = [
-      {
-        role: "system" as const,
-        content: systemPrompt,
-      },
-      {
-        role: "user" as const,
-        content: userMessage,
-      },
+      { role: "system" as const, content: systemPrompt },
+      { role: "user" as const, content: userMessage },
     ];
 
     const completion = await openai.chat.completions.create({
@@ -318,28 +287,9 @@ export async function POST(request: NextRequest) {
     const response =
       completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response.";
-
     return NextResponse.json({ response });
   } catch (error) {
     console.error("Error in chatbot route:", error);
-
-    // Check if it's a token limit error
-    if (
-      error &&
-      typeof error === "object" &&
-      "code" in error &&
-      error.code === "context_length_exceeded"
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "The conversation is too long. Please start a new conversation or ask a shorter question.",
-          details: "Token limit exceeded",
-        },
-        { status: 400 }
-      );
-    }
-
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

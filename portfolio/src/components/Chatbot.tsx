@@ -148,6 +148,7 @@ What would you like to know?`,
 
     const formData = new FormData();
     formData.append("message", input);
+    formData.append("history", JSON.stringify(messages));
     selectedFiles.forEach((file) => {
       formData.append("files", file);
     });
@@ -157,7 +158,7 @@ What would you like to know?`,
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/chatbot", {
+      const response = await fetch("/api/chatbot-new", {
         method: "POST",
         body: formData,
       });
@@ -206,9 +207,12 @@ What would you like to know?`,
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFileError("");
     const files = Array.from(e.target.files || []);
-    const tooLarge = files.some((file) => file.size > 5 * 1024 * 1024);
+    // Limit file size to 10MB
+    const tooLarge = files.some((file) => file.size > 10 * 1024 * 1024);
     if (tooLarge) {
-      setFileError("File size must be 5MB or less.");
+      setFileError(
+        "File size exceeds the 10MB limit. Please select a smaller file."
+      );
       return;
     }
     setSelectedFiles(files);

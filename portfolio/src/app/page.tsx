@@ -1363,8 +1363,8 @@ export default function Home() {
     subject: "",
     message: "",
   });
-  const [meetingDate, setMeetingDate] = useState<Date | null>(new Date());
-  const [meetingTime, setMeetingTime] = useState<string | null>("10:30");
+  const [meetingDate, setMeetingDate] = useState<Date | null>(null);
+  const [meetingTime, setMeetingTime] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"success" | "error" | null>(
     null
@@ -1427,16 +1427,16 @@ export default function Home() {
       const clickListener = (e: MouseEvent) => {
         const target = e.target as any; // Use any to handle different element types
 
-        let className = "";
+        let classNameStr = "";
         if (target.className) {
-          // Handle SVGAnimatedString for SVG elements
+          // Handle SVGAnimatedString for SVG elements, otherwise treat as string
           if (
             typeof target.className === "object" &&
             target.className.baseVal
           ) {
-            className = target.className.baseVal;
-          } else {
-            className = target.className;
+            classNameStr = target.className.baseVal;
+          } else if (typeof target.className === "string") {
+            classNameStr = target.className;
           }
         }
 
@@ -1445,7 +1445,7 @@ export default function Home() {
           element:
             target.tagName.toLowerCase() +
             (target.id ? `#${target.id}` : "") +
-            (className ? `.${className.split(" ")[0]}` : ""),
+            (classNameStr ? `.${classNameStr.split(" ")[0]}` : ""),
           page: window.location.pathname,
           sessionId: getSessionId(),
           timestamp: serverTimestamp(),
@@ -1624,16 +1624,43 @@ export default function Home() {
     console.log("[DEBUG] handleSubmit contactMode:", contactMode);
 
     let payload: any = { ...formData };
+
     if (contactMode === "meeting") {
-      let finalMeetingDate = new Date();
-      if (meetingDate) {
-        finalMeetingDate = new Date(meetingDate);
+      // Validate meeting requirements
+      if (!meetingDate || !meetingTime) {
+        setSubmitStatus("error");
+        setSubmitMessage("Please select both a date and time for the meeting.");
+        setIsSubmitting(false);
+        return;
       }
-      if (meetingTime) {
+
+      let finalMeetingDate = new Date(meetingDate);
+
+      // Parse time and set it on the date
+      try {
         const [hours, minutes] = meetingTime.split(":");
         finalMeetingDate.setHours(parseInt(hours, 10));
         finalMeetingDate.setMinutes(parseInt(minutes, 10));
+        finalMeetingDate.setSeconds(0);
+        finalMeetingDate.setMilliseconds(0);
+      } catch (error) {
+        console.error("[DEBUG] Error parsing meeting time:", error);
+        setSubmitStatus("error");
+        setSubmitMessage("Invalid meeting time format. Please try again.");
+        setIsSubmitting(false);
+        return;
       }
+
+      // Check if the meeting date is in the future
+      if (finalMeetingDate <= new Date()) {
+        setSubmitStatus("error");
+        setSubmitMessage(
+          "Please select a future date and time for the meeting."
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
       // Always set subject for meeting requests
       payload.subject = `Meeting Request: ${formData.name || "(No Name)"} on ${finalMeetingDate.toLocaleDateString()}`;
       payload.meeting = finalMeetingDate.toISOString();
@@ -1646,7 +1673,7 @@ export default function Home() {
     console.log(
       "[DEBUG] Submitting form data:",
       JSON.stringify(payload, null, 2)
-    ); // Debug log before sending
+    );
 
     try {
       const response = await fetch("/api/contact", {
@@ -1657,13 +1684,17 @@ export default function Home() {
         body: JSON.stringify(payload),
       });
 
-      console.log("[DEBUG] Response status:", response.status); // Debug log response status
+      console.log("[DEBUG] Response status:", response.status);
       const responseData = await response.json();
-      console.log("[DEBUG] Response data:", responseData); // Debug log response data
+      console.log("[DEBUG] Response data:", responseData);
 
       if (response.ok) {
         setSubmitStatus("success");
-        setSubmitMessage("Message sent successfully!");
+        setSubmitMessage(
+          contactMode === "meeting"
+            ? "Meeting request sent successfully! I'll get back to you soon."
+            : "Message sent successfully!"
+        );
         // Reset form
         setFormData({
           name: "",
@@ -1990,7 +2021,7 @@ export default function Home() {
                   className="inline-flex items-center rounded-lg bg-purple-600 px-6 py-3 text-white transition-colors hover:bg-purple-700"
                 >
                   <FiMessageCircle className="mr-2 h-5 w-5" />
-                  Find out what I'm up to
+                  Find out what I do!
                 </button>
               </div>
               {/* Large CTA Button */}
@@ -2535,13 +2566,15 @@ export default function Home() {
                           >
                             {/* Header Section */}
                             <div className="flex flex-col items-center justify-center gap-2 mb-2 py-2">
-                              <Image
-                                src={item.logo}
-                                alt={item.org}
-                                width={56}
-                                height={56}
-                                className="logo mx-auto rounded object-contain"
-                              />
+                              <div className="relative mr-4 h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl shadow-lg">
+                                <Image
+                                  src={item.logo}
+                                  alt={`${item.org} logo`}
+                                  fill
+                                  sizes="64px"
+                                  className="object-cover"
+                                />
+                              </div>
                               <h4 className="text-lg font-bold text-white mt-2">
                                 {item.title}
                               </h4>
@@ -2651,13 +2684,15 @@ export default function Home() {
                         {/* Fixed Header Section */}
                         <div className="education-card-header">
                           <div className="logo-container mb-2 flex justify-center">
-                            <Image
-                              src={item.logo}
-                              alt={item.org}
-                              width={56}
-                              height={56}
-                              className="logo rounded object-contain"
-                            />
+                            <div className="relative h-14 w-14 overflow-hidden rounded-lg shadow-md">
+                              <Image
+                                src={item.logo}
+                                alt={item.org}
+                                fill
+                                sizes="56px"
+                                className="object-contain"
+                              />
+                            </div>
                           </div>
                           <h4 className="text-xl font-bold text-white text-center">
                             {item.title}
@@ -3065,11 +3100,15 @@ export default function Home() {
                                 ? "!bg-blue-600 !text-white !rounded-lg"
                                 : "!text-gray-300 hover:!bg-gray-700 !rounded-lg"
                             }
-                            calendarClassName="!bg-transparent !border-none !shadow-none"
-                            monthClassName="!text-white !font-semibold"
-                            yearClassName="!text-white !font-semibold"
-                            headerClassName="!text-white !font-semibold"
-                            weekDayClassName="!text-gray-400 !font-medium"
+                            calendarClassName="!bg-transparent !border-none !shadow-none !w-full"
+                            monthClassName={() =>
+                              "!text-white !font-semibold !w-full"
+                            }
+                            yearClassName={() => "!text-white !font-semibold"}
+                            headerClassName={() => "!text-white !font-semibold"}
+                            weekDayClassName={() =>
+                              "!text-gray-400 !font-medium"
+                            }
                           />
                         </div>
                       </div>
