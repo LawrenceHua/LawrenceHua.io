@@ -97,10 +97,11 @@ export async function POST(request: NextRequest) {
     const mightBeContactInfo =
       /(@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)/.test(message) || // Contains an email
       /(name:|company:|email:|message:)/i.test(message) || // Contains keywords
+      /(tell|ask|send to)\s+lawrence/i.test(message) || // A message for lawrence
       (message.split(",").length > 2 && message.length < 150); // Looks like a short list
 
     if (mightBeContactInfo) {
-      // --- New Robust Parsing Logic ---
+      // --- Parsing Logic ---
       let recruiterName =
         message.match(/name is\s+([A-Za-z\s]+)(?:,|$)/i)?.[1]?.trim() ||
         message.match(/I'm\s+([A-Za-z\s]+)(?:,|$)/i)?.[1]?.trim() ||
@@ -120,7 +121,18 @@ export async function POST(request: NextRequest) {
         message.match(/message:\s*([\s\S]*)/i)?.[1]?.trim() || "";
 
       // Fallback for unstructured messages
-      if (!recruiterMessage && email) {
+      const tellLawrenceMatch = message.match(
+        /(?:tell|ask|send to)\s+lawrence\s+(.*)/i
+      );
+      if (tellLawrenceMatch && tellLawrenceMatch[1]) {
+        if (!recruiterMessage) {
+          recruiterMessage = tellLawrenceMatch[1].trim();
+        }
+        // If we got a message this way, we probably don't have a name yet
+        if (recruiterName.toLowerCase() === "hey") {
+          recruiterName = "";
+        }
+      } else if (!recruiterMessage && email) {
         let remainingMessage = message
           .replace(email, "")
           .replace(/my name is\s+[A-Za-z\s]+/i, "")
@@ -141,6 +153,7 @@ export async function POST(request: NextRequest) {
 
       // Final check for message quality
       const lowQualityWords = [
+        "hey",
         "hi",
         "hello",
         "my",
@@ -151,20 +164,24 @@ export async function POST(request: NextRequest) {
       ];
       const messageWords = recruiterMessage.toLowerCase().split(" ");
       if (
-        messageWords.length < 3 ||
-        messageWords.every((word: string) => lowQualityWords.includes(word))
+        !tellLawrenceMatch && // Don't invalidate messages captured with "tell lawrence"
+        (messageWords.length < 3 ||
+          messageWords.every((word: string) => lowQualityWords.includes(word)))
       ) {
         recruiterMessage = ""; // Invalidate the message
       }
 
       // If we are still missing key info, ask for it.
       if (!recruiterName || !recruiterMessage || !email) {
-        let clarification =
-          "Thanks for providing some information! To connect you with Lawrence, I just need a bit more.\n\n";
+        let clarification = "";
 
-        if (email && !recruiterName && !recruiterMessage) {
-          clarification = `Thanks! I've got your email as **${email}**. Could you also provide your name and a short message for Lawrence?`;
+        if (recruiterMessage && !recruiterName && !email) {
+          clarification = `Okay, I'll let him know you said: "${recruiterMessage}". But first, I need your name and email so he can get back to you.`;
+        } else if (email && !recruiterName && !recruiterMessage) {
+          clarification = `Thanks! I've got your email as **${email}**. If you'd like to send a message to Lawrence, please provide your name and what you'd like to say.`;
         } else {
+          clarification =
+            "Thanks for providing some information! To connect you with Lawrence, I just need a bit more.\n\n";
           if (!recruiterName) clarification += "**What is your name?**\n";
           if (!email)
             clarification += "**What is your email address?** (required)\n";
@@ -184,26 +201,25 @@ export async function POST(request: NextRequest) {
       }
 
       // If we have everything, send it
-      if (recruiterName && recruiterMessage && email) {
-        try {
-          const contactResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/recruiter-contact`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                recruiterName,
-                company,
-                email,
-                message: recruiterMessage,
-                conversationContext: `This message was sent through the AI assistant. Original user message: ${message}`,
-              }),
-            }
-          );
+      try {
+        const contactResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/recruiter-contact`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              recruiterName,
+              company,
+              email,
+              message: recruiterMessage,
+              conversationContext: `This message was sent through the AI assistant. Original user message: ${message}`,
+            }),
+          }
+        );
 
-          if (contactResponse.ok) {
-            return NextResponse.json({
-              response: `Perfect! I've sent your message to Lawrence. Here's what I sent:
+        if (contactResponse.ok) {
+          return NextResponse.json({
+            response: `Perfect! I've sent your message to Lawrence. Here's what I sent:
 
 **To:** Lawrence Hua
 **From:** ${recruiterName}${company ? ` (${company})` : ""}
@@ -213,22 +229,21 @@ export async function POST(request: NextRequest) {
 Lawrence will get back to you soon! 🎯
 
 Is there anything else you'd like to know about Lawrence's background or experience?`,
-              recruiterContactSent: true,
-            });
-          } else {
-            const errorData = await contactResponse.json();
-            return NextResponse.json({
-              response: `I tried to send your message to Lawrence, but there was an issue: ${errorData.error}. Could you please check the information and try again?`,
-              recruiterContactError: true,
-            });
-          }
-        } catch (error) {
-          console.error("Error sending recruiter contact:", error);
+            recruiterContactSent: true,
+          });
+        } else {
+          const errorData = await contactResponse.json();
           return NextResponse.json({
-            response: `I encountered an error while trying to send your message. Please try again or contact Lawrence directly at lawrencehua2@gmail.com.`,
+            response: `I tried to send your message to Lawrence, but there was an issue: ${errorData.error}. Could you please check the information and try again?`,
             recruiterContactError: true,
           });
         }
+      } catch (error) {
+        console.error("Error sending recruiter contact:", error);
+        return NextResponse.json({
+          response: `I encountered an error while trying to send your message. Please try again or contact Lawrence directly at lawrencehua2@gmail.com.`,
+          recruiterContactError: true,
+        });
       }
     }
 
@@ -294,31 +309,29 @@ Just reply with this information and I'll send it directly to Lawrence! 🚀`,
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userContent },
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: userContent,
+        },
       ],
-      max_tokens: 600,
-      temperature: 0.7,
     });
-
-    let response =
-      completion.choices[0]?.message?.content ||
-      "I'm sorry, I couldn't generate a response. Please try again.";
-
-    // Ensure proper markdown formatting
-    response = response
-      .replace(/\*\*(.*?)\*\*/g, "**$1**") // Ensure bold formatting
-      .replace(/\*(.*?)\*/g, "*$1*") // Ensure italic formatting
-      .replace(/`(.*?)`/g, "`$1`"); // Ensure code formatting
-
-    return NextResponse.json({ response });
+    const responseContent = completion.choices[0].message.content;
+    return NextResponse.json({ response: responseContent });
   } catch (error) {
-    console.error("Chatbot API error:", error);
-
-    // Return a helpful fallback response
-    return NextResponse.json({
-      response:
-        "I'm having trouble connecting to my AI service right now, but I can tell you about Lawrence! He's an **AI Product Manager** and entrepreneur with experience in **machine learning**, **product management**, and **technical development**. Feel free to reach out to Lawrence directly for more detailed information.",
-    });
+    console.error("Chatbot error:", error);
+    if (error instanceof OpenAI.APIError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status }
+      );
+    }
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 }
+    );
   }
 }
