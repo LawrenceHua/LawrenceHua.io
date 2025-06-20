@@ -14,6 +14,7 @@ import {
   FiMinimize2,
   FiUser,
   FiCpu,
+  FiHeart,
 } from "react-icons/fi";
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import {
@@ -68,8 +69,8 @@ function getSessionId() {
 }
 
 // Markdown formatting function
-function formatMessage(content: string) {
-  return content
+function formatMessage(content: string, isLoveMode: boolean = false) {
+  let formatted = content
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(
@@ -77,6 +78,25 @@ function formatMessage(content: string) {
       '<code class="bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded text-sm">$1</code>'
     )
     .replace(/\n/g, "<br>");
+
+  // Add love-themed styling if in love mode
+  if (isLoveMode) {
+    formatted = formatted
+      .replace(
+        /Myley/g,
+        '<span class="text-pink-600 font-semibold">Myley</span>'
+      )
+      .replace(/love/g, '<span class="text-red-500 font-medium">love</span>')
+      .replace(
+        /beautiful/g,
+        '<span class="text-purple-500 font-medium">beautiful</span>'
+      )
+      .replace(/sweet/g, '<span class="text-pink-500 font-medium">sweet</span>')
+      .replace(/heart/g, '<span class="text-red-500">❤️</span>')
+      .replace(/💕/g, '<span class="text-pink-500">💕</span>');
+  }
+
+  return formatted;
 }
 
 // File type detection
@@ -108,6 +128,7 @@ What would you like to know?`,
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isLoveMode, setIsLoveMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -170,6 +191,18 @@ What would you like to know?`,
       }
 
       const data = await response.json();
+
+      // Check if this is the Myley easter egg response
+      const isMyleyResponse =
+        data.response &&
+        (data.response.includes("Myley") ||
+          data.response.includes("girlfriend") ||
+          data.response.includes("Lawrence's favorite person"));
+
+      if (isMyleyResponse) {
+        setIsLoveMode(true);
+      }
+
       setMessages((prev) => [
         ...prev,
         {
@@ -243,7 +276,8 @@ What would you like to know?`,
           className={
             `chatbotContainer ${styles.chatbotContainer} ` +
             (isMinimized ? styles.minimized : "") +
-            (isFullscreen ? styles.fullscreen : "")
+            (isFullscreen ? styles.fullscreen : "") +
+            (isLoveMode ? styles.loveMode : "")
           }
           style={{
             maxWidth: isFullscreen ? "100vw" : undefined,
@@ -263,10 +297,28 @@ What would you like to know?`,
             }
           >
             <span className="flex items-center gap-2 font-semibold">
-              <FiMessageCircle className="inline-block mr-2" />
-              Lawrence's AI Assistant
+              {isLoveMode ? (
+                <>
+                  <FiHeart className="inline-block mr-2 animate-pulse text-pink-500" />
+                  <span className="text-pink-600">Lawrence's Love Bot 💕</span>
+                </>
+              ) : (
+                <>
+                  <FiMessageCircle className="inline-block mr-2" />
+                  Lawrence's AI Assistant
+                </>
+              )}
             </span>
             <div className="flex items-center gap-2">
+              {isLoveMode && (
+                <button
+                  className="px-3 py-1 text-xs bg-pink-100 hover:bg-pink-200 text-pink-700 rounded-full transition-colors duration-200 font-medium"
+                  onClick={() => setIsLoveMode(false)}
+                  title="Stop the cringe"
+                >
+                  Stop the cringe 😅
+                </button>
+              )}
               <button
                 className={styles.actionButton + " actionButton"}
                 title={isMinimized ? "Expand" : "Minimize"}
@@ -322,7 +374,7 @@ What would you like to know?`,
                       (msg.role === "assistant" ? "assistant" : "user")
                     }
                     dangerouslySetInnerHTML={{
-                      __html: formatMessage(msg.content),
+                      __html: formatMessage(msg.content, isLoveMode),
                     }}
                   />
                 </div>
