@@ -158,17 +158,28 @@ export default function AnalyticsPage() {
   const trackPageView = async () => {
     if (!db) return;
 
-    const pageView = {
-      page: window.location.pathname,
-      userAgent: navigator.userAgent,
-      referrer: document.referrer || "direct",
-      screenSize: `${window.screen.width}x${window.screen.height}`,
-      timeOnPage: 0,
-      sessionId: getSessionId(),
-      timestamp: serverTimestamp(),
-    };
-
     try {
+      // Fetch geolocation data
+      const geoResponse = await fetch("/api/geolocation");
+      const geoData = await geoResponse.json();
+
+      const pageView = {
+        page: window.location.pathname,
+        userAgent: navigator.userAgent,
+        referrer: document.referrer || "direct",
+        screenSize: `${window.screen.width}x${window.screen.height}`,
+        timeOnPage: 0,
+        sessionId: getSessionId(),
+        timestamp: serverTimestamp(),
+        country: geoData.country_name,
+        region: geoData.region,
+        city: geoData.city,
+        latitude: geoData.latitude,
+        longitude: geoData.longitude,
+        timezone: geoData.timezone,
+        ip: geoData.ip,
+      };
+
       await addDoc(collection(db, "page_views"), pageView);
     } catch (error) {
       console.error("Error tracking page view:", error);
@@ -363,6 +374,13 @@ export default function AnalyticsPage() {
           screenSize: data.screenSize,
           timeOnPage: data.timeOnPage,
           sessionId: data.sessionId,
+          country: data.country,
+          region: data.region,
+          city: data.city,
+          latitude: data.latitude,
+          longitude: data.longitude,
+          timezone: data.timezone,
+          ip: data.ip,
         });
       });
 
