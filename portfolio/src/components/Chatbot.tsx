@@ -97,7 +97,7 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
 • Projects 🚀
 • and more!
 
-**Recruiters**: You can also share files with me for analysis. 📄
+**Recruiters**: You can also share files with me for analysis, or I can help you contact Lawrence directly! 📄
 
 What would you like to know?`,
       timestamp: new Date(),
