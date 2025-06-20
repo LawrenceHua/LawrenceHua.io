@@ -22,14 +22,57 @@ const openai = openaiApiKey
     })
   : null;
 
-// Read system prompt from experience.txt file
-function getSystemPrompt(): string {
+// More accurate token estimation (GPT-4 uses ~3.5 characters per token on average)
+function estimateTokens(text: string): number {
+  // More conservative estimation for safety
+  return Math.ceil(text.length / 3.5);
+}
+
+// Truncate text to fit within token limit with more aggressive approach
+function truncateToTokenLimit(text: string, maxTokens: number): string {
+  const estimatedTokens = estimateTokens(text);
+  if (estimatedTokens <= maxTokens) {
+    return text;
+  }
+
+  // Calculate how many characters we can keep (more conservative)
+  const maxChars = Math.floor(maxTokens * 3.2); // More conservative multiplier
+  const truncated = text.substring(0, maxChars);
+
+  // Try to cut at a sentence boundary
+  const lastSentence = truncated.lastIndexOf(".");
+  const lastNewline = truncated.lastIndexOf("\n");
+  const cutPoint = Math.max(lastSentence, lastNewline);
+
+  if (cutPoint > maxChars * 0.7) {
+    // More aggressive boundary check
+    // If we can cut at a reasonable boundary
+    return text.substring(0, cutPoint + 1);
+  }
+
+  return truncated + "...";
+}
+
+// Read system prompt from experience.txt file with token management
+function getSystemPrompt(maxTokens: number = 4000): string {
   try {
     const filePath = join(process.cwd(), "public", "experience.txt");
     console.log("Trying to read from:", filePath);
     const content = readFileSync(filePath, "utf-8");
     console.log("Successfully read experience.txt, length:", content.length);
-    return content;
+
+    // If file is too large, use a much more conservative limit
+    if (content.length > 20000) {
+      console.log("File is very large, using conservative token limit");
+      maxTokens = 2000; // Much more conservative for large files
+    }
+
+    // Truncate if too long
+    const truncatedContent = truncateToTokenLimit(content, maxTokens);
+    const estimatedTokens = estimateTokens(truncatedContent);
+    console.log("Estimated tokens in system prompt:", estimatedTokens);
+
+    return truncatedContent;
   } catch (error) {
     console.error("Error reading experience.txt:", error);
     // Try alternative path
@@ -41,7 +84,19 @@ function getSystemPrompt(): string {
         "Successfully read from alternative path, length:",
         content.length
       );
-      return content;
+
+      // If file is too large, use a much more conservative limit
+      if (content.length > 20000) {
+        console.log("File is very large, using conservative token limit");
+        maxTokens = 2000; // Much more conservative for large files
+      }
+
+      // Truncate if too long
+      const truncatedContent = truncateToTokenLimit(content, maxTokens);
+      const estimatedTokens = estimateTokens(truncatedContent);
+      console.log("Estimated tokens in system prompt:", estimatedTokens);
+
+      return truncatedContent;
     } catch (altError) {
       console.error("Alternative path also failed:", altError);
       // Fallback to a basic prompt if file can't be read
@@ -159,8 +214,88 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const systemPrompt = getSystemPrompt();
+    // Get system prompt with token management (reserve 3000 tokens for user message and response)
+    const systemPrompt = getSystemPrompt(4000); // Reduced from 6000 to 4000
     const userMessage = message || "User sent a file for analysis";
+
+    // Check total token count
+    const systemTokens = estimateTokens(systemPrompt);
+    const userTokens = estimateTokens(userMessage);
+    const totalTokens = systemTokens + userTokens + 1000; // +1000 for response
+
+    console.log(
+      `Token breakdown: System=${systemTokens}, User=${userTokens}, Total=${totalTokens}`
+    );
+
+    // Use a more conservative limit (7000 instead of 8000)
+    if (totalTokens > 7000) {
+      // If still too long, truncate system prompt further
+      const maxSystemTokens = 7000 - userTokens - 1000;
+      const truncatedSystemPrompt = truncateToTokenLimit(
+        systemPrompt,
+        maxSystemTokens
+      );
+      console.log(
+        `Truncated system prompt to ${estimateTokens(truncatedSystemPrompt)} tokens`
+      );
+
+      // Final safety check - if still too long, use minimal prompt
+      const finalSystemTokens = estimateTokens(truncatedSystemPrompt);
+      const finalTotalTokens = finalSystemTokens + userTokens + 1000;
+
+      if (finalTotalTokens > 7000) {
+        console.log("Still too long, using minimal system prompt");
+        const minimalPrompt = `You are Lawrence Hua's AI assistant. Answer questions about Lawrence professionally and accurately.`;
+
+        const messages = [
+          {
+            role: "system" as const,
+            content: minimalPrompt,
+          },
+          {
+            role: "user" as const,
+            content: userMessage,
+          },
+        ];
+
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4",
+          messages,
+          max_tokens: 1000,
+          temperature: 0.7,
+        });
+
+        const response =
+          completion.choices[0]?.message?.content ||
+          "I'm sorry, I couldn't generate a response.";
+
+        return NextResponse.json({ response });
+      }
+
+      const messages = [
+        {
+          role: "system" as const,
+          content: truncatedSystemPrompt,
+        },
+        {
+          role: "user" as const,
+          content: userMessage,
+        },
+      ];
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4",
+        messages,
+        max_tokens: 1000,
+        temperature: 0.7,
+      });
+
+      const response =
+        completion.choices[0]?.message?.content ||
+        "I'm sorry, I couldn't generate a response.";
+
+      return NextResponse.json({ response });
+    }
 
     const messages = [
       {
@@ -187,6 +322,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ response });
   } catch (error) {
     console.error("Error in chatbot route:", error);
+
+    // Check if it's a token limit error
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "context_length_exceeded"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "The conversation is too long. Please start a new conversation or ask a shorter question.",
+          details: "Token limit exceeded",
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

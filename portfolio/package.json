@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "version": "node scripts/version.js"
+    "version": "node scripts/version.js",
+    "test": "node test-suite.js",
+    "test:headless": "node test-suite.js --headless"
   },
   "dependencies": {
     "firebase": "^11.9.1",
