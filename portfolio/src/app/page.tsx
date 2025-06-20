@@ -583,7 +583,7 @@ const timelineData = [
     },
   },
   {
-    year: "2021",
+    year: "2022",
     left: null,
     right: {
       title: "System Administrator",
@@ -799,7 +799,7 @@ const timelineEvents: Array<TimelineEvent> = [
   },
   {
     type: "experience",
-    year: "2025",
+    year: "2017",
     title: "AI Product Consultant & Computer Science Instructor",
     org: "Tutora · Part-time",
     date: "Mar 2021 - Present",
@@ -816,7 +816,7 @@ const timelineEvents: Array<TimelineEvent> = [
   },
   {
     type: "experience",
-    year: "2021",
+    year: "2022",
     title: "System Administrator",
     org: "University of Florida · Part-time",
     date: "May 2019 - Jun 2021 · 2 yrs 2 mos",
@@ -1599,12 +1599,68 @@ export default function Home() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      // Implement your form submission logic here
-      setSubmitStatus("success");
-      setSubmitMessage("Message sent successfully!");
+      if (contactMode === "meeting") {
+        // Handle meeting request
+        const meetingData = {
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          date: meetingDate,
+          time: meetingTime,
+          type: "meeting_request",
+        };
+
+        // Send meeting request data
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(meetingData),
+        });
+
+        if (response.ok) {
+          setSubmitStatus("success");
+          setSubmitMessage(
+            "Meeting request sent successfully! I'll get back to you soon."
+          );
+          // Reset form
+          setFormData({ name: "", email: "", subject: "", message: "" });
+          setMeetingDate(null);
+          setMeetingTime(null);
+        } else {
+          throw new Error("Failed to send meeting request");
+        }
+      } else {
+        // Handle regular message
+        const messageData = {
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          type: "message",
+        };
+
+        // Send message data
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(messageData),
+        });
+
+        if (response.ok) {
+          setSubmitStatus("success");
+          setSubmitMessage("Message sent successfully!");
+          // Reset form
+          setFormData({ name: "", email: "", subject: "", message: "" });
+        } else {
+          throw new Error("Failed to send message");
+        }
+      }
     } catch (error) {
       setSubmitStatus("error");
-      setSubmitMessage("Failed to send message. Please try again.");
+      setSubmitMessage("Failed to send. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -2064,8 +2120,8 @@ export default function Home() {
               <div className="mx-auto mb-4 flex justify-center">
                 <div className="inline-block rounded-lg border border-blue-700/50 bg-blue-900/40 p-3 text-center">
                   <p className="text-sm text-blue-200">
-                    💡 Hover over skills to see proficiency levels, experience
-                    details, and key achievements
+                    💡 Hover to view my skill level, project experience,
+                    endorsements, and leadership roles.
                   </p>
                 </div>
               </div>
@@ -2314,7 +2370,7 @@ export default function Home() {
                         key={item.title + "-" + item.year + "-" + idx}
                         className="flex-shrink-0"
                       >
-                        <div className="timeline-card-container relative flex min-w-[80vw] sm:w-[280px] flex-col items-center">
+                        <div className="timeline-card-container relative flex min-w-[85vw] sm:w-[320px] flex-col items-center">
                           <div
                             className="timeline-card mx-auto flex h-full w-full flex-col text-left"
                             onClick={() =>
@@ -2331,16 +2387,18 @@ export default function Home() {
                               />
                             </div>
                             <div
-                              className="text-center text-base font-bold text-white"
+                              className="text-center text-lg font-bold text-white"
                               style={{ margin: 0, padding: 0 }}
                             >
                               <span>{item.title}</span>
                             </div>
-                            <p className="text-sm text-gray-400">{item.org}</p>
-                            <p className="text-xs text-gray-400">{item.date}</p>
+                            <p className="text-base text-gray-400">
+                              {item.org}
+                            </p>
+                            <p className="text-sm text-gray-400">{item.date}</p>
                             {item.bullets && item.bullets.length > 0 ? (
                               <>
-                                <ul className="list-disc space-y-1 pl-4 text-xs text-gray-300 mt-2">
+                                <ul className="list-disc space-y-1 pl-4 text-sm text-gray-300 mt-2">
                                   <li>{item.bullets[0]}</li>
                                 </ul>
                                 {item.bullets.length > 1 && (
@@ -2354,7 +2412,7 @@ export default function Home() {
                                           : "max-h-0 opacity-0"
                                       }`}
                                     >
-                                      <ul className="list-disc space-y-1 pl-4 text-xs text-gray-300 pt-1">
+                                      <ul className="list-disc space-y-1 pl-4 text-sm text-gray-300 pt-1">
                                         {item.bullets
                                           .slice(1)
                                           .map((bullet, i) => (
@@ -2362,7 +2420,7 @@ export default function Home() {
                                           ))}
                                       </ul>
                                     </div>
-                                    <button className="mt-2 text-xs font-bold text-blue-400 hover:underline">
+                                    <button className="mt-2 text-sm font-bold text-blue-400 hover:underline">
                                       Click to see{" "}
                                       {expandedCards.has(
                                         item.title + "-" + item.year
@@ -2425,14 +2483,16 @@ export default function Home() {
                                 className="logo mx-auto rounded object-contain"
                               />
                             </div>
-                            <h4 className="text-center text-base font-bold text-white">
+                            <h4 className="text-center text-lg font-bold text-white">
                               {item.title}
                             </h4>
-                            <p className="text-sm text-gray-400">{item.org}</p>
-                            <p className="text-xs text-gray-400">{item.date}</p>
+                            <p className="text-base text-gray-400">
+                              {item.org}
+                            </p>
+                            <p className="text-sm text-gray-400">{item.date}</p>
                             {item.details && item.details.length > 0 ? (
                               <>
-                                <ul className="space-y-2 text-sm text-gray-300 pl-4 list-disc mt-2">
+                                <ul className="space-y-2 text-base text-gray-300 pl-4 list-disc mt-2">
                                   <li>{item.details[0]}</li>
                                 </ul>
                                 {item.details.length > 1 && (
@@ -2446,7 +2506,7 @@ export default function Home() {
                                           : "max-h-0 opacity-0"
                                       }`}
                                     >
-                                      <ul className="space-y-2 text-sm text-gray-300 pl-4 list-disc pt-1">
+                                      <ul className="space-y-2 text-base text-gray-300 pl-4 list-disc pt-1">
                                         {item.details
                                           .slice(1)
                                           .map((detail, i) => (
@@ -2454,7 +2514,7 @@ export default function Home() {
                                           ))}
                                       </ul>
                                     </div>
-                                    <button className="mt-2 text-xs font-bold text-blue-400 hover:underline">
+                                    <button className="mt-2 text-sm font-bold text-blue-400 hover:underline">
                                       Click to see{" "}
                                       {expandedCards.has(
                                         item.title + "-" + item.year
@@ -2577,13 +2637,15 @@ export default function Home() {
               </div>
 
               {/* Show More Button */}
-              {projectSection === "all" && moreProjectsCount > 0 && (
+              {projectSection === "all" && projectSections.all.length > 8 && (
                 <div className="mt-8 text-center">
                   <button
-                    onClick={() => setShowAllProjects(true)}
+                    onClick={() => setShowAllProjects((prev) => !prev)}
                     className="rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700"
                   >
-                    Show {moreProjectsCount} More Projects
+                    {showAllProjects
+                      ? "Show Less"
+                      : `Show ${moreProjectsCount} More Projects`}
                   </button>
                 </div>
               )}
@@ -2631,12 +2693,23 @@ export default function Home() {
                 {contactMode === "message" ? (
                   <form
                     onSubmit={handleSubmit}
-                    className="space-y-4 rounded-lg border border-blue-900/30 bg-gray-900/70 p-8"
+                    className="space-y-6 rounded-2xl border border-blue-900/30 bg-gradient-to-br from-gray-900/90 to-gray-800/90 p-8 shadow-2xl backdrop-blur-sm"
                   >
-                    {/* Form fields... */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <div>
-                        <label htmlFor="name" className="sr-only">
+                    <div className="text-center mb-6">
+                      <h3 className="text-2xl font-bold text-white mb-2">
+                        Send a Message
+                      </h3>
+                      <p className="text-gray-400">
+                        I'll get back to you as soon as possible!
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="name"
+                          className="block text-sm font-medium text-gray-300"
+                        >
                           Name
                         </label>
                         <input
@@ -2646,72 +2719,107 @@ export default function Home() {
                           placeholder="Your Name"
                           value={formData.name}
                           onChange={handleInputChange}
-                          className="w-full rounded-md border-gray-700 bg-gray-800 text-white focus:border-blue-500 focus:ring-blue-500"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
                           required
                         />
                       </div>
-                      <div>
-                        <label htmlFor="email" className="sr-only">
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="email"
+                          className="block text-sm font-medium text-gray-300"
+                        >
                           Email
                         </label>
                         <input
                           type="email"
                           name="email"
                           id="email"
-                          placeholder="Your Email"
+                          placeholder="your.email@example.com"
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="w-full rounded-md border-gray-700 bg-gray-800 text-white focus:border-blue-500 focus:ring-blue-500"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
                           required
                         />
                       </div>
                     </div>
-                    <div>
-                      <label htmlFor="subject" className="sr-only">
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="subject"
+                        className="block text-sm font-medium text-gray-300"
+                      >
                         Subject
                       </label>
                       <input
                         type="text"
                         name="subject"
                         id="subject"
-                        placeholder="Subject"
+                        placeholder="What's this about?"
                         value={formData.subject}
                         onChange={handleInputChange}
-                        className="w-full rounded-md border-gray-700 bg-gray-800 text-white focus:border-blue-500 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
                         required
                       />
                     </div>
-                    <div>
-                      <label htmlFor="message" className="sr-only">
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="message"
+                        className="block text-sm font-medium text-gray-300"
+                      >
                         Message
                       </label>
                       <textarea
                         name="message"
                         id="message"
-                        rows={4}
-                        placeholder="Your Message"
+                        rows={5}
+                        placeholder="Tell me more about your project or question..."
                         value={formData.message}
                         onChange={handleInputChange}
-                        className="w-full rounded-md border-gray-700 bg-gray-800 text-white focus:border-blue-500 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 resize-none"
                         required
                       ></textarea>
                     </div>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                      className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white font-semibold transition-all duration-200 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] shadow-lg"
                     >
-                      {isSubmitting ? "Sending..." : "Send Message"}
+                      {isSubmitting ? (
+                        <span className="flex items-center justify-center">
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Sending...
+                        </span>
+                      ) : (
+                        "Send Message"
+                      )}
                     </button>
 
                     {submitStatus === "success" && (
-                      <div className="relative rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700">
+                      <div className="rounded-lg border border-green-400 bg-green-100 px-4 py-3 text-green-700">
                         <span className="block sm:inline">{submitMessage}</span>
                       </div>
                     )}
 
                     {submitStatus === "error" && (
-                      <div className="relative rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+                      <div className="rounded-lg border border-red-400 bg-red-100 px-4 py-3 text-red-700">
                         <span className="block sm:inline">{submitMessage}</span>
                       </div>
                     )}
@@ -2719,83 +2827,135 @@ export default function Home() {
                 ) : (
                   <form
                     onSubmit={handleSubmit}
-                    className="space-y-4 rounded-lg border border-blue-900/30 bg-gray-900/70 p-8"
+                    className="space-y-6 rounded-2xl border border-blue-900/30 bg-gradient-to-br from-gray-900/90 to-gray-800/90 p-8 shadow-2xl backdrop-blur-sm"
                   >
-                    <h3 className="text-lg font-semibold text-white">
-                      Let's find a time to chat!
-                    </h3>
-                    <p className="text-gray-300">
-                      I'm generally available on weekdays. Please pick a date
-                      that works for you and leave a message.
-                    </p>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <div>
-                        <label htmlFor="name" className="sr-only">
+                    <div className="text-center mb-6">
+                      <h3 className="text-2xl font-bold text-white mb-2">
+                        Schedule a Meeting
+                      </h3>
+                      <p className="text-gray-400">
+                        Let's find a time to chat about your project!
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="meeting-name"
+                          className="block text-sm font-medium text-gray-300"
+                        >
                           Name
                         </label>
                         <input
                           type="text"
                           name="name"
-                          id="name"
+                          id="meeting-name"
                           placeholder="Your Name"
                           value={formData.name}
                           onChange={handleInputChange}
-                          className="w-full rounded-md border-gray-700 bg-gray-800 text-white focus:border-blue-500 focus:ring-blue-500"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
                           required
                         />
                       </div>
-                      <div>
-                        <label htmlFor="email" className="sr-only">
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="meeting-email"
+                          className="block text-sm font-medium text-gray-300"
+                        >
                           Email
                         </label>
                         <input
                           type="email"
                           name="email"
-                          id="email"
-                          placeholder="Your Email"
+                          id="meeting-email"
+                          placeholder="your.email@example.com"
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="w-full rounded-md border-gray-700 bg-gray-800 text-white focus:border-blue-500 focus:ring-blue-500"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
                           required
                         />
                       </div>
                     </div>
-                    <div>
-                      <label htmlFor="message" className="sr-only">
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="meeting-message"
+                        className="block text-sm font-medium text-gray-300"
+                      >
                         Message
                       </label>
                       <textarea
                         name="message"
-                        id="message"
+                        id="meeting-message"
                         rows={3}
-                        placeholder="Your Message"
+                        placeholder="Tell me about what you'd like to discuss..."
                         value={formData.message}
                         onChange={handleInputChange}
-                        className="w-full rounded-md border-gray-700 bg-gray-800 text-white focus:border-blue-500 focus:ring-blue-500"
+                        className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200 resize-none"
                         required
                       ></textarea>
                     </div>
-                    <div className="flex flex-col items-center space-y-4">
-                      <DatePicker
-                        selected={meetingDate}
-                        onChange={(date) => setMeetingDate(date)}
-                        inline
-                      />
+                    <div className="space-y-4">
+                      <label className="block text-sm font-medium text-gray-300">
+                        Preferred Date & Time
+                      </label>
+                      <div className="flex flex-col items-center space-y-4">
+                        <DatePicker
+                          selected={meetingDate}
+                          onChange={(date) => setMeetingDate(date)}
+                          inline
+                          className="rounded-lg border border-gray-700 bg-gray-800/50"
+                        />
+                        <div className="w-full max-w-xs">
+                          <input
+                            type="time"
+                            value={meetingTime || ""}
+                            onChange={(e) => setMeetingTime(e.target.value)}
+                            className="w-full rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all duration-200"
+                            placeholder="Select time"
+                          />
+                        </div>
+                      </div>
                     </div>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                      className="w-full rounded-lg bg-gradient-to-r from-green-600 to-blue-600 px-6 py-4 text-white font-semibold transition-all duration-200 hover:from-green-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] shadow-lg"
                     >
-                      {isSubmitting ? "Sending Request..." : "Request Meeting"}
+                      {isSubmitting ? (
+                        <span className="flex items-center justify-center">
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Sending Request...
+                        </span>
+                      ) : (
+                        "Request Meeting"
+                      )}
                     </button>
                     {submitStatus === "success" && (
-                      <div className="relative rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700">
+                      <div className="rounded-lg border border-green-400 bg-green-100 px-4 py-3 text-green-700">
                         <span className="block sm:inline">{submitMessage}</span>
                       </div>
                     )}
                     {submitStatus === "error" && (
-                      <div className="relative rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+                      <div className="rounded-lg border border-red-400 bg-red-100 px-4 py-3 text-red-700">
                         <span className="block sm:inline">{submitMessage}</span>
                       </div>
                     )}
