@@ -8,27 +8,23 @@ import {
   FiPaperclip,
   FiFile,
   FiImage,
-  FiDownload,
   FiTrash2,
-  FiMaximize2,
-  FiMinimize2,
-  FiUser,
-  FiCpu,
   FiHeart,
+  FiCpu,
+  FiUser,
 } from "react-icons/fi";
-import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  Firestore,
-} from "firebase/firestore";
 import styles from "./Chatbot.module.css";
+
+interface FilePreview {
+  url: string;
+  type: string;
+  name: string;
+}
 
 interface Message {
   role: "user" | "assistant";
   content: string;
-  files?: File[];
+  files?: FilePreview[];
   timestamp: Date;
 }
 
@@ -37,33 +33,12 @@ interface ChatbotProps {
   onClose: () => void;
 }
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyA_HYWpbGRuNvcWyxfiUEZr7_mTw7PU0t8",
-  authDomain: "peronalsite-88d49.firebaseapp.com",
-  projectId: "peronalsite-88d49",
-  storageBucket: "peronalsite-88d49.firebasestorage.app",
-  messagingSenderId: "515222232116",
-  appId: "1:515222232116:web:b7a9b8735980ce8333fe61",
-  measurementId: "G-ZV5CR4EBB8",
-};
-
-let app: FirebaseApp | undefined, db: Firestore | undefined;
-if (typeof window !== "undefined") {
-  if (!getApps().length) {
-    app = initializeApp(firebaseConfig);
-  } else {
-    app = getApps()[0];
-  }
-  db = getFirestore(app);
-}
-
 function getSessionId() {
   if (typeof window === "undefined") return "";
-  let id = localStorage.getItem("firebase_session_id");
+  let id = localStorage.getItem("session_id");
   if (!id) {
     id = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    localStorage.setItem("firebase_session_id", id);
+    localStorage.setItem("session_id", id);
   }
   return id;
 }
@@ -117,7 +92,7 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
 • Projects 🚀
 • and more!
 
-**Recruiters**: You can also share files with me for analysis, or I can help you contact Lawrence directly! 📄
+**Recruiters**: Drop in a job description to see if Lawrence is a good fit, or I can help you contact him directly! 📄
 
 What would you like to know?`,
       timestamp: new Date(),
@@ -134,6 +109,7 @@ What would you like to know?`,
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [fileError, setFileError] = useState("");
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -160,41 +136,30 @@ What would you like to know?`,
     const userMessage: Message = {
       role: "user",
       content: input,
-      files: selectedFiles.length > 0 ? [...selectedFiles] : undefined,
+      files: selectedFiles.map((file) => ({
+        url: URL.createObjectURL(file),
+        type: file.type,
+        name: file.name,
+      })),
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
+
+    const formData = new FormData();
+    formData.append("message", input);
+    selectedFiles.forEach((file) => {
+      formData.append("files", file);
+    });
+
     setInput("");
     setSelectedFiles([]);
     setIsLoading(true);
 
     try {
-      if (db) {
-        await logMessageToFirebase(input, "user");
-      }
-
-      // Handle file uploads if any
-      let fileData = null;
-      if (selectedFiles.length > 0) {
-        fileData = await handleFileUpload(selectedFiles);
-      }
-
-      // Send context if awaiting girlfriend password
-      const body: any = {
-        message: input,
-        files: fileData,
-      };
-      if (awaitingGirlfriendPassword) {
-        body.context = "girlfriend-password";
-      }
-
       const response = await fetch("/api/chatbot", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -227,10 +192,6 @@ What would you like to know?`,
           timestamp: new Date(),
         },
       ]);
-
-      if (db && data && data.response) {
-        await logMessageToFirebase(data.response, "assistant");
-      }
     } catch (error) {
       console.error("Chatbot error:", error);
       setMessages((prev) => [
@@ -247,42 +208,19 @@ What would you like to know?`,
     }
   };
 
-  const handleFileUpload = async (files: File[]) => {
-    // For now, we'll just return file metadata
-    // In a real implementation, you'd upload to a service like AWS S3 or Firebase Storage
-    return files.map((file) => ({
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      // In production, you'd upload the actual file and return the URL
-    }));
-  };
-
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFileError("");
     const files = Array.from(e.target.files || []);
-    setSelectedFiles((prev) => [...prev, ...files]);
+    const tooLarge = files.some((file) => file.size > 5 * 1024 * 1024);
+    if (tooLarge) {
+      setFileError("File size must be 5MB or less.");
+      return;
+    }
+    setSelectedFiles(files);
   };
 
   const removeFile = (index: number) => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const logMessageToFirebase = async (
-    message: string,
-    role: "user" | "assistant"
-  ) => {
-    try {
-      if (typeof window !== "undefined" && db) {
-        await addDoc(collection(db, "chatbot_messages"), {
-          sessionId: getSessionId(),
-          message,
-          role,
-          timestamp: new Date(),
-        });
-      }
-    } catch (error: any) {
-      console.error(`Error logging ${role} message to Firebase:`, error);
-    }
   };
 
   return (
@@ -361,13 +299,6 @@ What would you like to know?`,
               )}
               <button
                 className={styles.actionButton + " actionButton"}
-                title={isMinimized ? "Expand" : "Minimize"}
-                onClick={() => setIsMinimized((v) => !v)}
-              >
-                {isMinimized ? <FiMaximize2 /> : <FiMinimize2 />}
-              </button>
-              <button
-                className={styles.actionButton + " actionButton"}
                 title="Close"
                 onClick={onClose}
               >
@@ -413,10 +344,38 @@ What would you like to know?`,
                       " messageBubble " +
                       (msg.role === "assistant" ? "assistant" : "user")
                     }
-                    dangerouslySetInnerHTML={{
-                      __html: formatMessage(msg.content, isLoveMode),
-                    }}
-                  />
+                  >
+                    {msg.files && msg.files.length > 0 && (
+                      <div className="mb-2">
+                        {msg.files.map((file, idx) => (
+                          <div
+                            key={idx}
+                            className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 max-w-xs shadow"
+                          >
+                            {file.type.startsWith("image/") ? (
+                              <img
+                                src={file.url}
+                                alt={file.name}
+                                className="w-full max-h-48 object-contain"
+                              />
+                            ) : (
+                              <div className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400">
+                                <FiFile className="w-8 h-8 mb-2" />
+                                <span className="text-xs truncate">
+                                  {file.name}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: formatMessage(msg.content, isLoveMode),
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
               {isLoading && (
@@ -450,13 +409,12 @@ What would you like to know?`,
               onSubmit={handleSubmit}
               autoComplete="off"
             >
-              {/* File attachments display */}
               {selectedFiles.length > 0 && (
-                <div className="flex flex-wrap gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-t border-b">
+                <div className="flex flex-wrap gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-t-lg border-b border-gray-200 dark:border-gray-700">
                   {selectedFiles.map((file, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-2 bg-white dark:bg-gray-700 px-2 py-1 rounded text-xs"
+                      className="flex items-center gap-2 bg-white dark:bg-gray-700 px-2 py-1 rounded-lg text-xs shadow-sm"
                     >
                       {getFileIcon(file)}
                       <span className="truncate max-w-[120px]">
@@ -474,57 +432,58 @@ What would you like to know?`,
                 </div>
               )}
 
-              <div className="flex gap-2 p-2">
-                <textarea
-                  className={
-                    styles.inputField +
-                    " inputField rounded-md border-gray-300 shadow-sm flex-1 min-h-[40px] max-h-[120px] resize-y"
-                  }
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type your message..."
-                  ref={inputRef}
-                  style={{ minWidth: 0 }}
-                  disabled={isLoading}
-                  rows={1}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      if (input.trim() || selectedFiles.length > 0)
-                        handleSubmit(e);
+              {fileError && (
+                <div className="text-red-500 text-xs px-2 py-1 bg-red-50 dark:bg-red-900/10">
+                  {fileError}
+                </div>
+              )}
+
+              <div className="w-full px-2 pb-2 pt-1 bg-transparent">
+                <div className="flex items-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
+                  <textarea
+                    className="flex-1 px-4 py-2 bg-transparent border-0 focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:placeholder-gray-300 text-base resize-none min-h-[40px] max-h-[120px]"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type your message..."
+                    ref={inputRef}
+                    style={{ minWidth: 0 }}
+                    disabled={isLoading}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (input.trim() || selectedFiles.length > 0)
+                          handleSubmit(e);
+                      }
+                    }}
+                  />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    onChange={handleFileSelect}
+                    style={{ display: "none" }}
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="mx-1 p-2 rounded-full text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-colors focus:outline-none"
+                    title="Attach files"
+                    disabled={isLoading}
+                  >
+                    <FiPaperclip className="w-5 h-5" />
+                  </button>
+                  <button
+                    className="mr-2 ml-1 p-2 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white shadow transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    type="submit"
+                    disabled={
+                      isLoading || (!input.trim() && selectedFiles.length === 0)
                     }
-                  }}
-                />
-
-                {/* File attachment button */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  onChange={handleFileSelect}
-                  style={{ display: "none" }}
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="p-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                  title="Attach files"
-                  disabled={isLoading}
-                >
-                  <FiPaperclip className="h-4 w-4" />
-                </button>
-
-                <button
-                  className={styles.sendButton + " sendButton"}
-                  type="submit"
-                  disabled={
-                    isLoading || (!input.trim() && selectedFiles.length === 0)
-                  }
-                  title="Send"
-                >
-                  <FiSend />
-                </button>
+                    title="Send"
+                  >
+                    <FiSend className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </form>
           )}

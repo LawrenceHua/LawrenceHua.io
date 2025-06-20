@@ -426,7 +426,7 @@ const timelineData = [
     right: {
       title: "Product Manager",
       org: "PM Happy Hour · Internship",
-      date: stripDuration("Mar 2025 - Present · 4 mos"),
+      date: stripDuration("Mar 2025 - Present"),
       logo: "/logos/pm_happy_hour_logo.jpeg",
       category: "product",
       bullets: [
@@ -455,7 +455,7 @@ const timelineData = [
     right: {
       title: "Founder",
       org: "Expired Solutions · Full-time",
-      date: stripDuration("Aug 2024 - Present · 11 mos"),
+      date: stripDuration("Aug 2024 - Present"),
       logo: "/logos/expired_solutions_logo.jpeg",
       category: "product",
       bullets: [
@@ -474,7 +474,7 @@ const timelineData = [
     right: {
       title: "Product Manager",
       org: "PanPalz · Internship",
-      date: stripDuration("Aug 2024 - Jan 2025 · 6 mos"),
+      date: stripDuration("Aug 2024 - Jan 2025"),
       logo: "/logos/Panpalz logo.jpeg",
       category: "product",
       bullets: [
@@ -492,7 +492,7 @@ const timelineData = [
     right: {
       title: "Student Consultant, Technical Lead",
       org: "Kearney",
-      date: stripDuration("Sep 2024 - Dec 2024 · 4 mos"),
+      date: stripDuration("Sep 2024 - Dec 2024"),
       logo: "/logos/kearney_logo.jpeg",
       category: "engineering",
       bullets: [
@@ -510,7 +510,7 @@ const timelineData = [
     right: {
       title: "Produce Assistant Team Leader",
       org: "Giant Eagle, Inc. · Full-time",
-      date: stripDuration("Feb 2025 - May 2025 · 4 mos"),
+      date: stripDuration("Feb 2025 - May 2025"),
       logo: "/logos/giant_eagle_logo.jpeg",
       category: "retail",
       bullets: [
@@ -529,7 +529,7 @@ const timelineData = [
     right: {
       title: "Cryptocurrency Researcher",
       org: "Carnegie Mellon University · Internship",
-      date: stripDuration("Jul 2024 - Aug 2024 · 2 mos"),
+      date: stripDuration("Jul 2024 - Aug 2024"),
       logo: "/logos/carnegie_mellon_university_logo.jpeg",
       category: "engineering",
       bullets: [
@@ -548,7 +548,7 @@ const timelineData = [
     right: {
       title: "Embedded Android Engineer",
       org: "Motorola Solutions · Full-time",
-      date: stripDuration("Aug 2021 - Aug 2023 · 2 yrs 1 mo"),
+      date: stripDuration("Aug 2021 - Aug 2023"),
       logo: "/logos/Motorola logo.jpeg",
       category: "engineering",
       bullets: [
@@ -577,7 +577,7 @@ const timelineData = [
     right: {
       title: "AI Product Consultant & Computer Science Instructor",
       org: "Tutora · Part-time",
-      date: stripDuration("Mar 2021 - Present · 4 yrs 4 mos"),
+      date: "Mar 2021 - Present",
       logo: "/logos/Tutora Logo.jpeg",
       category: "engineering",
       bullets: [
@@ -596,7 +596,7 @@ const timelineData = [
     right: {
       title: "System Administrator",
       org: "University of Florida · Part-time",
-      date: stripDuration("May 2019 - Jun 2021 · 2 yrs 2 mos"),
+      date: stripDuration("May 2019 - Jun 2021"),
       logo: "/logos/UF logo.jpeg",
       category: "engineering",
       bullets: [
@@ -615,7 +615,7 @@ const timelineData = [
     right: {
       title: "Android Software Developer",
       org: "Motorola Solutions · Internship",
-      date: stripDuration("Jun 2020 - Aug 2020 · 3 mos"),
+      date: stripDuration("Jun 2020 - Aug 2020"),
       logo: "/logos/Motorola logo.jpeg",
       category: "engineering",
       bullets: [
@@ -707,7 +707,7 @@ const timelineEvents: Array<TimelineEvent> = [
     year: "2025",
     title: "Product Manager",
     org: "PM Happy Hour · Internship",
-    date: stripDuration("Mar 2025 - Present · 4 mos"),
+    date: stripDuration("Mar 2025 - Present"),
     logo: "/logos/pm_happy_hour_logo.jpeg",
     category: "product",
     bullets: [
@@ -757,7 +757,7 @@ const timelineEvents: Array<TimelineEvent> = [
     year: "2024",
     title: "Student Consultant, Technical Lead",
     org: "Kearney",
-    date: "Sep 2024 - Dec 2024 · 4 mos",
+    date: "Sep 2024 - Dec 2024",
     logo: "/logos/kearney_logo.jpeg",
     category: "engineering",
     bullets: [
@@ -773,7 +773,7 @@ const timelineEvents: Array<TimelineEvent> = [
     year: "2025",
     title: "Produce Assistant Team Leader",
     org: "Giant Eagle, Inc. · Full-time",
-    date: "Feb 2025 - May 2025 · 4 mos",
+    date: "Feb 2025 - May 2025",
     logo: "/logos/giant_eagle_logo.jpeg",
     category: "retail",
     bullets: [
@@ -790,7 +790,7 @@ const timelineEvents: Array<TimelineEvent> = [
     year: "2024",
     title: "Cryptocurrency Researcher",
     org: "Carnegie Mellon University · Internship",
-    date: "Jul 2024 - Aug 2024 · 2 mos",
+    date: "Jul 2024 - Aug 2024",
     logo: "/logos/carnegie_mellon_university_logo.jpeg",
     category: "engineering",
     bullets: [
@@ -807,7 +807,7 @@ const timelineEvents: Array<TimelineEvent> = [
     year: "2023",
     title: "Embedded Android Engineer",
     org: "Motorola Solutions · Full-time",
-    date: "Aug 2021 - Aug 2023 · 2 yrs 1 mo",
+    date: "Aug 2021 - Aug 2023",
     logo: "/logos/Motorola logo.jpeg",
     category: "engineering",
     bullets: [
@@ -841,7 +841,7 @@ const timelineEvents: Array<TimelineEvent> = [
     year: "2022",
     title: "System Administrator",
     org: "University of Florida · Part-time",
-    date: "May 2019 - Jun 2021 · 2 yrs 2 mos",
+    date: "May 2019 - Jun 2021",
     logo: "/logos/UF logo.jpeg",
     category: "engineering",
     bullets: [
@@ -858,7 +858,7 @@ const timelineEvents: Array<TimelineEvent> = [
     year: "2020",
     title: "Android Software Developer",
     org: "Motorola Solutions · Internship",
-    date: "Jun 2020 - Aug 2020 · 3 mos",
+    date: "Jun 2020 - Aug 2020",
     logo: "/logos/Motorola logo.jpeg",
     category: "engineering",
     bullets: [

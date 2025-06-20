@@ -440,7 +440,7 @@ const timelineData = [
       logo: "/logos/carnegie_mellon_university_logo.jpeg",
       details: [
         "Tepper School of Business & Heinz College",
-        "Relevant Coursework: New Product Management, Lean Entrepreneurship, Agile Methods, A/B Testing & Design Analytics, Machine Learning in Production",
+        "Relevant Coursework: New Product Management, Lean Entrepreneurship, Agile Methods, A/B Testing & Design Analytics, ML in Production.",
         "Awards: Finalist – McGinnis Venture Competition (2025), Gerhalt Sandbox Fund Scholar (2025)",
       ],
     },
@@ -697,7 +697,7 @@ const timelineEvents: Array<TimelineEvent> = [
     logo: "/logos/carnegie_mellon_university_logo.jpeg",
     details: [
       "Tepper School of Business & Heinz College",
-      "Relevant Coursework: New Product Management, Lean Entrepreneurship, Agile Methods, A/B Testing & Design Analytics, Machine Learning in Production",
+      "Relevant Coursework: New Product Management, Lean Entrepreneurship, Agile Methods, A/B Testing & Design Analytics, ML in Production.",
       "Awards: Finalist – McGinnis Venture Competition (2025), Gerhalt Sandbox Fund Scholar (2025)",
     ],
   },
