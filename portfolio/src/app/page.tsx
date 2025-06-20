@@ -3010,12 +3010,12 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col items-center space-y-6">
             {/* Social Media Links */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center justify-center space-x-4 sm:space-x-6 flex-wrap">
               <a
                 href="https://www.facebook.com/lawrence.hua.75/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                className="text-gray-400 hover:text-blue-400 transition-colors duration-200 p-2"
                 title="Facebook"
               >
                 <svg
@@ -3031,7 +3031,7 @@ export default function Home() {
                 href="https://github.com/LawrenceHua"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                className="text-gray-400 hover:text-blue-400 transition-colors duration-200 p-2"
                 title="GitHub"
               >
                 <svg
@@ -3045,7 +3045,7 @@ export default function Home() {
 
               <button
                 onClick={() => setShowVenmoQR(!showVenmoQR)}
-                className="text-gray-400 hover:text-blue-400 transition-colors duration-200"
+                className="text-gray-400 hover:text-blue-400 transition-colors duration-200 p-2"
                 title="Venmo"
               >
                 <svg
@@ -3061,11 +3061,11 @@ export default function Home() {
             {/* Venmo QR Code Modal */}
             {showVenmoQR && (
               <div
-                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
                 onClick={() => setShowVenmoQR(false)}
               >
                 <div
-                  className="bg-white rounded-lg p-6 max-w-sm mx-4"
+                  className="bg-white rounded-lg p-6 max-w-sm w-full mx-4"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex justify-between items-center mb-4">
@@ -3074,7 +3074,7 @@ export default function Home() {
                     </h3>
                     <button
                       onClick={() => setShowVenmoQR(false)}
-                      className="text-gray-500 hover:text-gray-700"
+                      className="text-gray-500 hover:text-gray-700 p-1"
                     >
                       <svg
                         className="w-6 h-6"
@@ -3108,7 +3108,7 @@ export default function Home() {
             )}
 
             {/* Copyright */}
-            <div className="text-center text-gray-400 text-sm">
+            <div className="text-center text-gray-400 text-sm px-4">
               <p>&copy; 2025 Lawrence W. Hua. All rights reserved.</p>
               <p className="mt-1">
                 Built with ❤️ using Next.js, TypeScript, and TailwindCSS
