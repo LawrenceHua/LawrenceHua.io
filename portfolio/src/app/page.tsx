@@ -1374,8 +1374,6 @@ export default function Home() {
   );
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
-  console.log("Current activeTooltip:", activeTooltip); // DEBUG: Log active tooltip state
-
   // Set client flag on mount to prevent hydration mismatch
   useEffect(() => {
     setIsClient(true);
@@ -1866,6 +1864,8 @@ export default function Home() {
               <div className="mb-2 flex flex-wrap justify-center gap-4">
                 <Link
                   href="/resume.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700"
                 >
                   <FiFileText className="mr-2 h-5 w-5" />
