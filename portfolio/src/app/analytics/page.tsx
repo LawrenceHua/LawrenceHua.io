@@ -32,6 +32,7 @@ import {
   FiPieChart,
 } from "react-icons/fi";
 import Link from "next/link";
+import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
 
 // Firebase config (same as in Chatbot.tsx)
 const firebaseConfig = {
@@ -115,6 +116,7 @@ export default function AnalyticsPage() {
   const [roleFilter, setRoleFilter] = useState<"all" | "user" | "assistant">(
     "all"
   );
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d" | "all">(
     "7d"
   );
@@ -140,7 +142,7 @@ export default function AnalyticsPage() {
       // Start real-time data collection
       startDataCollection();
     }
-  }, [db, timeRange]);
+  }, [db, timeRange, sortOrder]);
 
   const startDataCollection = () => {
     // Track page view
@@ -251,19 +253,19 @@ export default function AnalyticsPage() {
   };
 
   const getSessionId = () => {
-    let sessionId = sessionStorage.getItem("analytics_session_id");
+    let sessionId = sessionStorage.getItem("sessionId");
     if (!sessionId) {
-      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      sessionStorage.setItem("analytics_session_id", sessionId);
+      sessionId =
+        new Date().getTime() + "_" + Math.random().toString(36).substring(2, 9);
+      sessionStorage.setItem("sessionId", sessionId);
     }
     return sessionId;
   };
 
   const fetchAllData = async () => {
-    if (!db) return;
-
     try {
       setLoading(true);
+      if (!db) return;
 
       // Calculate time filter
       const now = new Date();
@@ -284,51 +286,25 @@ export default function AnalyticsPage() {
       }
 
       // Fetch chat data
-      const messagesRef = collection(db, "chatbot_messages");
-      const messagesQuery = query(
-        messagesRef,
-        orderBy("timestamp", "desc"),
-        where("timestamp", ">=", startDate)
+      const sessionsRef = collection(db, "chats");
+      const sessionsQuery = query(
+        sessionsRef,
+        orderBy("startTime", sortOrder),
+        where("startTime", ">=", startDate)
       );
-      const messagesSnapshot = await getDocs(messagesQuery);
+      const sessionsSnapshot = await getDocs(sessionsQuery);
 
-      const messages: ChatMessage[] = [];
-      messagesSnapshot.forEach((doc) => {
+      const sessionsArray: ChatSession[] = [];
+      sessionsSnapshot.forEach((doc) => {
         const data = doc.data();
-        messages.push({
-          id: doc.id,
-          sessionId: data.sessionId,
-          message: data.message,
-          role: data.role,
-          timestamp: data.timestamp,
+        sessionsArray.push({
+          sessionId: doc.id,
+          messages: data.messages || [],
+          startTime: data.startTime.toDate(),
+          endTime: data.endTime.toDate(),
+          messageCount: data.messages?.length || 0,
         });
       });
-
-      // Group messages by session
-      const sessionMap = new Map<string, ChatMessage[]>();
-      messages.forEach((msg) => {
-        if (!sessionMap.has(msg.sessionId)) {
-          sessionMap.set(msg.sessionId, []);
-        }
-        sessionMap.get(msg.sessionId)!.push(msg);
-      });
-
-      const sessionsArray: ChatSession[] = Array.from(sessionMap.entries()).map(
-        ([sessionId, msgs]) => {
-          const sortedMsgs = msgs.sort(
-            (a, b) =>
-              a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()
-          );
-
-          return {
-            sessionId,
-            messages: sortedMsgs,
-            startTime: sortedMsgs[0].timestamp.toDate(),
-            endTime: sortedMsgs[sortedMsgs.length - 1].timestamp.toDate(),
-            messageCount: msgs.length,
-          };
-        }
-      );
 
       // Fetch page views
       const pageViewsRef = collection(db, "page_views");
@@ -625,23 +601,25 @@ export default function AnalyticsPage() {
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value as any)}
-              className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="24h">Last 24 Hours</option>
-              <option value="7d">Last 7 Days</option>
-              <option value="30d">Last 30 Days</option>
-              <option value="all">All Time</option>
-            </select>
-            <button
-              onClick={exportData}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
-            >
-              <FiDownload className="h-4 w-4" />
-              Export Data
-            </button>
+            <div className="flex items-center gap-2">
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value as any)}
+                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+              >
+                <option value="24h">Last 24 Hours</option>
+                <option value="7d">Last 7 Days</option>
+                <option value="30d">Last 30 Days</option>
+                <option value="all">All Time</option>
+              </select>
+              <button
+                onClick={exportData}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
+              >
+                <FiDownload className="h-4 w-4" />
+                Export Data
+              </button>
+            </div>
           </div>
         </div>
 
@@ -968,29 +946,71 @@ export default function AnalyticsPage() {
             </div>
           )}
 
-          {/* Chat Filters */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1 relative">
-              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          {/* Filters and Controls */}
+          <div className="flex flex-wrap items-center gap-4 mb-6">
+            <div className="relative">
               <input
                 type="text"
-                placeholder="Search messages..."
+                placeholder="Search sessions..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
-            <div className="flex items-center gap-2">
-              <FiFilter className="h-4 w-4 text-gray-400" />
+
+            <div>
               <select
                 value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value as any)}
-                className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+                onChange={(e) =>
+                  setRoleFilter(e.target.value as "all" | "user" | "assistant")
+                }
+                className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="all">All Messages</option>
-                <option value="user">User Messages</option>
-                <option value="assistant">Assistant Messages</option>
+                <option value="all">All Roles</option>
+                <option value="user">User</option>
+                <option value="assistant">Assistant</option>
               </select>
+            </div>
+
+            <div>
+              <select
+                value={timeRange}
+                onChange={(e) =>
+                  setTimeRange(e.target.value as "24h" | "7d" | "30d" | "all")
+                }
+                className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="24h">Last 24 hours</option>
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="all">All time</option>
+              </select>
+            </div>
+            {/* Sorting controls */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSortOrder("desc")}
+                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                  sortOrder === "desc"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
+              >
+                <FaSortAmountDown />
+                Most Recent
+              </button>
+              <button
+                onClick={() => setSortOrder("asc")}
+                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                  sortOrder === "asc"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
+              >
+                <FaSortAmountUp />
+                Oldest
+              </button>
             </div>
           </div>
 

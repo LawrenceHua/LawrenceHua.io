@@ -1346,12 +1346,12 @@ section {
 
 .timeline-card,
 .education-card.improved-ui {
-  min-width: 350px;
-  max-width: 350px;
-  width: 350px;
-  height: 380px;
-  max-height: 380px;
-  overflow: hidden;
+  min-width: 320px;
+  max-width: 320px;
+  width: 320px;
+  height: 380px; /* Use a fixed height */
+  max-height: 380px; /* Ensure max-height matches */
+  overflow: hidden; /* Hide overflow on the main card */
   white-space: normal;
   word-break: break-word;
   padding: 0.5rem 1.5rem 1.75rem 1.5rem;
@@ -1414,6 +1414,35 @@ section {
 .education-card.improved-ui:hover {
   box-shadow: 0 4px 32px #2563eb55;
   border-color: #2563eb77;
+}
+
+.timeline-card.expanded,
+.education-card.improved-ui.expanded {
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 32px #10b98155 !important;
+}
+
+.timeline-card.expanded::after,
+.education-card.improved-ui.expanded::after {
+  content: "▼";
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  color: #10b981;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.timeline-card:not(.expanded)::after,
+.education-card.improved-ui:not(.expanded)::after {
+  content: "▶";
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  color: #3b82f6;
+  font-size: 12px;
+  font-weight: bold;
+  opacity: 0.7;
 }
 
 .star-svg {
@@ -1913,8 +1942,15 @@ section {
 .timeline-card.expanded,
 .education-card.improved-ui.expanded {
   min-height: 400px;
-  max-height: 800px;
-  height: auto;
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.timeline-card.expanded .timeline-card-content,
+.education-card.improved-ui.expanded .education-card-content {
+  overflow: visible !important;
+  max-height: none !important;
 }
 
 /* Improve text readability on mobile */
@@ -2054,10 +2090,36 @@ section {
   align-self: center;
 }
 
-.timeline-card-content p {
-  text-align: center;
+.education-card-header {
+  flex-shrink: 0;
+  margin-bottom: 0.5rem;
 }
 
-.timeline-container-with-stars .flex {
-  gap: 0.5rem;
+.education-card-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  margin-right: -8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+  min-height: 0;
+}
+
+.education-card-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.education-card-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.education-card-content::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 3px;
+}
+
+.education-card-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
 }

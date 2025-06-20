@@ -419,8 +419,8 @@ const timelineData = [
     left: null,
     right: {
       title: "Product Manager",
-      org: "PM Happy Hour",
-      date: "Mar 2025 - Present",
+      org: "PM Happy Hour · Internship",
+      date: "Mar 2025 - Present · 4 mos",
       logo: "/logos/pm_happy_hour_logo.jpeg",
       category: "product",
       bullets: [
@@ -686,8 +686,8 @@ const timelineEvents: Array<TimelineEvent> = [
     type: "experience",
     year: "2025",
     title: "Product Manager",
-    org: "PM Happy Hour",
-    date: "Mar 2025 - Present",
+    org: "PM Happy Hour · Internship",
+    date: "Mar 2025 - Present · 4 mos",
     logo: "/logos/pm_happy_hour_logo.jpeg",
     category: "product",
     bullets: [
@@ -2361,7 +2361,11 @@ export default function Home() {
                       >
                         <div className="timeline-card-container relative flex min-w-[85vw] sm:w-[320px] flex-col items-center">
                           <div
-                            className="timeline-card mx-auto flex h-full w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200"
+                            className={`timeline-card mx-auto flex h-full w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200 ${
+                              expandedCards.has(item.title + "-" + item.year)
+                                ? "expanded"
+                                : ""
+                            }`}
                             onClick={() =>
                               toggleCardExpansion(item.title + "-" + item.year)
                             }
@@ -2466,7 +2470,11 @@ export default function Home() {
                       >
                         <div className="timeline-card-container relative flex min-w-[80vw] sm:w-[280px] flex-col items-center">
                           <div
-                            className="timeline-card mx-auto flex h-full w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200"
+                            className={`timeline-card mx-auto flex h-full w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200 ${
+                              expandedCards.has(item.title + "-" + item.year)
+                                ? "expanded"
+                                : ""
+                            }`}
                             onClick={() =>
                               toggleCardExpansion(item.title + "-" + item.year)
                             }
@@ -2536,6 +2544,73 @@ export default function Home() {
                       </div>
                     ))}
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Career Timeline: Education */}
+          <section id="education" className="w-full bg-gray-900 py-16">
+            <div className="section-content text-center">
+              <h3 className="mb-8 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-center text-3xl font-semibold text-transparent">
+                Education
+              </h3>
+
+              {/* Education cards container */}
+              <div
+                className={
+                  "flex justify-center px-2 sm:px-8 " + timelineFlexClass
+                }
+              >
+                {sortedEducationEvents.map((item, idx) => (
+                  <div key={idx} className="flex-shrink-0">
+                    <div
+                      className={`education-card improved-ui relative flex w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200 ${
+                        expandedCards.has(
+                          `education-${item.title}-${item.year}`
+                        )
+                          ? "expanded"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        toggleCardExpansion(
+                          `education-${item.title}-${item.year}`
+                        )
+                      }
+                    >
+                      {/* Fixed Header Section */}
+                      <div className="education-card-header">
+                        <div className="logo-container mb-2 flex justify-center">
+                          <Image
+                            src={item.logo}
+                            alt={item.org}
+                            width={56}
+                            height={56}
+                            className="logo rounded object-contain"
+                          />
+                        </div>
+                        <h4 className="text-xl font-bold text-white text-center">
+                          {item.title}
+                        </h4>
+                      </div>
+                      {/* Scrollable Content Section */}
+                      <div className="education-card-content">
+                        <p className="text-lg text-gray-400 text-center">
+                          {item.org}
+                        </p>
+                        <p className="text-sm text-gray-400 text-center mb-2">
+                          {item.date}
+                        </p>
+                        {item.details && (
+                          <ul className="list-disc space-y-2 pl-6 text-gray-300 mt-4">
+                            {item.details.map((detail, d_idx) => (
+                              <li key={d_idx}>{detail}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </section>
