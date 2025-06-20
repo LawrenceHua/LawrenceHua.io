@@ -847,21 +847,6 @@ const timelineEvents: Array<TimelineEvent> = [
       "Created and presented end-to-end solutions for developer applications during end of program presentation.",
     ],
   },
-  {
-    type: "experience",
-    year: "2018",
-    title: "Store Cashier",
-    org: "5-Spice Asian Street Market · Full-time",
-    date: "Jan 2016 - Jan 2018 · 2 yrs 1 mo",
-    logo: "/logos/5spice_logo.jpeg",
-    category: "retail",
-    bullets: [
-      "Family-owned restaurant business, started working as an unpaid intern at age 6, made my way to a paid full-time worker by 2016!",
-      "Orders taken using Point-of-Sale software to secure communication with the chef and accuracy for the bill.",
-      "Managed orders and interacted with customers to ensure positive customer experience",
-      "Demonstrated flexibility through a range of jobs such as barista, tip calculator, and dining hall cleaner.",
-    ],
-  },
 ];
 
 // Helper to extract end date (YYYYMM or '999999' for Present)
@@ -2483,24 +2468,29 @@ export default function Home() {
                               toggleCardExpansion(item.title + "-" + item.year)
                             }
                           >
-                            <div className="flex items-center justify-center gap-2 mb-2 py-2">
-                              <Image
-                                src={item.logo}
-                                alt={item.org}
-                                width={56}
-                                height={56}
-                                className="logo mx-auto rounded object-contain"
-                              />
+                            {/* Fixed Header Section */}
+                            <div className="timeline-card-header">
+                              <div className="flex items-center justify-center gap-2 mb-2 py-2">
+                                <Image
+                                  src={item.logo}
+                                  alt={item.org}
+                                  width={56}
+                                  height={56}
+                                  className="logo mx-auto rounded object-contain"
+                                />
+                              </div>
+                              <h4 className="text-center text-lg font-bold text-white">
+                                {item.title}
+                              </h4>
+                              <p className="text-base text-gray-400">
+                                {item.org}
+                              </p>
+                              <p className="text-sm text-gray-400">
+                                {item.date}
+                              </p>
                             </div>
-                            <h4 className="text-center text-lg font-bold text-white">
-                              {item.title}
-                            </h4>
-                            <p className="text-base text-gray-400">
-                              {item.org}
-                            </p>
-                            <p className="text-sm text-gray-400">{item.date}</p>
 
-                            <div className="timeline-card-content mt-2">
+                            <div className="timeline-card-content">
                               {item.details && item.details.length > 0 && (
                                 <ul className="space-y-2 text-base text-gray-300 pl-4 list-disc">
                                   <li>{item.details[0]}</li>
