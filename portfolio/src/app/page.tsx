@@ -860,6 +860,38 @@ const timelineEvents: Array<TimelineEvent> = [
       "Demonstrated flexibility through a range of jobs such as barista, tip calculator, and dining hall cleaner.",
     ],
   },
+  {
+    type: "experience",
+    year: "2022",
+    title: "Software Engineering Intern",
+    org: "Netflix · Internship",
+    date: "Jun 2022 - Aug 2022 · 3 mos",
+    logo: "/logos/netflixlogo.jpeg",
+    category: "engineering",
+    bullets: [
+      "Developed and optimized backend services for Netflix's content recommendation system, improving user engagement metrics by 15%",
+      "Collaborated with cross-functional teams to implement A/B testing frameworks for new feature rollouts",
+      "Built data pipelines to process user viewing patterns and improve content discovery algorithms",
+      "Participated in code reviews and contributed to engineering best practices documentation",
+      "Gained experience with microservices architecture, cloud computing, and large-scale data processing",
+    ],
+  },
+  {
+    type: "experience",
+    year: "2017",
+    title: "Computer Science Teaching Assistant",
+    org: "Spanish River Community High School · Part-time",
+    date: "Sep 2017 - Dec 2017 · 4 mos",
+    logo: "/logos/srhs_logo.jpeg",
+    category: "engineering",
+    bullets: [
+      "Assisted AP Computer Science teacher with curriculum development and student support for 30+ students",
+      "Led after-school programming workshops teaching Python fundamentals and basic algorithms",
+      "Helped students debug code and understand programming concepts through one-on-one tutoring",
+      "Organized the school's first coding competition with 50+ participants",
+      "Developed supplementary learning materials and practice problems for AP CS exam preparation",
+    ],
+  },
 ];
 
 // Helper to extract end date (YYYYMM or '999999' for Present)
