@@ -6,6 +6,22 @@
 
 ---
 
+## 🛠️ Technologies Used
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **AI Chatbot**: OpenAI API (GPT-4)
+- **Database & Analytics**: Firebase (Firestore)
+- **Deployment**: Vercel
+- **Form Handling**: React Hook Form
+- **Linting & Formatting**: ESLint, Prettier
+- **Package Manager**: pnpm / npm
+- **Version Control**: Git & GitHub
+
+---
+
 ## 🚀 Create Your Own Portfolio
 
 Want a beautiful, AI-powered portfolio like this? Follow these steps to create your own:

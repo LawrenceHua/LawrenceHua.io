@@ -69,6 +69,13 @@ interface PageView {
   screenSize: string;
   timeOnPage: number;
   sessionId: string;
+  country?: string;
+  region?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+  ip?: string;
 }
 
 interface UserInteraction {
@@ -92,6 +99,8 @@ interface AnalyticsData {
   hourlyActivity: { hour: number; count: number }[];
   dailyActivity: { date: string; count: number }[];
   popularInteractions: { type: string; count: number }[];
+  visitorLocations: { country: string; count: number }[];
+  topCities: { city: string; country: string; count: number }[];
 }
 
 export default function AnalyticsPage() {
@@ -492,6 +501,36 @@ export default function AnalyticsPage() {
     const avgSessionDuration =
       sessions.length > 0 ? totalDuration / sessions.length / 1000 / 60 : 0; // in minutes
 
+    // Visitor Locations
+    const countryCounts = new Map<string, number>();
+    const cityCounts = new Map<
+      string,
+      { city: string; country: string; count: number }
+    >();
+
+    pageViews.forEach((pv) => {
+      if (pv.country) {
+        countryCounts.set(pv.country, (countryCounts.get(pv.country) || 0) + 1);
+      }
+      if (pv.city && pv.country) {
+        const cityKey = `${pv.city}, ${pv.country}`;
+        const currentCount = cityCounts.get(cityKey)?.count || 0;
+        cityCounts.set(cityKey, {
+          city: pv.city,
+          country: pv.country,
+          count: currentCount + 1,
+        });
+      }
+    });
+
+    const visitorLocations = Array.from(countryCounts.entries())
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count);
+
+    const topCities = Array.from(cityCounts.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
     return {
       totalPageViews: pageViews.length,
       uniqueVisitors: uniqueSessions.size,
@@ -507,6 +546,8 @@ export default function AnalyticsPage() {
       hourlyActivity,
       dailyActivity,
       popularInteractions,
+      visitorLocations,
+      topCities,
     };
   };
 
@@ -809,6 +850,84 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Visitor Locations */}
+            <div className="bg-gray-800 p-6 rounded-xl col-span-2">
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <FiGlobe className="h-5 w-5" />
+                Visitor Locations
+              </h3>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-400 mb-3">
+                    Top Countries
+                  </h4>
+                  <div className="space-y-3">
+                    {analyticsData.visitorLocations
+                      .slice(0, 5)
+                      .map((location, index) => (
+                        <div
+                          key={location.country}
+                          className="flex items-center justify-between"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium text-gray-400 w-6">
+                              {index + 1}
+                            </span>
+                            <span className="text-sm">{location.country}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-24 bg-gray-700 rounded-full h-2">
+                              <div
+                                className="bg-blue-500 h-2 rounded-full"
+                                style={{
+                                  width: `${(location.count / analyticsData.visitorLocations[0].count) * 100}%`,
+                                }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium">
+                              {location.count}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-400 mb-3">
+                    Top Cities
+                  </h4>
+                  <div className="space-y-3">
+                    {analyticsData.topCities.slice(0, 5).map((city, index) => (
+                      <div
+                        key={`${city.city}-${city.country}`}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-medium text-gray-400 w-6">
+                            {index + 1}
+                          </span>
+                          <span className="text-sm">{`${city.city}, ${city.country}`}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-24 bg-gray-700 rounded-full h-2">
+                            <div
+                              className="bg-green-500 h-2 rounded-full"
+                              style={{
+                                width: `${(city.count / analyticsData.topCities[0].count) * 100}%`,
+                              }}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-medium">
+                            {city.count}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

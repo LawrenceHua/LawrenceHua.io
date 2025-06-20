@@ -21,7 +21,9 @@ const Navigation = () => {
   return (
     <nav
       className={`fixed z-50 w-full transition-all duration-300 ${
-        isScrolled ? "bg-white/80 shadow-sm backdrop-blur-md" : "bg-transparent"
+        isScrolled
+          ? "bg-gray-900/80 shadow-sm backdrop-blur-md"
+          : "bg-transparent"
       }`}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -31,25 +33,25 @@ const Navigation = () => {
           <div className="hidden space-x-8 md:flex">
             <Link
               href="/#about"
-              className="text-gray-600 transition-colors hover:text-blue-600"
+              className="text-gray-300 transition-colors hover:text-white"
             >
               About
             </Link>
             <Link
               href="#timeline"
-              className="text-gray-600 transition-colors hover:text-blue-600"
+              className="text-gray-300 transition-colors hover:text-white"
             >
               Experience
             </Link>
             <Link
               href="#projects"
-              className="text-gray-600 transition-colors hover:text-blue-600"
+              className="text-gray-300 transition-colors hover:text-white"
             >
               Projects
             </Link>
             <Link
               href="/#contact"
-              className="text-gray-600 transition-colors hover:text-blue-600"
+              className="text-gray-300 transition-colors hover:text-white"
             >
               Contact
             </Link>
@@ -57,7 +59,7 @@ const Navigation = () => {
 
           <div className="md:hidden">
             <button
-              className="text-gray-600 transition-colors hover:text-blue-600"
+              className="text-gray-300 transition-colors hover:text-white"
               aria-label="Open menu"
               onClick={() => setMobileMenuOpen((v) => !v)}
             >
