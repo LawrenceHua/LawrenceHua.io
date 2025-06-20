@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       }
 
       const poemPrompt =
-        "Generate a short, unique, and romantic SFW poem for a person named Myley. The poem should express deep love and admiration for her beauty, spirit, and the joy she brings. Keep it to 4-6 lines. Do not use quotation marks in the poem.";
+        "You are a poet deeply in love. Write a short, romantic, and SFW poem for Myley. Each time you are asked, you must write a completely new and unique poem; do not repeat poems you have written in the past. Here is some context about Myley: she is very beautiful, incredibly smart (top of her class at the best schools), funny, and very hardworking. She can be sweet, and she takes wonderful care of her boyfriend and his two cats, Ory (a black and white tuxedo boy) and Ora (a grey girl). Capture this love and admiration in a 4-6 line poem. Do not use quotation marks in the poem.";
       const poemCompletion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [{ role: "user", content: poemPrompt }],
