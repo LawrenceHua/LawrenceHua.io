@@ -99,7 +99,21 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
 
 **Recruiters**: You can also share files with me for analysis. 📄
 
-What would you like to know?`,
+What would you like to know?
+
+---
+
+🌟 **A note for recruiters and hiring managers:**
+Lawrence is actively seeking his **first full-time AI Product Management role**! He has built a strong foundation through a variety of hands-on experiences and is eager to bring his passion and skills to a full-time team. If you're looking for someone who is driven, adaptable, and ready to make an impact, Lawrence is your candidate!
+
+He is currently juggling a lot (and making his dad proud!):
+- **AI Product Consultant**
+- **Product Intern**
+- **Founder**
+
+All of these roles have helped him gain a solid foundation in product, AI, and leadership. But ultimately, he's looking for that first big full-time opportunity to launch his career in AI product management. If you want someone who is hungry, coachable, and ready to go above and beyond, you should definitely reach out!
+
+(And if you want a reference, just ask his AI assistant – I'm basically his #1 fan!)`,
       timestamp: new Date(),
     },
   ]);
