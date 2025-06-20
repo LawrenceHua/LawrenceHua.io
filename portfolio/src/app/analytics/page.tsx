@@ -880,52 +880,52 @@ export default function AnalyticsPage() {
 
         {/* Main Stats */}
         {analyticsData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 sm:p-6 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-blue-200 text-sm">Total Page Views</p>
-                  <p className="text-3xl font-bold">
+                  <p className="text-2xl sm:text-3xl font-bold">
                     {analyticsData.totalPageViews}
                   </p>
                 </div>
-                <FiEye className="h-8 w-8 text-blue-200" />
+                <FiEye className="h-6 w-6 sm:h-8 sm:w-8 text-blue-200" />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-green-600 to-green-700 p-6 rounded-xl">
+            <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 sm:p-6 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-green-200 text-sm">Unique Visitors</p>
-                  <p className="text-3xl font-bold">
+                  <p className="text-2xl sm:text-3xl font-bold">
                     {analyticsData.uniqueVisitors}
                   </p>
                 </div>
-                <FiUsers className="h-8 w-8 text-green-200" />
+                <FiUsers className="h-6 w-6 sm:h-8 sm:w-8 text-green-200" />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-6 rounded-xl">
+            <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 sm:p-6 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-purple-200 text-sm">Chat Sessions</p>
-                  <p className="text-3xl font-bold">
+                  <p className="text-2xl sm:text-3xl font-bold">
                     {analyticsData.totalChatSessions}
                   </p>
                 </div>
-                <FiMessageCircle className="h-8 w-8 text-purple-200" />
+                <FiMessageCircle className="h-6 w-6 sm:h-8 sm:w-8 text-purple-200" />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-6 rounded-xl">
+            <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 sm:p-6 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-orange-200 text-sm">Avg Session</p>
-                  <p className="text-3xl font-bold">
+                  <p className="text-2xl sm:text-3xl font-bold">
                     {Math.round(analyticsData.avgSessionDuration)}m
                   </p>
                 </div>
-                <FiClock className="h-8 w-8 text-orange-200" />
+                <FiClock className="h-6 w-6 sm:h-8 sm:w-8 text-orange-200" />
               </div>
             </div>
           </div>

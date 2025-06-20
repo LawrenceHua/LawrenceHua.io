@@ -93,7 +93,7 @@ section {
   padding: 1rem 0;
 }
 
-/* Add a gradient fade effect on the sides */
+/* Add a gradient fade effect on the sides - COMPLETELY STATIC */
 .recommendations-container::before,
 .recommendations-container::after {
   content: "";
@@ -101,17 +101,26 @@ section {
   top: 0;
   width: 100px;
   height: 100%;
-  z-index: 2;
+  z-index: 10; /* Higher z-index to ensure it stays on top */
   pointer-events: none;
+  transform: translateZ(0); /* Force hardware acceleration */
+  will-change: auto; /* Disable will-change for better performance */
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Ensure these elements don't move with scroll */
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
 }
 
 .recommendations-container::before {
-  left: 0;
+  left: 0 !important;
   background: linear-gradient(to right, rgb(17, 24, 39), transparent);
 }
 
 .recommendations-container::after {
-  right: 0;
+  right: 0 !important;
   background: linear-gradient(to left, rgb(17, 24, 39), transparent);
 }
 
@@ -948,6 +957,37 @@ section {
   .recommendations-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    /* Ensure blur effects stay static on mobile */
+    position: relative;
+  }
+
+  /* Ensure blur effects don't move with scroll on mobile */
+  .recommendations-container::before,
+  .recommendations-container::after {
+    position: absolute !important;
+    transform: translateZ(0) !important;
+    will-change: auto !important; /* Disable will-change on mobile for better performance */
+    -webkit-transform: translateZ(0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    /* Force static positioning on mobile */
+    top: 0 !important;
+    height: 100% !important;
+    z-index: 10 !important;
+    /* Prevent any movement */
+    left: 0 !important;
+    right: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .recommendations-container::before {
+    left: 0 !important;
+    right: auto !important;
+  }
+
+  .recommendations-container::after {
+    right: 0 !important;
+    left: auto !important;
   }
 }
 
