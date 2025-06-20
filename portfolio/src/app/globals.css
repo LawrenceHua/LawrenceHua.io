@@ -1919,3 +1919,92 @@ section {
 .education-card.improved-ui li {
   margin-bottom: 0.5rem;
 }
+
+.timeline-card-container .timeline-card {
+  display: flex;
+  flex-direction: column;
+  height: 420px; /* Increased height for better spacing */
+  padding: 1.5rem;
+  background-color: rgba(17, 24, 39, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.timeline-card-container .timeline-card:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15);
+}
+
+.timeline-card-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-card-content .custom-bullets {
+  flex-grow: 1;
+}
+
+.timeline-card h3 {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 700;
+  color: #fff;
+}
+
+.timeline-card p {
+  font-size: 1rem; /* 16px */
+  color: #d1d5db; /* gray-300 */
+}
+
+.timeline-card h3 + p {
+  font-size: 0.875rem; /* 14px */
+  color: #9ca3af; /* gray-400 */
+  margin-bottom: 0.5rem;
+}
+
+.timeline-card .custom-bullets p {
+  display: flex;
+  align-items: flex-start;
+  line-height: 1.6;
+}
+
+.timeline-card .custom-bullets span:first-child {
+  margin-right: 0.75rem;
+  margin-top: 0.5rem;
+  height: 0.5rem;
+  width: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background-color: #3b82f6; /* blue-500 */
+}
+
+.group.relative.flex-col {
+  height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.group.relative.flex-col .flex-grow {
+  flex-grow: 1;
+}
+
+.group.relative.flex-col h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.group.relative.flex-col p {
+  font-size: 1rem;
+}
+
+.group.relative.flex-col .text-xs {
+  font-size: 0.875rem;
+}
+
+.group.relative.flex-col .space-y-2 > * + * {
+  margin-top: 1rem;
+}
