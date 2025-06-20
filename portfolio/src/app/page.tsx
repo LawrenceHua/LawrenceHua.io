@@ -2455,162 +2455,60 @@ export default function Home() {
                 </h3>
                 <div
                   className={
-                    "flex items-start justify-start px-2 sm:px-8 " +
-                    (isMobile
-                      ? "flex-col items-center gap-6 w-full"
-                      : "flex-row items-start gap-4 overflow-x-auto")
+                    "flex justify-center px-2 sm:px-8 " + timelineFlexClass
                   }
                 >
-                  {sortedTimelineEvents
-                    .filter((e) => e.type === "education")
-                    .map((item, idx, arr) => (
+                  {sortedEducationEvents.map((item, idx) => (
+                    <div key={idx} className="flex-shrink-0">
                       <div
-                        key={item.title + "-" + item.year + "-" + idx}
-                        className="flex-shrink-0"
+                        className={`education-card improved-ui relative flex w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200 ${
+                          expandedCards.has(
+                            `education-${item.title}-${item.year}`
+                          )
+                            ? "expanded"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          toggleCardExpansion(
+                            `education-${item.title}-${item.year}`
+                          )
+                        }
                       >
-                        <div className="timeline-card-container relative flex min-w-[80vw] sm:w-[280px] flex-col items-center">
-                          <div
-                            className={`timeline-card mx-auto flex h-full w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200 ${
-                              expandedCards.has(item.title + "-" + item.year)
-                                ? "expanded"
-                                : ""
-                            }`}
-                            onClick={() =>
-                              toggleCardExpansion(item.title + "-" + item.year)
-                            }
-                          >
-                            {/* Fixed Header Section */}
-                            <div className="timeline-card-header">
-                              <div className="flex items-center justify-center gap-2 mb-2 py-2">
-                                <Image
-                                  src={item.logo}
-                                  alt={item.org}
-                                  width={56}
-                                  height={56}
-                                  className="logo mx-auto rounded object-contain"
-                                />
-                              </div>
-                              <h4 className="text-center text-lg font-bold text-white">
-                                {item.title}
-                              </h4>
-                              <p className="text-base text-gray-400">
-                                {item.org}
-                              </p>
-                              <p className="text-sm text-gray-400">
-                                {item.date}
-                              </p>
-                            </div>
-
-                            <div className="timeline-card-content">
-                              {item.details && item.details.length > 0 && (
-                                <ul className="space-y-2 text-base text-gray-300 pl-4 list-disc">
-                                  {expandedCards.has(
-                                    item.title + "-" + item.year
-                                  ) ? (
-                                    item.details.map(
-                                      (detail: string, i: number) => (
-                                        <li key={i}>{detail}</li>
-                                      )
-                                    )
-                                  ) : (
-                                    <li>{item.details[0]}</li>
-                                  )}
-                                </ul>
-                              )}
-                            </div>
-
-                            {item.details && item.details.length > 1 && (
-                              <div className="timeline-card-footer">
-                                <button
-                                  className="pt-2 text-sm font-bold text-blue-400 hover:underline"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleCardExpansion(
-                                      item.title + "-" + item.year
-                                    );
-                                  }}
-                                >
-                                  Click to see{" "}
-                                  {expandedCards.has(
-                                    item.title + "-" + item.year
-                                  )
-                                    ? "less"
-                                    : `${item.details.length - 1} more...`}
-                                </button>
-                              </div>
-                            )}
+                        {/* Fixed Header Section */}
+                        <div className="education-card-header">
+                          <div className="logo-container mb-2 flex justify-center">
+                            <Image
+                              src={item.logo}
+                              alt={item.org}
+                              width={56}
+                              height={56}
+                              className="logo rounded object-contain"
+                            />
                           </div>
+                          <h4 className="text-xl font-bold text-white text-center">
+                            {item.title}
+                          </h4>
                         </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Career Timeline: Education */}
-          <section id="education" className="w-full bg-gray-900 py-16">
-            <div className="section-content text-center">
-              <h3 className="mb-8 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-center text-3xl font-semibold text-transparent">
-                Education
-              </h3>
-
-              {/* Education cards container */}
-              <div
-                className={
-                  "flex justify-center px-2 sm:px-8 " + timelineFlexClass
-                }
-              >
-                {sortedEducationEvents.map((item, idx) => (
-                  <div key={idx} className="flex-shrink-0">
-                    <div
-                      className={`education-card improved-ui relative flex w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200 ${
-                        expandedCards.has(
-                          `education-${item.title}-${item.year}`
-                        )
-                          ? "expanded"
-                          : ""
-                      }`}
-                      onClick={() =>
-                        toggleCardExpansion(
-                          `education-${item.title}-${item.year}`
-                        )
-                      }
-                    >
-                      {/* Fixed Header Section */}
-                      <div className="education-card-header">
-                        <div className="logo-container mb-2 flex justify-center">
-                          <Image
-                            src={item.logo}
-                            alt={item.org}
-                            width={56}
-                            height={56}
-                            className="logo rounded object-contain"
-                          />
+                        {/* Scrollable Content Section */}
+                        <div className="education-card-content">
+                          <p className="text-lg text-gray-400 text-center">
+                            {item.org}
+                          </p>
+                          <p className="text-sm text-gray-400 text-center mb-2">
+                            {item.date}
+                          </p>
+                          {item.details && (
+                            <ul className="list-disc space-y-2 pl-6 text-gray-300 mt-4">
+                              {item.details.map((detail, d_idx) => (
+                                <li key={d_idx}>{detail}</li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
-                        <h4 className="text-xl font-bold text-white text-center">
-                          {item.title}
-                        </h4>
-                      </div>
-                      {/* Scrollable Content Section */}
-                      <div className="education-card-content">
-                        <p className="text-lg text-gray-400 text-center">
-                          {item.org}
-                        </p>
-                        <p className="text-sm text-gray-400 text-center mb-2">
-                          {item.date}
-                        </p>
-                        {item.details && (
-                          <ul className="list-disc space-y-2 pl-6 text-gray-300 mt-4">
-                            {item.details.map((detail, d_idx) => (
-                              <li key={d_idx}>{detail}</li>
-                            ))}
-                          </ul>
-                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </section>

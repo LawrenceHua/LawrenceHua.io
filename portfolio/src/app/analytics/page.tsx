@@ -270,6 +270,7 @@ export default function AnalyticsPage() {
       // Calculate time filter
       const now = new Date();
       let startDate = new Date();
+      let isAllTime = false;
       switch (timeRange) {
         case "24h":
           startDate.setHours(now.getHours() - 24);
@@ -281,19 +282,25 @@ export default function AnalyticsPage() {
           startDate.setDate(now.getDate() - 30);
           break;
         case "all":
-          startDate = new Date(0);
+          isAllTime = true;
+          // For "all time", we fetch everything, so no start date filter needed initially
           break;
       }
 
       // Fetch chat data
       const sessionsRef = collection(db, "chats");
-      const sessionsQuery = query(
-        sessionsRef,
-        orderBy("startTime", sortOrder),
-        where("startTime", ">=", startDate)
-      );
-      const sessionsSnapshot = await getDocs(sessionsQuery);
+      let sessionsQuery;
+      if (isAllTime) {
+        sessionsQuery = query(sessionsRef, orderBy("startTime", sortOrder));
+      } else {
+        sessionsQuery = query(
+          sessionsRef,
+          orderBy("startTime", sortOrder),
+          where("startTime", ">=", startDate)
+        );
+      }
 
+      const sessionsSnapshot = await getDocs(sessionsQuery);
       const sessionsArray: ChatSession[] = [];
       sessionsSnapshot.forEach((doc) => {
         const data = doc.data();
@@ -306,14 +313,39 @@ export default function AnalyticsPage() {
         });
       });
 
-      // Fetch page views
+      // If no sessions, no need to fetch other data
+      if (sessionsArray.length === 0) {
+        setSessions([]);
+        setPageViews([]);
+        setInteractions([]);
+        setAnalyticsData(null);
+        setLoading(false);
+        return;
+      }
+
+      // Determine the date range from the fetched sessions
+      const earliestSessionDate =
+        sessionsArray[sessionsArray.length - 1].startTime;
+
+      // Fetch page views and interactions based on the session date range
       const pageViewsRef = collection(db, "page_views");
       const pageViewsQuery = query(
         pageViewsRef,
         orderBy("timestamp", "desc"),
-        where("timestamp", ">=", startDate)
+        where("timestamp", ">=", earliestSessionDate)
       );
-      const pageViewsSnapshot = await getDocs(pageViewsQuery);
+
+      const interactionsRef = collection(db, "user_interactions");
+      const interactionsQuery = query(
+        interactionsRef,
+        orderBy("timestamp", "desc"),
+        where("timestamp", ">=", earliestSessionDate)
+      );
+
+      const [pageViewsSnapshot, interactionsSnapshot] = await Promise.all([
+        getDocs(pageViewsQuery),
+        getDocs(interactionsQuery),
+      ]);
 
       const pageViewsArray: PageView[] = [];
       pageViewsSnapshot.forEach((doc) => {
@@ -329,15 +361,6 @@ export default function AnalyticsPage() {
           sessionId: data.sessionId,
         });
       });
-
-      // Fetch user interactions
-      const interactionsRef = collection(db, "user_interactions");
-      const interactionsQuery = query(
-        interactionsRef,
-        orderBy("timestamp", "desc"),
-        where("timestamp", ">=", startDate)
-      );
-      const interactionsSnapshot = await getDocs(interactionsQuery);
 
       const interactionsArray: UserInteraction[] = [];
       interactionsSnapshot.forEach((doc) => {

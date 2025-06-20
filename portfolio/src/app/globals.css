@@ -1349,8 +1349,8 @@ section {
   min-width: 320px;
   max-width: 320px;
   width: 320px;
-  height: 380px; /* Use a fixed height */
-  max-height: 380px; /* Ensure max-height matches */
+  height: 475px; /* Use a fixed height */
+  max-height: 475px; /* Ensure max-height matches */
   overflow: hidden; /* Hide overflow on the main card */
   white-space: normal;
   word-break: break-word;
@@ -1544,8 +1544,8 @@ section {
   .timeline-card,
   .education-card.improved-ui {
     min-height: 320px;
-    height: 380px; /* Keep height consistent on mobile */
-    max-height: 380px;
+    height: 475px; /* Keep height consistent on mobile */
+    max-height: 475px;
     width: 100%;
     max-width: 320px;
   }
@@ -1554,8 +1554,8 @@ section {
   .timeline-card,
   .education-card.improved-ui {
     min-height: 300px;
-    height: 360px; /* Adjust height for smaller screens */
-    max-height: 360px;
+    height: 450px; /* Adjust height for smaller screens */
+    max-height: 450px;
     width: 100%;
     max-width: 280px;
     padding: 1rem 1.25rem 1.5rem 1.25rem;
@@ -1983,7 +1983,7 @@ section {
 .timeline-card-container .timeline-card {
   display: flex;
   flex-direction: column;
-  height: 420px; /* Increased height for better spacing */
+  height: 525px; /* Increased height for better spacing */
   padding: 1.5rem;
   background-color: rgba(17, 24, 39, 0.8);
   border: 1px solid rgba(59, 130, 246, 0.2);
@@ -2042,7 +2042,7 @@ section {
 }
 
 .group.relative.flex-col {
-  height: 420px;
+  height: 525px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
