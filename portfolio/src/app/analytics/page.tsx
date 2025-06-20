@@ -30,6 +30,7 @@ import {
   FiActivity,
   FiBarChart,
   FiPieChart,
+  FiUserCheck,
 } from "react-icons/fi";
 import Link from "next/link";
 import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
@@ -102,6 +103,7 @@ interface AnalyticsData {
   popularInteractions: { type: string; count: number }[];
   visitorLocations: { country: string; count: number }[];
   topCities: { city: string; country: string; count: number }[];
+  potentialRecruiters: number;
 }
 
 export default function AnalyticsPage() {
@@ -561,6 +563,60 @@ export default function AnalyticsPage() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
+    // Potential Recruiter Identification
+    let potentialRecruiters = 0;
+    const recruiterKeywords = [
+      "hiring",
+      "recruiting",
+      "job",
+      "position",
+      "role",
+      "interview",
+      "full-time",
+      "opportunity",
+      "resume",
+      "cv",
+      "background",
+      "experience",
+    ];
+
+    sessions.forEach((session) => {
+      let score = 0;
+      // Metric 1: Chatbot keywords
+      const chatMessages = session.messages
+        .map((m) => m.message?.toLowerCase() || "")
+        .join(" ");
+      if (recruiterKeywords.some((keyword) => chatMessages.includes(keyword))) {
+        score += 3;
+      }
+
+      // Metric 2: Time spent on site
+      const sessionDurationMinutes =
+        (session.endTime.getTime() - session.startTime.getTime()) / 60000;
+      if (sessionDurationMinutes > 3) {
+        score += 1;
+      }
+      if (sessionDurationMinutes > 10) {
+        score += 1;
+      }
+
+      // Metric 3: Clicks on key links (assuming we track this in interactions)
+      const sessionInteractions = interactions.filter(
+        (i) => i.sessionId === session.sessionId
+      );
+      if (
+        sessionInteractions.some(
+          (i) => i.element.includes("resume") || i.element.includes("linkedin")
+        )
+      ) {
+        score += 2;
+      }
+
+      if (score >= 3) {
+        potentialRecruiters++;
+      }
+    });
+
     return {
       totalPageViews: pageViews.length,
       uniqueVisitors: uniqueSessions.size,
@@ -578,6 +634,7 @@ export default function AnalyticsPage() {
       popularInteractions,
       visitorLocations,
       topCities,
+      potentialRecruiters,
     };
   };
 
@@ -883,6 +940,21 @@ export default function AnalyticsPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Potential Recruiters */}
+            <div className="bg-gray-800 p-6 rounded-xl">
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <FiUserCheck className="h-5 w-5" />
+                Potential Recruiters
+              </h3>
+              <div className="text-4xl font-bold text-teal-400">
+                {analyticsData.potentialRecruiters}
+              </div>
+              <p className="text-sm text-gray-400 mt-2">
+                Visitors showing signs of recruitment interest based on
+                keywords, time spent, and interactions.
+              </p>
             </div>
 
             {/* Visitor Locations */}
