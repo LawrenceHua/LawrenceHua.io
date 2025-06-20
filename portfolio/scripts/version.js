@@ -5,13 +5,15 @@ const path = require("path");
 
 // Read package.json
 const packagePath = path.join(__dirname, "..", "package.json");
-const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+const packageJson = require(packagePath);
 
-const currentVersion = packageJson.version;
-const [major, minor, patch] = currentVersion.split(".").map(Number);
+const version = packageJson.version.split(".");
+const major = parseInt(version[0]);
+const minor = parseInt(version[1]);
+const patch = parseInt(version[2]);
 
 console.log("📦 Current Version Information:");
-console.log(`   Version: ${currentVersion}`);
+console.log(`   Version: ${packageJson.version}`);
 console.log(`   Major: ${major}`);
 console.log(`   Minor: ${minor}`);
 console.log(`   Patch: ${patch}`);
@@ -46,3 +48,11 @@ console.log("💡 Note: This follows the pattern you requested:");
 console.log("   - Every push increments the patch version");
 console.log("   - Every 10 increments moves to the next minor version");
 console.log("   - Example: 1.0 → 1.9 → 2.0 → 2.9 → 3.0");
+
+const newPatch = patch + 1;
+
+packageJson.version = `${major}.${minor}.${newPatch}`;
+
+fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2));
+
+console.log(`Version updated to ${packageJson.version}`);

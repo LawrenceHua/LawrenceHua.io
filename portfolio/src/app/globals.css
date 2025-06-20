@@ -1347,7 +1347,6 @@ section {
   min-height: 360px;
   height: auto;
   max-height: 520px;
-  overflow-y: auto;
   overflow-x: hidden;
   white-space: normal;
   word-break: break-word;
@@ -1363,6 +1362,14 @@ section {
     box-shadow 0.2s,
     border-color 0.2s;
 }
+
+.timeline-card-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 8px; /* Space for scrollbar */
+  margin-right: -8px; /* Counteract padding */
+}
+
 .timeline-card:hover,
 .education-card.improved-ui:hover {
   box-shadow: 0 4px 32px #2563eb55;

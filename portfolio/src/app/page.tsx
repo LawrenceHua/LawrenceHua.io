@@ -634,6 +634,23 @@ const timelineData = [
       ],
     },
   },
+  {
+    type: "experience",
+    year: "2021",
+    title: "AI Product Consultant & Computer Science Instructor",
+    org: "Tutora · Part-time",
+    date: "Mar 2021 - Present",
+    logo: "/logos/Tutora Logo.jpeg",
+    category: "engineering",
+    bullets: [
+      "Redesigned tutoring operations by building both backend automation tools and student-facing programs. Delivered scalable AI systems for internal workflows and custom-built math and computer science curriculum that improved student performance and operational efficiency.",
+      "Consulted business owners to identify bottlenecks and build 0→1 unified AI tools using Otter.ai, Dola, WhatsApp, and App Scripts for automation and adoption",
+      "Saved 15+ hours/week and cut review time by 50% through AI-driven scheduling, grading, and substitution flows",
+      "Developed and launched 50+ TI-BASIC math programs, improving standardized test scores by 35% across 50+ students",
+      "Taught core computer science principles including data structures, Java programming, and project-based learning using Code.org and AP CS content",
+      "Delivered training and documentation to ensure long-term adoption of both AI workflows and instructional tools",
+    ],
+  },
 ];
 
 // 1. Flatten timelineData into a single array of events
@@ -1573,6 +1590,7 @@ export default function Home() {
 
   // Card expansion handler
   const toggleCardExpansion = useCallback((cardId: string) => {
+    console.log("Toggling card expansion for:", cardId);
     setExpandedCards((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(cardId)) {
@@ -1580,6 +1598,7 @@ export default function Home() {
       } else {
         newSet.add(cardId);
       }
+      console.log("Updated expanded cards:", Array.from(newSet));
       return newSet;
     });
   }, []);
@@ -1679,60 +1698,43 @@ export default function Home() {
     { key: "retail", label: "Retail" },
   ];
 
-  // Helper function to check if an experience was active in a given year
-  const wasActiveInYear = (date: string, yearStr: string): boolean => {
-    // Extract all years from the date string
-    const years = date.match(/\b20\d{2}\b/g);
-    if (!years || years.length === 0) return false;
-
-    const year = parseInt(yearStr);
-    const currentYear = new Date().getFullYear();
-
-    // Handle "Present" case
-    if (date.includes("Present")) {
-      const startYear = parseInt(years[0]);
-      return year >= startYear && year <= currentYear;
+  // Helper: Get all years an experience was active
+  function getYearsInRange(dateStr: string): string[] {
+    if (!dateStr) return [];
+    // Match start and end years
+    const match = dateStr.match(/(\d{4}).*(\d{4}|Present)/);
+    if (!match) {
+      // Try to match a single year
+      const singleYear = dateStr.match(/(\d{4})/);
+      return singleYear ? [singleYear[1]] : [];
     }
-
-    // For date ranges, check if year falls within range
-    if (years.length >= 2) {
-      const startYear = parseInt(years[0]);
-      const endYear = parseInt(years[years.length - 1]);
-      return year >= startYear && year <= endYear;
+    const startYear = parseInt(match[1]);
+    let endYear: number;
+    if (match[2] === "Present") {
+      endYear = new Date().getFullYear();
+    } else {
+      endYear = parseInt(match[2]);
     }
+    const years = [];
+    for (let y = startYear; y <= endYear; y++) {
+      years.push(y.toString());
+    }
+    return years;
+  }
 
-    // For single year
-    return parseInt(years[0]) === year;
-  };
-
-  // Get unique years for the year filter
+  // Get unique years for the year filter (all years covered by any experience)
   const expYears = Array.from(
     new Set(
       sortedTimelineEvents
         .filter((e): e is TimelineEvent => e.type === "experience")
-        .flatMap((e) => {
-          const matches = e.date.match(/\b20\d{2}\b/g);
-          return matches || [];
-        })
+        .flatMap((e) => getYearsInRange(e.date))
     )
   ).sort((a, b) => Number(b) - Number(a));
 
-  // Update filtered experiences logic
-  const filteredExperiences = sortedTimelineEvents.filter((e) => {
-    // First check if it's an experience
-    if (e.type !== "experience") return false;
-
-    // Then check year filter
-    if (expYear !== "All") {
-      const isActive = wasActiveInYear(e.date, expYear);
-      if (!isActive) return false;
-    }
-
-    // Finally check category filter
-    if (expCategory !== "all" && e.category !== expCategory) return false;
-
-    return true;
-  });
+  // Helper function to check if an experience was active in a given year
+  const wasActiveInYear = (date: string, yearStr: string): boolean => {
+    return getYearsInRange(date).includes(yearStr);
+  };
 
   // Get experiences count for each year
   const getYearCount = (yearStr: string): number => {
@@ -1762,6 +1764,25 @@ export default function Home() {
   const timelineFlexClass = isMobile
     ? "flex-col items-center gap-6 w-full"
     : "flex-row items-center gap-4";
+
+  // Update filtered experiences logic
+  const filteredExperiences = sortedTimelineEvents.filter(
+    (e: TimelineEvent) => {
+      // First check if it's an experience
+      if (e.type !== "experience") return false;
+
+      // Then check year filter
+      if (expYear !== "All") {
+        const isActive = wasActiveInYear(e.date, expYear);
+        if (!isActive) return false;
+      }
+
+      // Finally check category filter
+      if (expCategory !== "all" && e.category !== expCategory) return false;
+
+      return true;
+    }
+  );
 
   // Check if timeline is scrollable and handle scroll hint
   useEffect(() => {
@@ -2112,7 +2133,7 @@ export default function Home() {
           {/* Skills Section */}
           <section id="skills" className="section-container bg-gray-900 py-16">
             <div className="section-content">
-              <h2 className="mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-center text-4xl font-bold text-transparent">
+              <h2 className="mb-8 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-center text-5xl font-extrabold text-transparent drop-shadow-lg">
                 Skills & Expertise
               </h2>
 
@@ -2301,7 +2322,7 @@ export default function Home() {
           {/* Career Timeline: Experience */}
           <section id="timeline" className="bg-gray-900 pt-24 pb-16">
             <div className="relative flex w-full flex-col items-center px-8">
-              <h2 className="mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-center text-4xl font-bold text-transparent">
+              <h2 className="mb-8 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-center text-5xl font-extrabold text-transparent drop-shadow-lg">
                 Career Timeline
               </h2>
 
@@ -2372,7 +2393,7 @@ export default function Home() {
                       >
                         <div className="timeline-card-container relative flex min-w-[85vw] sm:w-[320px] flex-col items-center">
                           <div
-                            className="timeline-card mx-auto flex h-full w-full flex-col text-left"
+                            className="timeline-card mx-auto flex h-full w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200"
                             onClick={() =>
                               toggleCardExpansion(item.title + "-" + item.year)
                             }
@@ -2396,42 +2417,39 @@ export default function Home() {
                               {item.org}
                             </p>
                             <p className="text-sm text-gray-400">{item.date}</p>
-                            {item.bullets && item.bullets.length > 0 ? (
-                              <>
-                                <ul className="list-disc space-y-1 pl-4 text-sm text-gray-300 mt-2">
+
+                            <div className="timeline-card-content mt-2">
+                              {item.bullets && item.bullets.length > 0 && (
+                                <ul className="list-disc space-y-1 pl-4 text-sm text-gray-300">
                                   <li>{item.bullets[0]}</li>
+                                  {expandedCards.has(
+                                    item.title + "-" + item.year
+                                  ) &&
+                                    item.bullets
+                                      .slice(1)
+                                      .map((bullet: string, i: number) => (
+                                        <li key={i}>{bullet}</li>
+                                      ))}
                                 </ul>
-                                {item.bullets.length > 1 && (
-                                  <>
-                                    <div
-                                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                        expandedCards.has(
-                                          item.title + "-" + item.year
-                                        )
-                                          ? "max-h-96 opacity-100"
-                                          : "max-h-0 opacity-0"
-                                      }`}
-                                    >
-                                      <ul className="list-disc space-y-1 pl-4 text-sm text-gray-300 pt-1">
-                                        {item.bullets
-                                          .slice(1)
-                                          .map((bullet, i) => (
-                                            <li key={i}>{bullet}</li>
-                                          ))}
-                                      </ul>
-                                    </div>
-                                    <button className="mt-2 text-sm font-bold text-blue-400 hover:underline">
-                                      Click to see{" "}
-                                      {expandedCards.has(
-                                        item.title + "-" + item.year
-                                      )
-                                        ? "less"
-                                        : `${item.bullets.length - 1} more...`}
-                                    </button>
-                                  </>
-                                )}
-                              </>
-                            ) : null}
+                              )}
+                            </div>
+
+                            {item.bullets && item.bullets.length > 1 && (
+                              <button
+                                className="mt-auto pt-2 text-sm font-bold text-blue-400 hover:underline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleCardExpansion(
+                                    item.title + "-" + item.year
+                                  );
+                                }}
+                              >
+                                Click to see{" "}
+                                {expandedCards.has(item.title + "-" + item.year)
+                                  ? "less"
+                                  : `${item.bullets.length - 1} more...`}
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -2469,7 +2487,7 @@ export default function Home() {
                       >
                         <div className="timeline-card-container relative flex min-w-[80vw] sm:w-[280px] flex-col items-center">
                           <div
-                            className="timeline-card mx-auto flex h-full w-full flex-col text-left"
+                            className="timeline-card mx-auto flex h-full w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200"
                             onClick={() =>
                               toggleCardExpansion(item.title + "-" + item.year)
                             }
@@ -2490,42 +2508,39 @@ export default function Home() {
                               {item.org}
                             </p>
                             <p className="text-sm text-gray-400">{item.date}</p>
-                            {item.details && item.details.length > 0 ? (
-                              <>
-                                <ul className="space-y-2 text-base text-gray-300 pl-4 list-disc mt-2">
+
+                            <div className="timeline-card-content mt-2">
+                              {item.details && item.details.length > 0 && (
+                                <ul className="space-y-2 text-base text-gray-300 pl-4 list-disc">
                                   <li>{item.details[0]}</li>
+                                  {expandedCards.has(
+                                    item.title + "-" + item.year
+                                  ) &&
+                                    item.details
+                                      .slice(1)
+                                      .map((detail: string, i: number) => (
+                                        <li key={i}>{detail}</li>
+                                      ))}
                                 </ul>
-                                {item.details.length > 1 && (
-                                  <>
-                                    <div
-                                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                        expandedCards.has(
-                                          item.title + "-" + item.year
-                                        )
-                                          ? "max-h-96 opacity-100"
-                                          : "max-h-0 opacity-0"
-                                      }`}
-                                    >
-                                      <ul className="space-y-2 text-base text-gray-300 pl-4 list-disc pt-1">
-                                        {item.details
-                                          .slice(1)
-                                          .map((detail, i) => (
-                                            <li key={i}>{detail}</li>
-                                          ))}
-                                      </ul>
-                                    </div>
-                                    <button className="mt-2 text-sm font-bold text-blue-400 hover:underline">
-                                      Click to see{" "}
-                                      {expandedCards.has(
-                                        item.title + "-" + item.year
-                                      )
-                                        ? "less"
-                                        : `${item.details.length - 1} more...`}
-                                    </button>
-                                  </>
-                                )}
-                              </>
-                            ) : null}
+                              )}
+                            </div>
+
+                            {item.details && item.details.length > 1 && (
+                              <button
+                                className="mt-auto pt-2 text-sm font-bold text-blue-400 hover:underline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleCardExpansion(
+                                    item.title + "-" + item.year
+                                  );
+                                }}
+                              >
+                                Click to see{" "}
+                                {expandedCards.has(item.title + "-" + item.year)
+                                  ? "less"
+                                  : `${item.details.length - 1} more...`}
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -2541,7 +2556,7 @@ export default function Home() {
             className="section-container bg-gray-900 py-16"
           >
             <div className="section-content">
-              <h2 className="mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-center text-4xl font-bold text-transparent">
+              <h2 className="mb-8 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-center text-5xl font-extrabold text-transparent drop-shadow-lg">
                 Projects
               </h2>
 
@@ -2658,7 +2673,7 @@ export default function Home() {
             className="section-container border-t border-gray-800 py-16"
           >
             <div className="section-content">
-              <h2 className="mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-center text-4xl font-bold text-transparent">
+              <h2 className="mb-8 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-center text-5xl font-extrabold text-transparent drop-shadow-lg">
                 Get in Touch
               </h2>
               <p className="mb-8 text-center text-lg text-gray-300">
