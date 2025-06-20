@@ -2395,42 +2395,33 @@ export default function Home() {
                       >
                         <div className="timeline-card-container relative flex min-w-[85vw] sm:w-[320px] flex-col items-center">
                           <div
-                            className={`timeline-card mx-auto flex h-full w-full flex-col text-left cursor-pointer hover:bg-gray-800/20 transition-colors duration-200 ${
-                              expandedCards.has(item.title + "-" + item.year)
-                                ? "expanded"
-                                : ""
-                            }`}
+                            className={`timeline-card mx-auto flex h-full w-full flex-col items-center text-center`}
                             onClick={() =>
                               toggleCardExpansion(item.title + "-" + item.year)
                             }
                           >
-                            {/* Fixed Header Section */}
-                            <div className="timeline-card-header">
-                              <div className="flex items-center justify-center gap-2 mb-2 py-2">
-                                <Image
-                                  src={item.logo}
-                                  alt={item.org}
-                                  width={56}
-                                  height={56}
-                                  className="logo mx-auto rounded object-contain"
-                                />
-                              </div>
-                              <h4 className="text-center text-lg font-bold text-white">
+                            <div className="flex flex-col items-center justify-center gap-2 mb-2 py-2">
+                              <Image
+                                src={item.logo}
+                                alt={item.org}
+                                width={56}
+                                height={56}
+                                className="logo mx-auto rounded object-contain"
+                              />
+                              <h4 className="text-lg font-bold text-white mt-2">
                                 {item.title}
                               </h4>
-                            </div>
-
-                            {/* Scrollable Content Section */}
-                            <div className="timeline-card-content">
                               <p className="text-base text-gray-400">
                                 {item.org}
                               </p>
                               <p className="text-sm text-gray-400 mb-2">
                                 {item.date}
                               </p>
-
+                            </div>
+                            {/* Scrollable Content Section */}
+                            <div className="timeline-card-content">
                               {item.bullets && item.bullets.length > 0 && (
-                                <ul className="list-disc space-y-1 pl-4 text-sm text-gray-300">
+                                <ul className="list-disc space-y-1 pl-4 text-sm text-gray-300 text-left">
                                   {expandedCards.has(
                                     item.title + "-" + item.year
                                   ) ? (
@@ -2445,28 +2436,6 @@ export default function Home() {
                                 </ul>
                               )}
                             </div>
-
-                            {/* Fixed Footer Section */}
-                            {item.bullets && item.bullets.length > 1 && (
-                              <div className="timeline-card-footer">
-                                <button
-                                  className="pt-2 text-sm font-bold text-blue-400 hover:underline"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleCardExpansion(
-                                      item.title + "-" + item.year
-                                    );
-                                  }}
-                                >
-                                  Click to see{" "}
-                                  {expandedCards.has(
-                                    item.title + "-" + item.year
-                                  )
-                                    ? "less"
-                                    : `${item.bullets.length - 1} more...`}
-                                </button>
-                              </div>
-                            )}
                           </div>
                         </div>
                       </div>
