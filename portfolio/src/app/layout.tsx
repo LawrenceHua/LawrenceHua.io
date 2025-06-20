@@ -6,6 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.lawrencehua.com"),
   title: "Lawrence Hua - AI Product Manager",
   description:
     "Portfolio website showcasing my work in AI product management and software development",

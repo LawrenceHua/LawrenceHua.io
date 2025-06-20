@@ -117,8 +117,8 @@ export default function AnalyticsPage() {
     "all"
   );
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
-  const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d" | "all">(
-    "7d"
+  const [timeRange, setTimeRange] = useState<"1d" | "7d" | "30d" | "all">(
+    "30d"
   );
   const [db, setDb] = useState<Firestore | null>(null);
 
@@ -270,9 +270,8 @@ export default function AnalyticsPage() {
       // Calculate time filter
       const now = new Date();
       let startDate = new Date();
-      let isAllTime = false;
       switch (timeRange) {
-        case "24h":
+        case "1d":
           startDate.setHours(now.getHours() - 24);
           break;
         case "7d":
@@ -282,25 +281,21 @@ export default function AnalyticsPage() {
           startDate.setDate(now.getDate() - 30);
           break;
         case "all":
-          isAllTime = true;
-          // For "all time", we fetch everything, so no start date filter needed initially
+          startDate = new Date(0);
           break;
       }
 
       // Fetch chat data
       const sessionsRef = collection(db, "chats");
-      let sessionsQuery;
-      if (isAllTime) {
-        sessionsQuery = query(sessionsRef, orderBy("startTime", sortOrder));
-      } else {
-        sessionsQuery = query(
-          sessionsRef,
-          orderBy("startTime", sortOrder),
-          where("startTime", ">=", startDate)
-        );
-      }
-
+      const sessionsQuery = query(
+        sessionsRef,
+        orderBy("startTime", sortOrder),
+        where("startTime", ">=", startDate)
+      );
+      console.log("Fetching sessions with start date:", startDate);
       const sessionsSnapshot = await getDocs(sessionsQuery);
+      console.log("Found sessions:", sessionsSnapshot.size);
+
       const sessionsArray: ChatSession[] = [];
       sessionsSnapshot.forEach((doc) => {
         const data = doc.data();
@@ -313,39 +308,14 @@ export default function AnalyticsPage() {
         });
       });
 
-      // If no sessions, no need to fetch other data
-      if (sessionsArray.length === 0) {
-        setSessions([]);
-        setPageViews([]);
-        setInteractions([]);
-        setAnalyticsData(null);
-        setLoading(false);
-        return;
-      }
-
-      // Determine the date range from the fetched sessions
-      const earliestSessionDate =
-        sessionsArray[sessionsArray.length - 1].startTime;
-
-      // Fetch page views and interactions based on the session date range
+      // Fetch page views
       const pageViewsRef = collection(db, "page_views");
       const pageViewsQuery = query(
         pageViewsRef,
         orderBy("timestamp", "desc"),
-        where("timestamp", ">=", earliestSessionDate)
+        where("timestamp", ">=", startDate)
       );
-
-      const interactionsRef = collection(db, "user_interactions");
-      const interactionsQuery = query(
-        interactionsRef,
-        orderBy("timestamp", "desc"),
-        where("timestamp", ">=", earliestSessionDate)
-      );
-
-      const [pageViewsSnapshot, interactionsSnapshot] = await Promise.all([
-        getDocs(pageViewsQuery),
-        getDocs(interactionsQuery),
-      ]);
+      const pageViewsSnapshot = await getDocs(pageViewsQuery);
 
       const pageViewsArray: PageView[] = [];
       pageViewsSnapshot.forEach((doc) => {
@@ -361,6 +331,15 @@ export default function AnalyticsPage() {
           sessionId: data.sessionId,
         });
       });
+
+      // Fetch user interactions
+      const interactionsRef = collection(db, "user_interactions");
+      const interactionsQuery = query(
+        interactionsRef,
+        orderBy("timestamp", "desc"),
+        where("timestamp", ">=", startDate)
+      );
+      const interactionsSnapshot = await getDocs(interactionsQuery);
 
       const interactionsArray: UserInteraction[] = [];
       interactionsSnapshot.forEach((doc) => {
@@ -630,10 +609,10 @@ export default function AnalyticsPage() {
                 onChange={(e) => setTimeRange(e.target.value as any)}
                 className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
               >
-                <option value="24h">Last 24 Hours</option>
-                <option value="7d">Last 7 Days</option>
-                <option value="30d">Last 30 Days</option>
-                <option value="all">All Time</option>
+                <option value="1d">Last 24 hours</option>
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="all">All time</option>
               </select>
               <button
                 onClick={exportData}
@@ -1000,11 +979,11 @@ export default function AnalyticsPage() {
               <select
                 value={timeRange}
                 onChange={(e) =>
-                  setTimeRange(e.target.value as "24h" | "7d" | "30d" | "all")
+                  setTimeRange(e.target.value as "1d" | "7d" | "30d" | "all")
                 }
                 className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="24h">Last 24 hours</option>
+                <option value="1d">Last 24 hours</option>
                 <option value="7d">Last 7 days</option>
                 <option value="30d">Last 30 days</option>
                 <option value="all">All time</option>
