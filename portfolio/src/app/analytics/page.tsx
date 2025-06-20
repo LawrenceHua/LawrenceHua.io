@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import {
   getFirestore,
@@ -13,6 +13,7 @@ import {
   serverTimestamp,
   where,
   limit,
+  startAfter,
 } from "firebase/firestore";
 import {
   FiArrowLeft,
@@ -139,6 +140,11 @@ export default function AnalyticsPage() {
   const [password, setPassword] = useState("");
   const [showKeywordsModal, setShowKeywordsModal] = useState(false);
   const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
+  const [lastSessionTimestamp, setLastSessionTimestamp] = useState<Date | null>(
+    null
+  );
+  const [hasMore, setHasMore] = useState(true);
+  const PAGE_SIZE = 100;
 
   useEffect(() => {
     // Check for password in session storage
@@ -166,10 +172,9 @@ export default function AnalyticsPage() {
   useEffect(() => {
     if (db && isAuthenticated) {
       fetchAllData();
-      // Start real-time data collection
       startDataCollection();
     }
-  }, [db, timeRange, sortOrder, isAuthenticated]);
+  }, [db, timeRange, isAuthenticated]);
 
   const startDataCollection = () => {
     // Track page view
@@ -300,7 +305,7 @@ export default function AnalyticsPage() {
     return sessionId;
   };
 
-  const fetchAllData = async () => {
+  const fetchAllData = async (append = false) => {
     try {
       setLoading(true);
       if (!db) return;
@@ -325,10 +330,21 @@ export default function AnalyticsPage() {
 
       // Fetch chat data
       const messagesRef = collection(db, "chatbot_messages");
-      const messagesQuery = query(
+      let messagesQuery = query(
         messagesRef,
-        where("timestamp", ">=", startDate)
+        where("timestamp", ">=", startDate),
+        orderBy("timestamp", "desc"),
+        limit(PAGE_SIZE)
       );
+      if (lastSessionTimestamp && append) {
+        messagesQuery = query(
+          messagesRef,
+          where("timestamp", ">=", startDate),
+          orderBy("timestamp", "desc"),
+          limit(PAGE_SIZE),
+          startAfter(lastSessionTimestamp)
+        );
+      }
       console.log("Fetching messages with start date:", startDate);
       const messagesSnapshot = await getDocs(messagesQuery);
       console.log("Found messages:", messagesSnapshot.size);
@@ -433,9 +449,17 @@ export default function AnalyticsPage() {
         });
       });
 
-      setSessions(sessionsArray);
-      setPageViews(pageViewsArray);
-      setInteractions(interactionsArray);
+      if (append) {
+        setSessions((prev) => [...prev, ...sessionsArray]);
+      } else {
+        setSessions(sessionsArray);
+      }
+      setLastSessionTimestamp(
+        sessionsArray.length > 0
+          ? sessionsArray[sessionsArray.length - 1].startTime
+          : null
+      );
+      setHasMore(sessionsArray.length === PAGE_SIZE);
 
       // Calculate analytics data
       const analytics = calculateAnalyticsData(
@@ -700,35 +724,30 @@ export default function AnalyticsPage() {
     };
   };
 
-  const filteredSessions = sessions.filter((session) => {
-    const matchesSearch = session.messages.some((msg) =>
-      msg.message?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredSessions = useMemo(() => {
+    let filtered = [...sessions];
+    if (roleFilter !== "all") {
+      filtered = filtered.filter((session) =>
+        session.messages.some((msg) => msg.role === roleFilter)
+      );
+    }
+    if (searchTerm) {
+      filtered = filtered.filter((session) =>
+        session.messages.some((msg) =>
+          msg.message?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }
+    filtered.sort((a, b) =>
+      sortOrder === "desc"
+        ? b.startTime.getTime() - a.startTime.getTime()
+        : a.startTime.getTime() - b.startTime.getTime()
     );
+    return filtered;
+  }, [sessions, roleFilter, searchTerm, sortOrder]);
 
-    const matchesRole =
-      roleFilter === "all" ||
-      session.messages.some((msg) => msg.role === roleFilter);
-
-    return matchesSearch && matchesRole;
-  });
-
-  const exportData = () => {
-    const data = {
-      sessions: filteredSessions,
-      pageViews,
-      interactions,
-      analytics: analyticsData,
-      exportDate: new Date().toISOString(),
-    };
-
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `portfolio-analytics-${new Date().toISOString().split("T")[0]}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+  const loadMoreSessions = () => {
+    fetchAllData(true);
   };
 
   const formatTimestamp = (timestamp: any) => {
@@ -830,13 +849,6 @@ export default function AnalyticsPage() {
                 <option value="30d">Last 30 days</option>
                 <option value="all">All time</option>
               </select>
-              <button
-                onClick={exportData}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
-              >
-                <FiDownload className="h-4 w-4" />
-                Export Data
-              </button>
             </div>
           </div>
         </div>
@@ -1440,6 +1452,17 @@ export default function AnalyticsPage() {
               ))
             )}
           </div>
+
+          {hasMore && (
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={loadMoreSessions}
+                className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Load More Sessions
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
