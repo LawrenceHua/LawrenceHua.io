@@ -168,13 +168,8 @@ What would you like to know?`,
 
       const data = await response.json();
 
-      // Check if this is the Myley easter egg response (only trigger love mode if password was correct)
-      const isMyleyResponse =
-        data.response &&
-        (data.response.includes("Myley") ||
-          data.response.includes("Lawrence's favorite person") ||
-          (data.response.includes("girlfriend") &&
-            !data.response.includes("secret password")));
+      // Check if this is the Myley easter egg response using the flag from backend
+      const isMyleyResponse = data.isMyleyResponse;
 
       // Check if password is needed
       const needsPassword = data.needsPassword;

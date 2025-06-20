@@ -2,6 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { handleGirlfriendEasterEgg } from "./girlfriend-easter-egg";
 
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -144,85 +145,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Easter Egg: Handle questions about Lawrence's girlfriend
-    console.log("DEBUG: Incoming message:", message);
-    const isGirlfriendQuestion =
-      /who\s+is\s+lawrence'?s?\s+(girlfriend|favorite girl|partner)|is\s+lawrence\s+(dating|single)|does\s+lawrence\s+have\s+a\s+(girlfriend|partner)|tell\s+me\s+about\s+lawrence'?s?\s+(girlfriend|love life|relationship)|who\s+is\s+lawrence\s+girlfriend/i.test(
-        message
-      );
-    console.log("DEBUG: isGirlfriendQuestion:", isGirlfriendQuestion);
-
-    if (isGirlfriendQuestion) {
-      // Check if the message contains the secret password (August 21, 2024 in any format)
-      const passwordPatterns = [
-        /august\s*21\s*2024/i,
-        /8\/21\/2024/i,
-        /8-21-2024/i,
-        /8\.21\.2024/i,
-        /august\s*21st\s*2024/i,
-        /21st\s*august\s*2024/i,
-        /2024-08-21/i,
-        /08\/21\/24/i,
-        /8\/21\/24/i,
-        /august\s*21/i,
-        /8\/21/i,
-        /8-21/i,
-        /8\.21/i,
-      ];
-      const hasCorrectPassword = passwordPatterns.some((pattern) =>
-        pattern.test(message)
-      );
-      console.log("DEBUG: hasCorrectPassword:", hasCorrectPassword);
-
-      if (!hasCorrectPassword) {
-        // If no password provided, ask for it
-        if (
-          !message.toLowerCase().includes("august") &&
-          !message.toLowerCase().includes("8/") &&
-          !message.toLowerCase().includes("2024")
-        ) {
-          console.log("DEBUG: Asking for password");
-          return NextResponse.json({
-            response: "...what's the secret password? 🤐",
-            needsPassword: true,
-          });
-        }
-
-        // If password was provided but incorrect, give the mentor response
-        console.log("DEBUG: Password incorrect, giving mentor response");
-        const mentorResponse = `Lawrence admires many incredible people who have shaped his thinking and career:
-
-**Mentors & Colleagues:**
-• **Dr. Wendy** - His research mentor who taught him the importance of rigorous analysis and clear communication
-• **Shyam** - A brilliant colleague who inspires him with innovative problem-solving approaches
-• **JJ** - A mentor who showed him how to balance technical excellence with business impact
-
-**Philosophers & Thinkers:**
-• **Marcus Aurelius** - For his stoic philosophy and leadership principles
-• **Peter Drucker** - For his insights on management and innovation
-• **Clayton Christensen** - For his disruptive innovation theory
-
-**Celebrities & Public Figures:**
-• **Elon Musk** - For his bold vision and ability to execute on seemingly impossible goals
-• **Steve Jobs** - For his focus on design and user experience
-• **Warren Buffett** - For his long-term thinking and value investing principles
-
-Lawrence believes that surrounding yourself with great people makes you better. He's grateful for all the mentors, colleagues, and thinkers who have influenced his journey! 🌟`;
-
-        return NextResponse.json({ response: mentorResponse });
-      }
-
-      // If password is correct, reveal the answer
-      console.log("DEBUG: Password correct, revealing Myley");
-      const myleyResponse = `**Myley** is Lawrence's favorite person! 💕
-
-She's his amazing girlfriend who brings so much joy, laughter, and love to his life. They've been together for a while now and Lawrence couldn't be happier! 
-
-She's smart, kind, funny, and supports him in everything he does. Lawrence often says she's the best thing that's ever happened to him! 🥰
-
-*This is a special easter egg - you found the secret password!*`;
-
-      return NextResponse.json({ response: myleyResponse });
+    // Check for girlfriend easter egg first
+    const easterEggResponse = await handleGirlfriendEasterEgg(message, openai);
+    if (easterEggResponse) {
+      return NextResponse.json(easterEggResponse);
     }
 
     // Handle regular chatbot responses
