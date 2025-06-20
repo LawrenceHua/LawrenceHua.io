@@ -140,47 +140,82 @@ Just reply with this information and I'll send it directly to Lawrence! 🚀`,
     }
 
     // Check if this looks like recruiter contact information being provided
-    const hasRecruiterInfo =
-      (message.toLowerCase().includes("name:") ||
-        message.toLowerCase().includes("company:") ||
-        message.toLowerCase().includes("email:") ||
-        message.toLowerCase().includes("message:")) &&
-      (message.toLowerCase().includes("lawrence") ||
-        message.toLowerCase().includes("contact") ||
-        message.toLowerCase().includes("role") ||
-        message.toLowerCase().includes("position"));
+    // More robust check for unstructured and structured contact info
+    const mightBeContactInfo =
+      /(@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)/.test(message) || // Contains an email
+      /(name|company|email|message):/i.test(message) || // Contains keywords
+      (message.split(",").length > 1 && message.length < 150); // Looks like a short list
 
-    if (hasRecruiterInfo) {
-      // Extract recruiter information from the message
-      const lines = message.split("\n");
-      let recruiterName = "";
-      let company = "";
-      let email = "";
-      let recruiterMessage = "";
+    if (mightBeContactInfo) {
+      // --- New Robust Parsing Logic ---
+      let recruiterName =
+        message
+          .match(/name:\s*(.*?)(?:\n|email:|message:|company:|$)/i)?.[1]
+          ?.trim() || "";
+      let company =
+        message
+          .match(/company:\s*(.*?)(?:\n|email:|message:|name:|$)/i)?.[1]
+          ?.trim() || "";
+      let email =
+        message.match(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i)?.[0] || "";
+      let recruiterMessage =
+        message.match(/message:\s*([\s\S]*)/i)?.[1]?.trim() || "";
 
-      for (const line of lines) {
-        const trimmedLine = line.trim();
-        if (trimmedLine.toLowerCase().startsWith("name:")) {
-          recruiterName = trimmedLine.substring(5).trim();
-        } else if (trimmedLine.toLowerCase().startsWith("company:")) {
-          company = trimmedLine.substring(8).trim();
-        } else if (trimmedLine.toLowerCase().startsWith("email:")) {
-          email = trimmedLine.substring(6).trim();
-        } else if (trimmedLine.toLowerCase().startsWith("message:")) {
-          recruiterMessage = trimmedLine.substring(8).trim();
+      // Fallback for unstructured messages
+      if (!recruiterName && !recruiterMessage && email) {
+        const parts = message.split(/[,;]/).map((p: string) => p.trim());
+        const emailIndex = parts.findIndex((p: string) => p === email);
+
+        // Try to infer name and message around the email
+        if (parts.length > 1) {
+          recruiterName =
+            parts.find(
+              (p: string, i: number) => i < emailIndex && isNaN(p as any)
+            ) || "";
+          recruiterMessage =
+            parts.filter((p: string, i: number) => i > emailIndex).join(", ") ||
+            "";
+
+          if (
+            !recruiterMessage &&
+            parts.length > 1 &&
+            emailIndex === parts.length - 1
+          ) {
+            recruiterMessage = parts.slice(0, emailIndex).join(", ");
+          } else if (!recruiterName && parts.length > 1 && emailIndex === 0) {
+            recruiterName = parts[1];
+            recruiterMessage = parts.slice(2).join(", ");
+          }
+        }
+
+        // If still no message, use the original text minus the email
+        if (!recruiterMessage) {
+          recruiterMessage = message
+            .replace(email, "")
+            .replace(/[,;]/g, " ")
+            .trim();
         }
       }
 
-      // If we have the basic info, send it to Lawrence
+      // If still no name, try to extract it from the beginning of the message
+      if (!recruiterName && recruiterMessage) {
+        const potentialName = recruiterMessage.split(" ")[0];
+        if (potentialName.length > 1 && potentialName.length < 20) {
+          recruiterName = potentialName;
+          recruiterMessage = recruiterMessage
+            .substring(potentialName.length)
+            .trim();
+        }
+      }
+
+      // If we have everything, send it
       if (recruiterName && recruiterMessage && email) {
         try {
           const contactResponse = await fetch(
             `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/recruiter-contact`,
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 recruiterName,
                 company,
@@ -206,39 +241,38 @@ Is there anything else you'd like to know about Lawrence's background or experie
               recruiterContactSent: true,
             });
           } else {
+            const errorData = await contactResponse.json();
             return NextResponse.json({
-              response: `I tried to send your message to Lawrence, but there was a technical issue. Could you please try again, or you can reach out to Lawrence directly at lawrencehua2@gmail.com.
-
-Here's what I was trying to send:
-**From:** ${recruiterName}${company ? ` (${company})` : ""}
-**Email:** ${email}
-**Message:** ${recruiterMessage}`,
+              response: `I tried to send your message to Lawrence, but there was an issue: ${errorData.error}. Could you please check the information and try again?`,
               recruiterContactError: true,
             });
           }
         } catch (error) {
           console.error("Error sending recruiter contact:", error);
           return NextResponse.json({
-            response: `I encountered an error while trying to send your message to Lawrence. Please try again or contact Lawrence directly at lawrencehua2@gmail.com.`,
+            response: `I encountered an error while trying to send your message. Please try again or contact Lawrence directly at lawrencehua2@gmail.com.`,
             recruiterContactError: true,
           });
         }
       } else {
-        // If we couldn't extract the info properly, ask for clarification
+        // --- New Contextual Clarification ---
+        let clarification =
+          "Thanks for the information! I just need a little more to pass this along to Lawrence.\n\n";
+        if (!recruiterName) clarification += "**What is your name?**\n";
+        if (!email)
+          clarification += "**What is your email address?** (required)\n";
+        if (!recruiterMessage)
+          clarification += "**What is the message you'd like to send?**\n";
+
+        clarification += `\nHere's what I have so far:\n`;
+        if (recruiterName) clarification += `> **Name:** ${recruiterName}\n`;
+        if (company) clarification += `> **Company:** ${company}\n`;
+        if (email) clarification += `> **Email:** ${email}\n`;
+        if (recruiterMessage)
+          clarification += `> **Message:** ${recruiterMessage}\n`;
+
         return NextResponse.json({
-          response: `I'd love to help you contact Lawrence! I just need a bit more information to make sure I get it right.
-
-Could you please provide:
-- Your name
-- Your company (if applicable) 
-- Your email (required)
-- The message you'd like to send to Lawrence
-
-You can use this format:
-Name: [Your Name]
-Company: [Your Company]
-Email: [Your Email]
-Message: [Your Message]`,
+          response: clarification,
           needsClarification: true,
         });
       }
