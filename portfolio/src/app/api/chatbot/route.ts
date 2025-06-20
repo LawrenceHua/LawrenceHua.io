@@ -93,6 +93,115 @@ export async function POST(request: NextRequest) {
         "\nPlease analyze these files and provide insights about how they relate to Lawrence's experience, skills, or background.";
     }
 
+    // Check if this is a recruiter contact request
+    const isRecruiterContactRequest =
+      message.toLowerCase().includes("contact lawrence") ||
+      message.toLowerCase().includes("get in touch") ||
+      message.toLowerCase().includes("reach out") ||
+      message.toLowerCase().includes("send message") ||
+      message.toLowerCase().includes("connect with lawrence");
+
+    if (isRecruiterContactRequest) {
+      return NextResponse.json({
+        response: `I'd be happy to help you get in touch with Lawrence! I can collect your information and send him a message on your behalf.
+
+**Please provide the following information:**
+
+1. **Your name:**
+2. **Company (if applicable):**
+3. **Your email (optional but recommended):**
+4. **Message to Lawrence:**
+
+Just reply with this information and I'll send it directly to Lawrence! 🚀`,
+        isRecruiterContact: true,
+      });
+    }
+
+    // Check if this looks like recruiter contact information being provided
+    const hasRecruiterInfo =
+      (message.toLowerCase().includes("name:") ||
+        message.toLowerCase().includes("company:") ||
+        message.toLowerCase().includes("email:") ||
+        message.toLowerCase().includes("message:")) &&
+      (message.toLowerCase().includes("lawrence") ||
+        message.toLowerCase().includes("contact") ||
+        message.toLowerCase().includes("role") ||
+        message.toLowerCase().includes("position"));
+
+    if (hasRecruiterInfo) {
+      // Extract recruiter information from the message
+      const lines = message.split("\n");
+      let recruiterName = "";
+      let company = "";
+      let email = "";
+      let recruiterMessage = "";
+
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        if (trimmedLine.toLowerCase().startsWith("name:")) {
+          recruiterName = trimmedLine.substring(5).trim();
+        } else if (trimmedLine.toLowerCase().startsWith("company:")) {
+          company = trimmedLine.substring(8).trim();
+        } else if (trimmedLine.toLowerCase().startsWith("email:")) {
+          email = trimmedLine.substring(6).trim();
+        } else if (trimmedLine.toLowerCase().startsWith("message:")) {
+          recruiterMessage = trimmedLine.substring(8).trim();
+        }
+      }
+
+      // If we have the basic info, send it to Lawrence
+      if (recruiterName && recruiterMessage) {
+        try {
+          const contactResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/recruiter-contact`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                recruiterName,
+                company,
+                email,
+                message: recruiterMessage,
+                conversationContext: `This message was sent through the AI assistant. Original user message: ${message}`,
+              }),
+            }
+          );
+
+          if (contactResponse.ok) {
+            return NextResponse.json({
+              response: `Perfect! I've sent your message to Lawrence. Here's what I sent:
+
+**To:** Lawrence Hua
+**From:** ${recruiterName}${company ? ` (${company})` : ""}
+**Message:** ${recruiterMessage}
+
+Lawrence will get back to you soon! 🎯
+
+Is there anything else you'd like to know about Lawrence's background or experience?`,
+              recruiterContactSent: true,
+            });
+          } else {
+            return NextResponse.json({
+              response: `I tried to send your message to Lawrence, but there was a technical issue. Could you please try again, or you can reach out to Lawrence directly at lawrencehua2@gmail.com.
+
+Here's what I was trying to send:
+**From:** ${recruiterName}${company ? ` (${company})` : ""}
+**Message:** ${recruiterMessage}`,
+              recruiterContactError: true,
+            });
+          }
+        } catch (error) {
+          console.error("Error sending recruiter contact:", error);
+          return NextResponse.json({
+            response: `I encountered an error while trying to send your message to Lawrence. Please try again or contact Lawrence directly at lawrencehua2@gmail.com.`,
+            recruiterContactError: true,
+          });
+        }
+      }
+    }
+
     // Use OpenAI if available
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
