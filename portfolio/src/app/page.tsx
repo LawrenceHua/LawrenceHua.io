@@ -1377,6 +1377,7 @@ export default function Home() {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   // Add state to track if user has toggled a card
   const [hasToggledCard, setHasToggledCard] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   // Set client flag on mount to prevent hydration mismatch
   useEffect(() => {
@@ -1822,8 +1823,104 @@ export default function Home() {
     "-" +
     filteredExperiences[0]?.year;
 
+  // Mobile navigation sections
+  const sections = [
+    { id: "about", label: "About", href: "/#about" },
+    { id: "timeline", label: "Experience", href: "#timeline" },
+    { id: "projects", label: "Projects", href: "#projects" },
+    { id: "contact", label: "Contact", href: "/#contact" },
+  ];
+
+  const scrollToSection = (href: string) => {
+    setIsMobileNavOpen(false);
+    if (href.startsWith("/#")) {
+      // Handle home page sections
+      const sectionId = href.replace("/#", "");
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Handle same page sections
+      const sectionId = href.replace("#", "");
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  // Close mobile nav when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (isMobileNavOpen && !target.closest(".mobile-nav-container")) {
+        setIsMobileNavOpen(false);
+      }
+    };
+
+    if (isMobileNavOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMobileNavOpen]);
+
   return (
     <main className="min-h-screen">
+      {/* Mobile Floating Navigation */}
+      <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-40 md:hidden mobile-nav-container">
+        <div className="relative">
+          {/* Floating Button */}
+          <button
+            onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 shadow-lg transition-all duration-200 transform hover:scale-110"
+            aria-label="Quick Navigation"
+          >
+            <svg
+              className={`w-5 h-5 transition-transform duration-200 ${
+                isMobileNavOpen ? "rotate-45" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d={
+                  isMobileNavOpen
+                    ? "M6 18L18 6M6 6l12 12"
+                    : "M4 6h16M4 12h16M4 18h16"
+                }
+              />
+            </svg>
+          </button>
+
+          {/* Navigation Menu */}
+          {isMobileNavOpen && (
+            <div className="absolute left-0 bottom-full mb-2 bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 min-w-[140px] animate-in slide-in-from-bottom-2 duration-200">
+              <div className="py-2">
+                {sections.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => scrollToSection(section.href)}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 transition-colors duration-150 flex items-center space-x-2"
+                  >
+                    <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                    <span>{section.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation */}
       <Navigation />
 
       {/* Flashing Alert Banner */}
