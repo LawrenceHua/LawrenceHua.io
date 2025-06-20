@@ -29,7 +29,7 @@ Want a beautiful, AI-powered portfolio like this? Follow these steps to create y
    - Update the chatbot prompts in `portfolio/src/components/Chatbot.tsx`.
    - Change your profile picture: replace `profile.jpg` in `portfolio/portfolio/public/images/`.
 5. **Set up environment variables**
-   - Copy `.env.example` to `.env.local` and fill in your API keys (e.g., OpenAI, Firebase).
+   - Copy `.env.example` to `.env.local` and fill in your API keys (e.g., OpenAI, Firebase, Resend).
 6. **Run locally**
    ```bash
    pnpm dev
@@ -49,14 +49,19 @@ Want a beautiful, AI-powered portfolio like this? Follow these steps to create y
 
 - Dynamic career timeline with filtering by year and category
 - Expandable experience cards with detailed achievements
+- Mobile-responsive design with touch-friendly interactions
 - Visual progression through education and work history
 
 ### AI-Powered Chatbot Assistant
 
 - **For Visitors**: Learn about my experience, skills, and projects
-- **For Recruiters**: Share job descriptions and files for analysis
-- Real-time job fit analysis with detailed feedback
-- File attachment support for comprehensive reviews
+- **For Recruiters**:
+  - Share job descriptions and files for analysis
+  - **Direct Contact**: Get in touch with Lawrence through the chatbot
+  - Real-time job fit analysis with detailed feedback
+  - File attachment support for comprehensive reviews
+- **Smart Contact System**: Recruiters can provide their information and send messages directly to Lawrence
+- **Email Validation**: Ensures valid contact information for follow-up
 
 ### Project Showcase
 
@@ -71,16 +76,47 @@ Want a beautiful, AI-powered portfolio like this? Follow these steps to create y
 - Endorsements and experience tracking
 - Highlighted achievements for each skill area
 
+### Contact Forms
+
+- **General Contact**: For general inquiries and collaboration
+- **Meeting Requests**: Schedule calls with Lawrence
+- **Recruiter Contact**: Direct messaging through AI assistant
+- **Email Integration**: Powered by Resend for reliable delivery
+
 ## 🛠️ Technical Stack
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript for type safety
-- **Styling**: TailwindCSS for responsive design
+### Frontend
+
+- **Framework**: Next.js 14.1.0 with App Router
+- **Language**: TypeScript 5.x for type safety
+- **Styling**: TailwindCSS 3.3.0 for responsive design
 - **UI Components**: shadcn/ui component library
-- **AI Integration**: OpenAI GPT for chatbot functionality
-- **Analytics**: Firebase for user interaction tracking
+- **Icons**: Lucide React & React Icons
+- **Charts**: Recharts for data visualization
+
+### Backend & APIs
+
+- **AI Integration**: OpenAI GPT-4 for chatbot functionality
+- **Email Service**: Resend for reliable email delivery
+- **Analytics**: Firebase 11.9.1 for user interaction tracking
+- **Date Handling**: React DatePicker for meeting scheduling
+
+### Development & Deployment
+
+- **Package Manager**: pnpm 9.15.4
+- **Node Version**: >=22.11.0
 - **Deployment**: Vercel for seamless hosting
 - **Version Control**: Automatic versioning with GitHub Actions
+- **Code Quality**: ESLint, Prettier, TypeScript strict mode
+- **Monorepo**: Turbo for efficient workspace management
+
+### DevOps & Tooling
+
+- **CI/CD**: GitHub Actions with automated testing
+- **Linting**: ESLint with Next.js configuration
+- **Formatting**: Prettier with consistent code style
+- **Type Checking**: TypeScript for compile-time safety
+- **Version Management**: Automatic semantic versioning
 
 ## 📊 Current Projects
 
@@ -159,6 +195,8 @@ I'm always interested in connecting with fellow product managers, AI enthusiasts
 - **Resume**: Available for download on my portfolio
 - **AI Analysis**: Share job descriptions with my chatbot for detailed fit analysis
 - **File Review**: Upload documents for comprehensive assessment
+- **Direct Contact**: Use the AI assistant to send messages directly to Lawrence
+- **Meeting Scheduling**: Request calls through the contact form
 
 ## 🎨 Portfolio Design
 
@@ -169,13 +207,39 @@ This portfolio features:
 - **Performance Optimized**: Built with Next.js for optimal loading speeds
 - **Accessibility**: WCAG compliant with keyboard navigation support
 - **SEO Optimized**: Meta tags, structured data, and performance metrics
+- **Interactive Elements**: Hover effects, smooth transitions, and engaging animations
 
 ## 🚀 Deployment & Versioning
 
 - **Hosting**: Deployed on Vercel with automatic deployments
-- **Version Control**: Automatic versioning system (currently v0.1.0)
+- **Version Control**: Automatic versioning system (currently v1.0.10)
 - **CI/CD**: GitHub Actions for automated testing and deployment
 - **Monitoring**: Real-time analytics and performance tracking
+- **Email Integration**: Reliable email delivery with Resend
+- **AI Features**: OpenAI integration for intelligent interactions
+
+## 🔧 Development Features
+
+### Code Quality
+
+- **TypeScript**: Strict type checking for better code quality
+- **ESLint**: Code linting with Next.js best practices
+- **Prettier**: Consistent code formatting
+- **Husky**: Git hooks for pre-commit checks
+
+### Performance
+
+- **Next.js Optimization**: Automatic code splitting and optimization
+- **Image Optimization**: Next.js Image component for optimal loading
+- **Bundle Analysis**: Built-in performance monitoring
+- **SEO**: Meta tags, structured data, and social media optimization
+
+### Security
+
+- **Environment Variables**: Secure API key management
+- **Input Validation**: Server-side validation for all forms
+- **Email Validation**: Proper email format verification
+- **Rate Limiting**: Protection against spam and abuse
 
 ---
 
@@ -198,6 +262,12 @@ I'm passionate about transforming ideas into impactful digital solutions. My jou
 
 Let's connect and build something amazing together!
 
-_**Built with ❤️ using Next.js, TypeScript, and TailwindCSS**_
+---
 
-_Last updated: January 2025_
+## 📝 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
