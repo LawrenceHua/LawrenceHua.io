@@ -32,6 +32,7 @@ import {
   FiPieChart,
   FiUserCheck,
   FiLock,
+  FiX,
 } from "react-icons/fi";
 import Link from "next/link";
 import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
@@ -110,6 +111,7 @@ interface AnalyticsData {
     longVisits: number;
     keyClicks: number;
   };
+  foundKeywords: { keyword: string; count: number }[];
 }
 
 export default function AnalyticsPage() {
@@ -131,6 +133,7 @@ export default function AnalyticsPage() {
   const [db, setDb] = useState<Firestore | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
+  const [showKeywordsModal, setShowKeywordsModal] = useState(false);
 
   useEffect(() => {
     // Check for password in session storage
@@ -601,6 +604,7 @@ export default function AnalyticsPage() {
       "background",
       "experience",
     ];
+    const foundKeywordsMap = new Map<string, number>();
 
     sessions.forEach((session) => {
       let score = 0;
@@ -636,11 +640,25 @@ export default function AnalyticsPage() {
 
       if (score >= 3) {
         potentialRecruiters++;
-        if (hasKeyword) recruiterMetrics.keywordHits++;
+        if (hasKeyword) {
+          recruiterMetrics.keywordHits++;
+          recruiterKeywords.forEach((keyword) => {
+            if (chatMessages.includes(keyword)) {
+              foundKeywordsMap.set(
+                keyword,
+                (foundKeywordsMap.get(keyword) || 0) + 1
+              );
+            }
+          });
+        }
         if (isLongVisit) recruiterMetrics.longVisits++;
         if (hasKeyClick) recruiterMetrics.keyClicks++;
       }
     });
+
+    const foundKeywords = Array.from(foundKeywordsMap.entries())
+      .map(([keyword, count]) => ({ keyword, count }))
+      .sort((a, b) => b.count - a.count);
 
     return {
       totalPageViews: pageViews.length,
@@ -661,6 +679,7 @@ export default function AnalyticsPage() {
       topCities,
       potentialRecruiters,
       recruiterMetrics,
+      foundKeywords,
     };
   };
 
@@ -1028,13 +1047,21 @@ export default function AnalyticsPage() {
               </p>
               {analyticsData.recruiterMetrics && (
                 <div className="mt-4 pt-4 border-t border-gray-700 space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-400">
                       Used Recruiter Keywords
                     </span>
-                    <span className="font-semibold text-teal-400">
-                      {analyticsData.recruiterMetrics.keywordHits}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-teal-400">
+                        {analyticsData.recruiterMetrics.keywordHits}
+                      </span>
+                      <button
+                        onClick={() => setShowKeywordsModal(true)}
+                        className="text-xs bg-teal-500/20 hover:bg-teal-500/40 text-teal-300 px-2 py-1 rounded"
+                      >
+                        View
+                      </button>
+                    </div>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-400">
@@ -1131,6 +1158,36 @@ export default function AnalyticsPage() {
                     ))}
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Keywords Modal */}
+        {showKeywordsModal && analyticsData?.foundKeywords && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-xl p-8 max-w-lg w-full">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold">Recruiter Keywords Used</h3>
+                <button
+                  onClick={() => setShowKeywordsModal(false)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <FiX className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {analyticsData.foundKeywords.map(({ keyword, count }) => (
+                  <div
+                    key={keyword}
+                    className="flex justify-between items-center bg-gray-700 p-3 rounded-lg"
+                  >
+                    <span className="font-medium">{keyword}</span>
+                    <span className="text-lg font-bold text-teal-400">
+                      {count}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
