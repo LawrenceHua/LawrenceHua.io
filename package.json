@@ -22,7 +22,8 @@
     "postinstall": "pnpm lint:ws",
     "typecheck": "turbo run typecheck",
     "ui-add": "turbo run ui-add",
-    "with-env": "dotenv -e .env --"
+    "with-env": "dotenv -e .env --",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",

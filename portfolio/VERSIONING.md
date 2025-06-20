@@ -1,99 +1,80 @@
-# Automatic Versioning System
+# Automatic Version Management
 
-This project uses an automatic versioning system that increments the version number on every push to the main branch.
+This project automatically increments the version number in the footer every time you push to the main branch.
 
 ## How It Works
 
-### Version Format
+### GitHub Actions Workflow
 
-- **Format**: `MAJOR.MINOR.PATCH` (e.g., `1.0.0`)
-- **Current Version**: Check `package.json` or run `npm run version`
+- Located at `.github/workflows/version.yml`
+- Triggers on every push to the `main` branch
+- Automatically increments the patch version in `package.json`
+- Commits the version change back to the repository
+- Prevents infinite loops by ignoring changes to `package.json`
 
-### Automatic Increments
+### Local Git Hook (Alternative)
 
-- **Every push** to the main branch increments the **PATCH** version
-- **Every 10 increments** moves to the next **MINOR** version
-- **Example progression**:
-  ```
-  1.0.0 → 1.0.1 → 1.0.2 → ... → 1.0.9 → 1.1.0 → 1.1.1 → ... → 1.1.9 → 1.2.0
-  ```
+- Located at `.git/hooks/pre-push`
+- Runs before every `git push`
+- Increments version and creates a commit automatically
+- Useful for immediate testing
 
-### Version Rules
+## Version Format
 
-- **PATCH** (0-9): Increments on every push
-- **MINOR** (0-9): Increments every 10 pushes
-- **MAJOR**: Manual increment for breaking changes
+The version follows semantic versioning: `MAJOR.MINOR.PATCH`
 
-## Commands
+- **Current version**: `1.0.36`
+- **Patch increments**: Every push increases the patch number (e.g., 1.0.36 → 1.0.37)
+- **Minor increments**: Every 10 patch increments moves to the next minor version (e.g., 1.0.9 → 1.1.0)
+- **Major increments**: Manual process for breaking changes
 
-### Check Current Version
+## Scripts
 
-```bash
-npm run version
+### `npm run version`
+
+Increments the version and updates `package.json`
+
+### `npm run test-version`
+
+Shows what the next version would be without making changes
+
+## Manual Version Control
+
+If you need to manually set a specific version:
+
+1. Edit `package.json` and change the `version` field
+2. Commit the change
+3. The next push will increment from your manual version
+
+## Troubleshooting
+
+### GitHub Actions not working
+
+1. Check that the workflow has write permissions
+2. Ensure the `GITHUB_TOKEN` secret is available
+3. Verify the workflow file is in the correct location
+
+### Git hook not working
+
+1. Ensure the hook is executable: `chmod +x .git/hooks/pre-push`
+2. Check that you're pushing to the main branch
+3. Verify the script paths are correct
+
+### Version not updating in footer
+
+1. Check that the API route `/api/version` is working
+2. Verify the footer component is fetching the version correctly
+3. Ensure the build process includes the latest version
+
+## API Endpoint
+
+The version is served via `/api/version` which returns:
+
+```json
+{
+  "version": "1.0.36",
+  "timestamp": "2025-01-20T10:30:00.000Z"
+}
 ```
 
-This will show:
-
-- Current version information
-- Next version predictions
-- Version progression examples
-
-### Manual Version Management
-
-If you need to manually set a version:
-
-```bash
-# Set specific version
-npm version 2.0.0 --no-git-tag-version
-
-# Increment major version
-npm version major --no-git-tag-version
-
-# Increment minor version
-npm version minor --no-git-tag-version
-
-# Increment patch version
-npm version patch --no-git-tag-version
-```
-
-## GitHub Actions
-
-The versioning is handled by the GitHub Action workflow in `.github/workflows/version-increment.yml`:
-
-1. **Triggers**: On every push to main branch
-2. **Excludes**: Markdown files and the workflow file itself
-3. **Process**:
-   - Reads current version from `package.json`
-   - Calculates next version based on rules
-   - Updates `package.json`
-   - Commits and pushes the change
-
-## Version History Example
-
-```
-1.0.0 - Initial version
-1.0.1 - First push
-1.0.2 - Second push
-...
-1.0.9 - Ninth push
-1.1.0 - Tenth push (minor increment)
-1.1.1 - Eleventh push
-...
-1.1.9 - Nineteenth push
-1.2.0 - Twentieth push (minor increment)
-```
-
-## Benefits
-
-- **Automatic tracking** of deployment frequency
-- **Consistent versioning** across the team
-- **Easy rollback** to specific versions
-- **Clear progression** of project development
-- **No manual version management** required
-
-## Notes
-
-- The workflow only runs on pushes to the `main` branch
-- Version increments are automatic and cannot be skipped
-- For major version changes (breaking changes), manual intervention is required
-- The system prevents version conflicts by using atomic commits
+This endpoint reads the version from `package.json` and provides a timestamp of when it was last updated.

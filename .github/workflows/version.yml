@@ -4,28 +4,42 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "portfolio/package.json" # Prevent infinite loops
 
 jobs:
   version:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Setup Node.js"
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
 
+      - name: "Setup pnpm"
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.4
+
+      - name: "Install dependencies"
+        run: pnpm install
+
       - name: "Increment version"
-        run: node portfolio/scripts/version.js
+        working-directory: ./portfolio
+        run: node scripts/version.js
 
       - name: "Commit and push changes"
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: Bump version"
+          commit_message: "chore: Bump version [skip ci]"
           branch: main
           file_pattern: "portfolio/package.json"
           commit_user_name: "GitHub Actions"

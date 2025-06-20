@@ -55,3 +55,7 @@ next-env.d.ts
 
 # Error
 core
+
+# Test results
+test-results-*.txt
+*.log
