@@ -413,6 +413,12 @@ const projectSectionsData: ProjectSection = {
   ],
 };
 
+// PATCH: Remove duration from all experience date fields
+function stripDuration(date: string) {
+  return date.replace(/\s+·.+$/, "");
+}
+
+// Patch timelineData
 const timelineData = [
   {
     year: "2025",
@@ -420,7 +426,7 @@ const timelineData = [
     right: {
       title: "Product Manager",
       org: "PM Happy Hour · Internship",
-      date: "Mar 2025 - Present · 4 mos",
+      date: stripDuration("Mar 2025 - Present · 4 mos"),
       logo: "/logos/pm_happy_hour_logo.jpeg",
       category: "product",
       bullets: [
@@ -449,7 +455,7 @@ const timelineData = [
     right: {
       title: "Founder",
       org: "Expired Solutions · Full-time",
-      date: "Aug 2024 - Present · 11 mos",
+      date: stripDuration("Aug 2024 - Present · 11 mos"),
       logo: "/logos/expired_solutions_logo.jpeg",
       category: "product",
       bullets: [
@@ -468,7 +474,7 @@ const timelineData = [
     right: {
       title: "Product Manager",
       org: "PanPalz · Internship",
-      date: "Aug 2024 - Jan 2025 · 6 mos",
+      date: stripDuration("Aug 2024 - Jan 2025 · 6 mos"),
       logo: "/logos/Panpalz logo.jpeg",
       category: "product",
       bullets: [
@@ -486,7 +492,7 @@ const timelineData = [
     right: {
       title: "Student Consultant, Technical Lead",
       org: "Kearney",
-      date: "Sep 2024 - Dec 2024 · 4 mos",
+      date: stripDuration("Sep 2024 - Dec 2024 · 4 mos"),
       logo: "/logos/kearney_logo.jpeg",
       category: "engineering",
       bullets: [
@@ -504,7 +510,7 @@ const timelineData = [
     right: {
       title: "Produce Assistant Team Leader",
       org: "Giant Eagle, Inc. · Full-time",
-      date: "Feb 2025 - May 2025 · 4 mos",
+      date: stripDuration("Feb 2025 - May 2025 · 4 mos"),
       logo: "/logos/giant_eagle_logo.jpeg",
       category: "retail",
       bullets: [
@@ -523,7 +529,7 @@ const timelineData = [
     right: {
       title: "Cryptocurrency Researcher",
       org: "Carnegie Mellon University · Internship",
-      date: "Jul 2024 - Aug 2024 · 2 mos",
+      date: stripDuration("Jul 2024 - Aug 2024 · 2 mos"),
       logo: "/logos/carnegie_mellon_university_logo.jpeg",
       category: "engineering",
       bullets: [
@@ -542,7 +548,7 @@ const timelineData = [
     right: {
       title: "Embedded Android Engineer",
       org: "Motorola Solutions · Full-time",
-      date: "Aug 2021 - Aug 2023 · 2 yrs 1 mo",
+      date: stripDuration("Aug 2021 - Aug 2023 · 2 yrs 1 mo"),
       logo: "/logos/Motorola logo.jpeg",
       category: "engineering",
       bullets: [
@@ -571,7 +577,7 @@ const timelineData = [
     right: {
       title: "AI Product Consultant & Computer Science Instructor",
       org: "Tutora · Part-time",
-      date: "Mar 2021 - Present · 4 yrs 4 mos",
+      date: stripDuration("Mar 2021 - Present · 4 yrs 4 mos"),
       logo: "/logos/Tutora Logo.jpeg",
       category: "engineering",
       bullets: [
@@ -590,7 +596,7 @@ const timelineData = [
     right: {
       title: "System Administrator",
       org: "University of Florida · Part-time",
-      date: "May 2019 - Jun 2021 · 2 yrs 2 mos",
+      date: stripDuration("May 2019 - Jun 2021 · 2 yrs 2 mos"),
       logo: "/logos/UF logo.jpeg",
       category: "engineering",
       bullets: [
@@ -609,7 +615,7 @@ const timelineData = [
     right: {
       title: "Android Software Developer",
       org: "Motorola Solutions · Internship",
-      date: "Jun 2020 - Aug 2020 · 3 mos",
+      date: stripDuration("Jun 2020 - Aug 2020 · 3 mos"),
       logo: "/logos/Motorola logo.jpeg",
       category: "engineering",
       bullets: [
@@ -624,7 +630,7 @@ const timelineData = [
     year: "2021",
     title: "AI Product Consultant & Computer Science Instructor",
     org: "Tutora · Part-time",
-    date: "Mar 2021 - Present",
+    date: stripDuration("Mar 2021 - Present"),
     logo: "/logos/Tutora Logo.jpeg",
     category: "engineering",
     bullets: [
@@ -634,6 +640,20 @@ const timelineData = [
       "Developed and launched 50+ TI-BASIC math programs, improving standardized test scores by 35% across 50+ students",
       "Taught core computer science principles including data structures, Java programming, and project-based learning using Code.org and AP CS content",
       "Delivered training and documentation to ensure long-term adoption of both AI workflows and instructional tools",
+    ],
+  },
+  {
+    type: "experience",
+    year: "2018",
+    title: "Store Cashier",
+    org: "5-Spice Asian Street Market · Full-time",
+    date: stripDuration("Jan 2016 - Jan 2018"),
+    logo: "/logos/5spice_logo.jpeg",
+    bullets: [
+      "Family-owned restaurant business, started working as an unpaid intern at age 6, made my way to a paid full-time worker by 2016!",
+      "Orders taken using Point-of-Sale software to secure communication with the chef and accuracy for the bill.",
+      "Managed orders and interacted with customers to ensure positive customer experience",
+      "Demonstrated flexibility through a range of jobs such as barista, tip calculator, and dining hall cleaner.",
     ],
   },
 ];
@@ -687,7 +707,7 @@ const timelineEvents: Array<TimelineEvent> = [
     year: "2025",
     title: "Product Manager",
     org: "PM Happy Hour · Internship",
-    date: "Mar 2025 - Present · 4 mos",
+    date: stripDuration("Mar 2025 - Present · 4 mos"),
     logo: "/logos/pm_happy_hour_logo.jpeg",
     category: "product",
     bullets: [
@@ -845,6 +865,20 @@ const timelineEvents: Array<TimelineEvent> = [
       "Developed and updated Android Applications in the APX NEXT device while using various technologies (Android studio, git, ADB, shell, JIRA, Bitbucket).",
       "Learned how to adapt quickly in a completely virtual agile development setting.",
       "Created and presented end-to-end solutions for developer applications during end of program presentation.",
+    ],
+  },
+  {
+    type: "experience",
+    year: "2018",
+    title: "Store Cashier",
+    org: "5-Spice Asian Street Market · Full-time",
+    date: "Jan 2016 - Jan 2018",
+    logo: "/logos/5spice_logo.jpeg",
+    bullets: [
+      "Family-owned restaurant business, started working as an unpaid intern at age 6, made my way to a paid full-time worker by 2016!",
+      "Orders taken using Point-of-Sale software to secure communication with the chef and accuracy for the bill.",
+      "Managed orders and interacted with customers to ensure positive customer experience",
+      "Demonstrated flexibility through a range of jobs such as barista, tip calculator, and dining hall cleaner.",
     ],
   },
 ];
@@ -2869,7 +2903,7 @@ export default function Home() {
                       <div className="flex flex-col items-center space-y-4">
                         <DatePicker
                           selected={meetingDate}
-                          onChange={(date) => setMeetingDate(date)}
+                          onChange={(date: Date | null) => setMeetingDate(date)}
                           inline
                           className="rounded-lg border border-gray-700 bg-gray-800/50"
                         />
