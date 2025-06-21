@@ -1557,15 +1557,20 @@ export default function AnalyticsPage() {
               </div>
 
               {/* Scrollable Content Area - Gallery Style */}
-              <div className="flex-1 relative">
+              <div className="flex-1 flex flex-col min-h-0">
                 <div
-                  className="absolute inset-0 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-800 hover:scrollbar-thumb-purple-500"
+                  className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-800"
                   style={{
                     scrollBehavior: "smooth",
                     scrollbarWidth: "thin",
+                    scrollbarColor: "#7c3aed #374151",
+                    WebkitOverflowScrolling: "touch",
+                  }}
+                  onWheel={(e) => {
+                    e.stopPropagation();
                   }}
                 >
-                  <div className="p-6 space-y-4">
+                  <div className="space-y-4">
                     {filteredSessions.length === 0 ? (
                       <div className="text-center py-12 text-gray-400">
                         <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -1613,8 +1618,16 @@ export default function AnalyticsPage() {
 
                             {/* Messages Gallery */}
                             <div
-                              className="space-y-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800/50 pr-2"
-                              style={{ scrollBehavior: "smooth" }}
+                              className="space-y-3 max-h-80 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700"
+                              style={{
+                                scrollBehavior: "smooth",
+                                scrollbarWidth: "thin",
+                                scrollbarColor: "#6b7280 #374151",
+                                WebkitOverflowScrolling: "touch",
+                              }}
+                              onWheel={(e) => {
+                                e.stopPropagation();
+                              }}
                             >
                               {session.messages.map((message, index) => (
                                 <div
