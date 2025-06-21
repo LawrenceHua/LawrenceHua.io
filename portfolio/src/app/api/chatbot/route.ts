@@ -644,13 +644,27 @@ function extractContactInfoFromHistory(
 
   // If no explicit message found, try to extract from context
   if (!extractedInfo.message) {
-    // Look for messages that contain meaningful content
+    // Only look for messages that are NOT contact requests
     const meaningfulMessages = allConversationText.filter((msg) => {
-      // Don't filter out messages that are clearly meant to be the actual message
-      if (/(?:the message is|message:|tell him|let him know)/i.test(msg)) {
+      // Skip if it's just a contact request
+      if (
+        /^(hey|hi|hello)?\s*(?:can you|could you)?\s*(?:send|forward|tell).*(?:message|email).*(?:to )?lawrence/i.test(
+          msg.trim()
+        )
+      ) {
+        return false;
+      }
+
+      // Look for explicit message indicators
+      if (
+        /(?:the message is|message is|tell him|tell lawrence|message:)\s*(.+)/i.test(
+          msg
+        )
+      ) {
         return true;
       }
 
+      // Allow messages that seem to be actual content (not contact requests)
       const cleanMsg = msg
         .toLowerCase()
         .replace(/(?:i'm|im|my name is|my email is|email is)/g, "")
@@ -658,34 +672,40 @@ function extractContactInfoFromHistory(
         .trim();
 
       // Check if it's a short, meaningful phrase (like "great website!")
-      if (cleanMsg.length <= 30 && cleanMsg.length > 5) {
-        // Allow short phrases that seem like messages
-        return true;
+      if (cleanMsg.length <= 50 && cleanMsg.length > 8) {
+        // Must not contain contact-related words
+        if (
+          !/(?:send|forward|tell|contact|message|email|lawrence)/i.test(
+            cleanMsg
+          )
+        ) {
+          return true;
+        }
       }
 
-      // For longer messages, apply more filtering
-      const filteredMsg = cleanMsg
-        .replace(
-          /\b(hey|hi|hello|the|and|or|but|with|for|to|from|at|in|on)\b/g,
-          ""
-        )
-        .trim();
-      return filteredMsg.length > 3;
+      return false;
     });
 
     if (meaningfulMessages.length > 0) {
-      // Use the most substantial message
-      const substantialMessage = meaningfulMessages
-        .sort((a, b) => b.length - a.length)[0]
+      // Use the most recent meaningful message
+      let substantialMessage =
+        meaningfulMessages[meaningfulMessages.length - 1];
+
+      // Clean it up
+      substantialMessage = substantialMessage
         .replace(
           /(?:i'm|im|my name is|my email is|email is)\s+[a-z0-9@.\s]+/gi,
           ""
         )
         .replace(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi, "")
         .replace(/^(hey|hi|hello)\s*/i, "")
+        .replace(
+          /(?:the message is|message is|tell him|tell lawrence|message:)\s*/i,
+          ""
+        )
         .trim();
 
-      if (substantialMessage.length > 5) {
+      if (substantialMessage.length > 8) {
         extractedInfo.message = substantialMessage;
       }
     }
@@ -806,40 +826,58 @@ function detectContactIntent(message: string): {
   // Extract message content (what they want to tell Lawrence)
   let messageContent = "";
 
-  // Remove extracted info to get the core message
-  let cleanMessage = message;
-  if (extractedInfo.name) {
-    cleanMessage = cleanMessage.replace(
-      new RegExp(
-        `(?:i'm|im|my name is|this is|hey)\\s+${extractedInfo.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
-        "gi"
-      ),
-      ""
+  // Don't extract message content if this is just an initial contact request
+  const isJustContactRequest =
+    /^(hey|hi|hello)?\s*(?:can you|could you)?\s*(?:send|forward|tell).*(?:message|email).*(?:to )?lawrence(?:\s+for me)?[.!?]*$/i.test(
+      message.trim()
     );
-  }
-  if (extractedInfo.email) {
-    cleanMessage = cleanMessage.replace(extractedInfo.email, "");
-  }
-  if (extractedInfo.company) {
-    cleanMessage = cleanMessage.replace(
-      new RegExp(
-        `(?:from|at|work at)\\s+${extractedInfo.company.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
-        "gi"
-      ),
-      ""
-    );
-  }
 
-  // Clean up and get the core message
-  messageContent = cleanMessage
-    .replace(/[,;.]+/g, " ")
-    .replace(/\s+/g, " ")
-    .replace(/^(hey|hi|hello)\s*/i, "")
-    .replace(/\s*(thanks?|thank you)\s*$/i, "")
-    .trim();
+  if (!isJustContactRequest) {
+    // Remove extracted info to get the core message
+    let cleanMessage = message;
+    if (extractedInfo.name) {
+      cleanMessage = cleanMessage.replace(
+        new RegExp(
+          `(?:i'm|im|my name is|this is|hey)\\s+${extractedInfo.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+          "gi"
+        ),
+        ""
+      );
+    }
+    if (extractedInfo.email) {
+      cleanMessage = cleanMessage.replace(extractedInfo.email, "");
+    }
+    if (extractedInfo.company) {
+      cleanMessage = cleanMessage.replace(
+        new RegExp(
+          `(?:from|at|work at)\\s+${extractedInfo.company.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+          "gi"
+        ),
+        ""
+      );
+    }
 
-  if (messageContent && messageContent.length > 5) {
-    extractedInfo.message = messageContent;
+    // Remove common contact request phrases to get the actual message
+    cleanMessage = cleanMessage
+      .replace(
+        /(?:send|forward|tell).*(?:message|email).*(?:to )?lawrence/gi,
+        ""
+      )
+      .replace(/(?:can you|could you|please)/gi, "")
+      .replace(/(?:for me|thanks?|thank you)/gi, "")
+      .replace(/[,;.!?]+/g, " ")
+      .replace(/\s+/g, " ")
+      .replace(/^(hey|hi|hello)\s*/i, "")
+      .trim();
+
+    // Only consider it a message if it has substantial content that's not just contact-related
+    if (
+      cleanMessage &&
+      cleanMessage.length > 10 &&
+      !/^(about|regarding)\s*$/i.test(cleanMessage)
+    ) {
+      extractedInfo.message = cleanMessage;
+    }
   }
 
   return {
@@ -849,7 +887,7 @@ function detectContactIntent(message: string): {
   };
 }
 
-// Enhanced function to generate conversational responses
+// Enhanced function to generate conversational responses with proper step-by-step flow
 function generateContactResponse(
   intent: "message" | "meeting" | "question" | null,
   extractedInfo: any,
@@ -861,30 +899,43 @@ function generateContactResponse(
   // Check what information we have and what we need
   const hasName = name && name.length > 0;
   const hasEmail = email && email.length > 0;
-  const hasMessage = userMessage && userMessage.length > 0;
+  const hasMessage = userMessage && userMessage.length > 5; // Need substantial message content
+
+  // Check if this is an initial contact request (like "send a message to lawrence")
+  const isInitialContactRequest =
+    /(?:send|forward).*(?:message|email).*(?:to )?lawrence|can you (?:send|tell|contact)|get in touch with lawrence/i.test(
+      message.toLowerCase()
+    );
 
   if (intent === "message") {
-    if (hasName && hasEmail && hasMessage) {
-      // We have everything - confirm and send
-      return `Perfect! I'll send your message to Lawrence right away:\n\n**From:** ${name}${company ? ` (${company})` : ""}\n**Email:** ${email}\n**Message:** ${userMessage}\n\nLawrence will get back to you soon! 📧`;
-    } else if (hasName && hasEmail) {
-      // Missing message content
-      return `Great${name ? ` ${name}` : ""}! I have your contact info. What message would you like me to send to Lawrence?`;
-    } else if (hasName && hasMessage) {
-      // Missing email
-      return `Thanks${name ? ` ${name}` : ""}! I'd be happy to forward your message to Lawrence. What's your email address so he can get back to you?`;
-    } else if (hasEmail && hasMessage) {
-      // Missing name
-      return `I'd be happy to send that message to Lawrence! Could you tell me your name so I can include it in the message?`;
-    } else if (hasName) {
-      // Only have name
-      return `Hi ${name}! I'd be happy to help you get in touch with Lawrence. What's your email address and what message would you like me to send him?`;
-    } else if (hasEmail) {
-      // Only have email
-      return `I'd be happy to forward a message to Lawrence! Could you tell me your name and what you'd like to say?`;
-    } else {
-      // No useful info extracted
-      return `I'd be happy to help you get in touch with Lawrence! Could you share your name, email, and what message you'd like me to send him?`;
+    // Step 1: If it's just an initial request with no actual message content, ask for the message first
+    if (isInitialContactRequest && !hasMessage) {
+      return `I'd be happy to send a message to Lawrence for you! What would you like the message to say?`;
+    }
+
+    // Step 2: We have a message, but need email
+    if (hasMessage && !hasEmail) {
+      return `Great! I'll forward that message to Lawrence. What's your email address so he can get back to you?`;
+    }
+
+    // Step 3: We have message and email, but no name - ask if they want to provide it
+    if (hasMessage && hasEmail && !hasName) {
+      return `Perfect! I have your message and email address. Would you like to include your name, or should I send it as is?`;
+    }
+
+    // Step 4: We have everything - send the message
+    if (hasMessage && hasEmail) {
+      const senderName = hasName ? name : "Anonymous";
+      return `✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence:\n\n**From:** ${senderName}${company ? ` (${company})` : ""}\n**Email:** ${email}\n**Message:** ${userMessage}\n\nLawrence will get back to you soon! 📧`;
+    }
+
+    // Fallback - ask for missing info step by step
+    if (hasName && !hasEmail && !hasMessage) {
+      return `Hi ${name}! I'd be happy to help you get in touch with Lawrence. What message would you like me to send him?`;
+    } else if (hasEmail && !hasMessage) {
+      return `I'd be happy to forward a message to Lawrence! What would you like to tell him?`;
+    } else if (!hasEmail && !hasMessage) {
+      return `I'd be happy to send a message to Lawrence! What would you like the message to say?`;
     }
   }
 
