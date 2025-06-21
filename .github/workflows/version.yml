@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - revert-test-main
     paths-ignore:
       - "portfolio/package.json" # Prevent infinite loops
 
@@ -40,7 +41,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: Bump version [skip ci]"
-          branch: main
           file_pattern: "portfolio/package.json"
           commit_user_name: "GitHub Actions"
           commit_user_email: "actions@github.com"

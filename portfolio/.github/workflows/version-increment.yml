@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - revert-test-main
 
 jobs:
   version-increment:
