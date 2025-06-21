@@ -458,14 +458,8 @@ export function TimelineSection() {
                         </div>
 
                         {/* Expandable Content */}
-                        <motion.div
-                          initial={false}
-                          animate={{
-                            height: isExpanded ? "auto" : 0,
-                            opacity: isExpanded ? 1 : 0,
-                          }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="overflow-hidden"
+                        <div
+                          className={`overflow-hidden ${isExpanded ? "block" : "hidden"}`}
                         >
                           <div className="mt-4 space-y-2">
                             {item.details?.map((detail, idx) => (
@@ -480,7 +474,7 @@ export function TimelineSection() {
                               </div>
                             ))}
                           </div>
-                        </motion.div>
+                        </div>
                       </motion.div>
                     </motion.div>
                   );
@@ -577,14 +571,8 @@ export function TimelineSection() {
                           </div>
 
                           {/* Expandable Content */}
-                          <motion.div
-                            initial={false}
-                            animate={{
-                              height: isExpanded ? "auto" : 0,
-                              opacity: isExpanded ? 1 : 0,
-                            }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
-                            className="overflow-hidden"
+                          <div
+                            className={`overflow-hidden ${isExpanded ? "block" : "hidden"}`}
                           >
                             <div className="mt-4 space-y-2">
                               {item.bullets?.map((bullet, idx) => (
@@ -599,7 +587,7 @@ export function TimelineSection() {
                                 </div>
                               ))}
                             </div>
-                          </motion.div>
+                          </div>
                         </motion.div>
                       </motion.div>
                     );

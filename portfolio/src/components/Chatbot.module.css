@@ -158,6 +158,14 @@
     box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.1);
   }
 
+  /* Ensure action buttons are touch-friendly on mobile */
+  .actionButton {
+    padding: 12px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    font-size: 1.4rem !important;
+  }
+
   /* Ensure the input area is visible above the keyboard */
   .messagesContainer {
     max-height: calc(100% - 120px) !important;
@@ -339,9 +347,14 @@
   color: #6366f1;
   font-size: 1.2rem;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
   border-radius: 6px;
   transition: background 0.2s;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .actionButton:hover {

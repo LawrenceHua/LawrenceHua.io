@@ -142,7 +142,7 @@ export function ModernNavigation({
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="flex items-center space-x-1.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 px-2 py-1 text-white shadow-md backdrop-blur-md cursor-pointer hover:scale-105 transition-transform duration-200 text-xs"
+                className="flex items-center space-x-1 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 px-1.5 py-0.5 text-white shadow-md backdrop-blur-md cursor-pointer hover:scale-105 transition-transform duration-200 text-[10px]"
                 onClick={() => {
                   const contactSection = document.getElementById("contact");
                   if (contactSection) {
@@ -165,7 +165,7 @@ export function ModernNavigation({
                     ease: "easeInOut",
                   }}
                 >
-                  <AlertCircle className="h-2.5 w-2.5" />
+                  <AlertCircle className="h-2 w-2" />
                 </motion.div>
                 <span className="font-semibold whitespace-nowrap">
                   Open to AI PM/APM roles!
@@ -308,7 +308,7 @@ export function ModernNavigation({
                         ease: "easeInOut",
                       }}
                     >
-                      <AlertCircle className="h-3 w-3" />
+                      <AlertCircle className="h-2.5 w-2.5" />
                     </motion.div>
                     <span className="font-semibold whitespace-nowrap">
                       Open to AI PM/APM roles!
