@@ -571,6 +571,7 @@ function extractContactInfoFromHistory(
       const namePatterns = [
         /(?:i'm|im|my name is)\s+([a-z\s]+?)(?:[,.]|$)/i,
         /(?:this is|hey i'm|hey im)\s+([a-z\s]+?)(?:[,.]|$)/i,
+        /(?:from|by)\s+([a-z]+)(?:\s+at|\s+@|$)/i, // "from john at" or "by mike @"
         /^hey\s+([a-z\s]+?)(?:[,.]|$)/i,
       ];
 
@@ -754,6 +755,7 @@ function detectContactIntent(message: string): {
   const namePatterns = [
     /(?:i'm|im|my name is)\s+([a-z\s]+?)(?:[,.]|$)/i,
     /(?:this is|hey)\s+([a-z\s]+?)(?:[,.]|$)/i,
+    /(?:from|by)\s+([a-z]+)(?:\s+at|\s+@|$)/i, // "from john at" or "by mike @"
     /^([a-z\s]+?)(?:\s+here|,)/i,
   ];
 
