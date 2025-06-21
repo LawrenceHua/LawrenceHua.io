@@ -5,105 +5,94 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("[SEND-IMAGE] Starting image email process");
-
     const formData = await request.formData();
-    const imageFile = formData.get("image") as File;
-    const userMessage = formData.get("message") as string;
-    const userEmail = formData.get("email") as string;
-    const userName = formData.get("name") as string;
+    const image = formData.get("image") as File;
+    const message = formData.get("message") as string;
+    const userEmail = (formData.get("email") as string) || "Anonymous";
+    const userName = (formData.get("name") as string) || "Portfolio Visitor";
 
-    console.log("[SEND-IMAGE] Received data:", {
-      imageFile: imageFile
-        ? `${imageFile.name} (${imageFile.size} bytes)`
-        : "No file",
-      userMessage,
-      userEmail,
-      userName,
-    });
+    console.log("[SEND IMAGE] Received image:", image?.name);
+    console.log("[SEND IMAGE] Message:", message);
+    console.log("[SEND IMAGE] User:", userName, userEmail);
 
-    if (!imageFile) {
-      console.log("[SEND-IMAGE] No image file provided");
-      return NextResponse.json(
-        { success: false, message: "No image file provided" },
-        { status: 400 }
-      );
+    if (!image) {
+      return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
 
-    // Convert image to base64 for email attachment
-    const buffer = Buffer.from(await imageFile.arrayBuffer());
-    const base64 = buffer.toString("base64");
-    const mimeType = imageFile.type || "image/jpeg";
+    // Convert image to buffer for email attachment
+    const buffer = Buffer.from(await image.arrayBuffer());
 
-    console.log("[SEND-IMAGE] Image processed:", {
-      filename: imageFile.name,
-      size: imageFile.size,
-      mimeType,
-    });
-
-    // Email the image to Lawrence using environment variable
-    console.log(
-      "[SEND-IMAGE] Sending email to:",
-      process.env.EMAIL_NAME || "lawrencehua@gmail.com"
-    );
-
-    const emailResult = await resend.emails.send({
-      from: "Lawrence's Portfolio <onboarding@resend.dev>",
-      to: [process.env.EMAIL_NAME || "lawrencehua@gmail.com"],
-      subject: `📷 Image Attachment from Portfolio Chat - ${userName || "Anonymous"}`,
+    // Send email with image attachment
+    const { data, error } = await resend.emails.send({
+      from: "Lawrence Hua Portfolio <onboarding@resend.dev>",
+      to: [process.env.EMAIL_NAME || "lawrencehua2@gmail.com"],
+      subject: `📸 Image Upload from Chatbot - ${userName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">📷 Image Attachment Received</h2>
-          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>From:</strong> ${userName || "Anonymous"}</p>
-            <p><strong>Email:</strong> ${userEmail || "Not provided"}</p>
-            <p><strong>Message:</strong> ${userMessage || "No message provided"}</p>
-            <p><strong>Image:</strong> ${imageFile.name}</p>
-            <p><strong>File Size:</strong> ${(imageFile.size / 1024).toFixed(2)} KB</p>
+          <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
+            📸 New Image from Chatbot
+          </h2>
+          
+          <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #1e293b;">User Information</h3>
+            <p><strong>Name:</strong> ${userName}</p>
+            <p><strong>Email:</strong> ${userEmail}</p>
+            <p><strong>Image Name:</strong> ${image.name}</p>
+            <p><strong>Image Size:</strong> ${(image.size / 1024 / 1024).toFixed(2)} MB</p>
+            <p><strong>Image Type:</strong> ${image.type}</p>
           </div>
-          <p>Image is attached below.</p>
+
+          ${
+            message
+              ? `
+          <div style="background-color: #fff; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #1e293b;">User Message</h3>
+            <p style="line-height: 1.6; white-space: pre-wrap;">${message}</p>
+          </div>
+          `
+              : ""
+          }
+          
+          <div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+            <p style="margin: 0; color: #1e40af;">
+              <strong>📎 Image Attachment:</strong> The image is attached to this email for your review.
+            </p>
+          </div>
+          
           <p style="color: #64748b; font-size: 14px;">
-            This image was sent from your portfolio chatbot at ${new Date().toLocaleString()}
+            🤖 This image was sent automatically from your chatbot at ${new Date().toLocaleString()}
           </p>
         </div>
       `,
       attachments: [
         {
-          filename: imageFile.name,
-          content: base64,
-          contentType: mimeType,
+          filename: image.name,
+          content: buffer,
         },
       ],
     });
 
-    console.log("[SEND-IMAGE] Email result:", emailResult);
-
-    if (emailResult.error) {
-      console.error("[SEND-IMAGE] Image email error:", emailResult.error);
+    if (error) {
+      console.error("[SEND IMAGE] Resend error:", error);
       return NextResponse.json(
-        {
-          success: false,
-          message: "Failed to send image email",
-          error: emailResult.error,
-        },
+        { error: "Failed to send image email" },
         { status: 500 }
       );
     }
 
-    console.log("[SEND-IMAGE] Image email sent successfully");
-    return NextResponse.json({
-      success: true,
-      message: "Image sent to Lawrence successfully!",
-      data: emailResult.data,
-    });
-  } catch (error) {
-    console.error("[SEND-IMAGE] Error sending image email:", error);
+    console.log("[SEND IMAGE] Email sent successfully");
     return NextResponse.json(
       {
-        success: false,
-        message: "Internal server error",
-        error: error instanceof Error ? error.message : String(error),
+        message: "Image sent successfully",
+        success: true,
+        data,
       },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("[SEND IMAGE] Error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

