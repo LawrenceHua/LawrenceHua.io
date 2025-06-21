@@ -54,64 +54,143 @@ function truncateToTokenLimit(text: string, maxTokens: number): string {
 }
 
 // Read system prompt from experience.txt file with token management
-function getSystemPrompt(maxTokens: number = 4000): string {
-  try {
-    const filePath = join(process.cwd(), "public", "experience.txt");
-    console.log("Trying to read from:", filePath);
-    const content = readFileSync(filePath, "utf-8");
-    console.log("Successfully read experience.txt, length:", content.length);
+async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
+  // Try multiple paths to find experience.txt
+  const experiencePaths = [
+    // Vercel deployment path (portfolio is root)
+    join(process.cwd(), "public", "experience.txt"),
+    // Alternative paths for different deployment scenarios
+    join(process.cwd(), "portfolio", "public", "experience.txt"),
+    join(process.cwd(), "..", "public", "experience.txt"),
+    join(process.cwd(), "..", "..", "experience.txt"),
+    // Relative to current file location
+    join(__dirname, "..", "..", "..", "..", "public", "experience.txt"),
+  ];
 
+  // Try multiple paths to find resume.pdf
+  const resumePaths = [
+    join(process.cwd(), "public", "resume.pdf"),
+    join(process.cwd(), "portfolio", "public", "resume.pdf"),
+    join(process.cwd(), "..", "public", "resume.pdf"),
+    join(__dirname, "..", "..", "..", "..", "public", "resume.pdf"),
+  ];
+
+  let experienceContent = "";
+  let resumeContent = "";
+
+  // Try to read experience.txt
+  for (const filePath of experiencePaths) {
+    try {
+      console.log("Trying to read experience.txt from:", filePath);
+      experienceContent = readFileSync(filePath, "utf-8");
+      console.log(
+        "Successfully read experience.txt, length:",
+        experienceContent.length
+      );
+      break;
+    } catch (error: any) {
+      console.log(
+        `Failed to read experience.txt from ${filePath}:`,
+        error.message
+      );
+      continue;
+    }
+  }
+
+  // Try to read resume.pdf
+  for (const filePath of resumePaths) {
+    try {
+      console.log("Trying to read resume.pdf from:", filePath);
+      const buffer = readFileSync(filePath);
+
+      // Try to parse PDF
+      try {
+        // @ts-ignore
+        const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
+        const data = await pdfParse(buffer);
+        resumeContent = data.text;
+        console.log(
+          "Successfully read resume.pdf, length:",
+          resumeContent.length
+        );
+        break;
+      } catch (pdfError: any) {
+        console.log("PDF parsing failed:", pdfError.message);
+        continue;
+      }
+    } catch (error: any) {
+      console.log(`Failed to read resume.pdf from ${filePath}:`, error.message);
+      continue;
+    }
+  }
+
+  // Combine content with priority to experience.txt
+  let combinedContent = "";
+  if (experienceContent) {
+    combinedContent = experienceContent;
+
+    // Add resume content if available and we have token budget
+    if (resumeContent) {
+      const resumeTokens = estimateTokens(resumeContent);
+      const experienceTokens = estimateTokens(experienceContent);
+      const remainingTokens = maxTokens - experienceTokens - 200; // Leave buffer
+
+      if (remainingTokens > 500) {
+        const truncatedResume = truncateToTokenLimit(
+          resumeContent,
+          remainingTokens
+        );
+        combinedContent += `\n\n=== ADDITIONAL RESUME INFORMATION ===\n${truncatedResume}`;
+        console.log("Added resume content to system prompt");
+      } else {
+        console.log("Not enough token budget for resume content");
+      }
+    }
+  } else if (resumeContent) {
+    // If no experience.txt, use resume as fallback
+    combinedContent = `=== RESUME INFORMATION ===\n${resumeContent}`;
+    console.log("Using resume content as primary source");
+  }
+
+  if (combinedContent) {
     // If file is too large, use a much more conservative limit
-    if (content.length > 20000) {
-      console.log("File is very large, using conservative token limit");
+    if (combinedContent.length > 20000) {
+      console.log(
+        "Combined content is very large, using conservative token limit"
+      );
       maxTokens = 2000; // Much more conservative for large files
     }
 
     // Truncate if too long
-    const truncatedContent = truncateToTokenLimit(content, maxTokens);
+    const truncatedContent = truncateToTokenLimit(combinedContent, maxTokens);
     const estimatedTokens = estimateTokens(truncatedContent);
     console.log("Estimated tokens in system prompt:", estimatedTokens);
 
     return truncatedContent;
-  } catch (error) {
-    console.error("Error reading experience.txt:", error);
-    // Try alternative path
-    try {
-      const altPath = join(process.cwd(), "..", "..", "experience.txt");
-      console.log("Trying alternative path:", altPath);
-      const content = readFileSync(altPath, "utf-8");
-      console.log(
-        "Successfully read from alternative path, length:",
-        content.length
-      );
-
-      // If file is too large, use a much more conservative limit
-      if (content.length > 20000) {
-        console.log("File is very large, using conservative token limit");
-        maxTokens = 2000; // Much more conservative for large files
-      }
-
-      // Truncate if too long
-      const truncatedContent = truncateToTokenLimit(content, maxTokens);
-      const estimatedTokens = estimateTokens(truncatedContent);
-      console.log("Estimated tokens in system prompt:", estimatedTokens);
-
-      return truncatedContent;
-    } catch (altError) {
-      console.error("Alternative path also failed:", altError);
-      // Fallback to a basic prompt if file can't be read
-      return `You are Lawrence Hua's AI assistant. You have extensive knowledge about Lawrence's background, experience, skills, and achievements. 
-
-IMPORTANT: When responding, use proper markdown formatting:
-- Use **bold** for emphasis and important points
-- Use *italic* for subtle emphasis
-- Use \`code\` for technical terms, skills, or code references
-- Use bullet points for lists
-- Keep responses conversational but professional
-
-Answer questions about Lawrence professionally and accurately. If users share files, analyze them and provide relevant insights about how they relate to Lawrence's experience or skills.`;
-    }
   }
+
+  console.error("All paths failed to read experience.txt and resume.pdf");
+  // Fallback to a concise, recruiter-focused prompt
+  return `You are Lawrence Hua's AI assistant. Lawrence is an AI Product Manager with Carnegie Mellon MISM '24, startup founder experience, and 4+ years in product/engineering.
+
+**KEY HIGHLIGHTS:**
+• **AI Product Manager** - Founded Expired Solutions (AI grocery platform, 20% waste reduction)
+• **Technical Background** - Software engineering at Motorola, enterprise LLM tools at Kearney
+• **Product Leadership** - 30% community growth, A/B testing, roadmap planning
+• **Education** - Carnegie Mellon MISM '24, University of Florida CS
+
+**RESPONSE STYLE:**
+- Keep answers **concise** (2-3 bullet points max)
+- **Bold** key achievements and technical skills
+- Focus on **quantifiable impact** (percentages, metrics, scale)
+- If asked about fit: highlight relevant experience quickly
+- If job description shared: match requirements to Lawrence's background
+- Always offer to **schedule a meeting** for detailed discussions
+
+**CORE COMPETENCIES:**
+AI/ML, Product Strategy, Computer Vision, GPT Integration, Enterprise Software, Startup Leadership, Cross-functional Teams
+
+Be helpful but brief - recruiters value impact over lengthy explanations.`;
 }
 
 // Add helper to extract info from context and message
@@ -183,41 +262,251 @@ function extractContactInfo(
   return { recruiterName, company, email, recruiterMessage, phone };
 }
 
-async function getFileContent(file: File): Promise<string | null> {
+async function getFileContent(
+  file: File,
+  message: string,
+  history: Array<{ role: string; content: string }>
+): Promise<{ content: string | null; type: string; position?: string }> {
   console.log("DEBUG: getFileContent called for file:", file.name);
   const an = file.name.split(".");
-  const fileExtension = an[an.length - 1];
+  const fileExtension = an[an.length - 1].toLowerCase();
   console.log("DEBUG: File extension:", fileExtension);
+
+  // Helper function to extract email from message
+  function extractEmailFromMessage(text: string): string {
+    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+    const match = text.match(emailRegex);
+    return match ? match[0] : "Not provided";
+  }
+
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
     console.log("DEBUG: Buffer created, size:", buffer.length);
 
-    if (fileExtension === "pdf") {
-      console.log("DEBUG: Processing PDF file");
-      const pdf = (await import("pdf-parse")).default;
-      const data = await pdf(buffer);
-      console.log("DEBUG: PDF processed successfully");
-      return data.text;
-    } else if (fileExtension === "docx") {
-      console.log("DEBUG: Processing DOCX file");
-      const mammoth = (await import("mammoth")).default;
-      const { value } = await mammoth.extractRawText({ buffer });
-      console.log("DEBUG: DOCX processed successfully");
-      return value;
-    } else if (fileExtension === "txt") {
+    if (fileExtension === "txt") {
       console.log("DEBUG: Processing TXT file");
       const content = buffer.toString("utf-8");
       console.log(
         "DEBUG: TXT processed successfully, content length:",
         content.length
       );
-      return content;
+      return { content, type: "text" };
+    } else if (fileExtension === "pdf") {
+      console.log("DEBUG: Processing PDF file");
+      try {
+        console.log("DEBUG: Attempting to import pdf-parse...");
+        // @ts-ignore
+        const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
+        console.log("DEBUG: pdf-parse import successful");
+
+        console.log("DEBUG: Parsing PDF document...");
+        const data = await pdfParse(buffer);
+        console.log(
+          "DEBUG: PDF parsed successfully, text length:",
+          data.text.length
+        );
+
+        return { content: data.text, type: "pdf" };
+      } catch (pdfError: any) {
+        console.error("DEBUG: PDF processing error:", pdfError);
+        return {
+          content:
+            "PDF_CONTENT_UNAVAILABLE: I can see you've uploaded a PDF file, but I'm currently experiencing technical difficulties with PDF parsing. To help you analyze Lawrence's fit for this role, could you please copy and paste the key job requirements and responsibilities from the document? I'll be happy to provide a detailed analysis based on that information.",
+          type: "pdf",
+        };
+      }
+    } else if (fileExtension === "docx") {
+      console.log("DEBUG: Processing DOCX file");
+      const mammoth = (await import("mammoth")).default;
+      const { value } = await mammoth.extractRawText({ buffer });
+      console.log("DEBUG: DOCX processed successfully");
+      return { content: value, type: "docx" };
+    } else if (["jpg", "jpeg", "png"].includes(fileExtension)) {
+      console.log("DEBUG: Processing image file for vision analysis");
+      // Convert image to base64 for OpenAI vision API
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const base64 = buffer.toString("base64");
+      const mimeType = file.type || `image/${fileExtension}`;
+      return {
+        content: `data:${mimeType};base64,${base64}`,
+        type: "image",
+        position: "image_uploaded",
+      };
     }
     console.log("DEBUG: Unsupported file type:", fileExtension);
-    return null;
+    return { content: null, type: "unsupported" };
   } catch (error) {
-    console.error(`Error processing file ${file.name}:`, error);
+    console.error(`DEBUG: Error processing file ${file.name}:`, error);
+    return { content: null, type: "error" };
+  }
+}
+
+async function detectPosition(content: string): Promise<string | null> {
+  if (!openai) return null;
+
+  try {
+    const positionPrompt = `Analyze the following content and extract the job position/title. If you find a clear job position, return ONLY the position title. If no clear position is found, return "NO_POSITION_FOUND".
+
+Content:
+${content.substring(0, 2000)} // Limit to first 2000 chars for efficiency
+
+Return only the position title or "NO_POSITION_FOUND":`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [{ role: "user", content: positionPrompt }],
+      max_tokens: 100,
+      temperature: 0.1,
+    });
+
+    const position = completion.choices[0]?.message?.content?.trim();
+    return position === "NO_POSITION_FOUND" ? null : position || null;
+  } catch (error) {
+    console.error("DEBUG: Error detecting position:", error);
     return null;
+  }
+}
+
+async function analyzeFit(
+  content: string,
+  position: string | null,
+  fileType: string,
+  systemPrompt: string
+): Promise<string> {
+  if (!openai)
+    return "I'm sorry, I'm not configured to provide analysis right now.";
+
+  const analysisSystemPrompt = `${systemPrompt}
+
+When analyzing job fit, provide:
+1. **Position Confirmation**: "Are you referring to this position: [position]?"
+2. **Relevant Experience**: Bullet points of Lawrence's experience that match the role
+3. **Technical Skills**: Bullet points of technical skills that align with requirements
+4. **Project Examples**: Bullet points of relevant projects or achievements
+5. **Areas for Development**: Any gaps or areas Lawrence might need to develop
+6. **Overall Assessment**: Clear recommendation on fit
+7. **Next Steps**: Ask if they have questions and offer to schedule a meeting
+
+Use proper markdown formatting with **bold** for emphasis and bullet points for lists.`;
+
+  const userPrompt = `Please analyze this ${fileType} content for Lawrence's fit:
+
+${content.substring(0, 4000)} // Limit content for efficiency
+
+${position ? `Detected Position: ${position}` : "No specific position detected"}
+
+Provide a comprehensive analysis following the format specified.`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: analysisSystemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      max_tokens: 1500,
+      temperature: 0.7,
+    });
+
+    return (
+      completion.choices[0]?.message?.content ||
+      "I'm sorry, I couldn't generate an analysis."
+    );
+  } catch (error) {
+    console.error("DEBUG: Error analyzing fit:", error);
+    return "I'm sorry, I encountered an error while analyzing the content.";
+  }
+}
+
+async function sendMeetingRequest(data: {
+  requesterName: string;
+  requesterEmail?: string;
+  company?: string;
+  position?: string;
+  message: string;
+  conversationContext?: string;
+  fileAnalysis?: string;
+}): Promise<{ success: boolean; message: string }> {
+  try {
+    // Import the meeting-request handler directly to avoid port issues
+    const { POST: meetingRequestHandler } = await import(
+      "../meeting-request/route"
+    );
+
+    // Create a mock request object
+    const mockRequest = {
+      json: async () => data,
+    } as unknown as NextRequest;
+
+    console.log("DEBUG: Calling meeting request handler directly");
+    const response = await meetingRequestHandler(mockRequest);
+    const result = await response.json();
+
+    console.log("DEBUG: Meeting request result:", result);
+
+    if (response.status === 200 && result.success) {
+      return {
+        success: true,
+        message:
+          "Meeting request sent successfully! Lawrence will contact you soon.",
+      };
+    } else {
+      console.error("DEBUG: Meeting request failed:", result);
+      return {
+        success: false,
+        message:
+          "Failed to send meeting request. Please try again or contact Lawrence directly.",
+      };
+    }
+  } catch (error) {
+    console.error("DEBUG: Error sending meeting request:", error);
+    return {
+      success: false,
+      message:
+        "Failed to send meeting request. Please try again or contact Lawrence directly.",
+    };
+  }
+}
+
+async function extractContactInfoWithAI(message: string): Promise<{
+  name?: string;
+  email?: string;
+  company?: string;
+  position?: string;
+}> {
+  if (!openai) return {};
+
+  try {
+    const extractionPrompt = `Extract contact information from this message. Return ONLY a JSON object with these fields (use null if not found):
+- name: The person's name
+- email: Their email address
+- company: Their company name
+- position: Their job position/title
+
+Message: "${message}"
+
+Return only the JSON object:`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [{ role: "user", content: extractionPrompt }],
+      max_tokens: 200,
+      temperature: 0.1,
+    });
+
+    const result = completion.choices[0]?.message?.content;
+    if (result) {
+      try {
+        return JSON.parse(result);
+      } catch (parseError) {
+        console.error("DEBUG: Error parsing contact info:", parseError);
+        return {};
+      }
+    }
+    return {};
+  } catch (error) {
+    console.error("DEBUG: Error extracting contact info:", error);
+    return {};
   }
 }
 
@@ -234,23 +523,110 @@ export async function POST(request: NextRequest) {
     console.log("DEBUG: Received message:", message);
     console.log("DEBUG: Received files count:", files.length);
 
+    // Check for meeting request intent
+    const meetingRequestKeywords = [
+      "schedule",
+      "meeting",
+      "call",
+      "interview",
+      "discuss",
+      "talk",
+      "connect",
+      "book",
+      "arrange",
+      "set up",
+      "coordinate",
+      "meet",
+      "conference",
+    ];
+
+    const isMeetingRequest = meetingRequestKeywords.some((keyword) =>
+      message.toLowerCase().includes(keyword)
+    );
+
     // Process files first
-    let fileContents = "";
+    let finalMessage = message;
+    let hasFiles = false;
+    let fileAnalysis = "";
+    let detectedPosition: string | null = null;
+
     if (files.length > 0) {
       console.log("DEBUG: Processing files");
+      hasFiles = true;
+
       for (const file of files) {
         console.log("DEBUG: Processing file:", file.name);
-        const content = await getFileContent(file);
-        if (content) {
-          fileContents += `\n\n--- Content of ${file.name} ---\n${content}`;
-          console.log("DEBUG: Added file content");
+        console.log("DEBUG: File type:", file.type);
+        console.log("DEBUG: File size:", file.size);
+
+        const fileResult = await getFileContent(file, message, history);
+        console.log(
+          "DEBUG: getFileContent returned:",
+          fileResult.content ? "SUCCESS" : "FAILED"
+        );
+
+        if (fileResult.content) {
+          console.log("DEBUG: File content length:", fileResult.content.length);
+
+          if (fileResult.type === "image") {
+            // Provide intelligent response about image analysis
+            console.log("DEBUG: Processing image for analysis");
+
+            // Silently email the image to Lawrence in the background
+            setTimeout(async () => {
+              try {
+                const { POST: sendImageHandler } = await import(
+                  "../send-image/route"
+                );
+
+                const imageFile = files[0];
+                const formData = new FormData();
+                formData.append("image", imageFile);
+                formData.append("message", message);
+                formData.append("email", "Portfolio Visitor");
+                formData.append("name", "Portfolio Visitor");
+
+                const mockRequest = {
+                  formData: async () => formData,
+                } as unknown as NextRequest;
+
+                await sendImageHandler(mockRequest);
+                console.log("DEBUG: Image silently emailed to Lawrence");
+              } catch (emailError) {
+                console.error("DEBUG: Silent image email failed:", emailError);
+              }
+            }, 0);
+
+            // Return intelligent response about the image
+            return NextResponse.json({
+              response: `📷 **Image Analysis**\n\nI can see you've shared an image with me! Based on your message "${message}", this appears to be something relevant to Lawrence's professional background.\n\nIf this is a:\n• **Business card or contact info**: I can help you understand how to connect with Lawrence about potential opportunities\n• **Job posting**: I can analyze how Lawrence's experience aligns with the requirements\n• **Resume or CV**: I can compare qualifications and highlight relevant experience\n• **Company information**: I can explain how Lawrence's skills might fit your organization\n\nCould you tell me more about what specific information you're looking for? I'd be happy to provide detailed insights about Lawrence's background and how it relates to what you've shared!`,
+              imageAnalyzed: true,
+            });
+          } else {
+            // Handle text-based files
+            finalMessage += `\n\nFile content from ${file.name}:\n${fileResult.content}`;
+
+            // Detect position for text files
+            const position = await detectPosition(fileResult.content);
+            if (position) {
+              fileAnalysis += `\n\n**Detected Position**: ${position}`;
+              detectedPosition = position;
+            }
+          }
+
+          console.log("DEBUG: Added file content to message");
+        } else {
+          console.log("DEBUG: Failed to get file content for:", file.name);
         }
       }
     }
 
+    const userMessage = finalMessage || "User sent a file for analysis.";
+    console.log("DEBUG: Final user message length:", userMessage.length);
+
     // Check for girlfriend easter egg
     const easterEggResponse = await handleGirlfriendEasterEgg(
-      message,
+      userMessage,
       history,
       openai
     );
@@ -266,11 +642,46 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const systemPrompt = getSystemPrompt(4000);
-    const userMessage =
-      (message || "User sent a file for analysis.") + fileContents;
+    const systemPrompt = await getSystemPrompt(4000);
 
-    console.log("DEBUG: Final user message length:", userMessage.length);
+    // Handle meeting requests
+    if (isMeetingRequest) {
+      console.log("DEBUG: Detected meeting request intent");
+
+      // Extract contact information from the message
+      const contactInfo = await extractContactInfoWithAI(userMessage);
+
+      const meetingData = {
+        requesterName: contactInfo.name || "Anonymous",
+        requesterEmail: contactInfo.email,
+        company: contactInfo.company,
+        position: detectedPosition || contactInfo.position,
+        message: userMessage,
+        conversationContext:
+          history.length > 0 ? JSON.stringify(history) : undefined,
+        fileAnalysis: hasFiles ? fileAnalysis : undefined,
+      };
+
+      const meetingResult = await sendMeetingRequest(meetingData);
+
+      return NextResponse.json({
+        response: `🤝 **Meeting Request Sent!**\n\n${meetingResult.message}\n\nLawrence will review your request and contact you soon to schedule a meeting. In the meantime, feel free to ask me any other questions about Lawrence's background and experience.`,
+        meetingRequested: true,
+      });
+    }
+
+    // If files were uploaded, provide enhanced analysis
+    if (hasFiles) {
+      const analysis = await analyzeFit(
+        userMessage,
+        detectedPosition,
+        "document",
+        systemPrompt
+      );
+      const fullResponse = `${fileAnalysis}\n\n${analysis}\n\n**Next Steps**: Do you have any questions about Lawrence's fit for this role? I can help schedule a meeting with Lawrence right away if you'd like to discuss this opportunity further. Just let me know if you'd like to schedule a meeting!`;
+
+      return NextResponse.json({ response: fullResponse });
+    }
 
     const messages = [
       { role: "system" as const, content: systemPrompt },

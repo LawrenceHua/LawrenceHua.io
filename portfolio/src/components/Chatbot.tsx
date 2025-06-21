@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FiMessageCircle,
   FiSend,
@@ -126,6 +127,16 @@ What would you like to know?`,
     }
   }, [isOpen, isMinimized]);
 
+  // Handle wheel events to prevent body scroll when scrolling inside chatbot
+  const handleWheel = (e: React.WheelEvent) => {
+    // Only prevent default if we're scrolling the messages container
+    const target = e.target as HTMLElement;
+    const messagesContainer = target.closest(".messagesContainer");
+    if (messagesContainer) {
+      e.stopPropagation();
+    }
+  };
+
   // Detect desktop
   const isDesktop = typeof window !== "undefined" && window.innerWidth > 768;
 
@@ -158,7 +169,7 @@ What would you like to know?`,
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/chatbot-new", {
+      const response = await fetch("/api/chatbot", {
         method: "POST",
         body: formData,
       });
@@ -223,271 +234,309 @@ What would you like to know?`,
   };
 
   return (
-    <>
-      {isOpen && !isMinimized && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.45)",
-            zIndex: 999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onClick={isDesktop ? onClose : undefined}
-        />
-      )}
+    <AnimatePresence>
       {isOpen && (
-        <div
-          className={
-            `chatbotContainer ${styles.chatbotContainer} ` +
-            (isMinimized ? styles.minimized : "") +
-            (isFullscreen ? styles.fullscreen : "") +
-            (isLoveMode ? styles.loveMode : "")
-          }
-          style={{
-            maxWidth: isFullscreen || isDesktop ? "600px" : undefined,
-            maxHeight: isFullscreen ? "100vh" : undefined,
-            width: isFullscreen ? "100vw" : isDesktop ? "600px" : undefined,
-            height: isMinimized
-              ? "64px"
-              : isFullscreen
-                ? "100vh"
-                : isDesktop
-                  ? "80vh"
-                  : undefined,
-            bottom: isFullscreen ? 0 : isDesktop ? "50%" : undefined,
-            right: isFullscreen ? 0 : isDesktop ? "50%" : undefined,
-            left: isFullscreen ? 0 : undefined,
-            borderRadius: isFullscreen ? 0 : undefined,
-            position: isDesktop ? "fixed" : undefined,
-            transform: isDesktop ? "translate(50%, 50%)" : undefined,
-            zIndex: 1000,
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div
-            className={
-              styles.header + " header flex items-center justify-between"
-            }
-          >
-            <span className="flex items-center gap-2 font-semibold">
-              {isLoveMode ? (
-                <>
-                  <FiHeart className="inline-block mr-2 animate-pulse text-pink-500" />
-                  <span className="text-pink-600">Lawrence's Love Bot 💕</span>
-                </>
-              ) : (
-                <>
-                  <FiMessageCircle className="inline-block mr-2" />
-                  Lawrence's AI Assistant
-                </>
-              )}
-            </span>
-            <div className="flex items-center gap-2">
-              {isLoveMode && (
-                <button
-                  className="px-3 py-1 text-xs bg-pink-100 hover:bg-pink-200 text-pink-700 rounded-full transition-colors duration-200 font-medium"
-                  onClick={() => setIsLoveMode(false)}
-                  title="Stop the cringe"
-                >
-                  Stop the cringe 😅
-                </button>
-              )}
-              <button
-                className={styles.actionButton + " actionButton"}
-                title="Close"
-                onClick={onClose}
-              >
-                <FiX />
-              </button>
-            </div>
-          </div>
-
-          {/* Messages */}
+        <>
+          {/* Animated Backdrop */}
           {!isMinimized && (
-            <div className={styles.messagesContainer + " messagesContainer"}>
-              {messages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={
-                    "flex flex-col " +
-                    (msg.role === "assistant" ? "items-start" : "items-end")
-                  }
-                >
-                  {/* Message Label */}
-                  <div className="flex items-center gap-2 mb-1 px-3">
-                    {msg.role === "assistant" ? (
-                      <>
-                        <FiCpu className="h-3 w-3 text-blue-400" />
-                        <span className="text-xs font-medium text-blue-400">
-                          Lawrence's AI
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <FiUser className="h-3 w-3 text-gray-400" />
-                        <span className="text-xs font-medium text-gray-400">
-                          You
-                        </span>
-                      </>
-                    )}
-                  </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(0,0,0,0.45)",
+                zIndex: 999,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              onClick={isDesktop ? onClose : undefined}
+            />
+          )}
 
-                  {/* Message Bubble */}
+          {/* Animated Modal */}
+          <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.8,
+              x: isDesktop ? 100 : 0,
+              y: isDesktop ? 100 : 20,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              x: 0,
+              y: 0,
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.9,
+              x: isDesktop ? 50 : 0,
+              y: isDesktop ? 50 : 20,
+            }}
+            transition={{
+              type: "spring",
+              damping: 25,
+              stiffness: 300,
+              duration: 0.3,
+            }}
+            className={
+              `chatbotContainer ${styles.chatbotContainer} ` +
+              (isMinimized ? styles.minimized : "") +
+              (isFullscreen ? styles.fullscreen : "") +
+              (isLoveMode ? styles.loveMode : "")
+            }
+            style={{
+              maxWidth: isFullscreen || isDesktop ? "600px" : undefined,
+              maxHeight: isFullscreen ? "100vh" : undefined,
+              width: isFullscreen ? "100vw" : isDesktop ? "600px" : undefined,
+              height: isMinimized
+                ? "64px"
+                : isFullscreen
+                  ? "100vh"
+                  : isDesktop
+                    ? "80vh"
+                    : undefined,
+              bottom: isFullscreen ? 0 : isDesktop ? "6rem" : undefined,
+              right: isFullscreen ? 0 : isDesktop ? "1.5rem" : undefined,
+              left: isFullscreen ? 0 : undefined,
+              borderRadius: isFullscreen ? 0 : "1rem",
+              position: isDesktop ? "fixed" : undefined,
+              zIndex: 1000,
+              boxShadow:
+                "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onWheel={handleWheel}
+          >
+            {/* Header */}
+            <div
+              className={
+                styles.header + " header flex items-center justify-between"
+              }
+            >
+              <span className="flex items-center gap-2 font-semibold">
+                {isLoveMode ? (
+                  <>
+                    <FiHeart className="inline-block mr-2 animate-pulse text-pink-500" />
+                    <span className="text-pink-600">
+                      Lawrence's Love Bot 💕
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <FiMessageCircle className="inline-block mr-2" />
+                    Lawrence's AI Assistant
+                  </>
+                )}
+              </span>
+              <div className="flex items-center gap-2">
+                {isLoveMode && (
+                  <button
+                    className="px-3 py-1 text-xs bg-pink-100 hover:bg-pink-200 text-pink-700 rounded-full transition-colors duration-200 font-medium"
+                    onClick={() => setIsLoveMode(false)}
+                    title="Stop the cringe"
+                  >
+                    Stop the cringe 😅
+                  </button>
+                )}
+                <button
+                  className={styles.actionButton + " actionButton"}
+                  title="Close"
+                  onClick={onClose}
+                >
+                  <FiX />
+                </button>
+              </div>
+            </div>
+
+            {/* Messages */}
+            {!isMinimized && (
+              <div className={styles.messagesContainer + " messagesContainer"}>
+                {messages.map((msg, i) => (
                   <div
+                    key={i}
                     className={
-                      styles.messageBubble +
-                      " messageBubble " +
-                      (msg.role === "assistant" ? "assistant" : "user")
+                      "flex flex-col " +
+                      (msg.role === "assistant" ? "items-start" : "items-end")
                     }
                   >
-                    {msg.files && msg.files.length > 0 && (
-                      <div className="mb-2">
-                        {msg.files.map((file, idx) => (
-                          <div
-                            key={idx}
-                            className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 max-w-xs shadow"
-                          >
-                            {file.type.startsWith("image/") ? (
-                              <img
-                                src={file.url}
-                                alt={file.name}
-                                className="w-full max-h-48 object-contain"
-                              />
-                            ) : (
-                              <div className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400">
-                                <FiFile className="w-8 h-8 mb-2" />
-                                <span className="text-xs truncate">
-                                  {file.name}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {/* Message Label */}
+                    <div className="flex items-center gap-2 mb-1 px-3">
+                      {msg.role === "assistant" ? (
+                        <>
+                          <FiCpu className="h-3 w-3 text-blue-400" />
+                          <span className="text-xs font-medium text-blue-400">
+                            Lawrence's AI
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <FiUser className="h-3 w-3 text-gray-400" />
+                          <span className="text-xs font-medium text-gray-400">
+                            You
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Message Bubble */}
                     <div
-                      dangerouslySetInnerHTML={{
-                        __html: formatMessage(msg.content, isLoveMode),
+                      className={
+                        styles.messageBubble +
+                        " messageBubble " +
+                        (msg.role === "assistant" ? "assistant" : "user")
+                      }
+                    >
+                      {msg.files && msg.files.length > 0 && (
+                        <div className="mb-2">
+                          {msg.files.map((file, idx) => (
+                            <div
+                              key={idx}
+                              className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 max-w-xs shadow"
+                            >
+                              {file.type.startsWith("image/") ? (
+                                <img
+                                  src={file.url}
+                                  alt={file.name}
+                                  className="w-full max-h-48 object-contain"
+                                />
+                              ) : (
+                                <div className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400">
+                                  <FiFile className="w-8 h-8 mb-2" />
+                                  <span className="text-xs truncate">
+                                    {file.name}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: formatMessage(msg.content, isLoveMode),
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-2 mb-1 px-3">
+                      <FiCpu className="h-3 w-3 text-blue-400" />
+                      <span className="text-xs font-medium text-blue-400">
+                        Lawrence's AI
+                      </span>
+                    </div>
+                    <div
+                      className={
+                        styles.messageBubble + " messageBubble assistant"
+                      }
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                        <span>Thinking...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+
+            {/* Input Area */}
+            {!isMinimized && (
+              <form
+                className={styles.inputArea + " inputArea"}
+                onSubmit={handleSubmit}
+                autoComplete="off"
+              >
+                {selectedFiles.length > 0 && (
+                  <div className="flex flex-wrap gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-t-lg border-b border-gray-200 dark:border-gray-700">
+                    {selectedFiles.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 bg-white dark:bg-gray-700 px-2 py-1 rounded-lg text-xs shadow-sm"
+                      >
+                        {getFileIcon(file)}
+                        <span className="truncate max-w-[120px]">
+                          {file.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeFile(index)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <FiTrash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {fileError && (
+                  <div className="text-red-500 text-xs px-2 py-1 bg-red-50 dark:bg-red-900/10">
+                    {fileError}
+                  </div>
+                )}
+
+                <div className="w-full px-2 pb-2 pt-1 bg-transparent">
+                  <div className="flex items-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
+                    <textarea
+                      className="flex-1 px-4 py-2 bg-transparent border-0 focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:placeholder-gray-300 text-base resize-none min-h-[40px] max-h-[120px]"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="Type your message..."
+                      ref={inputRef}
+                      style={{ minWidth: 0 }}
+                      disabled={isLoading}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          if (input.trim() || selectedFiles.length > 0)
+                            handleSubmit(e);
+                        }
                       }}
                     />
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex flex-col items-start">
-                  <div className="flex items-center gap-2 mb-1 px-3">
-                    <FiCpu className="h-3 w-3 text-blue-400" />
-                    <span className="text-xs font-medium text-blue-400">
-                      Lawrence's AI
-                    </span>
-                  </div>
-                  <div
-                    className={
-                      styles.messageBubble + " messageBubble assistant"
-                    }
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                      <span>Thinking...</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-
-          {/* Input Area */}
-          {!isMinimized && (
-            <form
-              className={styles.inputArea + " inputArea"}
-              onSubmit={handleSubmit}
-              autoComplete="off"
-            >
-              {selectedFiles.length > 0 && (
-                <div className="flex flex-wrap gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-t-lg border-b border-gray-200 dark:border-gray-700">
-                  {selectedFiles.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 bg-white dark:bg-gray-700 px-2 py-1 rounded-lg text-xs shadow-sm"
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      onChange={handleFileSelect}
+                      style={{ display: "none" }}
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="mx-1 p-2 rounded-full text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-colors focus:outline-none"
+                      title="Attach files"
+                      disabled={isLoading}
                     >
-                      {getFileIcon(file)}
-                      <span className="truncate max-w-[120px]">
-                        {file.name}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeFile(index)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <FiTrash2 className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {fileError && (
-                <div className="text-red-500 text-xs px-2 py-1 bg-red-50 dark:bg-red-900/10">
-                  {fileError}
-                </div>
-              )}
-
-              <div className="w-full px-2 pb-2 pt-1 bg-transparent">
-                <div className="flex items-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
-                  <textarea
-                    className="flex-1 px-4 py-2 bg-transparent border-0 focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:placeholder-gray-300 text-base resize-none min-h-[40px] max-h-[120px]"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Type your message..."
-                    ref={inputRef}
-                    style={{ minWidth: 0 }}
-                    disabled={isLoading}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        if (input.trim() || selectedFiles.length > 0)
-                          handleSubmit(e);
+                      <FiPaperclip className="w-5 h-5" />
+                    </button>
+                    <button
+                      className="mr-2 ml-1 p-2 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white shadow transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                      type="submit"
+                      disabled={
+                        isLoading ||
+                        (!input.trim() && selectedFiles.length === 0)
                       }
-                    }}
-                  />
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    onChange={handleFileSelect}
-                    style={{ display: "none" }}
-                    disabled={isLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="mx-1 p-2 rounded-full text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-colors focus:outline-none"
-                    title="Attach files"
-                    disabled={isLoading}
-                  >
-                    <FiPaperclip className="w-5 h-5" />
-                  </button>
-                  <button
-                    className="mr-2 ml-1 p-2 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white shadow transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                    type="submit"
-                    disabled={
-                      isLoading || (!input.trim() && selectedFiles.length === 0)
-                    }
-                    title="Send"
-                  >
-                    <FiSend className="w-5 h-5" />
-                  </button>
+                      title="Send"
+                    >
+                      <FiSend className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </form>
-          )}
-        </div>
+              </form>
+            )}
+          </motion.div>
+        </>
       )}
-    </>
+    </AnimatePresence>
   );
 }

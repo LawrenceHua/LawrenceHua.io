@@ -14,6 +14,8 @@
   bottom: 32px;
   right: 32px;
   z-index: 1000;
+  /* Prevent body scroll when chatbot is focused */
+  touch-action: manipulation;
 }
 
 @keyframes slideIn {
@@ -406,12 +408,15 @@
 .messagesContainer {
   flex: 1 1 auto;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 24px 16px 8px 16px;
   background: transparent;
   display: flex;
   flex-direction: column;
   gap: 16px;
   scroll-behavior: smooth;
+  min-height: 0; /* Allows flex shrinking */
+  -webkit-overflow-scrolling: touch; /* Better mobile scrolling */
 }
 
 .inputArea {
