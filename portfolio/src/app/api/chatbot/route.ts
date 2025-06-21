@@ -3,12 +3,45 @@ import { join } from "path";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { handleGirlfriendEasterEgg } from "./girlfriend-easter-egg";
+import { initializeApp, getApps } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
 console.log("DEBUG: process.cwd() =", process.cwd());
 console.log("DEBUG: process.env.OPENAI_API_KEY =", process.env.OPENAI_API_KEY);
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyA_HYWpbGRuNvcWyxfiUEZr7_mTw7PU0t8",
+  authDomain: "peronalsite-88d49.firebaseapp.com",
+  projectId: "peronalsite-88d49",
+  storageBucket: "peronalsite-88d49.firebasestorage.app",
+  messagingSenderId: "515222232116",
+  appId: "1:515222232116:web:b7a9b8735980ce8333fe61",
+  measurementId: "G-ZV5CR4EBB8",
+};
+
+// Initialize Firebase
+let db: any = null;
+if (typeof window === "undefined") {
+  // Server-side initialization
+  try {
+    const app = !getApps().length
+      ? initializeApp(firebaseConfig)
+      : getApps()[0];
+    db = getFirestore(app);
+    console.log("DEBUG: Firebase initialized on server");
+  } catch (error) {
+    console.error("DEBUG: Firebase initialization failed:", error);
+  }
+}
 
 if (!openaiApiKey) {
   console.warn(
@@ -471,6 +504,40 @@ async function sendMeetingRequest(data: {
       message:
         "Failed to send meeting request. Please try again or contact Lawrence directly.",
     };
+  }
+}
+
+// Function to generate or extract session ID
+function getOrCreateSessionId(
+  history: Array<{ role: string; content: string }>
+): string {
+  // Try to extract from previous messages or create new one
+  const sessionId =
+    Math.random().toString(36).substring(2) + Date.now().toString(36);
+  return sessionId;
+}
+
+// Function to write messages to Firebase
+async function saveMessageToFirebase(
+  sessionId: string,
+  role: "user" | "assistant",
+  message: string
+) {
+  if (!db) {
+    console.log("DEBUG: Firebase not initialized, skipping message save");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "chatbot_messages"), {
+      sessionId,
+      role,
+      message,
+      timestamp: serverTimestamp(),
+    });
+    console.log(`DEBUG: Saved ${role} message to Firebase`);
+  } catch (error) {
+    console.error("DEBUG: Error saving message to Firebase:", error);
   }
 }
 
@@ -964,6 +1031,10 @@ export async function POST(request: NextRequest) {
     console.log("DEBUG: Received message:", message);
     console.log("DEBUG: Received files count:", files.length);
 
+    // Generate session ID for this conversation
+    const sessionId = getOrCreateSessionId(history);
+    console.log("DEBUG: Session ID:", sessionId);
+
     // Enhanced contact intent detection
     const contactAnalysis = detectContactIntent(message);
     console.log("DEBUG: Contact analysis:", contactAnalysis);
@@ -1022,8 +1093,13 @@ export async function POST(request: NextRequest) {
             }, 0);
 
             // Return intelligent response about the image
+            const imageResponse = `📷 **Image Analysis**\n\nI can see you've shared an image with me! Based on your message "${message}", this appears to be something relevant to Lawrence's professional background.\n\nIf this is a:\n• **Business card or contact info**: I can help you understand how to connect with Lawrence about potential opportunities\n• **Job posting**: I can analyze how Lawrence's experience aligns with the requirements\n• **Resume or CV**: I can compare qualifications and highlight relevant experience\n• **Company information**: I can explain how Lawrence's skills might fit your organization\n\nCould you tell me more about what specific information you're looking for? I'd be happy to provide detailed insights about Lawrence's background and how it relates to what you've shared!`;
+
+            // Save assistant response to Firebase
+            await saveMessageToFirebase(sessionId, "assistant", imageResponse);
+
             return NextResponse.json({
-              response: `📷 **Image Analysis**\n\nI can see you've shared an image with me! Based on your message "${message}", this appears to be something relevant to Lawrence's professional background.\n\nIf this is a:\n• **Business card or contact info**: I can help you understand how to connect with Lawrence about potential opportunities\n• **Job posting**: I can analyze how Lawrence's experience aligns with the requirements\n• **Resume or CV**: I can compare qualifications and highlight relevant experience\n• **Company information**: I can explain how Lawrence's skills might fit your organization\n\nCould you tell me more about what specific information you're looking for? I'd be happy to provide detailed insights about Lawrence's background and how it relates to what you've shared!`,
+              response: imageResponse,
               imageAnalyzed: true,
             });
           } else {
@@ -1047,6 +1123,9 @@ export async function POST(request: NextRequest) {
 
     const userMessage = finalMessage || "User sent a file for analysis.";
     console.log("DEBUG: Final user message length:", userMessage.length);
+
+    // Save user message to Firebase
+    await saveMessageToFirebase(sessionId, "user", userMessage);
 
     // Check for girlfriend easter egg
     const easterEggResponse = await handleGirlfriendEasterEgg(
@@ -1107,8 +1186,17 @@ export async function POST(request: NextRequest) {
           const contactResult = await sendMeetingRequest(contactData);
 
           if (contactResult.success) {
+            const successResponse = `✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence:\n\n**From:** ${combinedInfo.name}${combinedInfo.company ? ` (${combinedInfo.company})` : ""}\n**Email:** ${combinedInfo.email}\n**Message:** ${combinedInfo.message}\n\nLawrence will get back to you soon! 📧`;
+
+            // Save assistant response to Firebase
+            await saveMessageToFirebase(
+              sessionId,
+              "assistant",
+              successResponse
+            );
+
             return NextResponse.json({
-              response: `✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence:\n\n**From:** ${combinedInfo.name}${combinedInfo.company ? ` (${combinedInfo.company})` : ""}\n**Email:** ${combinedInfo.email}\n**Message:** ${combinedInfo.message}\n\nLawrence will get back to you soon! 📧`,
+              response: successResponse,
               contactSent: true,
             });
           } else {
@@ -1131,6 +1219,9 @@ export async function POST(request: NextRequest) {
         history
       );
 
+      // Save assistant response to Firebase
+      await saveMessageToFirebase(sessionId, "assistant", response);
+
       return NextResponse.json({
         response,
         contactIntent: true,
@@ -1139,9 +1230,14 @@ export async function POST(request: NextRequest) {
 
     // Handle regular responses
     if (!openai) {
+      const fallbackResponse =
+        "I'm sorry, I'm not configured to respond right now. Please reach out to Lawrence directly!";
+
+      // Save assistant response to Firebase
+      await saveMessageToFirebase(sessionId, "assistant", fallbackResponse);
+
       return NextResponse.json({
-        response:
-          "I'm sorry, I'm not configured to respond right now. Please reach out to Lawrence directly!",
+        response: fallbackResponse,
       });
     }
 
@@ -1169,8 +1265,13 @@ export async function POST(request: NextRequest) {
 
       const meetingResult = await sendMeetingRequest(meetingData);
 
+      const meetingResponse = `🤝 **Meeting Request Sent!**\n\n${meetingResult.message}\n\nLawrence will review your request and contact you soon to schedule a meeting. In the meantime, feel free to ask me any other questions about Lawrence's background and experience.`;
+
+      // Save assistant response to Firebase
+      await saveMessageToFirebase(sessionId, "assistant", meetingResponse);
+
       return NextResponse.json({
-        response: `🤝 **Meeting Request Sent!**\n\n${meetingResult.message}\n\nLawrence will review your request and contact you soon to schedule a meeting. In the meantime, feel free to ask me any other questions about Lawrence's background and experience.`,
+        response: meetingResponse,
         meetingRequested: true,
       });
     }
@@ -1184,6 +1285,9 @@ export async function POST(request: NextRequest) {
         systemPrompt
       );
       const fullResponse = `${fileAnalysis}\n\n${analysis}\n\n**Next Steps**: Do you have any questions about Lawrence's fit for this role? I can help schedule a meeting with Lawrence right away if you'd like to discuss this opportunity further. Just let me know if you'd like to schedule a meeting!`;
+
+      // Save assistant response to Firebase
+      await saveMessageToFirebase(sessionId, "assistant", fullResponse);
 
       return NextResponse.json({ response: fullResponse });
     }
@@ -1217,9 +1321,25 @@ ${history.length > 0 ? `Previous conversation: ${JSON.stringify(history.slice(-3
     const response =
       completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response.";
+
+    // Save assistant response to Firebase
+    await saveMessageToFirebase(sessionId, "assistant", response);
+
     return NextResponse.json({ response });
   } catch (error) {
     console.error("Error in chatbot route:", error);
+
+    const errorResponse =
+      "I'm sorry, I encountered an error. Please try again later or reach out to Lawrence directly.";
+
+    // Try to save error response to Firebase (if we have sessionId in scope)
+    try {
+      const sessionId = getOrCreateSessionId([]);
+      await saveMessageToFirebase(sessionId, "assistant", errorResponse);
+    } catch (firebaseError) {
+      console.error("Error saving error response to Firebase:", firebaseError);
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

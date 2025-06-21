@@ -1462,7 +1462,7 @@ export default function AnalyticsPage() {
         {/* Full Chatbot Sessions Modal */}
         {showChatbotFullScreen && (
           <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
-            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col p-6 relative">
+            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-6xl h-[90vh] flex flex-col p-6 relative overflow-hidden">
               <button
                 className="absolute top-4 right-4 text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded z-10"
                 onClick={() => setShowChatbotFullScreen(false)}
@@ -1554,7 +1554,10 @@ export default function AnalyticsPage() {
               </div>
 
               {/* Sessions List - Scrollable */}
-              <div className="flex-1 overflow-y-auto space-y-4">
+              <div
+                className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 min-h-0"
+                style={{ maxHeight: "calc(90vh - 250px)" }}
+              >
                 {filteredSessions.length === 0 ? (
                   <div className="text-center py-12 text-gray-400">
                     <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
