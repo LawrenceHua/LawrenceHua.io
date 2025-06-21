@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 
@@ -352,6 +352,19 @@ const levels = [
 export function SkillsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const prefersReducedMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeLevel, setActiveLevel] = useState("all");
@@ -377,31 +390,31 @@ export function SkillsSection() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        duration: 0.6,
+        staggerChildren: isMobile || prefersReducedMotion ? 0.05 : 0.1,
+        duration: isMobile || prefersReducedMotion ? 0.3 : 0.6,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: isMobile || prefersReducedMotion ? 15 : 30 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.6,
+        duration: isMobile || prefersReducedMotion ? 0.3 : 0.6,
         ease: "easeOut",
       },
     },
   };
 
   const skillVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
+    hidden: { opacity: 0, scale: isMobile || prefersReducedMotion ? 1 : 0.8 },
     visible: {
       opacity: 1,
       scale: 1,
       transition: {
-        duration: 0.4,
+        duration: isMobile || prefersReducedMotion ? 0.2 : 0.4,
         ease: "easeOut",
       },
     },
@@ -596,25 +609,47 @@ export function SkillsSection() {
                   key={skill.name}
                   variants={skillVariants}
                   layout
-                  onHoverStart={() => setHoveredSkill(skill.name)}
-                  onHoverEnd={() => setHoveredSkill(null)}
+                  onHoverStart={() => !isMobile && setHoveredSkill(skill.name)}
+                  onHoverEnd={() => !isMobile && setHoveredSkill(null)}
                   onMouseMove={(e) => {
-                    setMousePosition({ x: e.clientX, y: e.clientY });
+                    if (!isMobile) {
+                      setMousePosition({ x: e.clientX, y: e.clientY });
+                    }
+                  }}
+                  onClick={() => {
+                    if (isMobile) {
+                      // On mobile, click toggles tooltip
+                      setHoveredSkill(
+                        hoveredSkill === skill.name ? null : skill.name
+                      );
+                      setMousePosition({
+                        x: window.innerWidth / 2,
+                        y: window.innerHeight / 2,
+                      });
+                    }
                   }}
                   className="group relative"
-                  style={{
-                    // Add slight random positioning for cloud effect
-                    transform: `rotate(${Math.sin(index * 1.3) * 3}deg)`,
-                  }}
+                  style={
+                    !isMobile && !prefersReducedMotion
+                      ? {
+                          // Add slight random positioning for cloud effect - desktop only
+                          transform: `rotate(${Math.sin(index * 1.3) * 3}deg)`,
+                        }
+                      : {}
+                  }
                 >
                   {/* Skill Bubble */}
                   <div
-                    className={`relative overflow-hidden rounded-full bg-white dark:bg-slate-800 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-110 flex items-center justify-center cursor-pointer border-2 ${skillSize} ${
+                    className={`relative overflow-hidden rounded-full bg-white dark:bg-slate-800 shadow-lg transition-all duration-300 flex items-center justify-center cursor-pointer border-2 ${skillSize} ${
                       skill.level === "expert"
-                        ? "border-green-400 hover:border-green-500 hover:shadow-green-500/20"
+                        ? "border-green-400 hover:border-green-500"
                         : skill.level === "proficient"
-                          ? "border-orange-400 hover:border-orange-500 hover:shadow-orange-500/20"
-                          : "border-blue-400 hover:border-blue-500 hover:shadow-blue-500/20"
+                          ? "border-orange-400 hover:border-orange-500"
+                          : "border-blue-400 hover:border-blue-500"
+                    } ${
+                      !isMobile && !prefersReducedMotion
+                        ? "hover:shadow-xl hover:-translate-y-2 hover:scale-110 hover:shadow-green-500/20"
+                        : "hover:shadow-lg"
                     }`}
                   >
                     {/* Skill Content */}
@@ -629,19 +664,38 @@ export function SkillsSection() {
                   {/* Enhanced Hover Tooltip - Smart Positioned Outside */}
                   {hoveredSkill === skill.name && (
                     <div
-                      className="fixed bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-6 py-4 rounded-xl text-sm shadow-2xl border border-slate-200 dark:border-slate-600 max-w-sm"
-                      style={{
-                        left: mousePosition.x,
-                        bottom: window.innerHeight - mousePosition.y,
-                        transform: `translate(${
-                          mousePosition.x > window.innerWidth / 2
-                            ? "-100%"
-                            : "0%"
-                        }, 0%)`,
-                        pointerEvents: "none",
-                        zIndex: 999999,
-                      }}
+                      className={`fixed bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl text-sm shadow-2xl border border-slate-200 dark:border-slate-600 max-w-xs sm:max-w-sm ${
+                        isMobile ? "inset-x-4 top-20" : ""
+                      }`}
+                      style={
+                        isMobile
+                          ? {
+                              pointerEvents: "auto",
+                              zIndex: 999999,
+                            }
+                          : {
+                              left: mousePosition.x,
+                              bottom: window.innerHeight - mousePosition.y,
+                              transform: `translate(${
+                                mousePosition.x > window.innerWidth / 2
+                                  ? "-100%"
+                                  : "0%"
+                              }, 0%)`,
+                              pointerEvents: "none",
+                              zIndex: 999999,
+                            }
+                      }
                     >
+                      {/* Mobile close button */}
+                      {isMobile && (
+                        <button
+                          onClick={() => setHoveredSkill(null)}
+                          className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                        >
+                          ✕
+                        </button>
+                      )}
+
                       <div className="space-y-3">
                         {/* Header */}
                         <div className="flex items-center space-x-3 border-b border-slate-200 dark:border-slate-600 pb-2">

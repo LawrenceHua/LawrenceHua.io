@@ -16,7 +16,8 @@ export function FloatingChatbot() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-      const scrollThreshold = 200; // Show popup after scrolling 200px
+      const isMobile = window.innerWidth < 768;
+      const scrollThreshold = isMobile ? 400 : 200; // Higher threshold on mobile
 
       if (
         scrollTop > scrollThreshold &&
@@ -27,16 +28,19 @@ export function FloatingChatbot() {
         setHasScrolled(true);
         setShowPopup(true);
 
-        // Hide popup after 20 seconds
-        setTimeout(() => {
-          setShowPopup(false);
-        }, 20000);
+        // Hide popup after shorter time on mobile
+        setTimeout(
+          () => {
+            setShowPopup(false);
+          },
+          isMobile ? 10000 : 20000
+        );
       }
 
-      // Show popup again after more scrolling if dismissed fewer than 2 times
+      // Show popup again after more scrolling if dismissed fewer than 1 time (reduced from 2)
       if (
-        scrollTop > 800 &&
-        dismissCount < 2 &&
+        scrollTop > (isMobile ? 1000 : 800) &&
+        dismissCount < 1 &&
         !showPopup &&
         hasScrolled &&
         !hasBeenOpened &&
@@ -44,10 +48,13 @@ export function FloatingChatbot() {
       ) {
         setShowPopup(true);
 
-        // Hide popup after 15 seconds
-        setTimeout(() => {
-          setShowPopup(false);
-        }, 15000);
+        // Hide popup after shorter time
+        setTimeout(
+          () => {
+            setShowPopup(false);
+          },
+          isMobile ? 8000 : 15000
+        );
       }
     };
 
@@ -103,7 +110,7 @@ export function FloatingChatbot() {
     <>
       {/* Floating Button */}
       <motion.div
-        className="fixed bottom-6 right-6 z-40"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40"
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 1, duration: 0.3 }}
@@ -115,32 +122,29 @@ export function FloatingChatbot() {
               initial={{ opacity: 0, x: 20, y: 10 }}
               animate={{ opacity: 1, x: 0, y: 0 }}
               exit={{ opacity: 0, x: 20, y: 10 }}
-              className="absolute bottom-16 right-0 mb-2"
+              className="absolute bottom-16 right-0 mb-2 sm:bottom-16 sm:right-0"
             >
               <div className="relative">
                 <div
                   onClick={openChatbot}
-                  className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-4 sm:p-6 w-72 sm:w-80 max-w-[calc(100vw-3rem)] border border-slate-200 dark:border-slate-700 cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                  className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-3 sm:p-4 w-64 sm:w-72 max-w-[calc(100vw-2rem)] border border-slate-200 dark:border-slate-700 cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105"
                 >
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       dismissPopup();
                     }}
-                    className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 z-10"
+                    className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 z-10"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4" />
                   </button>
-                  <div className="pr-6 sm:pr-8">
-                    <p className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">
-                      👋 Hi there!
-                    </p>
-                    <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mb-2 sm:mb-3 leading-relaxed italic">
-                      Let me tell you my story
+                  <div className="pr-5 sm:pr-6">
+                    <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-2">
+                      💼 Open to AI PM/APM roles!
                     </p>
                     <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                      Help you learn more about my experience in AI Product
-                      Management! Click anywhere to start chatting.
+                      Ask me about my experience in AI Product Management or
+                      schedule a meeting!
                     </p>
                   </div>
                 </div>
