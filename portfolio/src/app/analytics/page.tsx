@@ -1007,7 +1007,18 @@ export default function AnalyticsPage() {
             <h3 className="text-lg font-semibold mb-3 text-purple-300">
               Recent Chat Sessions
             </h3>
-            <div className="max-h-60 overflow-y-auto space-y-2">
+            <div
+              className="max-h-60 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-700 pr-2"
+              style={{
+                scrollBehavior: "smooth",
+                scrollbarWidth: "thin",
+                scrollbarColor: "#a855f7 #374151",
+                WebkitOverflowScrolling: "touch",
+              }}
+              onWheel={(e) => {
+                e.stopPropagation();
+              }}
+            >
               {filteredSessions.slice(0, 5).length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <FiMessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
