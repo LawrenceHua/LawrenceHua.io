@@ -129,9 +129,9 @@ A sophisticated, modern portfolio website showcasing Lawrence's experience as an
 3. **Set up environment variables**
    Create a `.env.local` file in the root directory:
 
-   ```env
+```env
    # Required for AI Chatbot
-   OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 
    # Required for Email System
    RESEND_API_KEY=your_resend_api_key_here
@@ -144,13 +144,15 @@ A sophisticated, modern portfolio website showcasing Lawrence's experience as an
    FIREBASE_PROJECT_ID=your_firebase_project_id
    FIREBASE_CLIENT_EMAIL=your_firebase_client_email
    FIREBASE_PRIVATE_KEY=your_firebase_private_key
-   ```
+```
 
 4. **Start development server**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Build for Production
 

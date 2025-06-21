@@ -38,15 +38,15 @@ import {
 import Link from "next/link";
 import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
 
-// Firebase config (same as in Chatbot.tsx)
+// Firebase config (using environment variables)
 const firebaseConfig = {
-  apiKey: "AIzaSyA_HYWpbGRuNvcWyxfiUEZr7_mTw7PU0t8",
-  authDomain: "peronalsite-88d49.firebaseapp.com",
-  projectId: "peronalsite-88d49",
-  storageBucket: "peronalsite-88d49.firebasestorage.app",
-  messagingSenderId: "515222232116",
-  appId: "1:515222232116:web:b7a9b8735980ce8333fe61",
-  measurementId: "G-ZV5CR4EBB8",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 interface ChatMessage {
