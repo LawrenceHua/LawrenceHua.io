@@ -878,62 +878,186 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Main Stats */}
+        {/* Main Stats Grid */}
         {analyticsData && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 sm:p-6 rounded-xl">
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-200 text-sm">Total Page Views</p>
-                  <p className="text-2xl sm:text-3xl font-bold">
+                  <p className="text-blue-200 text-xs">Page Views</p>
+                  <p className="text-xl font-bold">
                     {analyticsData.totalPageViews}
                   </p>
                 </div>
-                <FiEye className="h-6 w-6 sm:h-8 sm:w-8 text-blue-200" />
+                <FiEye className="h-5 w-5 text-blue-200" />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 sm:p-6 rounded-xl">
+            <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-200 text-sm">Unique Visitors</p>
-                  <p className="text-2xl sm:text-3xl font-bold">
+                  <p className="text-green-200 text-xs">Visitors</p>
+                  <p className="text-xl font-bold">
                     {analyticsData.uniqueVisitors}
                   </p>
                 </div>
-                <FiUsers className="h-6 w-6 sm:h-8 sm:w-8 text-green-200" />
+                <FiUsers className="h-5 w-5 text-green-200" />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 sm:p-6 rounded-xl">
+            <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-200 text-sm">Chat Sessions</p>
-                  <p className="text-2xl sm:text-3xl font-bold">
+                  <p className="text-purple-200 text-xs">Chat Sessions</p>
+                  <p className="text-xl font-bold">
                     {analyticsData.totalChatSessions}
                   </p>
                 </div>
-                <FiMessageCircle className="h-6 w-6 sm:h-8 sm:w-8 text-purple-200" />
+                <FiMessageCircle className="h-5 w-5 text-purple-200" />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 sm:p-6 rounded-xl">
+            <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-orange-200 text-sm">Avg Session</p>
-                  <p className="text-2xl sm:text-3xl font-bold">
+                  <p className="text-orange-200 text-xs">Avg Session</p>
+                  <p className="text-xl font-bold">
                     {Math.round(analyticsData.avgSessionDuration)}m
                   </p>
                 </div>
-                <FiClock className="h-6 w-6 sm:h-8 sm:w-8 text-orange-200" />
+                <FiClock className="h-5 w-5 text-orange-200" />
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-teal-600 to-teal-700 p-4 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-teal-200 text-xs">Messages</p>
+                  <p className="text-xl font-bold">
+                    {analyticsData.totalMessages}
+                  </p>
+                </div>
+                <FiMessageCircle className="h-5 w-5 text-teal-200" />
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-red-600 to-red-700 p-4 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-red-200 text-xs">Recruiters</p>
+                  <p className="text-xl font-bold">
+                    {analyticsData.potentialRecruiters}
+                  </p>
+                </div>
+                <FiUserCheck className="h-5 w-5 text-red-200" />
               </div>
             </div>
           </div>
         )}
 
-        {/* Charts Section */}
+        {/* Chatbot Analytics - PROMINENT POSITION */}
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 mb-6 border border-purple-500/20">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold flex items-center gap-2 text-purple-300">
+              <FiMessageCircle className="h-6 w-6" />
+              Live Chatbot Analytics
+            </h2>
+            <button
+              onClick={() => setShowChatbotFullScreen(true)}
+              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              View All Sessions
+            </button>
+          </div>
+
+          {/* Quick Chat Stats */}
+          {analyticsData && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
+                <h3 className="text-purple-300 text-xs">Active Sessions</h3>
+                <p className="text-lg font-bold text-white">
+                  {sessions.length}
+                </p>
+              </div>
+              <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
+                <h3 className="text-purple-300 text-xs">Total Messages</h3>
+                <p className="text-lg font-bold text-white">
+                  {analyticsData.totalMessages}
+                </p>
+              </div>
+              <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
+                <h3 className="text-purple-300 text-xs">Avg Msg/Session</h3>
+                <p className="text-lg font-bold text-white">
+                  {sessions.length > 0
+                    ? Math.round(analyticsData.totalMessages / sessions.length)
+                    : 0}
+                </p>
+              </div>
+              <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
+                <h3 className="text-purple-300 text-xs">Recent Activity</h3>
+                <p className="text-lg font-bold text-white">
+                  {filteredSessions.length}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Recent Chat Sessions - Compact View */}
+          <div className="bg-gray-900/50 rounded-lg p-4">
+            <h3 className="text-lg font-semibold mb-3 text-purple-300">
+              Recent Chat Sessions
+            </h3>
+            <div className="max-h-60 overflow-y-auto space-y-2">
+              {filteredSessions.slice(0, 5).length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  <FiMessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>No chat sessions found.</p>
+                </div>
+              ) : (
+                filteredSessions.slice(0, 5).map((session) => (
+                  <div
+                    key={session.sessionId}
+                    className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50 hover:border-purple-500/30 transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <h4 className="text-sm font-semibold text-white">
+                          Session {session.sessionId.slice(-6)}
+                        </h4>
+                        <p className="text-xs text-gray-400">
+                          {formatTimestamp(session.startTime)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-400">
+                          {getSessionDuration(
+                            session.startTime,
+                            session.endTime
+                          )}
+                        </p>
+                        <p className="text-xs text-purple-300 font-medium">
+                          {session.messageCount} msgs
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-300">
+                      {session.messages.length > 0 && (
+                        <p className="truncate">
+                          <span className="text-blue-400">User:</span>{" "}
+                          {session.messages[0].message?.slice(0, 80)}...
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Analytics Overview - Compact Grid */}
         {analyticsData && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             {/* Top Pages */}
             <div className="bg-gray-800 p-6 rounded-xl">
               <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -1307,273 +1431,213 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* Chat Analytics Section */}
-        <div className="bg-gray-800 rounded-xl p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <FiMessageCircle className="h-6 w-6" />
-            Chat Analytics
+        {/* System Stats */}
+        <div className="bg-gray-800 rounded-xl p-6 mb-6">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <FiActivity className="h-5 w-5" />
+            System Performance
           </h2>
-
-          {/* Chat Stats */}
-          {analyticsData && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-sm">Total Sessions</h3>
-                <p className="text-2xl font-bold">{sessions.length}</p>
-              </div>
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-sm">Total Messages</h3>
-                <p className="text-2xl font-bold">
-                  {analyticsData.totalMessages}
-                </p>
-              </div>
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-sm">Avg Messages/Session</h3>
-                <p className="text-2xl font-bold">
-                  {sessions.length > 0
-                    ? Math.round(analyticsData.totalMessages / sessions.length)
-                    : 0}
-                </p>
-              </div>
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-sm">Active Sessions</h3>
-                <p className="text-2xl font-bold">{filteredSessions.length}</p>
-              </div>
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-sm">
-                  Firebase Reads (this session)
-                </h3>
-                <p className="text-2xl font-bold">{firebaseReads}</p>
-              </div>
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-sm">
-                  Firebase Writes (this session)
-                </h3>
-                <p className="text-2xl font-bold">{firebaseWrites}</p>
-              </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-gray-700 p-3 rounded-lg">
+              <h3 className="text-gray-400 text-xs">Firebase Reads</h3>
+              <p className="text-lg font-bold">{firebaseReads}</p>
             </div>
-          )}
-
-          {/* Filters and Controls */}
-          <div className="flex flex-wrap items-center gap-4 mb-6">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search sessions..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <div className="bg-gray-700 p-3 rounded-lg">
+              <h3 className="text-gray-400 text-xs">Firebase Writes</h3>
+              <p className="text-lg font-bold">{firebaseWrites}</p>
             </div>
-
-            <div>
-              <select
-                value={roleFilter}
-                onChange={(e) =>
-                  setRoleFilter(e.target.value as "all" | "user" | "assistant")
-                }
-                className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Roles</option>
-                <option value="user">User</option>
-                <option value="assistant">Assistant</option>
-              </select>
+            <div className="bg-gray-700 p-3 rounded-lg">
+              <h3 className="text-gray-400 text-xs">Active Filters</h3>
+              <p className="text-lg font-bold">
+                {roleFilter !== "all" ? 1 : 0}
+              </p>
             </div>
-
-            <div>
-              <select
-                value={timeRange}
-                onChange={(e) =>
-                  setTimeRange(e.target.value as "1d" | "7d" | "30d" | "all")
-                }
-                className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="1d">Last 24 hours</option>
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="all">All time</option>
-              </select>
-            </div>
-            {/* Sorting controls */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSortOrder("desc")}
-                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                  sortOrder === "desc"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-              >
-                <FaSortAmountDown />
-                Most Recent
-              </button>
-              <button
-                onClick={() => setSortOrder("asc")}
-                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                  sortOrder === "asc"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-              >
-                <FaSortAmountUp />
-                Oldest
-              </button>
+            <div className="bg-gray-700 p-3 rounded-lg">
+              <h3 className="text-gray-400 text-xs">Time Range</h3>
+              <p className="text-lg font-bold">{timeRange}</p>
             </div>
           </div>
-
-          {/* Sessions List */}
-          <div className="space-y-4 max-h-96 overflow-y-auto">
-            {filteredSessions.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">
-                <p>No chat sessions found.</p>
-              </div>
-            ) : (
-              filteredSessions.map((session) => (
-                <div
-                  key={session.sessionId}
-                  className="bg-gray-700 rounded-lg p-6 border border-gray-600"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold">
-                        Session {session.sessionId.slice(-8)}
-                      </h3>
-                      <p className="text-sm text-gray-400">
-                        {formatTimestamp(session.startTime)} -{" "}
-                        {formatTimestamp(session.endTime)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-400">
-                        Duration:{" "}
-                        {getSessionDuration(session.startTime, session.endTime)}
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {session.messageCount} messages
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {session.messages.map((message, index) => (
-                      <div
-                        key={message.id}
-                        className={`p-3 rounded-lg ${
-                          message.role === "user"
-                            ? "bg-blue-900/30 border border-blue-700/30"
-                            : "bg-gray-600/50 border border-gray-500/30"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <span
-                            className={`text-xs font-medium px-2 py-1 rounded ${
-                              message.role === "user"
-                                ? "bg-blue-600 text-blue-100"
-                                : "bg-gray-600 text-gray-100"
-                            }`}
-                          >
-                            {message.role === "user" ? "User" : "Assistant"}
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            {formatTimestamp(message.timestamp)}
-                          </span>
-                        </div>
-                        <p className="text-sm whitespace-pre-wrap">
-                          {message.message}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {hasMore && (
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={loadMoreSessions}
-                className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-              >
-                Load More Sessions
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Full Chatbot Sessions Modal */}
         {showChatbotFullScreen && (
           <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
-            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-8 relative">
+            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col p-6 relative">
               <button
-                className="absolute top-4 right-4 text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+                className="absolute top-4 right-4 text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded z-10"
                 onClick={() => setShowChatbotFullScreen(false)}
               >
-                Close
+                ✕ Close
               </button>
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-purple-300">
                 <FiMessageCircle className="h-6 w-6" />
-                All Chatbot Sessions
+                All Chatbot Sessions ({sessions.length})
               </h2>
-              <div className="space-y-4">
-                {sessions.map((session) => (
-                  <div
-                    key={session.sessionId}
-                    className="bg-gray-800 rounded-lg p-4 border border-gray-700"
+
+              {/* Filters and Controls */}
+              <div className="flex flex-wrap items-center gap-4 mb-6 bg-gray-800/50 p-4 rounded-lg">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search sessions..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                  />
+                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                </div>
+
+                <div>
+                  <select
+                    value={roleFilter}
+                    onChange={(e) =>
+                      setRoleFilter(
+                        e.target.value as "all" | "user" | "assistant"
+                      )
+                    }
+                    className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <h3 className="font-semibold text-lg mb-1">
-                          Session {session.sessionId.slice(-8)}
-                        </h3>
-                        <p className="text-xs text-gray-400">
-                          {formatTimestamp(session.startTime)} -{" "}
-                          {formatTimestamp(session.endTime)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-400">
-                          Duration:{" "}
-                          {getSessionDuration(
-                            session.startTime,
-                            session.endTime
-                          )}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {session.messageCount} messages
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      {session.messages.map((message) => (
-                        <div
-                          key={message.id}
-                          className={`p-2 rounded ${
-                            message.role === "user"
-                              ? "bg-blue-900/30 border border-blue-700/30"
-                              : "bg-gray-600/50 border border-gray-500/30"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 mb-1">
-                            <span
-                              className={`text-xs font-medium px-2 py-0.5 rounded ${message.role === "user" ? "bg-blue-600 text-blue-100" : "bg-gray-600 text-gray-100"}`}
-                            >
-                              {message.role === "user" ? "User" : "Assistant"}
-                            </span>
-                            <span className="text-xs text-gray-400">
-                              {formatTimestamp(message.timestamp)}
-                            </span>
-                          </div>
-                          <p className="text-xs whitespace-pre-wrap">
-                            {message.message}
+                    <option value="all">All Roles</option>
+                    <option value="user">User Messages</option>
+                    <option value="assistant">Assistant Messages</option>
+                  </select>
+                </div>
+
+                <div>
+                  <select
+                    value={timeRange}
+                    onChange={(e) =>
+                      setTimeRange(
+                        e.target.value as "1d" | "7d" | "30d" | "all"
+                      )
+                    }
+                    className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                  >
+                    <option value="1d">Last 24 hours</option>
+                    <option value="7d">Last 7 days</option>
+                    <option value="30d">Last 30 days</option>
+                    <option value="all">All time</option>
+                  </select>
+                </div>
+
+                {/* Sorting controls */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSortOrder("desc")}
+                    className={`px-3 py-2 rounded-lg flex items-center gap-2 text-sm ${
+                      sortOrder === "desc"
+                        ? "bg-purple-600 text-white"
+                        : "bg-gray-800 hover:bg-gray-700"
+                    }`}
+                  >
+                    <FaSortAmountDown />
+                    Newest
+                  </button>
+                  <button
+                    onClick={() => setSortOrder("asc")}
+                    className={`px-3 py-2 rounded-lg flex items-center gap-2 text-sm ${
+                      sortOrder === "asc"
+                        ? "bg-purple-600 text-white"
+                        : "bg-gray-800 hover:bg-gray-700"
+                    }`}
+                  >
+                    <FaSortAmountUp />
+                    Oldest
+                  </button>
+                </div>
+
+                <div className="text-sm text-gray-400">
+                  Showing {filteredSessions.length} of {sessions.length}{" "}
+                  sessions
+                </div>
+              </div>
+
+              {/* Sessions List - Scrollable */}
+              <div className="flex-1 overflow-y-auto space-y-4">
+                {filteredSessions.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400">
+                    <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg">No chat sessions found</p>
+                    <p className="text-sm">Try adjusting your filters</p>
+                  </div>
+                ) : (
+                  filteredSessions.map((session) => (
+                    <div
+                      key={session.sessionId}
+                      className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50 hover:border-purple-500/30 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h3 className="font-semibold text-lg text-white">
+                            Session {session.sessionId.slice(-8)}
+                          </h3>
+                          <p className="text-xs text-gray-400">
+                            {formatTimestamp(session.startTime)} →{" "}
+                            {formatTimestamp(session.endTime)}
                           </p>
                         </div>
-                      ))}
+                        <div className="text-right">
+                          <p className="text-sm text-purple-300 font-medium">
+                            {getSessionDuration(
+                              session.startTime,
+                              session.endTime
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {session.messageCount} messages
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {session.messages.map((message) => (
+                          <div
+                            key={message.id}
+                            className={`p-3 rounded-lg ${
+                              message.role === "user"
+                                ? "bg-blue-900/30 border border-blue-700/30"
+                                : "bg-gray-600/50 border border-gray-500/30"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <span
+                                className={`text-xs font-medium px-2 py-1 rounded ${
+                                  message.role === "user"
+                                    ? "bg-blue-600 text-blue-100"
+                                    : "bg-gray-600 text-gray-100"
+                                }`}
+                              >
+                                {message.role === "user"
+                                  ? "👤 User"
+                                  : "🤖 Assistant"}
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                {formatTimestamp(message.timestamp)}
+                              </span>
+                            </div>
+                            <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                              {message.message}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
+
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="flex justify-center mt-4 pt-4 border-t border-gray-700">
+                  <button
+                    onClick={loadMoreSessions}
+                    className="px-6 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                  >
+                    Load More Sessions
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

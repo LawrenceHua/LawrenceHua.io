@@ -63,7 +63,12 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
 ══════════════════════════════════════════
 🚀  PROFESSIONAL EXPERIENCE  (CHRONOLOGICAL)
 
-1. **Product Manager – PM Happy Hour (Internship, Mar 2025-Present)**  
+1. **External AI Expert – Amazon Mechanical Turk (AGI Projects, Jun 2025-Present)**  
+   • Contribute to Amazon's next-gen AI models by evaluating and annotating coding-related responses, enabling more nuanced machine learning outcomes  
+   • Perform structured comparison tasks between human and AI-generated outputs to refine model accuracy, safety, and alignment with real-world expectations  
+   • Apply human judgment and product sense to assess user experience quality in AI-generated results, supporting responsible innovation in artificial general intelligence (AGI)  
+
+2. **Product Manager – PM Happy Hour (Internship, Mar 2025-Present)**  
    • Scaled community 30% with AIGC campaigns; MBTI×PM event ↑ engagement 50%  
    • Drove A/B testing program → 20% lift in feature adoption  
    • Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement
@@ -72,7 +77,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Developed content calendar, analytics tracking, and engagement benchmarks to guide strategy
    • Collaborated across marketing, content, and community leads to optimize growth and retention
 
-2. **Founder / CEO – Expired Solutions (Full-time, Aug 2024-Present)**  
+3. **Founder / CEO – Expired Solutions (Full-time, Aug 2024-Present)**  
    • Built CV + GPT platform automating produce markdowns → up to 20% shrink reduction  
    • Led mobile dev (iOS/Android), Azure infra, compliance, GTM; secured 8-week Giant Eagle pilot after 15 exec interviews & 250 shopper surveys  
    • Finalist, *McGinnis Venture Competition* 2025 (Top-4 Social Enterprise) & Gerhalt *Sandbox* Scholar  
@@ -81,7 +86,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Led business formation, technical development (Azure, GPT, Vision AI), and compliance planning
    • Created and executed onboarding strategy for pilot retailers
 
-3. **Produce Assistant Team Lead – Giant Eagle (Feb-May 2025)**  
+4. **Produce Assistant Team Lead – Giant Eagle (Feb-May 2025)**  
    • Cut shrink 1% in 30 days; tripled Flashfoods adoption; led BOH process overhaul  
    • Hands-on leadership role focused on reducing shrink, improving freshness, and optimizing inventory operations in the grocery's highest-loss department
    • Leveraged data and tools like Flashfoods and Periscope to drive measurable results in a 1-month window
@@ -91,7 +96,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Led backroom process improvements and cleaning compliance efforts, increasing team adherence by 80%
    • Trained and coached team members on BOH operations, freshness standards, and food safety compliance
 
-4. **Product Manager – PanPalz (Internship, Aug 2024-Jan 2025)**  
+5. **Product Manager – PanPalz (Internship, Aug 2024-Jan 2025)**  
    • Owned product roadmap; refined 100+ Figma frames → UI consistency ↑ 40%  
    • Prepped launch of world's first nonprofit social media for genuine connections  
    • Led roadmap planning and UI design for PanPalz, a nonprofit social media platform
@@ -101,7 +106,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Supported GTM planning for the launch of the world's first nonprofit social app
    • Contributed to team alignment and brand messaging prior to release
 
-5. **Student Consultant, Technical Lead – Kearney (Sep-Dec 2024)**  
+6. **Student Consultant, Technical Lead – Kearney (Sep-Dec 2024)**  
    • Prototyped GPT+Flask decision-support tool → decision time ↓ 18 hrs/week (-26%)  
    • Built an enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week
    • Handled research, competitive analysis, and prototyping using OpenAI, Python, and Flask
@@ -110,7 +115,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Conducted user research, system architecture design, and stakeholder presentations
    • Prioritized use cases and implementation roadmap with client sponsors
 
-6. **Cryptocurrency Researcher – Carnegie Mellon (Jul-Aug 2024)**  
+7. **Cryptocurrency Researcher – Carnegie Mellon (Jul-Aug 2024)**  
    • Devised GTM strategy for gaming-oriented digital asset; led compliance & tech alignment; delivered final pitch to faculty  
    • Researched and defined go-to-market strategy for a new digital asset targeting the gaming industry
    • Led compliance and technical alignment across a cross-functional team to shape product positioning and long-term scalability
@@ -119,7 +124,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Led collaboration across regulatory, technical, and product leads to ensure feasibility and compliance
    • Created and delivered final presentation to university stakeholders and faculty advisors
 
-7. **Embedded Android Engineer – Motorola Solutions (Aug 2021-Aug 2023)**  
+8. **Embedded Android Engineer – Motorola Solutions (Aug 2021-Aug 2023)**  
    • Shipped GPS, NFC, auth, UI features for 15k+ APX NEXT radios; fixed 80+ defects; 1st-place Motorola Hackathon (NFC prototype)  
    • Developed embedded Android software for Motorola's APX NEXT Smart Radios, supporting mission-critical communications for public safety professionals
    • Owned features across GPS, authentication, and UI, contributing to product stability and scale
@@ -129,7 +134,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Coordinated agile planning and knowledge sharing across firmware, Android, and test automation teams
    • Contributed to NFC-based feature prototype that won 1st place at Motorola Product Hackathon
 
-8. **AI Product Consultant & CS Instructor – Tutora (Part-time, Mar 2021-Present)**  
+9. **AI Product Consultant & CS Instructor – Tutora (Part-time, Mar 2021-Present)**  
    • Automated scheduling, grading, communications (Otter.ai, Dola, WhatsApp, Apps Script) → 15 hrs/week saved  
    • Authored 50+ TI-BASIC math programs → test scores ↑ 35% across 50+ students  
    • Redesigned tutoring operations by building both backend automation tools and student-facing programs
@@ -141,7 +146,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Taught core computer science principles including data structures, Java programming, and project-based learning using Code.org and AP CS content
    • Delivered training and documentation to ensure long-term adoption of both AI workflows and instructional tools
 
-9. **System Administrator – University of Florida (May 2019-Jun 2021)**  
+10. **System Administrator – University of Florida (May 2019-Jun 2021)**  
    • Power Apps asset tracker cut manual errors 60%; supported 200+ users at 95%+ CSAT; led 20-person tech team  
    • Provided IT support and system management for CALS' academic labs and research teams
    • Built internal tools and led technician teams to improve service reliability and hardware asset tracking
@@ -151,7 +156,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Handled system configuration, software deployment, and tier-2 escalations for lab environments
    • Created SOP documentation to ensure consistency across support requests and technical resolution workflows
 
-10. **Android Software Developer Intern – Motorola Solutions (Jun-Aug 2020)**  
+11. **Android Software Developer Intern – Motorola Solutions (Jun-Aug 2020)**  
     • Built/updated Android apps in fully remote Agile setting; demoed end-to-end solutions  
     • Developed and updated Android Applications in the APX NEXT device while using various technologies (Android studio, git, ADB, shell, JIRA, Bitbucket)
     • Learned how to adapt quickly in a completely virtual agile development setting
@@ -353,6 +358,7 @@ more context:
 
 **Cleaned Experience List (org : role ; dates ; location ; focus ; key achievements)**
 
+* **Amazon Mechanical Turk : External AI Expert ; Jun 2025 – Present, Remote ; AGI model development ;** contribute to Amazon's next-gen AI models by evaluating and annotating coding-related responses, perform structured comparison tasks between human and AI-generated outputs, apply human judgment and product sense to assess user experience quality in AI-generated results.
 * **PM Happy Hour : Product Manager (Intern) ; Mar 2025 – Present, Remote ; community growth & engagement ;** scaled Discord community 30%, ran MBTI×PM AIGC campaign (+50% interactions), lifted feature adoption 20%, built analytics/feedback loops.
 * **Expired Solutions : Founder & CEO ; Aug 2024 – Present, Remote ; AI grocery-waste platform ;** launched CV + GPT freshness/markdown system, secured Giant Eagle pilot, built shopper app, McGinnis finalist (Top 4), led Azure/GPT/CV dev & GTM.
 * **Tutora : AI Product Consultant & CS Instructor (Part-time) ; Mar 2021 – Present, Remote ; EdTech automation & curriculum ;** saved 15 hrs/wk with AI workflows, deployed 50 TI-BASIC programs (+35% scores), taught CS & data structures, wrote docs/training.
