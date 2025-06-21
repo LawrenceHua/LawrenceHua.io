@@ -1,52 +1,68 @@
 # 🚀 Lawrence Hua's AI Product Manager Portfolio
 
-A sophisticated, modern portfolio website showcasing Lawrence's experience as an AI Product Manager, featuring advanced AI integrations, beautiful animations, and comprehensive analytics. Built with cutting-edge technologies and designed to impress recruiters and potential collaborators.
+A sophisticated, modern portfolio website showcasing Lawrence's experience as an AI Product Manager, featuring advanced AI integrations, delightful easter eggs, beautiful animations, and comprehensive analytics. Built with cutting-edge technologies and designed to impress recruiters and potential collaborators.
 
 ## ✨ Key Features
 
-### 🤖 **Intelligent AI Chatbot**
+### 🤖 **Enhanced AI Chatbot with Natural Language Processing**
 
-- **OpenAI GPT-3.5-turbo Integration**: Advanced conversational AI that answers questions about Lawrence's experience, skills, and projects
-- **Smart Floating Interface**: Beautiful slide-in animations with intelligent popup triggers
-- **Context-Aware Responses**: Understands recruiting contexts and provides relevant information
-- **File Upload Support**: Upload resumes, documents, and images for analysis
+- **OpenAI GPT-4 Integration**: Advanced conversational AI with enhanced natural language understanding
+- **Smart Contact Intent Detection**: Automatically recognizes and processes contact requests from natural conversation
+- **Multi-turn Conversation Tracking**: Intelligently combines information across multiple messages
+- **Contextual Information Extraction**: Naturally extracts names, emails, and messages from conversational text
+- **File Upload Support**: Upload resumes, documents, and images for intelligent analysis
+- **Easter Egg Integration**: Special "girlfriend mode" with unique response patterns
 - **Session Management**: Persistent conversations with smart state management
 
-### 📱 **Fully Mobile-Responsive Design**
+### 🐱 **Delightful Easter Eggs & Interactions**
+
+- **Cat Profile Picture Easter Egg**: Click Lawrence's profile picture to reveal adorable animated cats
+  - **Tuxedo Cat**: Black & white cat with green eyes appears on the left
+  - **Grey Tabby Cat**: Striped grey cat with blue eyes appears on the right
+  - **Smooth Animations**: Gentle rotation loops and bounce-in effects
+  - **Responsive Design**: Perfectly scaled for all device sizes
+- **Hidden Features**: Discover more interactive elements throughout the site
+
+### 📱 **Premium Mobile-Responsive Design**
 
 - **Mobile-First Architecture**: Optimized for all devices from mobile to 4K displays
 - **Touch-Friendly Interface**: 44px+ tap targets and smooth touch interactions
 - **Responsive Navigation**: Hamburger menu with beautiful animations
 - **Adaptive Layouts**: All sections automatically adjust for optimal viewing
+- **Performance Optimized**: Fast loading and smooth interactions on all devices
 
 ### 🎨 **Premium User Experience**
 
 - **Framer Motion Animations**: Smooth, professional animations throughout
 - **Lenis Smooth Scrolling**: Buttery-smooth page scrolling experience
-- **Dark/Light Mode Toggle**: Seamless theme switching with persistent preferences
-- **Interactive Skills Cloud**: Organic bubble layout with hover effects and mouse-tracking tooltips
+- **Dynamic Text Gallery**: Rotating value propositions with animated backgrounds
+- **Interactive Skills Cloud**: Organic bubble layout with smart tooltip positioning
 - **Animated Timeline**: Professional career journey with scrollable work experience gallery
+- **Strategic Text Formatting**: Color-coded highlights and enhanced readability
 
-### 📊 **Advanced Analytics Dashboard**
+### 📊 **Advanced Analytics & Geolocation**
 
 - **Visitor Analytics**: Real-time tracking of page views, unique visitors, and session duration
 - **Chatbot Metrics**: Comprehensive chat session analytics and conversation insights
-- **Geographic Intelligence**: Visitor location tracking and regional analysis
+- **Geographic Intelligence**: Accurate visitor location tracking with IP detection
 - **Recruiter Detection**: Smart identification of potential recruiters based on interaction patterns
 - **Performance Metrics**: Site performance and engagement analytics
+- **Fixed Dynamic Routing**: Proper Next.js App Router compliance for production deployments
 
 ### 💼 **Professional Contact System**
 
 - **Multi-Channel Contact**: Direct email, meeting scheduling, and instant messaging
-- **Resend Email Integration**: Professional HTML email templates with automatic responses
+- **Enhanced Email Integration**: Professional HTML email templates with Resend
+- **Smart Form Processing**: Automatic contact information extraction from conversations
 - **Calendar Scheduling**: Integrated meeting booking with time zone support
 - **Form Validation**: Real-time validation with beautiful error handling
 - **Social Media Integration**: LinkedIn, GitHub, and Facebook connectivity
 
-### 🔧 **Developer Features**
+### 🔧 **Developer Features & Infrastructure**
 
-- **Auto-Versioning System**: Automatic version incrementation with git integration
+- **Auto-Versioning System**: Automatic version incrementation on every push to main
 - **Live Version API**: Real-time version and timestamp tracking
+- **GitHub Actions Integration**: Automated workflows for version management
 - **TypeScript Throughout**: Full type safety and IntelliSense support
 - **Modern Build Pipeline**: Next.js 14 with optimized production builds
 - **Environment Management**: Secure API key and configuration management
@@ -64,10 +80,11 @@ A sophisticated, modern portfolio website showcasing Lawrence's experience as an
 - **TailwindCSS**: Utility-first CSS framework with custom configuration
 - **Framer Motion**: Professional animations and transitions
 - **Lenis**: Smooth scrolling library for premium feel
+- **Custom SVG Assets**: Hand-crafted cat illustrations and icons
 
 ### **AI & Backend Services**
 
-- **OpenAI API**: GPT-3.5-turbo integration for intelligent conversations
+- **OpenAI API**: GPT-4 integration for intelligent conversations
 - **Resend**: Modern email delivery service with HTML templates
 - **Firebase**: Real-time database for analytics and visitor tracking
 
@@ -82,6 +99,7 @@ A sophisticated, modern portfolio website showcasing Lawrence's experience as an
 - **ESLint**: Code quality and consistency enforcement
 - **PostCSS**: Advanced CSS processing and optimization
 - **Autoprefixer**: Automatic CSS vendor prefixing
+- **GitHub Actions**: Automated CI/CD and version management
 
 ## 🚀 Quick Start
 
@@ -96,8 +114,8 @@ A sophisticated, modern portfolio website showcasing Lawrence's experience as an
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/lawrence-portfolio.git
-   cd lawrence-portfolio/portfolio
+   git clone https://github.com/LawrenceHua/LawrenceHua.io.git
+   cd LawrenceHua.io/portfolio
    ```
 
 2. **Install dependencies**
@@ -109,12 +127,11 @@ A sophisticated, modern portfolio website showcasing Lawrence's experience as an
    ```
 
 3. **Set up environment variables**
-
    Create a `.env.local` file in the root directory:
 
-```env
+   ```env
    # Required for AI Chatbot
-OPENAI_API_KEY=your_openai_api_key_here
+   OPENAI_API_KEY=your_openai_api_key_here
 
    # Required for Email System
    RESEND_API_KEY=your_resend_api_key_here
@@ -127,15 +144,13 @@ OPENAI_API_KEY=your_openai_api_key_here
    FIREBASE_PROJECT_ID=your_firebase_project_id
    FIREBASE_CLIENT_EMAIL=your_firebase_client_email
    FIREBASE_PRIVATE_KEY=your_firebase_private_key
-```
+   ```
 
 4. **Start development server**
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Build for Production
 
@@ -155,19 +170,34 @@ vercel --prod
 ```
 portfolio/
 ├── src/
-│   ├── app/                 # Next.js App Router pages
-│   │   ├── api/            # API routes (chatbot, contact, analytics)
-│   │   ├── analytics/      # Private analytics dashboard
-│   │   └── page.tsx        # Main portfolio page
-│   ├── components/         # React components
-│   │   ├── sections/       # Page sections (Hero, About, Skills, etc.)
-│   │   ├── providers/      # Context providers (Theme, Smooth Scroll)
-│   │   ├── Chatbot.tsx     # AI chatbot component
-│   │   └── Navigation.tsx  # Navigation components
-│   └── types/              # TypeScript type definitions
-├── public/                 # Static assets (images, resume, logos)
-├── scripts/                # Utility scripts (version management)
-└── package.json           # Dependencies and scripts
+│   ├── app/                    # Next.js App Router pages
+│   │   ├── api/               # API routes
+│   │   │   ├── chatbot/       # Enhanced AI chatbot endpoint
+│   │   │   ├── contact/       # Contact form processing
+│   │   │   ├── geolocation/   # Fixed dynamic routing
+│   │   │   └── version/       # Live version tracking
+│   │   ├── analytics/         # Private analytics dashboard
+│   │   └── page.tsx           # Main portfolio page
+│   ├── components/            # React components
+│   │   ├── sections/          # Page sections
+│   │   │   ├── HeroSection.tsx      # Profile + cat easter egg
+│   │   │   ├── AboutSection.tsx     # Enhanced with highlights
+│   │   │   ├── ContactSection.tsx   # Smart contact processing
+│   │   │   └── ...
+│   │   ├── providers/         # Context providers
+│   │   ├── Chatbot.tsx        # Enhanced AI chatbot
+│   │   └── Navigation.tsx     # Responsive navigation
+│   └── types/                 # TypeScript definitions
+├── public/                    # Static assets
+│   ├── tuxedo-cat.svg        # Custom cat illustration
+│   ├── grey-cat.svg          # Custom cat illustration
+│   └── ...
+├── scripts/                   # Utility scripts
+│   ├── version.js            # Version management
+│   └── test-version.js       # Version testing
+├── .github/workflows/         # GitHub Actions
+│   └── version-increment.yml  # Auto-versioning workflow
+└── package.json              # Dependencies and scripts
 ```
 
 ## 🔧 Available Scripts
@@ -179,9 +209,9 @@ npm run build           # Build for production
 npm run start           # Start production server
 npm run lint           # Run ESLint
 
-# Version Management
-npm run version        # Auto-increment version number
-npm run test-version   # Test version management system
+# Version Management (Automatic on push to main)
+npm run version        # Manual version increment
+npm run test-version   # Preview next version
 
 # Testing
 npm run test           # Run test suite
@@ -190,10 +220,26 @@ npm run test:headless  # Run headless tests
 
 ## 🌐 API Endpoints
 
-- **`/api/chatbot`** - AI chatbot conversation handling
-- **`/api/resend-contact`** - Contact form and email processing
+- **`/api/chatbot`** - Enhanced AI chatbot with natural language processing
+- **`/api/contact`** - Contact form processing
+- **`/api/meeting-request`** - Meeting scheduling
 - **`/api/version`** - Live version and build information
+- **`/api/geolocation`** - Fixed geographic intelligence (dynamic routing)
 - **`/api/analytics/*`** - Analytics data endpoints (protected)
+
+## 🎯 Easter Eggs & Hidden Features
+
+### 🐱 **Cat Profile Picture Easter Egg**
+
+- **How to activate**: Click on Lawrence's profile picture in the hero section
+- **What happens**: Two adorable cats appear with smooth animations
+- **Cats included**: Tuxedo cat (left) and grey tabby cat (right)
+- **Responsive**: Works perfectly on all device sizes
+
+### 🤖 **Chatbot Special Modes**
+
+- **Girlfriend Mode**: Type "myley" to activate special conversation mode
+- **Natural Language**: Try conversational contact requests like "tell lawrence i want to work with him"
 
 ## 📊 Analytics Features
 
@@ -212,6 +258,7 @@ Access the analytics dashboard at `/analytics` with the configured password to v
 1. Connect your GitHub repository to Vercel
 2. Configure environment variables in Vercel dashboard
 3. Deploy automatically on every push to main branch
+4. **Automatic versioning** will increment version on each deployment
 
 ### Other Platforms
 
@@ -224,16 +271,42 @@ Access the analytics dashboard at `/analytics` with the configured password to v
 - **Environment Variable Protection**: Secure API key management
 - **Password-Protected Analytics**: Private dashboard access
 - **Input Validation**: Comprehensive form and API validation
-- **Rate Limiting**: API endpoint protection (implement as needed)
+- **Dynamic Route Configuration**: Proper Next.js App Router compliance
+- **Rate Limiting**: Built-in protection for API endpoints
 
 ## 📝 Version Management
 
-The portfolio includes an automatic versioning system:
+The portfolio includes a sophisticated automatic versioning system:
 
-- **Current Version**: Auto-incremented on each deployment
-- **Build Timestamps**: EST timezone with git integration
-- **Live Tracking**: Real-time version display in footer
+- **GitHub Actions Integration**: Auto-increments version on every push to `main`
+- **Live Version Display**: Real-time version tracking in footer
+- **Timestamp Tracking**: EST timezone with git commit integration
 - **API Access**: Version information available via `/api/version`
+- **Current Version**: **1.0.40** (auto-incremented)
+
+### How It Works
+
+1. Push to `main` branch → GitHub Actions triggers
+2. Version increments (1.0.40 → 1.0.41)
+3. Timestamp updates to current time
+4. Changes committed back to repository
+5. Live site reflects new version immediately
+
+## 🧪 Testing
+
+The portfolio includes comprehensive testing for:
+
+- **Chatbot Functionality**: Multi-turn conversations and contact processing
+- **Contact Forms**: Email sending and validation
+- **API Endpoints**: All backend services
+- **UI Interactions**: Easter eggs and animations
+
+Run tests with:
+
+```bash
+npm run test           # Full test suite
+npm run test:headless  # Automated testing
+```
 
 ## 🤝 Contributing
 
@@ -258,6 +331,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-_Built with ❤️ using Next.js 14, TypeScript, TailwindCSS, Framer Motion, React 18, OpenAI API, Resend, Firebase, Recharts, Lenis Smooth Scroll, and React DatePicker._
+_Built with ❤️ using Next.js 14, TypeScript, TailwindCSS, Framer Motion, React 18, OpenAI API, Resend, Firebase, Recharts, Lenis Smooth Scroll, React DatePicker, and custom SVG illustrations._
 
-**Last updated**: Auto-generated EST • Version auto-incremented
+**Last updated**: Auto-generated EST • Version auto-incremented via GitHub Actions
+
+## 🎉 Recent Updates
+
+- **🐱 Cat Easter Egg**: Added adorable animated cats to profile picture
+- **🤖 Enhanced Chatbot**: Improved natural language processing for contact requests
+- **🔧 Fixed Geolocation**: Resolved Next.js dynamic server usage errors
+- **📈 Auto-Versioning**: Implemented GitHub Actions for automatic version management
+- **🎨 UI Enhancements**: Strategic text formatting and improved animations
+- **🔄 Branch Management**: Streamlined to main branch for all development
