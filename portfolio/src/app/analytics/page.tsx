@@ -1459,188 +1459,229 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Full Chatbot Sessions Modal */}
+        {/* Full Chatbot Sessions Modal - Gallery Style */}
         {showChatbotFullScreen && (
           <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
-            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-6xl h-[90vh] flex flex-col p-6 relative overflow-hidden">
-              <button
-                className="absolute top-4 right-4 text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded z-10"
-                onClick={() => setShowChatbotFullScreen(false)}
-              >
-                ✕ Close
-              </button>
+            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-6xl h-[90vh] flex flex-col relative">
+              {/* Header Section - Fixed */}
+              <div className="flex-shrink-0 p-6 border-b border-gray-700">
+                <button
+                  className="absolute top-4 right-4 text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded z-10 transition-colors"
+                  onClick={() => setShowChatbotFullScreen(false)}
+                >
+                  ✕ Close
+                </button>
 
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-purple-300">
-                <FiMessageCircle className="h-6 w-6" />
-                All Chatbot Sessions ({sessions.length})
-              </h2>
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-purple-300">
+                  <FiMessageCircle className="h-6 w-6" />
+                  All Chatbot Sessions ({sessions.length})
+                </h2>
 
-              {/* Filters and Controls */}
-              <div className="flex flex-wrap items-center gap-4 mb-6 bg-gray-800/50 p-4 rounded-lg">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search sessions..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                  />
-                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                </div>
+                {/* Filters and Controls */}
+                <div className="flex flex-wrap items-center gap-4 bg-gray-800/50 p-4 rounded-lg">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search sessions..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                    />
+                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  </div>
 
-                <div>
-                  <select
-                    value={roleFilter}
-                    onChange={(e) =>
-                      setRoleFilter(
-                        e.target.value as "all" | "user" | "assistant"
-                      )
-                    }
-                    className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                  >
-                    <option value="all">All Roles</option>
-                    <option value="user">User Messages</option>
-                    <option value="assistant">Assistant Messages</option>
-                  </select>
-                </div>
+                  <div>
+                    <select
+                      value={roleFilter}
+                      onChange={(e) =>
+                        setRoleFilter(
+                          e.target.value as "all" | "user" | "assistant"
+                        )
+                      }
+                      className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                    >
+                      <option value="all">All Roles</option>
+                      <option value="user">User Messages</option>
+                      <option value="assistant">Assistant Messages</option>
+                    </select>
+                  </div>
 
-                <div>
-                  <select
-                    value={timeRange}
-                    onChange={(e) =>
-                      setTimeRange(
-                        e.target.value as "1d" | "7d" | "30d" | "all"
-                      )
-                    }
-                    className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                  >
-                    <option value="1d">Last 24 hours</option>
-                    <option value="7d">Last 7 days</option>
-                    <option value="30d">Last 30 days</option>
-                    <option value="all">All time</option>
-                  </select>
-                </div>
+                  <div>
+                    <select
+                      value={timeRange}
+                      onChange={(e) =>
+                        setTimeRange(
+                          e.target.value as "1d" | "7d" | "30d" | "all"
+                        )
+                      }
+                      className="pl-4 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                    >
+                      <option value="1d">Last 24 hours</option>
+                      <option value="7d">Last 7 days</option>
+                      <option value="30d">Last 30 days</option>
+                      <option value="all">All time</option>
+                    </select>
+                  </div>
 
-                {/* Sorting controls */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setSortOrder("desc")}
-                    className={`px-3 py-2 rounded-lg flex items-center gap-2 text-sm ${
-                      sortOrder === "desc"
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-800 hover:bg-gray-700"
-                    }`}
-                  >
-                    <FaSortAmountDown />
-                    Newest
-                  </button>
-                  <button
-                    onClick={() => setSortOrder("asc")}
-                    className={`px-3 py-2 rounded-lg flex items-center gap-2 text-sm ${
-                      sortOrder === "asc"
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-800 hover:bg-gray-700"
-                    }`}
-                  >
-                    <FaSortAmountUp />
-                    Oldest
-                  </button>
-                </div>
+                  {/* Sorting controls */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setSortOrder("desc")}
+                      className={`px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition-colors ${
+                        sortOrder === "desc"
+                          ? "bg-purple-600 text-white"
+                          : "bg-gray-800 hover:bg-gray-700"
+                      }`}
+                    >
+                      <FaSortAmountDown />
+                      Newest
+                    </button>
+                    <button
+                      onClick={() => setSortOrder("asc")}
+                      className={`px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition-colors ${
+                        sortOrder === "asc"
+                          ? "bg-purple-600 text-white"
+                          : "bg-gray-800 hover:bg-gray-700"
+                      }`}
+                    >
+                      <FaSortAmountUp />
+                      Oldest
+                    </button>
+                  </div>
 
-                <div className="text-sm text-gray-400">
-                  Showing {filteredSessions.length} of {sessions.length}{" "}
-                  sessions
+                  <div className="text-sm text-gray-400">
+                    Showing {filteredSessions.length} of {sessions.length}{" "}
+                    sessions
+                  </div>
                 </div>
               </div>
 
-              {/* Sessions List - Scrollable */}
-              <div
-                className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 min-h-0"
-                style={{ maxHeight: "calc(90vh - 250px)" }}
-              >
-                {filteredSessions.length === 0 ? (
-                  <div className="text-center py-12 text-gray-400">
-                    <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-lg">No chat sessions found</p>
-                    <p className="text-sm">Try adjusting your filters</p>
-                  </div>
-                ) : (
-                  filteredSessions.map((session) => (
-                    <div
-                      key={session.sessionId}
-                      className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50 hover:border-purple-500/30 transition-colors"
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold text-lg text-white">
-                            Session {session.sessionId.slice(-8)}
-                          </h3>
-                          <p className="text-xs text-gray-400">
-                            {formatTimestamp(session.startTime)} →{" "}
-                            {formatTimestamp(session.endTime)}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-purple-300 font-medium">
-                            {getSessionDuration(
-                              session.startTime,
-                              session.endTime
-                            )}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {session.messageCount} messages
-                          </p>
-                        </div>
+              {/* Scrollable Content Area - Gallery Style */}
+              <div className="flex-1 relative">
+                <div
+                  className="absolute inset-0 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-800 hover:scrollbar-thumb-purple-500"
+                  style={{
+                    scrollBehavior: "smooth",
+                    scrollbarWidth: "thin",
+                  }}
+                >
+                  <div className="p-6 space-y-4">
+                    {filteredSessions.length === 0 ? (
+                      <div className="text-center py-12 text-gray-400">
+                        <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="text-lg">No chat sessions found</p>
+                        <p className="text-sm">Try adjusting your filters</p>
                       </div>
-
-                      <div className="space-y-2 max-h-64 overflow-y-auto">
-                        {session.messages.map((message) => (
+                    ) : (
+                      <div className="grid gap-4">
+                        {filteredSessions.map((session) => (
                           <div
-                            key={message.id}
-                            className={`p-3 rounded-lg ${
-                              message.role === "user"
-                                ? "bg-blue-900/30 border border-blue-700/30"
-                                : "bg-gray-600/50 border border-gray-500/30"
-                            }`}
+                            key={session.sessionId}
+                            className="bg-gray-800/60 rounded-xl p-5 border border-gray-700/50 hover:border-purple-500/50 hover:bg-gray-800/80 transition-all duration-200 shadow-lg hover:shadow-purple-500/10"
                           >
-                            <div className="flex items-center justify-between mb-2">
-                              <span
-                                className={`text-xs font-medium px-2 py-1 rounded ${
-                                  message.role === "user"
-                                    ? "bg-blue-600 text-blue-100"
-                                    : "bg-gray-600 text-gray-100"
-                                }`}
-                              >
-                                {message.role === "user"
-                                  ? "👤 User"
-                                  : "🤖 Assistant"}
-                              </span>
-                              <span className="text-xs text-gray-400">
-                                {formatTimestamp(message.timestamp)}
-                              </span>
+                            {/* Session Header */}
+                            <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-700/50">
+                              <div className="flex items-center gap-3">
+                                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                                <div>
+                                  <h3 className="font-bold text-lg text-white">
+                                    Session {session.sessionId.slice(-8)}
+                                  </h3>
+                                  <p className="text-xs text-gray-400 flex items-center gap-2">
+                                    <span>
+                                      🕐 {formatTimestamp(session.startTime)}
+                                    </span>
+                                    <span>→</span>
+                                    <span>
+                                      {formatTimestamp(session.endTime)}
+                                    </span>
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-right bg-purple-900/30 px-3 py-2 rounded-lg">
+                                <p className="text-sm text-purple-300 font-bold">
+                                  {getSessionDuration(
+                                    session.startTime,
+                                    session.endTime
+                                  )}
+                                </p>
+                                <p className="text-xs text-gray-400">
+                                  {session.messageCount} messages
+                                </p>
+                              </div>
                             </div>
-                            <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                              {message.message}
-                            </p>
+
+                            {/* Messages Gallery */}
+                            <div
+                              className="space-y-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800/50 pr-2"
+                              style={{ scrollBehavior: "smooth" }}
+                            >
+                              {session.messages.map((message, index) => (
+                                <div
+                                  key={message.id}
+                                  className={`group relative p-4 rounded-xl transition-all duration-200 ${
+                                    message.role === "user"
+                                      ? "bg-gradient-to-r from-blue-900/40 to-blue-800/30 border border-blue-700/40 hover:border-blue-600/60 ml-4"
+                                      : "bg-gradient-to-r from-gray-700/50 to-gray-600/40 border border-gray-600/40 hover:border-gray-500/60 mr-4"
+                                  }`}
+                                >
+                                  {/* Message Header */}
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                      <span
+                                        className={`text-xs font-bold px-3 py-1 rounded-full ${
+                                          message.role === "user"
+                                            ? "bg-blue-600 text-blue-100 shadow-lg shadow-blue-600/30"
+                                            : "bg-gray-600 text-gray-100 shadow-lg shadow-gray-600/30"
+                                        }`}
+                                      >
+                                        {message.role === "user"
+                                          ? "👤 User"
+                                          : "🤖 Assistant"}
+                                      </span>
+                                      <span className="text-xs text-gray-400 bg-gray-800/50 px-2 py-1 rounded">
+                                        #{index + 1}
+                                      </span>
+                                    </div>
+                                    <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      {formatTimestamp(message.timestamp)}
+                                    </span>
+                                  </div>
+
+                                  {/* Message Content */}
+                                  <div
+                                    className={`text-sm leading-relaxed ${
+                                      message.role === "user"
+                                        ? "text-blue-100"
+                                        : "text-gray-100"
+                                    }`}
+                                  >
+                                    <p className="whitespace-pre-wrap">
+                                      {message.message}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         ))}
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
+                    )}
 
-              {/* Load More Button */}
-              {hasMore && (
-                <div className="flex justify-center mt-4 pt-4 border-t border-gray-700">
-                  <button
-                    onClick={loadMoreSessions}
-                    className="px-6 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors"
-                  >
-                    Load More Sessions
-                  </button>
+                    {/* Load More Section */}
+                    {hasMore && (
+                      <div className="flex justify-center pt-6">
+                        <button
+                          onClick={loadMoreSessions}
+                          className="px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-purple-500/30 transform hover:scale-105"
+                        >
+                          Load More Sessions
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         )}
