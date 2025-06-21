@@ -10,6 +10,7 @@ import { FaLinkedin } from "react-icons/fa";
 export function HeroSection() {
   const prefersReducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
+  const [showCats, setShowCats] = useState(false);
 
   // Detect mobile device
   useEffect(() => {
@@ -186,25 +187,106 @@ export function HeroSection() {
         animate="visible"
         className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 text-center"
       >
-        {/* Profile Image */}
+        {/* Profile Image with Cat Easter Egg */}
         <motion.div
           variants={itemVariants}
-          className="mb-6 sm:mb-8 flex justify-center"
+          className="mb-6 sm:mb-8 flex justify-center relative"
         >
+          {/* Tuxedo Cat - Left Side */}
+          <AnimatePresence>
+            {showCats && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0, x: 20 }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  x: 0,
+                  rotate: [0, -5, 5, 0],
+                }}
+                exit={{ opacity: 0, scale: 0, x: 20 }}
+                transition={{
+                  duration: 0.8,
+                  ease: "easeOut",
+                  rotate: {
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  },
+                }}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 sm:-translate-x-20 md:-translate-x-24 lg:-translate-x-28 z-10"
+              >
+                <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28">
+                  <Image
+                    src="/tuxedo-cat.svg"
+                    alt="Tuxedo Cat"
+                    width={112}
+                    height={112}
+                    className="w-full h-full object-contain drop-shadow-lg"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Clickable Profile Picture */}
           <motion.div
             variants={pulseVariants}
             animate="animate"
-            className="relative h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-48 lg:w-48 overflow-hidden rounded-full border-4 border-blue-400/50 bg-white shadow-2xl shadow-blue-500/25"
+            className="relative h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-48 lg:w-48 overflow-hidden rounded-full border-4 border-blue-400/50 bg-white shadow-2xl shadow-blue-500/25 cursor-pointer group"
+            onClick={() => setShowCats(!showCats)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <Image
               src="/profile.jpg"
               alt="Lawrence Hua"
               fill
-              className="object-cover"
+              className="object-cover transition-all duration-300 group-hover:brightness-110"
               priority
             />
             <div className="absolute inset-0 rounded-full bg-gradient-to-t from-blue-500/20 to-transparent" />
+
+            {/* Subtle hint overlay */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-t from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </motion.div>
+
+          {/* Grey Cat - Right Side */}
+          <AnimatePresence>
+            {showCats && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0, x: -20 }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  x: 0,
+                  rotate: [0, 5, -5, 0],
+                }}
+                exit={{ opacity: 0, scale: 0, x: -20 }}
+                transition={{
+                  duration: 0.8,
+                  ease: "easeOut",
+                  delay: 0.2,
+                  rotate: {
+                    duration: 2.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0.5,
+                  },
+                }}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 sm:translate-x-20 md:translate-x-24 lg:translate-x-28 z-10"
+              >
+                <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28">
+                  <Image
+                    src="/grey-cat.svg"
+                    alt="Grey Cat"
+                    width={112}
+                    height={112}
+                    className="w-full h-full object-contain drop-shadow-lg"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* Name and Title */}

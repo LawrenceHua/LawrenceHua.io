@@ -1,0 +1,74 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cat Body -->
+  <ellipse cx="40" cy="50" rx="18" ry="22" fill="#8a8a8a"/>
+  
+  <!-- Light Grey Belly -->
+  <ellipse cx="40" cy="55" rx="12" ry="15" fill="#c0c0c0"/>
+  
+  <!-- Cat Head -->
+  <circle cx="40" cy="28" r="16" fill="#8a8a8a"/>
+  
+  <!-- Light Grey Face -->
+  <ellipse cx="40" cy="30" rx="10" ry="8" fill="#c0c0c0"/>
+  
+  <!-- Darker grey stripes on head -->
+  <ellipse cx="35" cy="22" rx="1.5" ry="4" fill="#6a6a6a" transform="rotate(-15 35 22)"/>
+  <ellipse cx="40" cy="20" rx="1.5" ry="4" fill="#6a6a6a"/>
+  <ellipse cx="45" cy="22" rx="1.5" ry="4" fill="#6a6a6a" transform="rotate(15 45 22)"/>
+  
+  <!-- Ears -->
+  <path d="M28 20 L32 12 L36 20 Z" fill="#8a8a8a"/>
+  <path d="M44 20 L48 12 L52 20 Z" fill="#8a8a8a"/>
+  
+  <!-- Inner Ears -->
+  <path d="M30 18 L32 14 L34 18 Z" fill="#ff9999"/>
+  <path d="M46 18 L48 14 L50 18 Z" fill="#ff9999"/>
+  
+  <!-- Eyes -->
+  <ellipse cx="36" cy="26" rx="2.5" ry="3" fill="#4da6ff"/>
+  <ellipse cx="44" cy="26" rx="2.5" ry="3" fill="#4da6ff"/>
+  
+  <!-- Eye pupils -->
+  <ellipse cx="36" cy="26" rx="1" ry="2" fill="#000000"/>
+  <ellipse cx="44" cy="26" rx="1" ry="2" fill="#000000"/>
+  
+  <!-- Eye shine -->
+  <circle cx="36.5" cy="25" r="0.5" fill="#ffffff"/>
+  <circle cx="44.5" cy="25" r="0.5" fill="#ffffff"/>
+  
+  <!-- Nose -->
+  <path d="M40 30 L38 32 L42 32 Z" fill="#ff99aa"/>
+  
+  <!-- Mouth -->
+  <path d="M40 33 Q37 35 35 34" stroke="#6a6a6a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M40 33 Q43 35 45 34" stroke="#6a6a6a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- Whiskers -->
+  <line x1="25" y1="28" x2="32" y2="29" stroke="#6a6a6a" stroke-width="1" stroke-linecap="round"/>
+  <line x1="25" y1="32" x2="32" y2="32" stroke="#6a6a6a" stroke-width="1" stroke-linecap="round"/>
+  <line x1="48" y1="29" x2="55" y2="28" stroke="#6a6a6a" stroke-width="1" stroke-linecap="round"/>
+  <line x1="48" y1="32" x2="55" y2="32" stroke="#6a6a6a" stroke-width="1" stroke-linecap="round"/>
+  
+  <!-- Body Stripes -->
+  <ellipse cx="35" cy="45" rx="2" ry="8" fill="#6a6a6a" transform="rotate(-10 35 45)"/>
+  <ellipse cx="45" cy="45" rx="2" ry="8" fill="#6a6a6a" transform="rotate(10 45 45)"/>
+  <ellipse cx="32" cy="58" rx="1.5" ry="6" fill="#6a6a6a" transform="rotate(-20 32 58)"/>
+  <ellipse cx="48" cy="58" rx="1.5" ry="6" fill="#6a6a6a" transform="rotate(20 48 58)"/>
+  
+  <!-- Tail -->
+  <path d="M58 45 Q65 40 62 50 Q60 55 55 52" stroke="#8a8a8a" stroke-width="6" fill="none" stroke-linecap="round"/>
+  
+  <!-- Tail Stripes -->
+  <ellipse cx="58" cy="47" rx="1" ry="3" fill="#6a6a6a" transform="rotate(20 58 47)"/>
+  <ellipse cx="60" cy="51" rx="1" ry="3" fill="#6a6a6a" transform="rotate(30 60 51)"/>
+  
+  <!-- Paws -->
+  <ellipse cx="32" cy="68" rx="3" ry="4" fill="#8a8a8a"/>
+  <ellipse cx="48" cy="68" rx="3" ry="4" fill="#8a8a8a"/>
+  <ellipse cx="35" cy="65" rx="2.5" ry="3" fill="#8a8a8a"/>
+  <ellipse cx="45" cy="65" rx="2.5" ry="3" fill="#8a8a8a"/>
+  
+  <!-- Paw Pads -->
+  <ellipse cx="32" cy="70" rx="1.5" ry="1.5" fill="#ff99aa"/>
+  <ellipse cx="48" cy="70" rx="1.5" ry="1.5" fill="#ff99aa"/>
+</svg> 
