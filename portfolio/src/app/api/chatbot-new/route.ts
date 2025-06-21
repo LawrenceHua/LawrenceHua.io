@@ -71,9 +71,18 @@ async function getFileContent(
       // Email the image to Lawrence (fire and forget)
       (async () => {
         try {
+          // Use form-data library for proper multipart handling
+          const FormData = (await import("form-data")).default;
           const imageFormData = new FormData();
-          imageFormData.append("image", file);
+
+          // Convert file to buffer and add to form
+          const fileBuffer = Buffer.from(await file.arrayBuffer());
+          imageFormData.append("image", fileBuffer, {
+            filename: file.name,
+            contentType: file.type,
+          });
           imageFormData.append("message", message);
+
           const userEmail =
             history.length > 0
               ? history[history.length - 1]?.role === "user"
@@ -84,13 +93,19 @@ async function getFileContent(
               : "Not provided";
           imageFormData.append("email", userEmail);
           imageFormData.append("name", "Portfolio Visitor");
+
+          // Get the headers from form-data
+          const headers = imageFormData.getHeaders();
+
           await fetch(
             `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-image`,
             {
               method: "POST",
-              body: imageFormData,
+              headers: headers,
+              body: imageFormData as any, // Type assertion for form-data library
             }
           );
+          console.log("NEW ROUTE: Image email sent successfully");
         } catch (emailError) {
           console.error(
             "NEW ROUTE: Error sending image email (non-blocking):",
