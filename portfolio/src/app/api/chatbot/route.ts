@@ -516,6 +516,183 @@ Return only the JSON object:`;
   }
 }
 
+// Enhanced function to extract contact information from conversation history
+function extractContactInfoFromHistory(
+  history: Array<{ role: string; content: string }>,
+  currentMessage: string
+): {
+  name?: string;
+  email?: string;
+  company?: string;
+  message?: string;
+  isContactRequest: boolean;
+} {
+  let extractedInfo = {
+    name: undefined as string | undefined,
+    email: undefined as string | undefined,
+    company: undefined as string | undefined,
+    message: undefined as string | undefined,
+    isContactRequest: false,
+  };
+
+  // Check if this is a contact conversation by looking for intent keywords
+  const allMessages = [...history.map((h) => h.content), currentMessage].join(
+    " "
+  );
+  const contactIntentKeywords = [
+    "send message",
+    "tell lawrence",
+    "contact",
+    "get in touch",
+    "reach out",
+    "forward",
+    "pass along",
+    "let him know",
+  ];
+
+  extractedInfo.isContactRequest = contactIntentKeywords.some((keyword) =>
+    allMessages.toLowerCase().includes(keyword)
+  );
+
+  // If not a contact request, return early
+  if (!extractedInfo.isContactRequest) {
+    return extractedInfo;
+  }
+
+  // Extract information from all messages
+  const allConversationText = [
+    ...history.map((h) => h.content),
+    currentMessage,
+  ];
+
+  for (const messageText of allConversationText) {
+    // Extract name
+    if (!extractedInfo.name) {
+      const namePatterns = [
+        /(?:i'm|im|my name is)\s+([a-z\s]+?)(?:[,.]|$)/i,
+        /(?:this is|hey i'm|hey im)\s+([a-z\s]+?)(?:[,.]|$)/i,
+        /^hey\s+([a-z\s]+?)(?:[,.]|$)/i,
+      ];
+
+      for (const pattern of namePatterns) {
+        const match = messageText.match(pattern);
+        if (match && match[1] && match[1].trim().length > 0) {
+          const name = match[1].trim();
+          if (
+            ![
+              "hey",
+              "hi",
+              "hello",
+              "lawrence",
+              "getting",
+              "really",
+              "interested",
+            ].includes(name.toLowerCase())
+          ) {
+            extractedInfo.name = name;
+            break;
+          }
+        }
+      }
+    }
+
+    // Extract email
+    if (!extractedInfo.email) {
+      const emailMatch = messageText.match(
+        /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i
+      );
+      if (emailMatch) {
+        extractedInfo.email = emailMatch[0];
+      }
+    }
+
+    // Extract company
+    if (!extractedInfo.company) {
+      const companyPatterns = [
+        /(?:from|at|work at)\s+([a-z\s&]+?)(?:[,.]|$)/i,
+        /company:\s*([a-z\s&]+?)(?:\n|$)/i,
+      ];
+
+      for (const pattern of companyPatterns) {
+        const match = messageText.match(pattern);
+        if (match && match[1]) {
+          extractedInfo.company = match[1].trim();
+          break;
+        }
+      }
+    }
+  }
+
+  // Extract message content - prioritize explicit message statements
+  const messagePatterns = [
+    /(?:the message is|message:|tell him|let him know)\s*(.+?)(?:\.|$)/i,
+    /(?:about|regarding)\s+(.+?)(?:\.|$)/i,
+  ];
+
+  for (const messageText of [...allConversationText].reverse()) {
+    // Start from most recent
+    for (const pattern of messagePatterns) {
+      const match = messageText.match(pattern);
+      if (match && match[1] && match[1].trim().length > 3) {
+        extractedInfo.message = match[1].trim();
+        break;
+      }
+    }
+    if (extractedInfo.message) break;
+  }
+
+  // If no explicit message found, try to extract from context
+  if (!extractedInfo.message) {
+    // Look for messages that contain meaningful content
+    const meaningfulMessages = allConversationText.filter((msg) => {
+      // Don't filter out messages that are clearly meant to be the actual message
+      if (/(?:the message is|message:|tell him|let him know)/i.test(msg)) {
+        return true;
+      }
+
+      const cleanMsg = msg
+        .toLowerCase()
+        .replace(/(?:i'm|im|my name is|my email is|email is)/g, "")
+        .replace(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi, "") // Remove emails
+        .trim();
+
+      // Check if it's a short, meaningful phrase (like "great website!")
+      if (cleanMsg.length <= 30 && cleanMsg.length > 5) {
+        // Allow short phrases that seem like messages
+        return true;
+      }
+
+      // For longer messages, apply more filtering
+      const filteredMsg = cleanMsg
+        .replace(
+          /\b(hey|hi|hello|the|and|or|but|with|for|to|from|at|in|on)\b/g,
+          ""
+        )
+        .trim();
+      return filteredMsg.length > 3;
+    });
+
+    if (meaningfulMessages.length > 0) {
+      // Use the most substantial message
+      const substantialMessage = meaningfulMessages
+        .sort((a, b) => b.length - a.length)[0]
+        .replace(
+          /(?:i'm|im|my name is|my email is|email is)\s+[a-z0-9@.\s]+/gi,
+          ""
+        )
+        .replace(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi, "")
+        .replace(/^(hey|hi|hello)\s*/i, "")
+        .trim();
+
+      if (substantialMessage.length > 5) {
+        extractedInfo.message = substantialMessage;
+      }
+    }
+  }
+
+  return extractedInfo;
+}
+
 // Enhanced function to detect contact intent and extract information naturally
 function detectContactIntent(message: string): {
   isContactRequest: boolean;
@@ -828,37 +1005,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(easterEggResponse);
     }
 
+    // Check for contact requests using conversation history
+    const historyContactInfo = extractContactInfoFromHistory(history, message);
+
     // Handle contact requests with enhanced natural language processing
-    if (contactAnalysis.isContactRequest) {
+    if (
+      contactAnalysis.isContactRequest ||
+      historyContactInfo.isContactRequest
+    ) {
       console.log("DEBUG: Detected contact request intent");
-
-      const response = generateContactResponse(
-        contactAnalysis.intent,
-        contactAnalysis.extractedInfo,
-        message,
-        history
+      console.log(
+        "DEBUG: Current message info:",
+        contactAnalysis.extractedInfo
       );
+      console.log("DEBUG: History info:", historyContactInfo);
 
-      // If we have complete information, actually send the message
-      const {
-        name,
-        email,
-        message: userMessageContent,
-      } = contactAnalysis.extractedInfo;
-      if (
-        name &&
-        email &&
-        userMessageContent &&
-        contactAnalysis.intent === "message"
-      ) {
+      // Combine information from current message and history
+      const combinedInfo = {
+        name: contactAnalysis.extractedInfo.name || historyContactInfo.name,
+        email: contactAnalysis.extractedInfo.email || historyContactInfo.email,
+        company:
+          contactAnalysis.extractedInfo.company || historyContactInfo.company,
+        message:
+          contactAnalysis.extractedInfo.message || historyContactInfo.message,
+      };
+
+      console.log("DEBUG: Combined contact info:", combinedInfo);
+
+      // Check if we have complete information
+      const hasAllInfo =
+        combinedInfo.name && combinedInfo.email && combinedInfo.message;
+
+      if (hasAllInfo) {
+        console.log("DEBUG: All contact info available, sending email");
         try {
           // Send the contact request
           const contactData = {
-            requesterName: name,
-            requesterEmail: email,
-            company: contactAnalysis.extractedInfo.company || "",
+            requesterName: combinedInfo.name!,
+            requesterEmail: combinedInfo.email!,
+            company: combinedInfo.company || "",
             position: detectedPosition || "",
-            message: userMessageContent,
+            message: combinedInfo.message!,
             conversationContext:
               history.length > 0 ? JSON.stringify(history) : undefined,
             fileAnalysis: hasFiles ? fileAnalysis : undefined,
@@ -868,14 +1055,28 @@ export async function POST(request: NextRequest) {
 
           if (contactResult.success) {
             return NextResponse.json({
-              response: `✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence:\n\n**From:** ${name}${contactAnalysis.extractedInfo.company ? ` (${contactAnalysis.extractedInfo.company})` : ""}\n**Message:** ${userMessageContent}\n\nLawrence will get back to you at **${email}** soon! 📧`,
+              response: `✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence:\n\n**From:** ${combinedInfo.name}${combinedInfo.company ? ` (${combinedInfo.company})` : ""}\n**Email:** ${combinedInfo.email}\n**Message:** ${combinedInfo.message}\n\nLawrence will get back to you soon! 📧`,
               contactSent: true,
             });
+          } else {
+            console.log(
+              "DEBUG: Failed to send contact request:",
+              contactResult.message
+            );
           }
         } catch (error) {
           console.error("DEBUG: Error sending contact request:", error);
         }
       }
+
+      // Generate response based on available information
+      const response = generateContactResponse(
+        contactAnalysis.intent ||
+          (historyContactInfo.isContactRequest ? "message" : null),
+        combinedInfo,
+        message,
+        history
+      );
 
       return NextResponse.json({
         response,
