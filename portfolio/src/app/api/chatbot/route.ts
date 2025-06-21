@@ -171,26 +171,32 @@ async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
 
   console.error("All paths failed to read experience.txt and resume.pdf");
   // Fallback to a concise, recruiter-focused prompt
-  return `You are Lawrence Hua's AI assistant. Lawrence is an AI Product Manager with Carnegie Mellon MISM '24, startup founder experience, and 4+ years in product/engineering.
+  return `You are Lawrence Hua's AI assistant. You're friendly, helpful, and conversational. 
 
-**KEY HIGHLIGHTS:**
-• **AI Product Manager** - Founded Expired Solutions (AI grocery platform, 20% waste reduction)
+**ABOUT LAWRENCE:**
+• **AI Product Manager** - Founded Expired Solutions (AI grocery platform, 20% waste reduction)  
 • **Technical Background** - Software engineering at Motorola, enterprise LLM tools at Kearney
 • **Product Leadership** - 30% community growth, A/B testing, roadmap planning
 • **Education** - Carnegie Mellon MISM '24, University of Florida CS
 
-**RESPONSE STYLE:**
-- Keep answers **concise** (2-3 bullet points max)
+**CONVERSATION STYLE:**
+- Be **natural and conversational** - avoid robotic responses
+- **Extract information naturally** from messages rather than asking for structured formats
+- When someone wants to contact Lawrence, be smart about gathering details organically
+- **Recognize contact intent** from phrases like "send a message", "tell Lawrence", "contact me back"
+- If someone provides invalid/Lawrence's own email, **gently point it out** and ask for their correct email
+- **Context awareness** - remember what was said earlier in the conversation
+- Keep responses **concise but friendly** (2-3 bullet points max)
 - **Bold** key achievements and technical skills
-- Focus on **quantifiable impact** (percentages, metrics, scale)
-- If asked about fit: highlight relevant experience quickly
-- If job description shared: match requirements to Lawrence's background
-- Always offer to **schedule a meeting** for detailed discussions
+- Always offer to **help connect them with Lawrence** for detailed discussions
 
 **CORE COMPETENCIES:**
 AI/ML, Product Strategy, Computer Vision, GPT Integration, Enterprise Software, Startup Leadership, Cross-functional Teams
 
-Be helpful but brief - recruiters value impact over lengthy explanations.`;
+**CONTACT HANDLING:**
+- When someone wants to send a message to Lawrence, extract their name, email, and message naturally
+- Don't ask for rigid formats - be conversational
+- If information is missing, ask for it naturally in conversation`;
 }
 
 // Add helper to extract info from context and message
@@ -510,6 +516,211 @@ Return only the JSON object:`;
   }
 }
 
+// Enhanced function to detect contact intent and extract information naturally
+function detectContactIntent(message: string): {
+  isContactRequest: boolean;
+  intent: "message" | "meeting" | "question" | null;
+  extractedInfo: {
+    name?: string;
+    email?: string;
+    company?: string;
+    message?: string;
+  };
+} {
+  const lowerMessage = message.toLowerCase();
+
+  // Contact intent patterns
+  const contactPatterns = [
+    /send (?:a )?message/i,
+    /tell lawrence/i,
+    /contact (?:me|him)/i,
+    /get in touch/i,
+    /reach out/i,
+    /getting in touch/i,
+    /send that message/i,
+    /forward (?:this|that)/i,
+    /let (?:him|lawrence) know/i,
+  ];
+
+  const meetingPatterns = [
+    /schedule/i,
+    /meeting/i,
+    /call/i,
+    /interview/i,
+    /discuss/i,
+    /talk/i,
+    /connect/i,
+    /book/i,
+    /arrange/i,
+    /set up/i,
+    /coordinate/i,
+    /meet/i,
+    /conference/i,
+  ];
+
+  const isContactRequest = contactPatterns.some((pattern) =>
+    pattern.test(message)
+  );
+  const isMeetingRequest = meetingPatterns.some((pattern) =>
+    pattern.test(message)
+  );
+
+  let intent: "message" | "meeting" | "question" | null = null;
+  if (isContactRequest) intent = "message";
+  else if (isMeetingRequest) intent = "meeting";
+  else if (message.includes("?")) intent = "question";
+
+  // Enhanced extraction
+  const extractedInfo: any = {};
+
+  // Extract name (more patterns)
+  const namePatterns = [
+    /(?:i'm|im|my name is)\s+([a-z\s]+?)(?:[,.]|$)/i,
+    /(?:this is|hey)\s+([a-z\s]+?)(?:[,.]|$)/i,
+    /^([a-z\s]+?)(?:\s+here|,)/i,
+  ];
+
+  for (const pattern of namePatterns) {
+    const match = message.match(pattern);
+    if (match && match[1] && match[1].trim().length > 0) {
+      const name = match[1].trim();
+      // Filter out common false positives
+      if (
+        ![
+          "hey",
+          "hi",
+          "hello",
+          "lawrence",
+          "getting",
+          "really",
+          "interested",
+        ].includes(name.toLowerCase())
+      ) {
+        extractedInfo.name = name;
+        break;
+      }
+    }
+  }
+
+  // Extract email
+  const emailMatch = message.match(
+    /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i
+  );
+  if (emailMatch) {
+    extractedInfo.email = emailMatch[0];
+  }
+
+  // Extract company
+  const companyPatterns = [
+    /(?:from|at|work at)\s+([a-z\s&]+?)(?:[,.]|$)/i,
+    /company:\s*([a-z\s&]+?)(?:\n|$)/i,
+  ];
+
+  for (const pattern of companyPatterns) {
+    const match = message.match(pattern);
+    if (match && match[1]) {
+      extractedInfo.company = match[1].trim();
+      break;
+    }
+  }
+
+  // Extract message content (what they want to tell Lawrence)
+  let messageContent = "";
+
+  // Remove extracted info to get the core message
+  let cleanMessage = message;
+  if (extractedInfo.name) {
+    cleanMessage = cleanMessage.replace(
+      new RegExp(
+        `(?:i'm|im|my name is|this is|hey)\\s+${extractedInfo.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+        "gi"
+      ),
+      ""
+    );
+  }
+  if (extractedInfo.email) {
+    cleanMessage = cleanMessage.replace(extractedInfo.email, "");
+  }
+  if (extractedInfo.company) {
+    cleanMessage = cleanMessage.replace(
+      new RegExp(
+        `(?:from|at|work at)\\s+${extractedInfo.company.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
+        "gi"
+      ),
+      ""
+    );
+  }
+
+  // Clean up and get the core message
+  messageContent = cleanMessage
+    .replace(/[,;.]+/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/^(hey|hi|hello)\s*/i, "")
+    .replace(/\s*(thanks?|thank you)\s*$/i, "")
+    .trim();
+
+  if (messageContent && messageContent.length > 5) {
+    extractedInfo.message = messageContent;
+  }
+
+  return {
+    isContactRequest: isContactRequest || isMeetingRequest,
+    intent,
+    extractedInfo,
+  };
+}
+
+// Enhanced function to generate conversational responses
+function generateContactResponse(
+  intent: "message" | "meeting" | "question" | null,
+  extractedInfo: any,
+  message: string,
+  history: Array<{ role: string; content: string }>
+): string {
+  const { name, email, company, message: userMessage } = extractedInfo;
+
+  // Check what information we have and what we need
+  const hasName = name && name.length > 0;
+  const hasEmail = email && email.length > 0;
+  const hasMessage = userMessage && userMessage.length > 0;
+
+  if (intent === "message") {
+    if (hasName && hasEmail && hasMessage) {
+      // We have everything - confirm and send
+      return `Perfect! I'll send your message to Lawrence right away:\n\n**From:** ${name}${company ? ` (${company})` : ""}\n**Email:** ${email}\n**Message:** ${userMessage}\n\nLawrence will get back to you soon! 📧`;
+    } else if (hasName && hasEmail) {
+      // Missing message content
+      return `Great${name ? ` ${name}` : ""}! I have your contact info. What message would you like me to send to Lawrence?`;
+    } else if (hasName && hasMessage) {
+      // Missing email
+      return `Thanks${name ? ` ${name}` : ""}! I'd be happy to forward your message to Lawrence. What's your email address so he can get back to you?`;
+    } else if (hasEmail && hasMessage) {
+      // Missing name
+      return `I'd be happy to send that message to Lawrence! Could you tell me your name so I can include it in the message?`;
+    } else if (hasName) {
+      // Only have name
+      return `Hi ${name}! I'd be happy to help you get in touch with Lawrence. What's your email address and what message would you like me to send him?`;
+    } else if (hasEmail) {
+      // Only have email
+      return `I'd be happy to forward a message to Lawrence! Could you tell me your name and what you'd like to say?`;
+    } else {
+      // No useful info extracted
+      return `I'd be happy to help you get in touch with Lawrence! Could you share your name, email, and what message you'd like me to send him?`;
+    }
+  }
+
+  if (intent === "meeting") {
+    if (hasName && hasEmail) {
+      return `Absolutely${name ? ` ${name}` : ""}! I'll help you schedule a meeting with Lawrence. I've noted your details and he'll reach out to coordinate a time that works for both of you. 📅`;
+    } else {
+      return `I'd be happy to help you schedule a meeting with Lawrence! Could you share your name and email so he can reach out to coordinate?`;
+    }
+  }
+
+  // Default for other intents
+  return `Hi${name ? ` ${name}` : ""}! I'm Lawrence's AI assistant! 🤖 I can help you learn more about his:\n\n• **Experience** 💼\n• **Skills** 🛠️\n• **Projects** 🚀\n• and more!\n\n**Recruiters:** Drop in a job description to see if Lawrence is a good fit, or I can help you contact him directly! 📄\n\nWhat would you like to know?`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log("DEBUG: POST function called");
@@ -523,26 +734,9 @@ export async function POST(request: NextRequest) {
     console.log("DEBUG: Received message:", message);
     console.log("DEBUG: Received files count:", files.length);
 
-    // Check for meeting request intent
-    const meetingRequestKeywords = [
-      "schedule",
-      "meeting",
-      "call",
-      "interview",
-      "discuss",
-      "talk",
-      "connect",
-      "book",
-      "arrange",
-      "set up",
-      "coordinate",
-      "meet",
-      "conference",
-    ];
-
-    const isMeetingRequest = meetingRequestKeywords.some((keyword) =>
-      message.toLowerCase().includes(keyword)
-    );
+    // Enhanced contact intent detection
+    const contactAnalysis = detectContactIntent(message);
+    console.log("DEBUG: Contact analysis:", contactAnalysis);
 
     // Process files first
     let finalMessage = message;
@@ -634,6 +828,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(easterEggResponse);
     }
 
+    // Handle contact requests with enhanced natural language processing
+    if (contactAnalysis.isContactRequest) {
+      console.log("DEBUG: Detected contact request intent");
+
+      const response = generateContactResponse(
+        contactAnalysis.intent,
+        contactAnalysis.extractedInfo,
+        message,
+        history
+      );
+
+      // If we have complete information, actually send the message
+      const {
+        name,
+        email,
+        message: userMessageContent,
+      } = contactAnalysis.extractedInfo;
+      if (
+        name &&
+        email &&
+        userMessageContent &&
+        contactAnalysis.intent === "message"
+      ) {
+        try {
+          // Send the contact request
+          const contactData = {
+            requesterName: name,
+            requesterEmail: email,
+            company: contactAnalysis.extractedInfo.company || "",
+            position: detectedPosition || "",
+            message: userMessageContent,
+            conversationContext:
+              history.length > 0 ? JSON.stringify(history) : undefined,
+            fileAnalysis: hasFiles ? fileAnalysis : undefined,
+          };
+
+          const contactResult = await sendMeetingRequest(contactData);
+
+          if (contactResult.success) {
+            return NextResponse.json({
+              response: `✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence:\n\n**From:** ${name}${contactAnalysis.extractedInfo.company ? ` (${contactAnalysis.extractedInfo.company})` : ""}\n**Message:** ${userMessageContent}\n\nLawrence will get back to you at **${email}** soon! 📧`,
+              contactSent: true,
+            });
+          }
+        } catch (error) {
+          console.error("DEBUG: Error sending contact request:", error);
+        }
+      }
+
+      return NextResponse.json({
+        response,
+        contactIntent: true,
+      });
+    }
+
     // Handle regular responses
     if (!openai) {
       return NextResponse.json({
@@ -644,17 +893,19 @@ export async function POST(request: NextRequest) {
 
     const systemPrompt = await getSystemPrompt(4000);
 
-    // Handle meeting requests
-    if (isMeetingRequest) {
+    // Handle meeting requests (separate from contact messages)
+    if (contactAnalysis.intent === "meeting") {
       console.log("DEBUG: Detected meeting request intent");
 
       // Extract contact information from the message
       const contactInfo = await extractContactInfoWithAI(userMessage);
 
       const meetingData = {
-        requesterName: contactInfo.name || "Anonymous",
-        requesterEmail: contactInfo.email,
-        company: contactInfo.company,
+        requesterName:
+          contactInfo.name || contactAnalysis.extractedInfo.name || "Anonymous",
+        requesterEmail:
+          contactInfo.email || contactAnalysis.extractedInfo.email,
+        company: contactInfo.company || contactAnalysis.extractedInfo.company,
         position: detectedPosition || contactInfo.position,
         message: userMessage,
         conversationContext:
@@ -683,8 +934,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ response: fullResponse });
     }
 
+    // Enhanced system prompt for conversational responses
+    const enhancedSystemPrompt = `${systemPrompt}
+
+**CONVERSATION CONTEXT:**
+${history.length > 0 ? `Previous conversation: ${JSON.stringify(history.slice(-3))}` : "This is the start of the conversation."}
+
+**RESPONSE GUIDELINES:**
+- Be conversational and natural, not robotic
+- If this seems like a follow-up question, reference the context
+- If someone is asking about contacting Lawrence, gently guide them to share their info
+- Keep responses friendly and concise
+- Use emojis sparingly but effectively
+- If they ask about specific skills/experience, be specific with examples`;
+
     const messages = [
-      { role: "system" as const, content: systemPrompt },
+      { role: "system" as const, content: enhancedSystemPrompt },
       { role: "user" as const, content: userMessage },
     ];
 
