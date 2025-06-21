@@ -436,7 +436,7 @@ export function HeroSection() {
                     });
                   }
                 }}
-                className="group flex flex-col items-center space-y-2 text-slate-400 hover:text-blue-400 transition-all duration-300 cursor-pointer"
+                className="group flex flex-col items-center justify-center space-y-2 text-slate-400 hover:text-blue-400 transition-all duration-300 cursor-pointer"
               >
                 <motion.div
                   animate={{ rotate: [0, 5, -5, 0] }}
@@ -445,12 +445,14 @@ export function HeroSection() {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="transform -rotate-90 whitespace-nowrap text-xs font-medium tracking-wider uppercase"
+                  className="transform -rotate-90 whitespace-nowrap text-xs font-medium tracking-wider uppercase flex items-center justify-center"
                 >
                   Explore my work
                 </motion.div>
-                <div className="w-px h-8 bg-gradient-to-b from-blue-400 to-transparent group-hover:from-blue-300 transition-colors duration-300"></div>
-                <FiArrowDown className="h-4 w-4 group-hover:translate-y-1 transition-transform duration-300" />
+                <div className="w-px h-8 bg-gradient-to-b from-blue-400 to-transparent group-hover:from-blue-300 transition-colors duration-300 mx-auto"></div>
+                <div className="flex items-center justify-center">
+                  <FiArrowDown className="h-4 w-4 group-hover:translate-y-1 transition-transform duration-300" />
+                </div>
               </button>
               <div className="w-px h-16 bg-gradient-to-b from-transparent via-blue-400 to-transparent"></div>
             </motion.div>
@@ -460,7 +462,7 @@ export function HeroSection() {
         {/* Main Scroll Indicator - Mobile */}
         <motion.div
           variants={itemVariants}
-          className="flex flex-col items-center lg:hidden"
+          className="flex flex-col items-center justify-center lg:hidden w-full"
         >
           <button
             onClick={() => {
@@ -476,7 +478,7 @@ export function HeroSection() {
                 });
               }
             }}
-            className="mb-3 text-sm text-slate-400 hover:text-blue-400 transition-colors duration-200 cursor-pointer"
+            className="mb-3 text-sm text-slate-400 hover:text-blue-400 transition-colors duration-200 cursor-pointer text-center"
           >
             Explore my work
           </button>
@@ -493,6 +495,7 @@ export function HeroSection() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
+            className="flex items-center justify-center w-full"
           >
             <button
               onClick={() => {
@@ -508,6 +511,7 @@ export function HeroSection() {
                   });
                 }
               }}
+              className="flex items-center justify-center"
             >
               <FiArrowDown className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400 hover:text-blue-300 transition-colors duration-200" />
             </button>

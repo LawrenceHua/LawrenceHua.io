@@ -270,8 +270,9 @@ export function ContactSection() {
           <div className="mx-auto mt-6 h-1 w-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
         </motion.div>
 
-        <div className="grid gap-12 lg:grid-cols-2">
-          {/* Contact Methods */}
+        {/* Mobile-Optimized Layout */}
+        <div className="space-y-12">
+          {/* Contact Methods Section */}
           <motion.div variants={itemVariants} className="space-y-8">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
               Get In Touch
@@ -389,59 +390,20 @@ export function ContactSection() {
                 );
               })}
             </div>
-
-            {/* Social Links */}
-            <div className="space-y-6">
-              <h4 className="text-xl font-semibold text-slate-900 dark:text-white">
-                Follow My Journey
-              </h4>
-              <div className="space-y-4">
-                {socialLinks.map((social) => (
-                  <motion.div
-                    key={social.name}
-                    whileHover={{ scale: 1.02 }}
-                    className="group flex items-center space-x-4 rounded-xl bg-white dark:bg-slate-800 p-4 shadow-lg transition-all duration-300 hover:shadow-xl"
-                  >
-                    <div
-                      className="rounded-full p-3 text-white shadow-lg"
-                      style={{ backgroundColor: social.color }}
-                    >
-                      <social.icon className="h-5 w-5" />
-                    </div>
-                    <div className="flex-1">
-                      <h5 className="font-semibold text-slate-900 dark:text-white">
-                        {social.name}
-                      </h5>
-                      <p className="text-sm text-slate-600 dark:text-slate-300">
-                        {social.description}
-                      </p>
-                    </div>
-                    <Link
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
-                    >
-                      <ExternalLink className="h-5 w-5" />
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
           </motion.div>
 
-          {/* Contact Form */}
+          {/* Contact Form Section */}
           <motion.div variants={itemVariants}>
             {/* Form Header with Instructions */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-16 mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800"
+              className="mb-6 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800"
             >
               <div className="flex items-center space-x-2 mb-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                 <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                  👈 Click the contact methods on the left to switch forms
+                  👆 Click the contact methods above to switch forms
                 </p>
               </div>
               <p className="text-xs text-blue-600 dark:text-blue-400">
@@ -890,6 +852,45 @@ export function ContactSection() {
                 </motion.div>
               )}
             </AnimatePresence>
+          </motion.div>
+
+          {/* Social Links Section */}
+          <motion.div variants={itemVariants} className="space-y-6">
+            <h4 className="text-xl font-semibold text-slate-900 dark:text-white">
+              Follow My Journey
+            </h4>
+            <div className="space-y-4">
+              {socialLinks.map((social) => (
+                <motion.div
+                  key={social.name}
+                  whileHover={{ scale: 1.02 }}
+                  className="group flex items-center space-x-4 rounded-xl bg-white dark:bg-slate-800 p-4 shadow-lg transition-all duration-300 hover:shadow-xl"
+                >
+                  <div
+                    className="rounded-full p-3 text-white shadow-lg"
+                    style={{ backgroundColor: social.color }}
+                  >
+                    <social.icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h5 className="font-semibold text-slate-900 dark:text-white">
+                      {social.name}
+                    </h5>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">
+                      {social.description}
+                    </p>
+                  </div>
+                  <Link
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
+                  >
+                    <ExternalLink className="h-5 w-5" />
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
         </div>
 

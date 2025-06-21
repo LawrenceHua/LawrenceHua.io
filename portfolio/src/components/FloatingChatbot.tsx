@@ -162,7 +162,7 @@ export function FloatingChatbot() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           animate={
-            !hasBeenOpened
+            !hasBeenOpened && !permanentlyDismissed
               ? {
                   boxShadow: [
                     "0 4px 14px 0 rgba(59, 130, 246, 0.3)",
@@ -173,7 +173,7 @@ export function FloatingChatbot() {
               : {}
           }
           transition={
-            !hasBeenOpened
+            !hasBeenOpened && !permanentlyDismissed
               ? {
                   boxShadow: {
                     duration: 2,
@@ -188,7 +188,7 @@ export function FloatingChatbot() {
         </motion.button>
 
         {/* Pulse Ring Animation */}
-        {!hasBeenOpened && (
+        {!hasBeenOpened && !permanentlyDismissed && (
           <motion.div
             className="absolute inset-0 rounded-full border-2 border-blue-400 pointer-events-none"
             animate={{
