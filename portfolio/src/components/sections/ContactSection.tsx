@@ -192,13 +192,6 @@ export function ContactSection() {
       color: "#333",
       description: "Open source projects and code repositories",
     },
-    {
-      name: "Facebook",
-      url: "https://www.facebook.com/lawrence.hua.965",
-      icon: FaFacebookF,
-      color: "#1877F2",
-      description: "Connect with me on Facebook",
-    },
   ];
 
   const contactMethods = [
@@ -278,8 +271,8 @@ export function ContactSection() {
               Get In Touch
             </h3>
 
-            {/* Quick Contact Methods */}
-            <div className="space-y-6">
+            {/* Quick Contact Methods - Side by Side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {contactMethods.map((method) => {
                 const isActive = activeForm === method.action;
                 return (
@@ -300,20 +293,20 @@ export function ContactSection() {
                       }
                     }}
                   >
-                    <div className="flex items-start space-x-4">
+                    <div className="flex flex-col items-center text-center space-y-4">
                       <motion.div
                         animate={{
                           scale: isActive ? 1.1 : 1,
                           rotate: isActive ? 5 : 0,
                         }}
                         transition={{ duration: 0.2 }}
-                        className={`rounded-xl bg-gradient-to-r ${method.color} p-3 text-white shadow-lg`}
+                        className={`rounded-xl bg-gradient-to-r ${method.color} p-4 text-white shadow-lg`}
                       >
-                        <method.icon className="h-6 w-6" />
+                        <method.icon className="h-8 w-8" />
                       </motion.div>
                       <div className="flex-1">
                         <h4
-                          className={`text-lg font-semibold mb-1 transition-colors duration-200 ${
+                          className={`text-lg font-semibold mb-2 transition-colors duration-200 ${
                             isActive
                               ? "text-blue-900 dark:text-blue-100"
                               : "text-slate-900 dark:text-white"
@@ -341,7 +334,7 @@ export function ContactSection() {
                                 method.action as "message" | "calendar"
                               );
                             }}
-                            className={`inline-flex items-center space-x-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-all duration-200 ${
+                            className={`inline-flex items-center space-x-2 rounded-lg px-6 py-3 text-sm font-medium text-white transition-all duration-200 ${
                               isActive
                                 ? `bg-gradient-to-r ${method.color} shadow-lg ring-2 ring-white ring-offset-2`
                                 : `bg-gradient-to-r ${method.color} hover:shadow-lg`
@@ -370,7 +363,7 @@ export function ContactSection() {
                                 ? "noopener noreferrer"
                                 : undefined
                             }
-                            className={`inline-flex items-center space-x-2 rounded-lg bg-gradient-to-r ${method.color} px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:shadow-lg`}
+                            className={`inline-flex items-center space-x-2 rounded-lg bg-gradient-to-r ${method.color} px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:shadow-lg`}
                           >
                             <span>{method.buttonText}</span>
                             <ExternalLink className="h-4 w-4" />
@@ -403,7 +396,7 @@ export function ContactSection() {
               <div className="flex items-center space-x-2 mb-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                 <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                  👆 Click the contact methods above to switch forms
+                  👆 Click "Send Email" or "Book Call" above to activate forms
                 </p>
               </div>
               <p className="text-xs text-blue-600 dark:text-blue-400">
@@ -861,34 +854,36 @@ export function ContactSection() {
             </h4>
             <div className="space-y-4">
               {socialLinks.map((social) => (
-                <motion.div
+                <Link
                   key={social.name}
-                  whileHover={{ scale: 1.02 }}
-                  className="group flex items-center space-x-4 rounded-xl bg-white dark:bg-slate-800 p-4 shadow-lg transition-all duration-300 hover:shadow-xl"
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
                 >
-                  <div
-                    className="rounded-full p-3 text-white shadow-lg"
-                    style={{ backgroundColor: social.color }}
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="group flex items-center space-x-4 rounded-xl bg-white dark:bg-slate-800 p-4 shadow-lg transition-all duration-300 hover:shadow-xl cursor-pointer"
                   >
-                    <social.icon className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h5 className="font-semibold text-slate-900 dark:text-white">
-                      {social.name}
-                    </h5>
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
-                      {social.description}
-                    </p>
-                  </div>
-                  <Link
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
-                  >
-                    <ExternalLink className="h-5 w-5" />
-                  </Link>
-                </motion.div>
+                    <div
+                      className="rounded-full p-3 text-white shadow-lg"
+                      style={{ backgroundColor: social.color }}
+                    >
+                      <social.icon className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {social.name}
+                      </h5>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">
+                        {social.description}
+                      </p>
+                    </div>
+                    <div className="text-slate-400 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                      <ExternalLink className="h-5 w-5" />
+                    </div>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </motion.div>
@@ -900,16 +895,6 @@ export function ContactSection() {
             <div className="flex flex-col items-center space-y-6">
               {/* Social Media Links */}
               <div className="flex items-center justify-center space-x-4 sm:space-x-6 flex-wrap gap-y-2 sm:gap-y-0">
-                <Link
-                  href="https://www.facebook.com/lawrence.hua.965"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200 p-2"
-                  title="Facebook"
-                >
-                  <FaFacebookF className="w-6 h-6" />
-                </Link>
-
                 <Link
                   href="https://github.com/LawrenceHua"
                   target="_blank"
