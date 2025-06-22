@@ -178,7 +178,7 @@ const TourArrows = ({
           exit={{ opacity: 0, scale: 0 }}
           transition={{ delay: index * 0.2, duration: 0.4 }}
           className="fixed z-50 pointer-events-none"
-          style={getArrowPosition(target)}
+          style={getArrowPosition(target, currentStep)}
         >
           <div className="relative">
             {/* Animated Arrow - Responsive sizing */}
@@ -224,16 +224,27 @@ const TourArrows = ({
 };
 
 // Helper function to get arrow positions for different timeline elements
-const getArrowPosition = (targetId: string) => {
+const getArrowPosition = (targetId: string, currentStep: number) => {
   if (typeof window === "undefined") {
     return { top: "50%", left: "50%", right: "auto" };
+  }
+
+  const isMobile = window.innerWidth < 768;
+
+  // For step 4 (work experience), use fixed positioning that doesn't move with scroll
+  if (currentStep === 3) {
+    return {
+      top: isMobile ? "250px" : "350px", // Fixed position from top
+      left: "50%",
+      transform: "translateX(-50%)",
+      right: "auto",
+    };
   }
 
   const targetElement = document.getElementById(targetId);
 
   if (targetElement) {
     const rect = targetElement.getBoundingClientRect();
-    const isMobile = window.innerWidth < 768;
 
     // Mobile: smaller arrows (32px), less spacing
     // Desktop: larger arrows (64px), more spacing
