@@ -206,21 +206,25 @@ export default function ModernHome() {
   const scrollToSection = (sectionId: string) => {
     // Special handling for step 6 (execution) - scroll to "All Projects" title
     if (currentStep === 5 && sectionId === "projects") {
+      console.log("🎯 Tour Step 6: Starting scroll to All Projects");
       // Add a delay to ensure the DOM is fully rendered
       setTimeout(() => {
         // Try to find the specific "All Projects" title by ID
         const allProjectsTitle = document.getElementById("all-projects-title");
+        console.log("🔍 Found All Projects title:", allProjectsTitle);
 
         if (allProjectsTitle) {
           const isMobile = window.innerWidth < 768;
           const offset = isMobile ? 80 : 100;
           const titlePosition = allProjectsTitle.offsetTop - offset;
+          console.log("📍 Scrolling to position:", titlePosition);
 
           window.scrollTo({
             top: titlePosition,
             behavior: "smooth",
           });
         } else {
+          console.log("❌ All Projects title not found, using fallback");
           // Fallback: scroll to middle of projects section
           const element = document.getElementById(sectionId);
           if (element) {
@@ -228,6 +232,7 @@ export default function ModernHome() {
             const offset = isMobile ? 80 : 100;
             const middlePosition =
               element.offsetTop + element.offsetHeight * 0.5 - offset;
+            console.log("📍 Fallback scrolling to position:", middlePosition);
 
             window.scrollTo({
               top: middlePosition,
