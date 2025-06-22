@@ -374,10 +374,8 @@ async function getFileContent(
   message: string,
   history: Array<{ role: string; content: string }>
 ): Promise<{ content: string | null; type: string; position?: string }> {
-  console.log("DEBUG: getFileContent called for file:", file.name);
   const an = file.name.split(".");
   const fileExtension = an[an.length - 1].toLowerCase();
-  console.log("DEBUG: File extension:", fileExtension);
 
   // Helper function to extract email from message
   function extractEmailFromMessage(text: string): string {
@@ -388,34 +386,17 @@ async function getFileContent(
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    console.log("DEBUG: Buffer created, size:", buffer.length);
 
     if (fileExtension === "txt") {
-      console.log("DEBUG: Processing TXT file");
       const content = buffer.toString("utf-8");
-      console.log(
-        "DEBUG: TXT processed successfully, content length:",
-        content.length
-      );
       return { content, type: "text" };
     } else if (fileExtension === "pdf") {
-      console.log("DEBUG: Processing PDF file");
       try {
-        console.log("DEBUG: Attempting to import pdf-parse...");
         // @ts-ignore
         const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
-        console.log("DEBUG: pdf-parse import successful");
-
-        console.log("DEBUG: Parsing PDF document...");
         const data = await pdfParse(buffer);
-        console.log(
-          "DEBUG: PDF parsed successfully, text length:",
-          data.text.length
-        );
-
         return { content: data.text, type: "pdf" };
       } catch (pdfError: any) {
-        console.error("DEBUG: PDF processing error:", pdfError);
         return {
           content:
             "PDF_CONTENT_UNAVAILABLE: I can see you've uploaded a PDF file, but I'm currently experiencing technical difficulties with PDF parsing. To help you analyze Lawrence's fit for this role, could you please copy and paste the key job requirements and responsibilities from the document? I'll be happy to provide a detailed analysis based on that information.",
@@ -423,10 +404,8 @@ async function getFileContent(
         };
       }
     } else if (fileExtension === "docx") {
-      console.log("DEBUG: Processing DOCX file");
       const mammoth = (await import("mammoth")).default;
       const { value } = await mammoth.extractRawText({ buffer });
-      console.log("DEBUG: DOCX processed successfully");
       return { content: value, type: "docx" };
     } else if (["jpg", "jpeg", "png"].includes(fileExtension)) {
       // Convert image to base64 for OpenAI vision API
@@ -439,10 +418,8 @@ async function getFileContent(
         position: "image_uploaded",
       };
     }
-    console.log("DEBUG: Unsupported file type:", fileExtension);
     return { content: null, type: "unsupported" };
   } catch (error) {
-    console.error(`DEBUG: Error processing file ${file.name}:`, error);
     return { content: null, type: "error" };
   }
 }
@@ -1165,30 +1142,20 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("DEBUG: POST function called");
-
     const formData = await request.formData();
     const message = formData.get("message") as string;
     const files = formData.getAll("files") as File[];
     const historyString = formData.get("history") as string;
     const history = historyString ? JSON.parse(historyString) : [];
 
-    console.log("DEBUG: Received message:", message);
-    console.log("DEBUG: Received files count:", files.length);
-
     // Extract session ID from form data
     const sessionIdFromRequest = formData.get("sessionId") as string;
 
     // Generate or use existing session ID for this conversation
     const sessionId = getOrCreateSessionId(sessionIdFromRequest, history);
-    console.log("DEBUG: Session ID:", sessionId);
 
     // Enhanced contact intent detection
     const contactAnalysis = detectContactIntent(message, history);
-    console.log("DEBUG: Contact analysis:", contactAnalysis);
-    console.log("DEBUG: Message:", message);
-    console.log("DEBUG: History length:", history.length);
-    console.log("DEBUG: History:", JSON.stringify(history));
 
     // Process files first
     let finalMessage = message;
@@ -1197,34 +1164,96 @@ export async function POST(request: NextRequest) {
     let detectedPosition: string | null = null;
 
     if (files.length > 0) {
-      console.log("DEBUG: Processing files");
       hasFiles = true;
 
       for (const file of files) {
-        console.log("DEBUG: Processing file:", file.name);
-        console.log("DEBUG: File type:", file.type);
-        console.log("DEBUG: File size:", file.size);
-
         const fileResult = await getFileContent(file, message, history);
-        console.log(
-          "DEBUG: getFileContent returned:",
-          fileResult.content ? "SUCCESS" : "FAILED"
-        );
 
         if (fileResult.content) {
-          console.log("DEBUG: File content length:", fileResult.content.length);
-
           if (fileResult.type === "image") {
-            // Return intelligent response about the image
-            const imageResponse = `📷 **Image Analysis**\n\nI can see you've shared an image with me! Based on your message "${message}", this appears to be something relevant to Lawrence's professional background.\n\nIf this is a:\n• **Business card or contact info**: I can help you understand how to connect with Lawrence about potential opportunities\n• **Job posting**: I can analyze how Lawrence's experience aligns with the requirements\n• **Resume or CV**: I can compare qualifications and highlight relevant experience\n• **Company information**: I can explain how Lawrence's skills might fit your organization\n\nCould you tell me more about what specific information you're looking for? I'd be happy to provide detailed insights about Lawrence's background and how it relates to what you've shared!\n\n**To send this image to Lawrence directly**, use the /message command and I'll help you get it to him.`;
+            // Treat images as job descriptions and analyze Lawrence's fit naturally
+            if (!openai) {
+              const imageResponse = `I can see you've shared an image! This appears to be a job posting or role description. Based on Lawrence's background in Product Management, AI consulting, and full-stack development, he would likely be a strong fit for most product or technical roles. Could you share more details about the specific position you'd like me to analyze?`;
 
-            // Save assistant response to Firebase
-            await saveMessageToFirebase(sessionId, "assistant", imageResponse);
+              await saveMessageToFirebase(
+                sessionId,
+                "assistant",
+                imageResponse
+              );
+              return NextResponse.json({
+                response: imageResponse,
+                imageAnalyzed: true,
+              });
+            }
 
-            return NextResponse.json({
-              response: imageResponse,
-              imageAnalyzed: true,
-            });
+            // Use OpenAI Vision API to analyze the image
+            try {
+              const systemPrompt = await getSystemPrompt(4000);
+              const visionPrompt = `${systemPrompt}
+
+You are analyzing an image that likely contains a job posting or role description. Analyze how Lawrence's background fits this role and provide a comprehensive assessment. Be specific about relevant experience, skills, and achievements that match the requirements.
+
+If the image contains text that you can read, extract the key requirements and provide a detailed fit analysis. Focus on:
+1. Role requirements vs Lawrence's experience
+2. Technical skills alignment
+3. Relevant project examples
+4. Overall recommendation
+
+If you cannot clearly read the image content, provide a general assessment of Lawrence's strengths for typical product/technical roles.`;
+
+              const completion = await openai.chat.completions.create({
+                model: "gpt-4o",
+                messages: [
+                  {
+                    role: "system",
+                    content: visionPrompt,
+                  },
+                  {
+                    role: "user",
+                    content: [
+                      {
+                        type: "text",
+                        text: `Please analyze this job posting/role description and assess Lawrence's fit. User message: "${message}"`,
+                      },
+                      {
+                        type: "image_url",
+                        image_url: {
+                          url: fileResult.content,
+                        },
+                      },
+                    ],
+                  },
+                ],
+                max_tokens: 1000,
+                temperature: 0.7,
+              });
+
+              const imageResponse =
+                completion.choices[0]?.message?.content ||
+                "I can see the image you've shared. Based on Lawrence's extensive background in Product Management, AI consulting, and technical development, he would be well-suited for most product and technical roles. Could you tell me more about what specific aspects of his background you'd like me to highlight?";
+
+              await saveMessageToFirebase(
+                sessionId,
+                "assistant",
+                imageResponse
+              );
+              return NextResponse.json({
+                response: imageResponse,
+                imageAnalyzed: true,
+              });
+            } catch (error) {
+              const fallbackResponse = `I can see you've shared an image that appears to be a job posting or role description. Based on Lawrence's background:\n\n• **Product Management**: 4+ years experience across multiple companies\n• **AI/ML Expertise**: Built AI platforms, GPT integrations, computer vision systems\n• **Technical Skills**: Full-stack development, data analysis, enterprise software\n• **Leadership**: Founded Expired Solutions, led cross-functional teams\n• **Education**: Carnegie Mellon MISM, University of Florida CS\n\nHe would be an excellent fit for product, technical, or AI-focused roles. What specific aspects of the position would you like me to address?`;
+
+              await saveMessageToFirebase(
+                sessionId,
+                "assistant",
+                fallbackResponse
+              );
+              return NextResponse.json({
+                response: fallbackResponse,
+                imageAnalyzed: true,
+              });
+            }
           } else {
             // Handle text-based files
             finalMessage += `\n\nFile content from ${file.name}:\n${fileResult.content}`;
@@ -1236,16 +1265,11 @@ export async function POST(request: NextRequest) {
               detectedPosition = position;
             }
           }
-
-          console.log("DEBUG: Added file content to message");
-        } else {
-          console.log("DEBUG: Failed to get file content for:", file.name);
         }
       }
     }
 
     const userMessage = finalMessage || "User sent a file for analysis.";
-    console.log("DEBUG: Final user message length:", userMessage.length);
 
     // Save user message to Firebase
     await saveMessageToFirebase(sessionId, "user", userMessage);
