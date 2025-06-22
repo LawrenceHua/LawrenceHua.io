@@ -606,19 +606,22 @@ function extractContactInfoFromHistory(
     isContactRequest: false,
   };
 
-  // Check if this is a contact conversation by looking for intent keywords
+  // Check if this is a contact conversation by looking for explicit intent keywords
+  // Only detect contact requests for EXPLICIT contact language, not just mentioning Lawrence
   const allMessages = [...history.map((h) => h.content), currentMessage].join(
     " "
   );
   const contactIntentKeywords = [
-    "send message",
-    "tell lawrence",
-    "contact",
-    "get in touch",
-    "reach out",
-    "forward",
-    "pass along",
-    "let him know",
+    "send message to lawrence",
+    "tell lawrence that",
+    "contact lawrence",
+    "get in touch with lawrence",
+    "reach out to lawrence",
+    "forward to lawrence",
+    "pass along to lawrence",
+    "let lawrence know that",
+    "message lawrence",
+    "email lawrence",
   ];
 
   extractedInfo.isContactRequest = contactIntentKeywords.some((keyword) =>

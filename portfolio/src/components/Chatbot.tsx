@@ -156,21 +156,19 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: `Hi! I'm Lawrence's AI assistant! 🤖 I can help you learn more about his:
+      content: `Hi! I'm Lawrence's AI assistant! 🤖
 
-**Quick Topics:**
+**Quick Click Topics:**
 <button-experience>Experience 💼</button-experience>
 <button-skills>Skills 🛠️</button-skills>
 <button-projects>Projects 🚀</button-projects>
 <button-funfact>Fun Fact 🎯</button-funfact>
 
-**To contact Lawrence:**
-• Type or click <button-message>/message</button-message> to send a message 📧
-• Type or click <button-meeting>/meeting</button-meeting> to schedule a meeting 📅
+**Contact:**
+<button-message>/message</button-message> <button-meeting>/meeting</button-meeting>
 
-**Recruiters & Hiring Managers:**
+**Recruiters:**
 <button-upload>📎 Upload Job Description</button-upload>
-Drop in a job description to see if Lawrence is a good fit!
 
 What would you like to know?`,
       timestamp: new Date(),
@@ -532,15 +530,15 @@ What would you like to know?`,
               (isLoveMode ? styles.loveMode : "")
             }
             style={{
-              maxWidth: isFullscreen || isDesktop ? "600px" : undefined,
+              maxWidth: isFullscreen || isDesktop ? "500px" : undefined,
               maxHeight: isFullscreen ? "100vh" : undefined,
-              width: isFullscreen ? "100vw" : isDesktop ? "600px" : undefined,
+              width: isFullscreen ? "100vw" : isDesktop ? "500px" : undefined,
               height: isMinimized
                 ? "64px"
                 : isFullscreen
                   ? "100vh"
                   : isDesktop
-                    ? "80vh"
+                    ? "65vh"
                     : undefined,
               bottom: isFullscreen ? 0 : isDesktop ? "6rem" : undefined,
               right: isFullscreen ? 0 : isDesktop ? "1.5rem" : undefined,
