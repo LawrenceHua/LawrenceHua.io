@@ -1072,9 +1072,13 @@ function generateContactResponse(
       return `I'll help you send a message to Lawrence! What's your email address for the message?`;
     }
 
-    // Step 2: User provided email, ask for message
-    if (conversationState === "awaiting_email" && hasEmail) {
-      return `Got it! What is your message?`;
+    // Step 2: Handle email input - validate email is provided
+    if (conversationState === "awaiting_email") {
+      if (hasEmail) {
+        return `Got it! What is your message?`;
+      } else {
+        return `I need your email address to send the message to Lawrence. Please provide your email address.`;
+      }
     }
 
     // Step 3: User provided message, send it
@@ -1092,9 +1096,13 @@ function generateContactResponse(
       return `I'll help you schedule a meeting with Lawrence! What's your email address for the meeting?`;
     }
 
-    // Step 2: User provided email, ask for message
-    if (conversationState === "awaiting_email" && hasEmail) {
-      return `Perfect! What is your message about the meeting?`;
+    // Step 2: Handle email input - validate email is provided
+    if (conversationState === "awaiting_email") {
+      if (hasEmail) {
+        return `Perfect! What is your message about the meeting?`;
+      } else {
+        return `I need your email address to schedule the meeting with Lawrence. Please provide your email address.`;
+      }
     }
 
     // Step 3: User provided message, ask for date/time
@@ -1109,11 +1117,19 @@ function generateContactResponse(
   }
 
   // Handle cases where we're in a conversation state but fell through above logic
-  if (conversationState === "awaiting_email" && hasEmail) {
-    if (intent === "message") {
-      return `Got it! What is your message?`;
-    } else if (intent === "meeting") {
-      return `Perfect! What is your message about the meeting?`;
+  if (conversationState === "awaiting_email") {
+    if (hasEmail) {
+      if (intent === "message") {
+        return `Got it! What is your message?`;
+      } else if (intent === "meeting") {
+        return `Perfect! What is your message about the meeting?`;
+      }
+    } else {
+      if (intent === "message") {
+        return `I need your email address to send the message to Lawrence. Please provide your email address.`;
+      } else if (intent === "meeting") {
+        return `I need your email address to schedule the meeting with Lawrence. Please provide your email address.`;
+      }
     }
   }
 
@@ -1199,34 +1215,8 @@ export async function POST(request: NextRequest) {
           console.log("DEBUG: File content length:", fileResult.content.length);
 
           if (fileResult.type === "image") {
-            // Provide intelligent response about image analysis
-
-            // Silently email the image to Lawrence in the background
-            setTimeout(async () => {
-              try {
-                const { POST: sendImageHandler } = await import(
-                  "../send-image/route"
-                );
-
-                const imageFile = files[0];
-                const formData = new FormData();
-                formData.append("image", imageFile);
-                formData.append("message", message);
-                formData.append("email", "Portfolio Visitor");
-                formData.append("name", "Portfolio Visitor");
-
-                const mockRequest = {
-                  formData: async () => formData,
-                } as unknown as NextRequest;
-
-                await sendImageHandler(mockRequest);
-              } catch (emailError) {
-                // Silent fail
-              }
-            }, 0);
-
             // Return intelligent response about the image
-            const imageResponse = `📷 **Image Analysis**\n\nI can see you've shared an image with me! Based on your message "${message}", this appears to be something relevant to Lawrence's professional background.\n\nIf this is a:\n• **Business card or contact info**: I can help you understand how to connect with Lawrence about potential opportunities\n• **Job posting**: I can analyze how Lawrence's experience aligns with the requirements\n• **Resume or CV**: I can compare qualifications and highlight relevant experience\n• **Company information**: I can explain how Lawrence's skills might fit your organization\n\nCould you tell me more about what specific information you're looking for? I'd be happy to provide detailed insights about Lawrence's background and how it relates to what you've shared!`;
+            const imageResponse = `📷 **Image Analysis**\n\nI can see you've shared an image with me! Based on your message "${message}", this appears to be something relevant to Lawrence's professional background.\n\nIf this is a:\n• **Business card or contact info**: I can help you understand how to connect with Lawrence about potential opportunities\n• **Job posting**: I can analyze how Lawrence's experience aligns with the requirements\n• **Resume or CV**: I can compare qualifications and highlight relevant experience\n• **Company information**: I can explain how Lawrence's skills might fit your organization\n\nCould you tell me more about what specific information you're looking for? I'd be happy to provide detailed insights about Lawrence's background and how it relates to what you've shared!\n\n**To send this image to Lawrence directly**, use the /message command and I'll help you get it to him.`;
 
             // Save assistant response to Firebase
             await saveMessageToFirebase(sessionId, "assistant", imageResponse);
