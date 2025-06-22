@@ -177,7 +177,7 @@ const TourArrows = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0 }}
           transition={{ delay: index * 0.2, duration: 0.4 }}
-          className="fixed z-50 pointer-events-none"
+          className={`${currentStep === 3 ? "absolute" : "fixed"} z-50 pointer-events-none`}
           style={getArrowPosition(target, currentStep)}
         >
           <div className="relative">
@@ -229,28 +229,32 @@ const getArrowPosition = (targetId: string, currentStep: number) => {
     return { top: "50%", left: "50%", right: "auto" };
   }
 
-  const isMobile = window.innerWidth < 768;
-
-  // For step 4 (work experience), use fixed positioning that doesn't move with scroll
-  if (currentStep === 3) {
-    return {
-      top: isMobile ? "250px" : "350px", // Fixed position from top
-      left: "50%",
-      transform: "translateX(-50%)",
-      right: "auto",
-    };
-  }
-
   const targetElement = document.getElementById(targetId);
 
   if (targetElement) {
     const rect = targetElement.getBoundingClientRect();
+    const isMobile = window.innerWidth < 768;
 
     // Mobile: smaller arrows (32px), less spacing
     // Desktop: larger arrows (64px), more spacing
     const arrowSize = isMobile ? 16 : 32; // Half of actual arrow size for centering
     const topOffset = isMobile ? 40 : 70; // Less spacing above target on mobile
 
+    // For step 4 (work experience), calculate position based on target but use absolute positioning
+    // so it stays fixed even when scrolling
+    if (currentStep === 3) {
+      const absoluteTop = rect.top + window.pageYOffset - topOffset;
+      const absoluteLeft =
+        rect.left + window.pageXOffset + rect.width / 2 - arrowSize;
+
+      return {
+        top: `${absoluteTop}px`,
+        left: `${absoluteLeft}px`,
+        right: "auto",
+      };
+    }
+
+    // For other steps, use viewport-relative positioning (moves with scroll)
     const top = rect.top - topOffset;
     const left = rect.left + rect.width / 2 - arrowSize;
 
