@@ -434,7 +434,9 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
       content: `Hi! I'm Lawrence's AI! 🤖
 
 **Quick Clicks:**
-<button-experience>Experience</button-experience> <button-skills>Skills</button-skills> <button-projects>Projects</button-projects> <button-funfact>Fun Fact</button-funfact>
+<button-experience>Experience</button-experience> <button-skills>Skills</button-skills> <button-projects>Projects</button-projects>
+
+<button-funfact>Fun Fact</button-funfact>
 
 <button-message>/message</button-message> <button-meeting>/meeting</button-meeting> <button-upload>📎 Upload Job</button-upload>
 
