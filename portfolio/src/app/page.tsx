@@ -181,40 +181,40 @@ const TourArrows = ({
           style={getArrowPosition(target)}
         >
           <div className="relative">
-            {/* Animated Arrow */}
+            {/* Animated Arrow - Responsive sizing */}
             <motion.div
               animate={{
-                y: [0, -12, 0],
-                scale: [1, 1.2, 1],
+                y: [0, -8, 0], // Reduced animation distance for mobile
+                scale: [1, 1.15, 1], // Reduced scale animation
               }}
               transition={{
                 duration: 1.5,
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className={`flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white shadow-2xl border-4 border-white`}
+              className={`flex items-center justify-center w-8 h-8 md:w-16 md:h-16 rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white shadow-lg md:shadow-2xl border-2 md:border-4 border-white`}
             >
-              <FiArrowDown className="w-8 h-8" />
+              <FiArrowDown className="w-4 h-4 md:w-8 md:h-8" />
             </motion.div>
 
-            {/* Arrow tail/line */}
+            {/* Arrow tail/line - Responsive sizing */}
             <div
-              className={`absolute top-12 left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b ${tourSteps[currentStep].color} rounded-full`}
-              style={{ height: "60px" }}
+              className={`absolute top-6 md:top-12 left-1/2 transform -translate-x-1/2 w-0.5 md:w-1 bg-gradient-to-b ${tourSteps[currentStep].color} rounded-full`}
+              style={{ height: window.innerWidth < 768 ? "30px" : "60px" }}
             />
 
-            {/* Pulse effect */}
+            {/* Pulse effect - Responsive sizing */}
             <motion.div
               animate={{
-                scale: [1, 2, 1],
-                opacity: [0.8, 0, 0.8],
+                scale: [1, 1.8, 1], // Reduced scale for mobile
+                opacity: [0.6, 0, 0.6], // Reduced opacity for mobile
               }}
               transition={{
                 duration: 1.5,
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className={`absolute inset-0 w-16 h-16 rounded-full bg-gradient-to-r ${tourSteps[currentStep].color}`}
+              className={`absolute inset-0 w-8 h-8 md:w-16 md:h-16 rounded-full bg-gradient-to-r ${tourSteps[currentStep].color}`}
             />
           </div>
         </motion.div>
@@ -233,9 +233,16 @@ const getArrowPosition = (targetId: string) => {
 
   if (targetElement) {
     const rect = targetElement.getBoundingClientRect();
-    // Position arrow slightly above the element
-    const top = rect.top - 70; // 70px above the target
-    const left = rect.left + rect.width / 2 - 32; // Center the 64px arrow
+    const isMobile = window.innerWidth < 768;
+
+    // Mobile: smaller arrows (32px), less spacing
+    // Desktop: larger arrows (64px), more spacing
+    const arrowSize = isMobile ? 16 : 32; // Half of actual arrow size for centering
+    const topOffset = isMobile ? 40 : 70; // Less spacing above target on mobile
+
+    const top = rect.top - topOffset;
+    const left = rect.left + rect.width / 2 - arrowSize;
+
     return { top: `${top}px`, left: `${left}px`, right: "auto" };
   }
 
@@ -381,16 +388,37 @@ export default function ModernHome() {
     const isMobile = window.innerWidth < 768;
 
     if (isMobile) {
-      // On mobile, center all popups at the top with proper spacing
-      return {
-        top: "80px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        right: "auto",
-      };
+      // On mobile, use smart positioning with smaller spacing
+      switch (position) {
+        case "bottom-left":
+        case "bottom-right":
+        case "bottom-center":
+        case "bottom-right-lower":
+          return {
+            bottom: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            right: "auto",
+          };
+        case "center":
+          return {
+            top: "40%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            right: "auto",
+          };
+        default:
+          // Top positioning for most cases
+          return {
+            top: "60px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            right: "auto",
+          };
+      }
     }
 
-    // Desktop positioning
+    // Desktop positioning (unchanged)
     switch (position) {
       case "top-left":
         return { top: "80px", left: "24px", right: "auto" };
@@ -739,51 +767,54 @@ export default function ModernHome() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -50 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed z-50 w-full max-w-sm mx-4 md:max-w-md md:mx-0"
+            className="fixed z-50 w-full max-w-xs mx-2 md:max-w-md md:mx-0"
             style={getPopupPosition(tourSteps[currentStep].position)}
             onClick={togglePause}
           >
             <div
               className={`bg-gradient-to-br ${tourSteps[currentStep].color} p-1 rounded-2xl shadow-2xl cursor-pointer`}
             >
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-4 md:p-6 relative">
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-3 md:p-6 relative">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     closeTour();
                   }}
-                  className="absolute top-2 right-2 md:top-3 md:right-3 px-2 py-1 md:px-3 md:py-1 text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-md transition-colors min-h-[32px] min-w-[44px] flex items-center justify-center"
+                  className="absolute top-1.5 right-1.5 md:top-3 md:right-3 px-1.5 py-0.5 md:px-3 md:py-1 text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-md transition-colors min-h-[24px] min-w-[32px] md:min-h-[32px] md:min-w-[44px] flex items-center justify-center"
                 >
                   STOP
                 </button>
 
                 {/* Pause Indicator */}
                 {isPaused && (
-                  <div className="absolute top-2 left-2 md:top-3 md:left-3 flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                    <FiPause className="w-4 h-4" />
-                    <span className="text-xs font-semibold">
+                  <div className="absolute top-1.5 left-1.5 md:top-3 md:left-3 flex items-center gap-1 md:gap-2 text-blue-600 dark:text-blue-400">
+                    <FiPause className="w-3 h-3 md:w-4 md:h-4" />
+                    <span className="text-xs font-semibold hidden md:inline">
                       PAUSED - You can scroll
+                    </span>
+                    <span className="text-xs font-semibold md:hidden">
+                      PAUSED
                     </span>
                   </div>
                 )}
 
                 {/* Mobile Navigation Buttons - Bottom */}
-                <div className="flex md:hidden justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex md:hidden justify-between items-center mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                   <motion.button
                     onClick={(e) => {
                       e.stopPropagation();
                       prevStep();
                     }}
                     whileTap={{ scale: 0.9 }}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg shadow-lg transition-all duration-300"
+                    className="flex items-center gap-1 px-2 py-1.5 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-md shadow-md transition-all duration-300"
                   >
-                    <FiChevronLeft className="w-4 h-4" />
-                    <span className="text-sm">
+                    <FiChevronLeft className="w-3 h-3" />
+                    <span className="text-xs">
                       {currentStep === 0 ? "Restart" : "Back"}
                     </span>
                   </motion.button>
-                  <span className="text-xs text-gray-500">
-                    {currentStep + 1} of {tourSteps.length}
+                  <span className="text-xs text-gray-500 px-2">
+                    {currentStep + 1}/{tourSteps.length}
                   </span>
                   <motion.button
                     onClick={(e) => {
@@ -791,10 +822,10 @@ export default function ModernHome() {
                       nextStep();
                     }}
                     whileTap={{ scale: 0.9 }}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg shadow-lg transition-all duration-300"
+                    className="flex items-center gap-1 px-2 py-1.5 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-md shadow-md transition-all duration-300"
                   >
-                    <span className="text-sm">Next</span>
-                    <FiChevronRight className="w-4 h-4" />
+                    <span className="text-xs">Next</span>
+                    <FiChevronRight className="w-3 h-3" />
                   </motion.button>
                 </div>
 
@@ -825,17 +856,19 @@ export default function ModernHome() {
                   <FiChevronRight className="w-4 h-4" />
                 </motion.button>
 
-                <div className="flex items-start gap-2 md:gap-3 mb-3 md:mb-4">
+                <div className="flex items-start gap-1.5 md:gap-3 mb-2 md:mb-4">
                   <div
-                    className={`p-2 md:p-3 bg-gradient-to-br ${tourSteps[currentStep].color} rounded-lg md:rounded-xl text-white flex-shrink-0`}
+                    className={`p-1.5 md:p-3 bg-gradient-to-br ${tourSteps[currentStep].color} rounded-md md:rounded-xl text-white flex-shrink-0`}
                   >
-                    {tourSteps[currentStep].icon}
+                    <div className="w-4 h-4 md:w-6 md:h-6 flex items-center justify-center">
+                      {tourSteps[currentStep].icon}
+                    </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-base md:text-lg text-gray-900 dark:text-white mb-1 md:mb-2 line-clamp-2">
+                    <h3 className="font-bold text-sm md:text-lg text-gray-900 dark:text-white mb-1 md:mb-2 line-clamp-2">
                       {tourSteps[currentStep].title}
                     </h3>
-                    <div className="text-sm md:text-base">
+                    <div className="text-xs md:text-base leading-tight md:leading-relaxed">
                       {renderHighlightedText(
                         tourSteps[currentStep].content,
                         currentCharacterIndex
@@ -846,12 +879,12 @@ export default function ModernHome() {
 
                 {/* Key highlights */}
                 {tourSteps[currentStep].highlights && (
-                  <div className="mb-3 md:mb-4 flex flex-wrap gap-1.5 md:gap-2">
+                  <div className="mb-2 md:mb-4 flex flex-wrap gap-1 md:gap-2">
                     {tourSteps[currentStep].highlights.map(
                       (highlight, index) => (
                         <span
                           key={highlight}
-                          className={`px-2 py-1 md:px-3 md:py-1 text-xs font-semibold rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white ${
+                          className={`px-1.5 py-0.5 md:px-3 md:py-1 text-xs font-semibold rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white ${
                             highlightedIndex === index
                               ? "opacity-100"
                               : "opacity-70"
@@ -900,7 +933,7 @@ export default function ModernHome() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl p-4 md:p-8 max-w-sm md:max-w-md mx-auto text-center relative shadow-2xl border-2 border-purple-500"
+              className="bg-white dark:bg-gray-900 rounded-xl md:rounded-3xl p-3 md:p-8 max-w-xs md:max-w-md mx-auto text-center relative shadow-2xl border-2 border-purple-500"
             >
               <button
                 onClick={closeTour}
