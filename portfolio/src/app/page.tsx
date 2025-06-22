@@ -161,7 +161,7 @@ const TourArrows = ({
       "timeline-university-of-florida",
     ], // Step 3: Education - pointing to degree titles
     3: ["work-experience-title"], // Step 4: Work Experience - single arrow at title
-    4: ["project-expired-solutions"], // Step 5: Expired Solutions Project - pointing to project card
+    4: ["projects"], // Step 5: Projects Section - pointing to projects section
     5: ["project-bbw"], // Step 6: BBW Project
   };
 
