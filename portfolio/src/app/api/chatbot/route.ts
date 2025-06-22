@@ -1320,15 +1320,30 @@ If you cannot clearly read the image content, provide a general assessment of La
       );
       console.log("DEBUG: History info:", historyContactInfo);
 
-      // Combine information from current message and history
-      const combinedInfo = {
-        name: contactAnalysis.extractedInfo.name || historyContactInfo.name,
-        email: contactAnalysis.extractedInfo.email || historyContactInfo.email,
-        company:
-          contactAnalysis.extractedInfo.company || historyContactInfo.company,
-        message:
-          contactAnalysis.extractedInfo.message || historyContactInfo.message,
-      };
+      // FIXED: When awaiting email, only use current message email, not historical
+      let combinedInfo;
+      if (contactAnalysis.conversationState === "awaiting_email") {
+        // Only use current message info when specifically awaiting email
+        combinedInfo = {
+          name: contactAnalysis.extractedInfo.name || historyContactInfo.name,
+          email: contactAnalysis.extractedInfo.email, // Only current message email
+          company:
+            contactAnalysis.extractedInfo.company || historyContactInfo.company,
+          message:
+            contactAnalysis.extractedInfo.message || historyContactInfo.message,
+        };
+      } else {
+        // For other states, combine current and historical info
+        combinedInfo = {
+          name: contactAnalysis.extractedInfo.name || historyContactInfo.name,
+          email:
+            contactAnalysis.extractedInfo.email || historyContactInfo.email,
+          company:
+            contactAnalysis.extractedInfo.company || historyContactInfo.company,
+          message:
+            contactAnalysis.extractedInfo.message || historyContactInfo.message,
+        };
+      }
 
       console.log("DEBUG: Combined contact info:", combinedInfo);
 

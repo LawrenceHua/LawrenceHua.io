@@ -751,9 +751,9 @@ export default function ModernHome() {
                       Hey there!
                     </h3>
                     <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4">
-                      Let me tell you my story in exactly{" "}
+                      Let me tell you my story in{"\n"}
                       <span className="font-semibold text-purple-600 dark:text-purple-400">
-                        1 minute
+                        1 minute!
                       </span>
                     </p>
 
