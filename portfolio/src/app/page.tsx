@@ -434,9 +434,66 @@ export default function ModernHome() {
     const isMobile = window.innerWidth < 768;
 
     if (isMobile) {
-      // On mobile, center all popups in the middle of the screen for better visibility
+      // On mobile, position cards under section titles with dynamic calculation
+      const getSectionTitleElement = () => {
+        const step = tourSteps[currentStep];
+
+        switch (step.targetSection) {
+          case "hero":
+            return document.querySelector("h1"); // Main hero title
+          case "skills":
+            return (
+              document.querySelector('[data-section="skills"] h2') ||
+              document.querySelector('h2:has-text("Skills")') ||
+              document.getElementById("skills")
+            );
+          case "timeline":
+            if (currentStep === 2) {
+              // Education step
+              return (
+                document.querySelector('[data-section="education"] h2') ||
+                document.querySelector('h2:has-text("Education")') ||
+                document.getElementById("education")
+              );
+            } else if (currentStep === 3) {
+              // Work experience step
+              return (
+                document.querySelector('[data-section="experience"] h2') ||
+                document.querySelector('h2:has-text("Experience")') ||
+                document.getElementById("work-experience-title")
+              );
+            }
+            return document.getElementById("timeline");
+          case "projects":
+            return (
+              document.querySelector('[data-section="projects"] h2') ||
+              document.querySelector('h2:has-text("Projects")') ||
+              document.getElementById("projects")
+            );
+          default:
+            return null;
+        }
+      };
+
+      const titleElement = getSectionTitleElement();
+
+      if (titleElement) {
+        const rect = titleElement.getBoundingClientRect();
+        const elementTop = rect.top + window.pageYOffset;
+        // Position popup below the section title with some spacing
+        const topOffset = elementTop + rect.height + 20;
+
+        return {
+          top: `${topOffset}px`,
+          left: "50%",
+          transform: "translateX(-50%)",
+          right: "auto",
+        };
+      }
+
+      // Fallback to center positioning if title element not found
       return {
-        top: "50%",
+        top: "30%",
         left: "50%",
         transform: "translate(-50%, -50%)",
         right: "auto",

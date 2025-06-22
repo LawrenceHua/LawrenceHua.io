@@ -144,7 +144,7 @@ export function FloatingChatbot({
       >
         {/* Scroll Popup */}
         <AnimatePresence>
-          {showPopup && (
+          {showPopup && !tourActive && (
             <motion.div
               initial={{ opacity: 0, x: 20, y: 10 }}
               animate={{ opacity: 1, x: 0, y: 0 }}
