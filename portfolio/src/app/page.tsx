@@ -581,9 +581,8 @@ export default function ModernHome() {
 
   // Scroll lock effect
   useEffect(() => {
-    // Disable scroll lock for step 4 (work experience) to allow users to scroll and see all experiences
-    const isWorkExperienceStep = currentStep === 3; // Step 4 is index 3
-    const shouldLockScroll = isActive && !isPaused && !isWorkExperienceStep;
+    // Allow scrolling during step 4 (work experience) - currentStep === 3 (0-indexed)
+    const shouldLockScroll = isActive && !isPaused && currentStep !== 3;
 
     if (shouldLockScroll) {
       // Lock scrolling
