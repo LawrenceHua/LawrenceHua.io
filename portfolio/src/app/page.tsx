@@ -240,8 +240,7 @@ const getArrowPosition = (targetId: string, currentStep: number) => {
     const arrowSize = isMobile ? 16 : 32; // Half of actual arrow size for centering
     const topOffset = isMobile ? 40 : 70; // Less spacing above target on mobile
 
-    // For step 4 (work experience), calculate position based on target but use absolute positioning
-    // so it stays fixed even when scrolling
+    // For step 4 (work experience), use absolute positioning since scroll is enabled
     if (currentStep === 3) {
       const absoluteTop = rect.top + window.pageYOffset - topOffset;
       const absoluteLeft =
@@ -254,7 +253,8 @@ const getArrowPosition = (targetId: string, currentStep: number) => {
       };
     }
 
-    // For other steps, use viewport-relative positioning (moves with scroll)
+    // For all other steps, anchor arrows to their target elements
+    // This ensures arrows are always attached to specific items, not screen positions
     const top = rect.top - topOffset;
     const left = rect.left + rect.width / 2 - arrowSize;
 
@@ -356,13 +356,49 @@ export default function ModernHome() {
     const element = document.getElementById(sectionId);
     if (element) {
       const isMobile = window.innerWidth < 768;
+      const elementRect = element.getBoundingClientRect();
+      const absoluteElementTop = elementRect.top + window.pageYOffset;
 
+      // For mobile, center the content in the viewport for better visibility
+      if (isMobile) {
+        const viewportHeight = window.innerHeight;
+        const elementHeight = elementRect.height;
+
+        // Calculate position to center the element in viewport
+        const centerOffset = (viewportHeight - elementHeight) / 2;
+        const finalScrollPosition =
+          absoluteElementTop - Math.max(centerOffset, 100);
+
+        // Special handling for specific sections on mobile
+        if (sectionId === "timeline" && currentStep === 2) {
+          // Education step - focus on education entries
+          const finalPosition = absoluteElementTop - 150;
+          window.scrollTo({ top: finalPosition, behavior: "smooth" });
+          return;
+        } else if (sectionId === "timeline" && currentStep === 3) {
+          // Work experience step - scroll to show work experience section
+          const finalPosition = absoluteElementTop + 300;
+          window.scrollTo({ top: finalPosition, behavior: "smooth" });
+          return;
+        } else if (sectionId === "projects") {
+          // Projects step - center on projects section
+          const finalPosition = absoluteElementTop - 100;
+          window.scrollTo({ top: finalPosition, behavior: "smooth" });
+          return;
+        }
+
+        window.scrollTo({
+          top: finalScrollPosition,
+          behavior: "smooth",
+        });
+        return;
+      }
+
+      // Desktop handling (unchanged)
       // Special handling for step 4 (experience) targeting timeline - position to show work experience
       if (sectionId === "timeline" && isActive && currentStep === 3) {
-        const offset = isMobile ? 400 : 560; // Moderate offset to show work experience section
-        const elementRect = element.getBoundingClientRect();
-        const absoluteElementTop = elementRect.top + window.pageYOffset;
-        const finalScrollPosition = absoluteElementTop + offset; // Add offset instead of subtract to go further down
+        const offset = 560; // Desktop offset to show work experience section
+        const finalScrollPosition = absoluteElementTop + offset;
 
         window.scrollTo({
           top: finalScrollPosition,
@@ -373,9 +409,7 @@ export default function ModernHome() {
 
       // Special handling for work-experience-bottom to show all work items
       if (sectionId === "work-experience-bottom") {
-        const offset = isMobile ? 75 : 100; // Reduced offset - about half of previous values
-        const elementRect = element.getBoundingClientRect();
-        const absoluteElementTop = elementRect.top + window.pageYOffset;
+        const offset = 100; // Desktop offset
         const finalScrollPosition = absoluteElementTop - offset;
 
         window.scrollTo({
@@ -385,11 +419,8 @@ export default function ModernHome() {
         return;
       }
 
-      const offset = isMobile ? 80 : 100;
-
-      // Get the element's position relative to the document
-      const elementRect = element.getBoundingClientRect();
-      const absoluteElementTop = elementRect.top + window.pageYOffset;
+      // Default desktop positioning
+      const offset = 100;
       const finalScrollPosition = absoluteElementTop - offset;
 
       window.scrollTo({
@@ -403,34 +434,13 @@ export default function ModernHome() {
     const isMobile = window.innerWidth < 768;
 
     if (isMobile) {
-      // On mobile, use smart positioning with smaller spacing
-      switch (position) {
-        case "bottom-left":
-        case "bottom-right":
-        case "bottom-center":
-        case "bottom-right-lower":
-          return {
-            bottom: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            right: "auto",
-          };
-        case "center":
-          return {
-            top: "40%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            right: "auto",
-          };
-        default:
-          // Top positioning for most cases
-          return {
-            top: "60px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            right: "auto",
-          };
-      }
+      // On mobile, center all popups in the middle of the screen for better visibility
+      return {
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        right: "auto",
+      };
     }
 
     // Desktop positioning (unchanged)
