@@ -207,40 +207,88 @@ export default function ModernHome() {
     // Special handling for step 6 (execution) - scroll to "All Projects" title
     if (currentStep === 5 && sectionId === "projects") {
       console.log("🎯 Tour Step 6: Starting scroll to All Projects");
-      // Add a delay to ensure the DOM is fully rendered
-      setTimeout(() => {
-        // Try to find the specific "All Projects" title by ID
-        const allProjectsTitle = document.getElementById("all-projects-title");
-        console.log("🔍 Found All Projects title:", allProjectsTitle);
+      console.log("🎯 Current scroll position:", window.scrollY);
+
+      // Multiple attempts with increasing delays
+      const attemptScroll = (attempt: number) => {
+        console.log(`🔍 Attempt ${attempt}: Looking for All Projects title`);
+
+        // Try multiple selection methods
+        let allProjectsTitle = document.getElementById("all-projects-title");
+
+        if (!allProjectsTitle) {
+          // Fallback: search by text content
+          const h3Elements = Array.from(document.querySelectorAll("h3"));
+          allProjectsTitle = h3Elements.find(
+            (h3) => h3.textContent?.trim() === "All Projects"
+          ) as HTMLElement;
+          console.log("🔍 Found by text search:", allProjectsTitle);
+        }
 
         if (allProjectsTitle) {
+          const rect = allProjectsTitle.getBoundingClientRect();
+          console.log("📏 Element position:", {
+            offsetTop: allProjectsTitle.offsetTop,
+            rectTop: rect.top,
+            rectBottom: rect.bottom,
+            isVisible: rect.top >= 0 && rect.bottom <= window.innerHeight,
+          });
+
           const isMobile = window.innerWidth < 768;
           const offset = isMobile ? 80 : 100;
           const titlePosition = allProjectsTitle.offsetTop - offset;
-          console.log("📍 Scrolling to position:", titlePosition);
+          console.log(
+            `📍 Scrolling to position: ${titlePosition} (current: ${window.scrollY})`
+          );
 
           window.scrollTo({
             top: titlePosition,
             behavior: "smooth",
           });
-        } else {
-          console.log("❌ All Projects title not found, using fallback");
-          // Fallback: scroll to middle of projects section
-          const element = document.getElementById(sectionId);
-          if (element) {
-            const isMobile = window.innerWidth < 768;
-            const offset = isMobile ? 80 : 100;
-            const middlePosition =
-              element.offsetTop + element.offsetHeight * 0.5 - offset;
-            console.log("📍 Fallback scrolling to position:", middlePosition);
 
-            window.scrollTo({
-              top: middlePosition,
-              behavior: "smooth",
-            });
-          }
+          // Verify scroll happened
+          setTimeout(() => {
+            console.log("📍 After scroll - position:", window.scrollY);
+          }, 1000);
+
+          return true; // Success
+        } else {
+          console.log(`❌ Attempt ${attempt}: All Projects title not found`);
+          return false; // Failed
         }
-      }, 200); // Increased delay to ensure proper rendering
+      };
+
+      // Try immediately
+      if (!attemptScroll(1)) {
+        // Try again after 300ms
+        setTimeout(() => {
+          if (!attemptScroll(2)) {
+            // Try again after 600ms
+            setTimeout(() => {
+              if (!attemptScroll(3)) {
+                // Final fallback: scroll to middle of projects section
+                console.log("🔄 Using final fallback scroll");
+                const element = document.getElementById(sectionId);
+                if (element) {
+                  const isMobile = window.innerWidth < 768;
+                  const offset = isMobile ? 80 : 100;
+                  const middlePosition =
+                    element.offsetTop + element.offsetHeight * 0.6 - offset;
+                  console.log(
+                    "📍 Fallback scrolling to position:",
+                    middlePosition
+                  );
+
+                  window.scrollTo({
+                    top: middlePosition,
+                    behavior: "smooth",
+                  });
+                }
+              }
+            }, 600);
+          }
+        }, 300);
+      }
       return;
     }
 
