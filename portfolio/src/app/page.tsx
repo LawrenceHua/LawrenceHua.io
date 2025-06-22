@@ -140,7 +140,7 @@ export default function ModernHome() {
   const renderHighlightedText = (text: string, highlightIndex: number) => {
     const characters = text.split("");
     return (
-      <span className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+      <span className="text-gray-600 dark:text-gray-300 leading-relaxed">
         {characters.map((char, index) => (
           <span
             key={index}
@@ -206,8 +206,24 @@ export default function ModernHome() {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const offset = 100; // Account for fixed header
-      const elementPosition = element.offsetTop - offset;
+      let elementPosition;
+      const isMobile = window.innerWidth < 768;
+      const offset = isMobile ? 80 : 100; // Smaller offset on mobile
+
+      // Special handling for step 6 (execution) - scroll to bottom of projects section
+      if (currentStep === 5 && sectionId === "projects") {
+        // Scroll to the bottom of the projects section
+        const bottomOffset = isMobile ? 120 : 50;
+        elementPosition =
+          element.offsetTop +
+          element.offsetHeight -
+          window.innerHeight +
+          bottomOffset;
+      } else {
+        // Normal scroll to top of section
+        elementPosition = element.offsetTop - offset;
+      }
+
       window.scrollTo({
         top: elementPosition,
         behavior: "smooth",
@@ -216,6 +232,19 @@ export default function ModernHome() {
   };
 
   const getPopupPosition = (position: string) => {
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile) {
+      // On mobile, center all popups at the top with proper spacing
+      return {
+        top: "80px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        right: "auto",
+      };
+    }
+
+    // Desktop positioning
     switch (position) {
       case "top-left":
         return { top: "80px", left: "24px", right: "auto" };
@@ -414,67 +443,93 @@ export default function ModernHome() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -50 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed z-50 max-w-md"
+            className="fixed z-50 w-full max-w-sm mx-4 md:max-w-md md:mx-0"
             style={getPopupPosition(tourSteps[currentStep].position)}
           >
             <div
               className={`bg-gradient-to-br ${tourSteps[currentStep].color} p-1 rounded-2xl shadow-2xl`}
             >
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 relative">
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-4 md:p-6 relative">
                 <button
                   onClick={closeTour}
-                  className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                  className="absolute top-2 right-2 md:top-3 md:right-3 px-2 py-1 md:px-3 md:py-1 text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-md transition-colors min-h-[32px] min-w-[44px] flex items-center justify-center"
                 >
                   STOP
                 </button>
 
-                {/* Back Button */}
+                {/* Mobile Navigation Buttons - Bottom */}
+                <div className="flex md:hidden justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <motion.button
+                    onClick={prevStep}
+                    whileTap={{ scale: 0.9 }}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg shadow-lg transition-all duration-300"
+                  >
+                    <FiChevronLeft className="w-4 h-4" />
+                    <span className="text-sm">
+                      {currentStep === 0 ? "Restart" : "Back"}
+                    </span>
+                  </motion.button>
+                  <span className="text-xs text-gray-500">
+                    {currentStep + 1} of {tourSteps.length}
+                  </span>
+                  <motion.button
+                    onClick={nextStep}
+                    whileTap={{ scale: 0.9 }}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg shadow-lg transition-all duration-300"
+                  >
+                    <span className="text-sm">Next</span>
+                    <FiChevronRight className="w-4 h-4" />
+                  </motion.button>
+                </div>
+
+                {/* Desktop Navigation Buttons - Side */}
                 <motion.button
                   onClick={prevStep}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="absolute top-1/2 -left-4 -translate-y-1/2 p-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
+                  className="hidden md:block absolute top-1/2 -left-4 -translate-y-1/2 p-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
                   title={currentStep === 0 ? "Restart tour" : "Previous step"}
                 >
                   <FiChevronLeft className="w-4 h-4" />
                 </motion.button>
 
-                {/* Skip Button */}
                 <motion.button
                   onClick={nextStep}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="absolute top-1/2 -right-4 -translate-y-1/2 p-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
+                  className="hidden md:block absolute top-1/2 -right-4 -translate-y-1/2 p-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
                   title="Skip to next step"
                 >
                   <FiChevronRight className="w-4 h-4" />
                 </motion.button>
 
-                <div className="flex items-start gap-3 mb-4">
+                <div className="flex items-start gap-2 md:gap-3 mb-3 md:mb-4">
                   <div
-                    className={`p-3 bg-gradient-to-br ${tourSteps[currentStep].color} rounded-xl text-white`}
+                    className={`p-2 md:p-3 bg-gradient-to-br ${tourSteps[currentStep].color} rounded-lg md:rounded-xl text-white flex-shrink-0`}
                   >
                     {tourSteps[currentStep].icon}
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-base md:text-lg text-gray-900 dark:text-white mb-1 md:mb-2 line-clamp-2">
                       {tourSteps[currentStep].title}
                     </h3>
-                    {renderHighlightedText(
-                      tourSteps[currentStep].content,
-                      currentCharacterIndex
-                    )}
+                    <div className="text-sm md:text-base">
+                      {renderHighlightedText(
+                        tourSteps[currentStep].content,
+                        currentCharacterIndex
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Key highlights */}
                 {tourSteps[currentStep].highlights && (
-                  <div className="mb-4 flex flex-wrap gap-2">
+                  <div className="mb-3 md:mb-4 flex flex-wrap gap-1.5 md:gap-2">
                     {tourSteps[currentStep].highlights.map(
                       (highlight, index) => (
                         <span
                           key={highlight}
-                          className={`px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white ${
+                          className={`px-2 py-1 md:px-3 md:py-1 text-xs font-semibold rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white ${
                             highlightedIndex === index
                               ? "opacity-100"
                               : "opacity-70"
@@ -487,8 +542,8 @@ export default function ModernHome() {
                   </div>
                 )}
 
-                {/* Step indicator */}
-                <div className="flex items-center justify-between">
+                {/* Step indicator - Desktop only */}
+                <div className="hidden md:flex items-center justify-between">
                   <div className="flex gap-2">
                     {tourSteps.map((_, index) => (
                       <div
@@ -522,7 +577,7 @@ export default function ModernHome() {
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-gray-900 rounded-3xl p-8 max-w-md mx-auto text-center relative shadow-2xl border-2 border-purple-500"
+              className="bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl p-4 md:p-8 max-w-sm md:max-w-md mx-auto text-center relative shadow-2xl border-2 border-purple-500"
             >
               <button
                 onClick={closeTour}
@@ -531,14 +586,14 @@ export default function ModernHome() {
                 <FiX className="w-5 h-5 text-gray-500" />
               </button>
 
-              <div className="mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">🎯</span>
+              <div className="mb-4 md:mb-6">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                  <span className="text-xl md:text-2xl">🎯</span>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2 md:mb-3">
                   That's the PM Experience
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
                   You just experienced how I approach product challenges:
                   structured storytelling, data-driven insights, and
                   customer-focused solutions. Ready to discuss how this applies
@@ -546,25 +601,27 @@ export default function ModernHome() {
                 </p>
               </div>
 
-              <div className="flex flex-col gap-3 mb-4">
-                <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-2 md:gap-3 mb-3 md:mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                   <motion.button
                     onClick={() => handleFinalCTAAction("message")}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="flex items-center justify-center gap-2 px-4 py-3 md:py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg md:rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 min-h-[48px]"
                   >
                     <FiMessageCircle className="w-4 h-4" />
-                    Send Message
+                    <span className="text-sm md:text-base">Send Message</span>
                   </motion.button>
                   <motion.button
                     onClick={() => handleFinalCTAAction("meeting")}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="flex items-center justify-center gap-2 px-4 py-3 md:py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg md:rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 min-h-[48px]"
                   >
                     <FiCalendar className="w-4 h-4" />
-                    Schedule Meeting
+                    <span className="text-sm md:text-base">
+                      Schedule Meeting
+                    </span>
                   </motion.button>
                 </div>
 
@@ -572,7 +629,7 @@ export default function ModernHome() {
                   onClick={startTour}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 text-sm"
+                  className="flex items-center justify-center gap-2 px-4 py-2 md:py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 text-sm min-h-[44px]"
                 >
                   <span>🔄</span>
                   <span>That was fun, do it again!</span>
@@ -590,7 +647,7 @@ export default function ModernHome() {
       {/* Back to Top Button */}
       <button
         onClick={scrollToTop}
-        className="fixed bottom-20 left-4 z-40 p-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+        className="fixed bottom-20 left-3 md:left-4 z-40 p-2.5 md:p-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 min-w-[44px] min-h-[44px] flex items-center justify-center"
         title="Back to top"
       >
         <svg
