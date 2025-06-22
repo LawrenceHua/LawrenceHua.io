@@ -6,18 +6,19 @@ export async function GET() {
     // This would typically come from a database or CMS
     const experiences = [
       // These are the actual experiences from Lawrence's portfolio
-      { id: 1, company: "Amazon Mechanical Turk" },
-      { id: 2, company: "Netflix" },
-      { id: 3, company: "Giant Eagle" },
-      { id: 4, company: "5 Spice" },
-      { id: 5, company: "Expired Solutions" },
-      { id: 6, company: "Panpalz" },
-      { id: 7, company: "PM Happy Hour" },
-      { id: 8, company: "Motorola" },
-      { id: 9, company: "Kearney" },
-      { id: 10, company: "Tutora" },
-      { id: 11, company: "Valohai" },
-      { id: 12, company: "Mcginnis" },
+      // COMMENTED OUT - Amazon MTurk position no longer active
+      // { id: 1, company: "Amazon Mechanical Turk" },
+      { id: 1, company: "Netflix" },
+      { id: 2, company: "Giant Eagle" },
+      { id: 3, company: "5 Spice" },
+      { id: 4, company: "Expired Solutions" },
+      { id: 5, company: "Panpalz" },
+      { id: 6, company: "PM Happy Hour" },
+      { id: 7, company: "Motorola" },
+      { id: 8, company: "Kearney" },
+      { id: 9, company: "Tutora" },
+      { id: 10, company: "Valohai" },
+      { id: 11, company: "Mcginnis" },
     ];
 
     return NextResponse.json(experiences);

@@ -214,22 +214,20 @@ async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
 
 **CONVERSATION STYLE:**
 - Be **natural and conversational** - avoid robotic responses
-- **Extract information naturally** from messages rather than asking for structured formats
-- When someone wants to contact Lawrence, be smart about gathering details organically
-- **Recognize contact intent** from phrases like "send a message", "tell Lawrence", "contact me back"
-- If someone provides invalid/Lawrence's own email, **gently point it out** and ask for their correct email
+- **DO NOT** interpret normal questions as contact requests (e.g. "tell me about Lawrence" is just a question)
+- Only trigger contact flows when users type specific commands: /message or /meeting
 - **Context awareness** - remember what was said earlier in the conversation
 - Keep responses **concise but friendly** (2-3 bullet points max)
 - **Bold** key achievements and technical skills
-- Always offer to **help connect them with Lawrence** for detailed discussions
 
 **CORE COMPETENCIES:**
 AI/ML, Product Strategy, Computer Vision, GPT Integration, Enterprise Software, Startup Leadership, Cross-functional Teams
 
-**CONTACT HANDLING:**
-- When someone wants to send a message to Lawrence, extract their name, email, and message naturally
-- Don't ask for rigid formats - be conversational
-- If information is missing, ask for it naturally in conversation`;
+**CONTACT COMMANDS:**
+- Users must type /message to send a message to Lawrence 📧
+- Users must type /meeting to schedule a meeting with Lawrence 📅
+- Do NOT treat regular questions as contact requests
+- Always mention these commands in your initial greeting`;
 }
 
 // Add helper to extract info from context and message
@@ -509,8 +507,14 @@ async function sendMeetingRequest(data: {
 
 // Function to generate or extract session ID
 function getOrCreateSessionId(
-  history: Array<{ role: string; content: string }>
+  sessionIdFromRequest?: string,
+  history: Array<{ role: string; content: string }> = []
 ): string {
+  // Use session ID from request if provided
+  if (sessionIdFromRequest && sessionIdFromRequest.trim()) {
+    return sessionIdFromRequest;
+  }
+
   // Try to extract from previous messages or create new one
   const sessionId =
     Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -782,7 +786,10 @@ function extractContactInfoFromHistory(
 }
 
 // Enhanced function to detect contact intent and extract information naturally
-function detectContactIntent(message: string): {
+function detectContactIntent(
+  message: string,
+  history: Array<{ role: string; content: string }>
+): {
   isContactRequest: boolean;
   intent: "message" | "meeting" | "question" | null;
   extractedInfo: {
@@ -791,84 +798,48 @@ function detectContactIntent(message: string): {
     company?: string;
     message?: string;
   };
+  conversationState?: string;
 } {
-  const lowerMessage = message.toLowerCase();
+  const lowerMessage = message.toLowerCase().trim();
 
-  // Contact intent patterns
-  const contactPatterns = [
-    /send (?:a )?message/i,
-    /tell lawrence/i,
-    /contact (?:me|him)/i,
-    /get in touch/i,
-    /reach out/i,
-    /getting in touch/i,
-    /send that message/i,
-    /forward (?:this|that)/i,
-    /let (?:him|lawrence) know/i,
-  ];
-
-  const meetingPatterns = [
-    /schedule/i,
-    /meeting/i,
-    /call/i,
-    /interview/i,
-    /discuss/i,
-    /talk/i,
-    /connect/i,
-    /book/i,
-    /arrange/i,
-    /set up/i,
-    /coordinate/i,
-    /meet/i,
-    /conference/i,
-  ];
-
-  const isContactRequest = contactPatterns.some((pattern) =>
-    pattern.test(message)
-  );
-  const isMeetingRequest = meetingPatterns.some((pattern) =>
-    pattern.test(message)
-  );
+  // Command-based detection - only trigger on specific commands
+  const isMessageCommand = lowerMessage.startsWith("/message");
+  const isMeetingCommand =
+    lowerMessage.startsWith("/meeting") || lowerMessage.startsWith("/meet");
 
   let intent: "message" | "meeting" | "question" | null = null;
-  if (isContactRequest) intent = "message";
-  else if (isMeetingRequest) intent = "meeting";
+  if (isMessageCommand) intent = "message";
+  else if (isMeetingCommand) intent = "meeting";
   else if (message.includes("?")) intent = "question";
 
-  // Enhanced extraction
-  const extractedInfo: any = {};
+  // Check conversation state from history
+  const lastAssistantMessage =
+    history
+      .slice()
+      .reverse()
+      .find((m) => m.role === "assistant")?.content || "";
+  let conversationState = "";
 
-  // Extract name (more patterns)
-  const namePatterns = [
-    /(?:i'm|im|my name is)\s+([a-z\s]+?)(?:[,.]|$)/i,
-    /(?:this is|hey)\s+([a-z\s]+?)(?:[,.]|$)/i,
-    /(?:from|by)\s+([a-z]+)(?:\s+at|\s+@|$)/i, // "from john at" or "by mike @"
-    /^([a-z\s]+?)(?:\s+here|,)/i,
-  ];
-
-  for (const pattern of namePatterns) {
-    const match = message.match(pattern);
-    if (match && match[1] && match[1].trim().length > 0) {
-      const name = match[1].trim();
-      // Filter out common false positives
-      if (
-        ![
-          "hey",
-          "hi",
-          "hello",
-          "lawrence",
-          "getting",
-          "really",
-          "interested",
-        ].includes(name.toLowerCase())
-      ) {
-        extractedInfo.name = name;
-        break;
-      }
-    }
+  // Determine what state we're in based on last assistant message
+  if (lastAssistantMessage.includes("email address")) {
+    conversationState = "awaiting_email";
+  } else if (
+    lastAssistantMessage.includes("What is your message") ||
+    lastAssistantMessage.includes("Got it!") ||
+    lastAssistantMessage.includes("Perfect!")
+  ) {
+    conversationState = "awaiting_message";
+  } else if (
+    lastAssistantMessage.includes("when would you like to schedule") ||
+    lastAssistantMessage.includes("What date and time") ||
+    lastAssistantMessage.includes("Great!")
+  ) {
+    conversationState = "awaiting_datetime";
   }
 
-  // Extract email
+  const extractedInfo: any = {};
+
+  // Extract email if we're awaiting email or if email provided
   const emailMatch = message.match(
     /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i
   );
@@ -876,7 +847,25 @@ function detectContactIntent(message: string): {
     extractedInfo.email = emailMatch[0];
   }
 
-  // Extract company
+  // Extract name if provided
+  const namePatterns = [
+    /(?:i'm|im|my name is)\s+([a-z\s]+?)(?:[,.]|$)/i,
+    /(?:this is|hey)\s+([a-z\s]+?)(?:[,.]|$)/i,
+  ];
+
+  for (const pattern of namePatterns) {
+    const match = message.match(pattern);
+    if (match && match[1] && match[1].trim().length > 0) {
+      const name = match[1].trim();
+      // Filter out common false positives
+      if (!["hey", "hi", "hello", "lawrence"].includes(name.toLowerCase())) {
+        extractedInfo.name = name;
+        break;
+      }
+    }
+  }
+
+  // Extract company if provided
   const companyPatterns = [
     /(?:from|at|work at)\s+([a-z\s&]+?)(?:[,.]|$)/i,
     /company:\s*([a-z\s&]+?)(?:\n|$)/i,
@@ -890,132 +879,81 @@ function detectContactIntent(message: string): {
     }
   }
 
-  // Extract message content (what they want to tell Lawrence)
-  let messageContent = "";
-
-  // Don't extract message content if this is just an initial contact request
-  const isJustContactRequest =
-    /^(hey|hi|hello)?\s*(?:can you|could you)?\s*(?:send|forward|tell).*(?:message|email).*(?:to )?lawrence(?:\s+for me)?[.!?]*$/i.test(
-      message.trim()
-    );
-
-  if (!isJustContactRequest) {
-    // Remove extracted info to get the core message
-    let cleanMessage = message;
-    if (extractedInfo.name) {
-      cleanMessage = cleanMessage.replace(
-        new RegExp(
-          `(?:i'm|im|my name is|this is|hey)\\s+${extractedInfo.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
-          "gi"
-        ),
-        ""
-      );
-    }
-    if (extractedInfo.email) {
-      cleanMessage = cleanMessage.replace(extractedInfo.email, "");
-    }
-    if (extractedInfo.company) {
-      cleanMessage = cleanMessage.replace(
-        new RegExp(
-          `(?:from|at|work at)\\s+${extractedInfo.company.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
-          "gi"
-        ),
-        ""
-      );
-    }
-
-    // Remove common contact request phrases to get the actual message
-    cleanMessage = cleanMessage
-      .replace(
-        /(?:send|forward|tell).*(?:message|email).*(?:to )?lawrence/gi,
-        ""
-      )
-      .replace(/(?:can you|could you|please)/gi, "")
-      .replace(/(?:for me|thanks?|thank you)/gi, "")
-      .replace(/[,;.!?]+/g, " ")
-      .replace(/\s+/g, " ")
-      .replace(/^(hey|hi|hello)\s*/i, "")
-      .trim();
-
-    // Only consider it a message if it has substantial content that's not just contact-related
-    if (
-      cleanMessage &&
-      cleanMessage.length > 10 &&
-      !/^(about|regarding)\s*$/i.test(cleanMessage)
-    ) {
-      extractedInfo.message = cleanMessage;
-    }
+  // Extract message content if we're in awaiting_message state or if it's not a command
+  if (
+    conversationState === "awaiting_message" ||
+    conversationState === "awaiting_datetime"
+  ) {
+    extractedInfo.message = message.trim();
   }
 
   return {
-    isContactRequest: isContactRequest || isMeetingRequest,
+    isContactRequest:
+      isMessageCommand || isMeetingCommand || conversationState !== "",
     intent,
     extractedInfo,
+    conversationState,
   };
 }
 
-// Enhanced function to generate conversational responses with proper step-by-step flow
+// Command-based contact response system with step-by-step flow
 function generateContactResponse(
   intent: "message" | "meeting" | "question" | null,
   extractedInfo: any,
   message: string,
-  history: Array<{ role: string; content: string }>
+  history: Array<{ role: string; content: string }>,
+  conversationState?: string
 ): string {
   const { name, email, company, message: userMessage } = extractedInfo;
 
-  // Check what information we have and what we need
-  const hasName = name && name.length > 0;
+  // Check what information we have
   const hasEmail = email && email.length > 0;
-  const hasMessage = userMessage && userMessage.length > 5; // Need substantial message content
-
-  // Check if this is an initial contact request (like "send a message to lawrence")
-  const isInitialContactRequest =
-    /(?:send|forward).*(?:message|email).*(?:to )?lawrence|can you (?:send|tell|contact)|get in touch with lawrence/i.test(
-      message.toLowerCase()
-    );
+  const hasMessage = userMessage && userMessage.length > 0;
 
   if (intent === "message") {
-    // Step 1: If it's just an initial request with no actual message content, ask for the message first
-    if (isInitialContactRequest && !hasMessage) {
-      return `I'd be happy to send a message to Lawrence for you! What would you like the message to say?`;
+    // Step 1: Initial /message command
+    if (message.toLowerCase().trim().startsWith("/message")) {
+      return `I'll help you send a message to Lawrence! What's your email address for the message?`;
     }
 
-    // Step 2: We have a message, but need email
-    if (hasMessage && !hasEmail) {
-      return `Great! I'll forward that message to Lawrence. What's your email address so he can get back to you?`;
+    // Step 2: User provided email, ask for message
+    if (conversationState === "awaiting_email" && hasEmail) {
+      return `Got it! What is your message?`;
     }
 
-    // Step 3: We have message and email, but no name - ask if they want to provide it
-    if (hasMessage && hasEmail && !hasName) {
-      return `Perfect! I have your message and email address. Would you like to include your name, or should I send it as is?`;
-    }
-
-    // Step 4: We have everything - send the message
-    if (hasMessage && hasEmail) {
-      const senderName = hasName ? name : "Anonymous";
-      return `✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence:\n\n**From:** ${senderName}${company ? ` (${company})` : ""}\n**Email:** ${email}\n**Message:** ${userMessage}\n\nLawrence will get back to you soon! 📧`;
-    }
-
-    // Fallback - ask for missing info step by step
-    if (hasName && !hasEmail && !hasMessage) {
-      return `Hi ${name}! I'd be happy to help you get in touch with Lawrence. What message would you like me to send him?`;
-    } else if (hasEmail && !hasMessage) {
-      return `I'd be happy to forward a message to Lawrence! What would you like to tell him?`;
-    } else if (!hasEmail && !hasMessage) {
-      return `I'd be happy to send a message to Lawrence! What would you like the message to say?`;
+    // Step 3: User provided message, send it
+    if (conversationState === "awaiting_message" && hasMessage) {
+      return "✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence. He'll get back to you soon! 📧";
     }
   }
 
   if (intent === "meeting") {
-    if (hasName && hasEmail) {
-      return `Absolutely${name ? ` ${name}` : ""}! I'll help you schedule a meeting with Lawrence. I've noted your details and he'll reach out to coordinate a time that works for both of you. 📅`;
-    } else {
-      return `I'd be happy to help you schedule a meeting with Lawrence! Could you share your name and email so he can reach out to coordinate?`;
+    // Step 1: Initial /meeting command
+    if (
+      message.toLowerCase().trim().startsWith("/meeting") ||
+      message.toLowerCase().trim().startsWith("/meet")
+    ) {
+      return `I'll help you schedule a meeting with Lawrence! What's your email address for the meeting?`;
+    }
+
+    // Step 2: User provided email, ask for message
+    if (conversationState === "awaiting_email" && hasEmail) {
+      return `Perfect! What is your message about the meeting?`;
+    }
+
+    // Step 3: User provided message, ask for date/time
+    if (conversationState === "awaiting_message" && hasMessage) {
+      return `Great! When would you like to schedule the meeting? Please provide a date and time (for example: "Monday June 24th at 2pm EST" or "Tomorrow at 10am").`;
+    }
+
+    // Step 4: User provided date/time, confirm
+    if (conversationState === "awaiting_datetime") {
+      return `✅ **Meeting Request Sent Successfully!**\n\nI've forwarded your meeting request to Lawrence with your preferred time. He'll reach out to confirm the meeting details!\n\nIs there anything else you'd like to know about Lawrence?`;
     }
   }
 
-  // Default for other intents
-  return `Hi${name ? ` ${name}` : ""}! I'm Lawrence's AI assistant! 🤖 I can help you learn more about his:\n\n• **Experience** 💼\n• **Skills** 🛠️\n• **Projects** 🚀\n• and more!\n\n**Recruiters:** Drop in a job description to see if Lawrence is a good fit, or I can help you contact him directly! 📄\n\nWhat would you like to know?`;
+  // Default response with command instructions
+  return `Hi! I'm Lawrence's AI assistant! 🤖 I can help you learn more about his:\n\n• **Experience** 💼\n• **Skills** 🛠️\n• **Projects** 🚀\n• and more!\n\n**To contact Lawrence:**\n• Type \`/message\` to send a message 📧\n• Type \`/meeting\` to schedule a meeting 📅\n\n**Recruiters:** Drop in a job description to see if Lawrence is a good fit! 📄\n\nWhat would you like to know?`;
 }
 
 export async function POST(request: NextRequest) {
@@ -1031,13 +969,19 @@ export async function POST(request: NextRequest) {
     console.log("DEBUG: Received message:", message);
     console.log("DEBUG: Received files count:", files.length);
 
-    // Generate session ID for this conversation
-    const sessionId = getOrCreateSessionId(history);
+    // Extract session ID from form data
+    const sessionIdFromRequest = formData.get("sessionId") as string;
+
+    // Generate or use existing session ID for this conversation
+    const sessionId = getOrCreateSessionId(sessionIdFromRequest, history);
     console.log("DEBUG: Session ID:", sessionId);
 
     // Enhanced contact intent detection
-    const contactAnalysis = detectContactIntent(message);
+    const contactAnalysis = detectContactIntent(message, history);
     console.log("DEBUG: Contact analysis:", contactAnalysis);
+    console.log("DEBUG: Message:", message);
+    console.log("DEBUG: History length:", history.length);
+    console.log("DEBUG: History:", JSON.stringify(history));
 
     // Process files first
     let finalMessage = message;
@@ -1164,49 +1108,79 @@ export async function POST(request: NextRequest) {
 
       console.log("DEBUG: Combined contact info:", combinedInfo);
 
-      // Check if we have complete information
-      const hasAllInfo =
-        combinedInfo.name && combinedInfo.email && combinedInfo.message;
-
-      if (hasAllInfo) {
-        console.log("DEBUG: All contact info available, sending email");
+      // Check if we should send based on conversation state
+      if (
+        contactAnalysis.conversationState === "awaiting_message" &&
+        combinedInfo.email &&
+        combinedInfo.message &&
+        contactAnalysis.intent === "message"
+      ) {
+        console.log("DEBUG: Sending message with complete info");
         try {
-          // Send the contact request
           const contactData = {
-            requesterName: combinedInfo.name!,
-            requesterEmail: combinedInfo.email!,
+            requesterName: combinedInfo.name || "Anonymous",
+            requesterEmail: combinedInfo.email,
             company: combinedInfo.company || "",
             position: detectedPosition || "",
-            message: combinedInfo.message!,
+            message: combinedInfo.message,
             conversationContext:
               history.length > 0 ? JSON.stringify(history) : undefined,
             fileAnalysis: hasFiles ? fileAnalysis : undefined,
           };
 
           const contactResult = await sendMeetingRequest(contactData);
-
           if (contactResult.success) {
-            const successResponse = `✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence:\n\n**From:** ${combinedInfo.name}${combinedInfo.company ? ` (${combinedInfo.company})` : ""}\n**Email:** ${combinedInfo.email}\n**Message:** ${combinedInfo.message}\n\nLawrence will get back to you soon! 📧`;
-
-            // Save assistant response to Firebase
+            const successResponse = `✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence. He'll get back to you soon! 📧`;
             await saveMessageToFirebase(
               sessionId,
               "assistant",
               successResponse
             );
-
             return NextResponse.json({
               response: successResponse,
               contactSent: true,
             });
-          } else {
-            console.log(
-              "DEBUG: Failed to send contact request:",
-              contactResult.message
-            );
           }
         } catch (error) {
-          console.error("DEBUG: Error sending contact request:", error);
+          console.error("DEBUG: Error sending message:", error);
+        }
+      }
+
+      // Check if we should send meeting request
+      if (
+        contactAnalysis.conversationState === "awaiting_datetime" &&
+        combinedInfo.email &&
+        combinedInfo.message &&
+        contactAnalysis.intent === "meeting"
+      ) {
+        console.log("DEBUG: Sending meeting request with complete info");
+        try {
+          const meetingData = {
+            requesterName: combinedInfo.name || "Anonymous",
+            requesterEmail: combinedInfo.email,
+            company: combinedInfo.company || "",
+            position: detectedPosition || "",
+            message: `Meeting request: ${combinedInfo.message}. Preferred time: ${message}`,
+            conversationContext:
+              history.length > 0 ? JSON.stringify(history) : undefined,
+            fileAnalysis: hasFiles ? fileAnalysis : undefined,
+          };
+
+          const meetingResult = await sendMeetingRequest(meetingData);
+          if (meetingResult.success) {
+            const successResponse = `✅ **Meeting Request Sent Successfully!**\n\nI've forwarded your meeting request to Lawrence with your preferred time. He'll reach out to confirm the meeting details!\n\nIs there anything else you'd like to know about Lawrence?`;
+            await saveMessageToFirebase(
+              sessionId,
+              "assistant",
+              successResponse
+            );
+            return NextResponse.json({
+              response: successResponse,
+              meetingRequested: true,
+            });
+          }
+        } catch (error) {
+          console.error("DEBUG: Error sending meeting request:", error);
         }
       }
 
@@ -1216,7 +1190,8 @@ export async function POST(request: NextRequest) {
           (historyContactInfo.isContactRequest ? "message" : null),
         combinedInfo,
         message,
-        history
+        history,
+        contactAnalysis.conversationState
       );
 
       // Save assistant response to Firebase
@@ -1334,7 +1309,7 @@ ${history.length > 0 ? `Previous conversation: ${JSON.stringify(history.slice(-3
 
     // Try to save error response to Firebase (if we have sessionId in scope)
     try {
-      const sessionId = getOrCreateSessionId([]);
+      const sessionId = getOrCreateSessionId();
       await saveMessageToFirebase(sessionId, "assistant", errorResponse);
     } catch (firebaseError) {
       console.error("Error saving error response to Firebase:", firebaseError);

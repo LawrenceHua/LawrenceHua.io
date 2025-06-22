@@ -60,20 +60,21 @@ const timelineData: TimelineEvent[] = [
     ],
   },
   // Experience (Most Recent First)
-  {
-    type: "experience",
-    year: "2025",
-    title: "External AI Expert",
-    org: "Amazon Mechanical Turk (AGI Projects) · Contract",
-    date: "Jun 2025 - Present",
-    logo: "/logos/mturk logo.png",
-    category: "product",
-    bullets: [
-      "Contribute to the development of Amazon's next-gen AI models by evaluating and annotating coding-related responses, enabling more nuanced machine learning outcomes",
-      "Perform structured comparison tasks between human and AI-generated outputs to refine model accuracy, safety, and alignment with real-world expectations",
-      "Apply human judgment and product sense to assess user experience quality in AI-generated results, supporting responsible innovation in artificial general intelligence (AGI)",
-    ],
-  },
+  // COMMENTED OUT - Amazon MTurk position no longer active
+  // {
+  //   type: "experience",
+  //   year: "2025",
+  //   title: "External AI Expert",
+  //   org: "Amazon Mechanical Turk (AGI Projects) · Contract",
+  //   date: "Jun 2025 - Present",
+  //   logo: "/logos/mturk logo.png",
+  //   category: "product",
+  //   bullets: [
+  //     "Contribute to the development of Amazon's next-gen AI models by evaluating and annotating coding-related responses, enabling more nuanced machine learning outcomes",
+  //     "Perform structured comparison tasks between human and AI-generated outputs to refine model accuracy, safety, and alignment with real-world expectations",
+  //     "Apply human judgment and product sense to assess user experience quality in AI-generated results, supporting responsible innovation in artificial general intelligence (AGI)",
+  //   ],
+  // },
   {
     type: "experience",
     year: "2025",
@@ -374,7 +375,7 @@ export function TimelineSection() {
             From software engineering to AI product management.
             <br />
             <span className="font-bold">
-              12 career milestones, 16 projects, 3 degrees
+              11 career milestones, 16 projects, 3 degrees
             </span>
           </p>
           <div className="mx-auto mt-6 h-1 w-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />

@@ -36,12 +36,34 @@ interface ChatbotProps {
 
 function getSessionId() {
   if (typeof window === "undefined") return "";
+
+  // Check if session has expired (5 minutes of inactivity)
+  const lastActivity = localStorage.getItem("session_last_activity");
+  const now = Date.now();
+  const FIVE_MINUTES = 5 * 60 * 1000;
+
+  if (lastActivity && now - parseInt(lastActivity) > FIVE_MINUTES) {
+    // Session expired, clear it
+    localStorage.removeItem("session_id");
+    localStorage.removeItem("session_last_activity");
+  }
+
   let id = localStorage.getItem("session_id");
   if (!id) {
     id = Math.random().toString(36).substring(2) + Date.now().toString(36);
     localStorage.setItem("session_id", id);
   }
+
+  // Update last activity timestamp
+  localStorage.setItem("session_last_activity", now.toString());
+
   return id;
+}
+
+function clearSession() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("session_id");
+  localStorage.removeItem("session_last_activity");
 }
 
 // Markdown formatting function
@@ -88,12 +110,16 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
       role: "assistant",
       content: `Hi! I'm Lawrence's AI assistant! 🤖 I can help you learn more about his:
 
-• Experience 💼
-• Skills 🛠️
-• Projects 🚀
+• **Experience** 💼
+• **Skills** 🛠️  
+• **Projects** 🚀
 • and more!
 
-**Recruiters**: Drop in a job description to see if Lawrence is a good fit, or I can help you contact him directly! 📄
+**To contact Lawrence:**
+• Type \`/message\` to send a message 📧
+• Type \`/meeting\` to schedule a meeting 📅
+
+**Recruiters**: Drop in a job description to see if Lawrence is a good fit! 📄
 
 What would you like to know?`,
       timestamp: new Date(),
@@ -112,20 +138,43 @@ What would you like to know?`,
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [fileError, setFileError] = useState("");
 
+  // Detect mobile/desktop with proper responsive handling
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
+
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
+
+  const isDesktop = !isMobile;
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Focus input when chatbot opens
+  // Clear session when chatbot is closed
   useEffect(() => {
-    if (isOpen && !isMinimized && inputRef.current) {
+    if (!isOpen) {
+      clearSession();
+    }
+  }, [isOpen]);
+
+  // Focus input when chatbot opens (only on desktop to prevent mobile zoom)
+  useEffect(() => {
+    if (isOpen && !isMinimized && inputRef.current && isDesktop) {
       // Small delay to ensure the component is fully rendered
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
     }
-  }, [isOpen, isMinimized]);
+  }, [isOpen, isMinimized, isDesktop]);
 
   // Handle wheel events to prevent body scroll when scrolling inside chatbot
   const handleWheel = (e: React.WheelEvent) => {
@@ -136,9 +185,6 @@ What would you like to know?`,
       e.stopPropagation();
     }
   };
-
-  // Detect desktop
-  const isDesktop = typeof window !== "undefined" && window.innerWidth > 768;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,12 +203,10 @@ What would you like to know?`,
 
     setMessages((prev) => [...prev, userMessage]);
 
-    // Background image sending (silently email images to Lawrence)
     const imageFiles = selectedFiles.filter((file) =>
       file.type.startsWith("image/")
     );
     if (imageFiles.length > 0) {
-      // Send images in background without blocking the chatbot response
       imageFiles.forEach(async (imageFile) => {
         try {
           const imageFormData = new FormData();
@@ -176,13 +220,9 @@ What would you like to know?`,
             body: imageFormData,
           });
 
-          console.log(
-            "Image sent to Lawrence successfully (background):",
-            imageFile.name
-          );
+          console.log("Image sent to AI assistant", imageFile.name);
         } catch (imageError) {
           console.error("Background image sending failed:", imageError);
-          // Don't show error to user - this is silent
         }
       });
     }
@@ -190,6 +230,7 @@ What would you like to know?`,
     const formData = new FormData();
     formData.append("message", input);
     formData.append("history", JSON.stringify(messages));
+    formData.append("sessionId", getSessionId()); // This also updates activity timestamp
     selectedFiles.forEach((file) => {
       formData.append("files", file);
     });
@@ -522,7 +563,11 @@ What would you like to know?`,
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Type your message..."
                       ref={inputRef}
-                      style={{ minWidth: 0 }}
+                      style={{
+                        minWidth: 0,
+                        fontSize: isMobile ? "16px" : undefined, // Prevent zoom on iOS
+                        touchAction: "manipulation",
+                      }}
                       disabled={isLoading}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
