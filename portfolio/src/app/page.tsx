@@ -433,10 +433,10 @@ export default function ModernHome() {
     const isMobile = window.innerWidth < 768;
 
     if (isMobile) {
-      // On mobile, always center cards in the middle of the viewport for best visibility
+      // On mobile, position cards in the center of the visible viewport as overlay
       return {
-        top: "50%",
-        left: "50%",
+        top: "50vh",
+        left: "50vw",
         transform: "translate(-50%, -50%)",
         right: "auto",
       };
