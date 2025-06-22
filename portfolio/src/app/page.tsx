@@ -208,38 +208,8 @@ export default function ModernHome() {
     if (currentStep === 5 && sectionId === "projects") {
       // Add a delay to ensure the DOM is fully rendered
       setTimeout(() => {
-        // Try multiple selectors to find the "All Projects" title
-        let allProjectsTitle = Array.from(document.querySelectorAll("h3")).find(
-          (h3) => h3.textContent?.trim() === "All Projects"
-        );
-
-        // Fallback: look for any h3 containing "All Projects"
-        if (!allProjectsTitle) {
-          allProjectsTitle = Array.from(document.querySelectorAll("h3")).find(
-            (h3) => h3.textContent?.includes("All Projects")
-          );
-        }
-
-        // Fallback: look for the paragraph with the specific description
-        if (!allProjectsTitle) {
-          const descriptionElement = Array.from(
-            document.querySelectorAll("p")
-          ).find((p) =>
-            p.textContent?.includes(
-              "AI-driven solutions and product innovations"
-            )
-          );
-          if (descriptionElement) {
-            // Find the previous h3 sibling
-            let element = descriptionElement.previousElementSibling;
-            while (element && element.tagName !== "H3") {
-              element = element.previousElementSibling;
-            }
-            if (element && element.tagName === "H3") {
-              allProjectsTitle = element as HTMLHeadingElement;
-            }
-          }
-        }
+        // Try to find the specific "All Projects" title by ID
+        const allProjectsTitle = document.getElementById("all-projects-title");
 
         if (allProjectsTitle) {
           const isMobile = window.innerWidth < 768;
@@ -251,13 +221,13 @@ export default function ModernHome() {
             behavior: "smooth",
           });
         } else {
-          // Final fallback: scroll to middle of projects section
+          // Fallback: scroll to middle of projects section
           const element = document.getElementById(sectionId);
           if (element) {
             const isMobile = window.innerWidth < 768;
             const offset = isMobile ? 80 : 100;
             const middlePosition =
-              element.offsetTop + element.offsetHeight * 0.4 - offset;
+              element.offsetTop + element.offsetHeight * 0.5 - offset;
 
             window.scrollTo({
               top: middlePosition,
@@ -265,7 +235,7 @@ export default function ModernHome() {
             });
           }
         }
-      }, 100);
+      }, 200); // Increased delay to ensure proper rendering
       return;
     }
 

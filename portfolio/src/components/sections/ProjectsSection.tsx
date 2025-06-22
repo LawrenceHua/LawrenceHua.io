@@ -496,7 +496,10 @@ export function ProjectsSection() {
         {/* All Projects Grid */}
         {allProjectsForDisplay.length > featuredProjects.length && (
           <motion.div variants={itemVariants} className="mb-16">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-8 text-center">
+            <h3
+              id="all-projects-title"
+              className="text-2xl font-bold text-slate-900 dark:text-white mb-8 text-center"
+            >
               All Projects
             </h3>
             <p className="mx-auto max-w-3xl text-lg text-slate-600 dark:text-slate-300 text-center mb-8">
