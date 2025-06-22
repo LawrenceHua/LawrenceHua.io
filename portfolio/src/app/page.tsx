@@ -153,16 +153,15 @@ const TourArrows = ({
     0: [], // Step 1: Intro - no arrows
     1: [
       "skill-product-strategy",
-      "skill-stakeholder-management",
       "skill-data-analysis",
-      "skill-cloud-azure",
-    ], // Step 2: Skills
+      "skill-stakeholder-management",
+    ], // Step 2: Skills - pointing to the 3 specific skill titles
     2: [
       "timeline-carnegie-mellon-university",
       "timeline-university-of-florida",
-    ], // Step 3: Education
+    ], // Step 3: Education - pointing to degree titles
     3: ["work-experience-title"], // Step 4: Work Experience - single arrow at title
-    4: ["project-expired"], // Step 5: Expired Solutions Project
+    4: ["project-expired-solutions"], // Step 5: Expired Solutions Project - pointing to project card
     5: ["project-bbw"], // Step 6: BBW Project
   };
 
