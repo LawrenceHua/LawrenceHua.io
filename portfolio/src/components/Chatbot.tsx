@@ -158,7 +158,7 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
       role: "assistant",
       content: `Hi! I'm Lawrence's AI assistant! 🤖
 
-**Quick Click Topics:**
+**Quick Clicks:**
 <button-experience>Experience 💼</button-experience>
 <button-skills>Skills 🛠️</button-skills>
 <button-projects>Projects 🚀</button-projects>

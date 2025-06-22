@@ -606,33 +606,6 @@ function extractContactInfoFromHistory(
     isContactRequest: false,
   };
 
-  // Check if this is a contact conversation by looking for explicit intent keywords
-  // Only detect contact requests for EXPLICIT contact language, not just mentioning Lawrence
-  const allMessages = [...history.map((h) => h.content), currentMessage].join(
-    " "
-  );
-  const contactIntentKeywords = [
-    "send message to lawrence",
-    "tell lawrence that",
-    "contact lawrence",
-    "get in touch with lawrence",
-    "reach out to lawrence",
-    "forward to lawrence",
-    "pass along to lawrence",
-    "let lawrence know that",
-    "message lawrence",
-    "email lawrence",
-  ];
-
-  extractedInfo.isContactRequest = contactIntentKeywords.some((keyword) =>
-    allMessages.toLowerCase().includes(keyword)
-  );
-
-  // If not a contact request, return early
-  if (!extractedInfo.isContactRequest) {
-    return extractedInfo;
-  }
-
   // Extract information from all messages
   const allConversationText = [
     ...history.map((h) => h.content),
@@ -1115,14 +1088,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(easterEggResponse);
     }
 
-    // Check for contact requests using conversation history
-    const historyContactInfo = extractContactInfoFromHistory(history, message);
+    // Only check history for contact info if we already detected a contact request
+    const historyContactInfo = contactAnalysis.isContactRequest
+      ? extractContactInfoFromHistory(history, message)
+      : { isContactRequest: false };
 
     // Handle contact requests with enhanced natural language processing
-    if (
-      contactAnalysis.isContactRequest ||
-      historyContactInfo.isContactRequest
-    ) {
+    if (contactAnalysis.isContactRequest) {
       console.log("DEBUG: Detected contact request intent");
       console.log(
         "DEBUG: Current message info:",
