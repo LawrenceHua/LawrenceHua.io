@@ -71,11 +71,24 @@ function formatMessage(content: string, isLoveMode: boolean = false) {
   let formatted = content
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(
-      /`(.*?)`/g,
-      '<code class="bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded text-sm">$1</code>'
-    )
     .replace(/\n/g, "<br>");
+
+  // Special styling for commands - make them more visible and attractive
+  formatted = formatted
+    .replace(
+      /`\/message`/g,
+      '<span class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1">/message</span>'
+    )
+    .replace(
+      /`\/meeting`/g,
+      '<span class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1">/meeting</span>'
+    );
+
+  // Handle other code blocks (not commands)
+  formatted = formatted.replace(
+    /`([^\/][^`]*)`/g,
+    '<code class="bg-blue-50 text-blue-700 px-2 py-1 rounded font-mono text-sm border border-blue-200">$1</code>'
+  );
 
   // Add love-themed styling if in love mode
   if (isLoveMode) {
