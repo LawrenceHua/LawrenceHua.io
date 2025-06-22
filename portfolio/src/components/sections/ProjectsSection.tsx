@@ -388,107 +388,114 @@ export function ProjectsSection() {
         {featuredProjects.length > 0 && (
           <motion.div variants={containerVariants} className="mb-20">
             <div className="grid gap-8 lg:grid-cols-2">
-              {featuredProjects.map((project, index) => (
-                <motion.div
-                  key={project.title}
-                  variants={cardVariants}
-                  className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-2xl transition-all duration-500 hover:shadow-3xl hover:shadow-yellow-500/10 hover:-translate-y-3"
-                >
-                  {/* Featured Badge */}
-                  <div className="absolute top-4 right-4 z-10">
-                    <div className="flex items-center space-x-1 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 px-3 py-1 text-xs font-bold text-white shadow-lg">
-                      <Award className="h-3 w-3" />
-                      <span>FEATURED</span>
-                    </div>
-                  </div>
-
-                  {/* Project Image */}
-                  <div className="relative h-64 overflow-hidden">
-                    <Image
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-
-                    {/* Overlay Link */}
-                    <Link
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    >
-                      <div className="flex items-center space-x-2 rounded-full bg-white/90 dark:bg-slate-900/90 px-6 py-3 text-sm font-bold text-slate-900 dark:text-white backdrop-blur-sm shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                        {project.linkIcon === "github" ? (
-                          <Github className="h-5 w-5" />
-                        ) : (
-                          <ExternalLink className="h-5 w-5" />
-                        )}
-                        <span>{project.linkText}</span>
+              {featuredProjects.map((project, index) => {
+                const projectId = `project-${project.title
+                  .toLowerCase()
+                  .split(" ")[0]
+                  .replace(/[^a-z0-9-]/g, "")}`;
+                return (
+                  <motion.div
+                    key={project.title}
+                    id={projectId}
+                    variants={cardVariants}
+                    className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-2xl transition-all duration-500 hover:shadow-3xl hover:shadow-yellow-500/10 hover:-translate-y-3"
+                  >
+                    {/* Featured Badge */}
+                    <div className="absolute top-4 right-4 z-10">
+                      <div className="flex items-center space-x-1 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 px-3 py-1 text-xs font-bold text-white shadow-lg">
+                        <Award className="h-3 w-3" />
+                        <span>FEATURED</span>
                       </div>
-                    </Link>
-                  </div>
+                    </div>
 
-                  {/* Project Content */}
-                  <div className="p-8">
-                    <h3 className="mb-4 text-2xl font-bold text-slate-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors">
-                      {project.title}
-                    </h3>
+                    {/* Project Image */}
+                    <div className="relative h-64 overflow-hidden">
+                      <Image
+                        src={project.image}
+                        alt={project.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
-                    <p className="mb-6 text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {project.description}
-                    </p>
-
-                    {/* Key Achievements */}
-                    {project.achievements && (
-                      <div className="mb-6">
-                        <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide">
-                          Key Achievements
-                        </h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {project.achievements.map((achievement, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-300"
-                            >
-                              <div className="h-1.5 w-1.5 rounded-full bg-yellow-500 flex-shrink-0" />
-                              <span>{achievement}</span>
-                            </div>
-                          ))}
+                      {/* Overlay Link */}
+                      <Link
+                        href={project.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      >
+                        <div className="flex items-center space-x-2 rounded-full bg-white/90 dark:bg-slate-900/90 px-6 py-3 text-sm font-bold text-slate-900 dark:text-white backdrop-blur-sm shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                          {project.linkIcon === "github" ? (
+                            <Github className="h-5 w-5" />
+                          ) : (
+                            <ExternalLink className="h-5 w-5" />
+                          )}
+                          <span>{project.linkText}</span>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Tags */}
-                    <div className="mb-6 flex flex-wrap gap-2">
-                      {project.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full bg-yellow-100 dark:bg-yellow-900/20 px-3 py-1 text-xs font-medium text-yellow-700 dark:text-yellow-400"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      </Link>
                     </div>
 
-                    {/* Project Link */}
-                    <Link
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center space-x-2 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 px-6 py-3 text-sm font-bold text-white transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/25 hover:scale-105"
-                    >
-                      <span>{project.linkText}</span>
-                      {project.linkIcon === "github" ? (
-                        <Github className="h-4 w-4" />
-                      ) : (
-                        <ExternalLink className="h-4 w-4" />
+                    {/* Project Content */}
+                    <div className="p-8">
+                      <h3 className="mb-4 text-2xl font-bold text-slate-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors">
+                        {project.title}
+                      </h3>
+
+                      <p className="mb-6 text-slate-600 dark:text-slate-300 leading-relaxed">
+                        {project.description}
+                      </p>
+
+                      {/* Key Achievements */}
+                      {project.achievements && (
+                        <div className="mb-6">
+                          <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wide">
+                            Key Achievements
+                          </h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {project.achievements.map((achievement, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-300"
+                              >
+                                <div className="h-1.5 w-1.5 rounded-full bg-yellow-500 flex-shrink-0" />
+                                <span>{achievement}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       )}
-                    </Link>
-                  </div>
-                </motion.div>
-              ))}
+
+                      {/* Tags */}
+                      <div className="mb-6 flex flex-wrap gap-2">
+                        {project.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded-full bg-yellow-100 dark:bg-yellow-900/20 px-3 py-1 text-xs font-medium text-yellow-700 dark:text-yellow-400"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Project Link */}
+                      <Link
+                        href={project.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 px-6 py-3 text-sm font-bold text-white transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/25 hover:scale-105"
+                      >
+                        <span>{project.linkText}</span>
+                        {project.linkIcon === "github" ? (
+                          <Github className="h-4 w-4" />
+                        ) : (
+                          <ExternalLink className="h-4 w-4" />
+                        )}
+                      </Link>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.div>
         )}

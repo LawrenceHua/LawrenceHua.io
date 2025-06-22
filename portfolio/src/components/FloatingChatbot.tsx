@@ -110,14 +110,27 @@ export function FloatingChatbot({
     setIsOpen(true);
     setShowPopup(false);
     setHasBeenOpened(true);
+
+    // Pre-load system prompt in the background for faster responses
+    fetch("/api/chatbot", { method: "GET" })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("System prompt pre-loaded:", data.message);
+      })
+      .catch((error) => {
+        console.warn("Pre-loading failed (non-critical):", error);
+      });
   };
 
   const closeChatbot = () => {
     setIsOpen(false);
-    // Reset the opened state so the chatbot can show prompts again
-    setHasBeenOpened(false);
-    setDismissCount(0);
-    setHasScrolled(false);
+    // Don't reset permanentlyDismissed - once dismissed, stay dismissed
+    // Only reset if user opened the chatbot (which shows they're engaged)
+    if (!permanentlyDismissed) {
+      setHasBeenOpened(false);
+      setDismissCount(0);
+      setHasScrolled(false);
+    }
   };
 
   return (

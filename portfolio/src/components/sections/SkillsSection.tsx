@@ -390,8 +390,8 @@ export function SkillsSection() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: isMobile || prefersReducedMotion ? 0.05 : 0.1,
-        duration: isMobile || prefersReducedMotion ? 0.3 : 0.6,
+        staggerChildren: 0, // Set stagger to 0 to make them appear at once
+        duration: 0.3,
       },
     },
   };
@@ -418,19 +418,6 @@ export function SkillsSection() {
         ease: "easeOut",
       },
     },
-  };
-
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case "expert":
-        return "from-green-500 to-emerald-600";
-      case "proficient":
-        return "from-orange-500 to-amber-600";
-      case "familiar":
-        return "from-blue-500 to-sky-600";
-      default:
-        return "from-gray-500 to-slate-600";
-    }
   };
 
   const getLevelBadgeColor = (level: string) => {
@@ -496,88 +483,40 @@ export function SkillsSection() {
           <div className="mx-auto mt-6 h-1 w-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
         </motion.div>
 
-        {/* Skills Summary */}
-        <motion.div variants={itemVariants} className="mb-12">
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-            <div className="rounded-xl bg-white dark:bg-slate-800 p-6 shadow-lg">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {
-                  Object.values(skillsData)
-                    .flat()
-                    .filter((s) => s.level === "expert").length
-                }
-              </div>
-              <div className="text-sm text-slate-600 dark:text-slate-400">
-                Expert Skills
-              </div>
-            </div>
-            <div className="rounded-xl bg-white dark:bg-slate-800 p-6 shadow-lg">
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                {
-                  Object.values(skillsData)
-                    .flat()
-                    .filter((s) => s.level === "proficient").length
-                }
-              </div>
-              <div className="text-sm text-slate-600 dark:text-slate-400">
-                Proficient Skills
-              </div>
-            </div>
-            <div className="rounded-xl bg-white dark:bg-slate-800 p-6 shadow-lg">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                14+
-              </div>
-              <div className="text-sm text-slate-600 dark:text-slate-400">
-                Projects Completed
-              </div>
-            </div>
-            <div className="rounded-xl bg-white dark:bg-slate-800 p-6 shadow-lg">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                4+
-              </div>
-              <div className="text-sm text-slate-600 dark:text-slate-400">
-                Years Experience
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Filter Controls */}
-        <motion.div variants={itemVariants} className="mb-12 space-y-6">
+        {/* Filters */}
+        <motion.div
+          variants={itemVariants}
+          className="mb-12 flex flex-col items-center gap-6"
+        >
           {/* Category Filters */}
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-2 rounded-full bg-white/50 dark:bg-slate-800/50 p-2 shadow-inner-lg backdrop-blur-sm">
             {categories.map((category) => (
-              <motion.button
+              <button
                 key={category.key}
                 onClick={() => setActiveCategory(category.key)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border backdrop-blur-sm ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                   activeCategory === category.key
-                    ? "bg-blue-600/20 border-blue-500/80 text-blue-600 dark:text-blue-400 shadow-lg shadow-blue-500/20"
-                    : "bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                    ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-md"
+                    : "text-slate-600 dark:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-700/50"
                 }`}
               >
                 {category.label}
-              </motion.button>
+              </button>
             ))}
           </div>
-
           {/* Level Filters */}
           <div className="flex flex-wrap justify-center gap-3">
             {levels.map((level) => (
-              <motion.button
+              <button
                 key={level.key}
                 onClick={() => setActiveLevel(level.key)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border backdrop-blur-sm ${getLevelFilterColor(
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border ${getLevelFilterColor(
                   level.key,
                   activeLevel === level.key
                 )}`}
               >
                 {level.label}
-              </motion.button>
+              </button>
             ))}
           </div>
         </motion.div>
@@ -607,6 +546,7 @@ export function SkillsSection() {
               return (
                 <motion.div
                   key={skill.name}
+                  id={`skill-${skill.name.toLowerCase().replace(/ /g, "-").replace(/\//g, "-")}`}
                   variants={skillVariants}
                   layout
                   onHoverStart={() => !isMobile && setHoveredSkill(skill.name)}
@@ -655,7 +595,7 @@ export function SkillsSection() {
                     {/* Skill Content */}
                     <div className="flex items-center space-x-1.5">
                       <span className="text-base">{skill.icon}</span>
-                      <span className="font-medium text-slate-900 dark:text-white whitespace-nowrap">
+                      <span className="font-semibold text-slate-800 dark:text-slate-100 whitespace-nowrap">
                         {skill.name}
                       </span>
                     </div>
@@ -705,7 +645,9 @@ export function SkillsSection() {
                               {skill.name}
                             </div>
                             <div
-                              className={`text-xs px-2 py-1 rounded-full inline-block ${getLevelBadgeColor(skill.level)}`}
+                              className={`text-xs px-2 py-1 rounded-full inline-block ${getLevelBadgeColor(
+                                skill.level
+                              )}`}
                             >
                               {skill.level.toUpperCase()} • {skill.experience} •{" "}
                               {skill.projects}+ projects
@@ -768,6 +710,9 @@ export function SkillsSection() {
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Bottom anchor for tour targeting */}
+      <div id="skills-bottom" className="h-1 w-full" />
     </section>
   );
 }

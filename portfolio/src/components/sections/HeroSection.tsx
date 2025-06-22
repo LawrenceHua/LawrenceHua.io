@@ -449,20 +449,16 @@ export function HeroSection({
               <div className="w-px h-16 bg-gradient-to-b from-transparent via-blue-400 to-transparent"></div>
               <button
                 onClick={() => {
-                  if (onStartTour) {
-                    onStartTour();
-                  } else {
-                    const aboutSection = document.getElementById("about");
-                    if (aboutSection) {
-                      const elementPosition =
-                        aboutSection.getBoundingClientRect().top;
-                      const offsetPosition =
-                        elementPosition + window.pageYOffset - 120;
-                      window.scrollTo({
-                        top: offsetPosition,
-                        behavior: "smooth",
-                      });
-                    }
+                  const aboutSection = document.getElementById("about");
+                  if (aboutSection) {
+                    const elementPosition =
+                      aboutSection.getBoundingClientRect().top;
+                    const offsetPosition =
+                      elementPosition + window.pageYOffset - 120;
+                    window.scrollTo({
+                      top: offsetPosition,
+                      behavior: "smooth",
+                    });
                   }
                 }}
                 className="group flex flex-col items-center justify-center space-y-2 text-slate-400 hover:text-blue-400 transition-all duration-300 cursor-pointer hover:scale-105"
@@ -487,20 +483,16 @@ export function HeroSection({
         >
           <button
             onClick={() => {
-              if (onStartTour) {
-                onStartTour();
-              } else {
-                const aboutSection = document.getElementById("about");
-                if (aboutSection) {
-                  const elementPosition =
-                    aboutSection.getBoundingClientRect().top;
-                  const offsetPosition =
-                    elementPosition + window.pageYOffset - 120;
-                  window.scrollTo({
-                    top: offsetPosition,
-                    behavior: "smooth",
-                  });
-                }
+              const aboutSection = document.getElementById("about");
+              if (aboutSection) {
+                const elementPosition =
+                  aboutSection.getBoundingClientRect().top;
+                const offsetPosition =
+                  elementPosition + window.pageYOffset - 120;
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: "smooth",
+                });
               }
             }}
             className="mb-3 text-sm text-slate-400 hover:text-blue-400 transition-all duration-300 cursor-pointer text-center font-medium hover:scale-105"

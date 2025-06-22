@@ -11,6 +11,27 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
+// Global cache for system prompt to eliminate file reading delays
+let systemPromptCache: string | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+
+// Function to check if cache is valid
+function isCacheValid(): boolean {
+  return (
+    systemPromptCache !== null && Date.now() - cacheTimestamp < CACHE_DURATION
+  );
+}
+
+// Function to preload and cache system prompt
+async function preloadSystemPrompt(): Promise<void> {
+  if (!isCacheValid()) {
+    systemPromptCache = await getSystemPrompt(4000);
+    cacheTimestamp = Date.now();
+    console.log("DEBUG: System prompt cached successfully");
+  }
+}
+
 // Check if OpenAI API key is available
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
@@ -88,6 +109,14 @@ function truncateToTokenLimit(text: string, maxTokens: number): string {
 
 // Read system prompt from experience.txt file with token management
 async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
+  // Use cache if available and valid
+  if (isCacheValid() && systemPromptCache) {
+    console.log("DEBUG: Using cached system prompt");
+    return systemPromptCache;
+  }
+
+  console.log("DEBUG: Loading system prompt from files...");
+
   // Try multiple paths to find experience.txt
   const experiencePaths = [
     // Vercel deployment path (portfolio is root)
@@ -204,8 +233,8 @@ async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
 
 **KEY CURRENT ROLES:**
 I'm currently juggling multiple roles:
-• **AI Product Consultant** - Tutora (4+ years, 15hrs/week saved via AI automation, +35% test scores)  
-• **Product Manager** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
+• **AI Product Consultant** - Tutora (4+ years, part-time, 15hrs/week saved via AI automation, +35% test scores)  
+• **Product Manager Intern** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
 • **Founder & CEO** - Expired Solutions (AI grocery platform, 20% waste reduction, Giant Eagle pilot)
 
 **CONVERSATION STYLE:**
@@ -215,20 +244,30 @@ I'm currently juggling multiple roles:
 - **Context awareness** - remember what was said earlier in the conversation
 - Keep responses **concise and punchy** (2-3 bullet points max, one-line mission per role)
 - **Bold** key achievements and technical skills
-- **Experience format**: Role at Company - One impressive mission/outcome per role`;
+- **Experience format**: Role at Company - One impressive mission/outcome per role
 
-    return truncatedContent + tutoraInfo;
+**PROJECT LINKS:**
+When mentioning specific projects or experiences, include these custom buttons:
+- Expired Solutions: <button-expired>View Expired Solutions</button-expired>
+- Tutora work: <button-tutora>Visit Tutora Website</button-tutora>
+- PM Happy Hour: <button-pmhappyhour>Learn About PM Happy Hour</button-pmhappyhour>
+
+Always include these buttons after mentioning the respective project/experience. Use phrases like "Check out my work here:" followed by the appropriate button.`;
+
+    systemPromptCache = truncatedContent + tutoraInfo;
+    cacheTimestamp = Date.now();
+    return systemPromptCache;
   }
 
   console.error("All paths failed to read experience.txt and resume.pdf");
   // Fallback to a concise, recruiter-focused prompt
-  return `You are Lawrence Hua's AI assistant. You're friendly, helpful, and conversational. 
+  systemPromptCache = `You are Lawrence Hua's AI assistant. You're friendly, helpful, and conversational. 
 
 **ABOUT LAWRENCE:**
 I'm currently juggling multiple roles:
-• **AI Product Consultant** - Tutora (4+ years, 15hrs/week saved via AI automation, +35% test scores)  
-• **Product Manager** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
 • **Founder & CEO** - Expired Solutions (AI grocery platform, 20% waste reduction, Giant Eagle pilot)
+• **Product Manager** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
+• **AI Product Consultant** - Tutora (4+ years, 15hrs/week saved via AI automation, +35% test scores)  
 • **Previous**: Motorola embedded Android engineer, Kearney enterprise LLM tools (-26% decision time)
 • **Education** - Carnegie Mellon MISM '24, University of Florida CS
 
@@ -248,7 +287,17 @@ AI/ML, Product Strategy, Computer Vision, GPT Integration, Enterprise Software, 
 - Users must type /message to send a message to Lawrence 📧
 - Users must type /meeting to schedule a meeting with Lawrence 📅
 - Do NOT treat regular questions as contact requests
-- Always mention these commands in your initial greeting`;
+- Always mention these commands in your initial greeting
+
+**PROJECT LINKS:**
+When mentioning specific projects or experiences, include these custom buttons:
+- Expired Solutions: <button-expired>View Expired Solutions</button-expired>
+- Tutora work: <button-tutora>Visit Tutora Website</button-tutora>
+- PM Happy Hour: <button-pmhappyhour>Learn About PM Happy Hour</button-pmhappyhour>
+
+Always include these buttons after mentioning the respective project/experience. Use phrases like "Check out my work here:" followed by the appropriate button.`;
+  cacheTimestamp = Date.now();
+  return systemPromptCache;
 }
 
 // Add helper to extract info from context and message
@@ -1080,6 +1129,24 @@ function generateContactResponse(
   return `Hi! I'm Lawrence's AI assistant! 🤖 I can help you learn more about his:\n• **Experience** 💼\n• **Skills** 🛠️\n• **Projects** 🚀\n• and more!\n\n**To contact Lawrence:**\n• Type \`/message\` to send a message 📧\n• Type \`/meeting\` to schedule a meeting 📅\n\n**Recruiters:** Drop in a job description to see if Lawrence is a good fit! 📄\n\nWhat would you like to know?`;
 }
 
+export async function GET() {
+  try {
+    console.log("DEBUG: Pre-loading system prompt...");
+    await preloadSystemPrompt();
+    return NextResponse.json({
+      success: true,
+      message: "System prompt pre-loaded successfully",
+      cached: isCacheValid(),
+    });
+  } catch (error) {
+    console.error("Error pre-loading system prompt:", error);
+    return NextResponse.json(
+      { error: "Failed to pre-load system prompt" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log("DEBUG: POST function called");
@@ -1353,7 +1420,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const systemPrompt = await getSystemPrompt(4000);
+    // Use cached system prompt (much faster than reading files every time)
+    const systemPrompt =
+      isCacheValid() && systemPromptCache
+        ? systemPromptCache
+        : await getSystemPrompt(4000);
 
     // Handle meeting requests (separate from contact messages)
     if (contactAnalysis.intent === "meeting") {

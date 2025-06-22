@@ -18,6 +18,11 @@ import {
   FiArrowUp,
   FiArrowLeft,
   FiArrowRight,
+  FiUser,
+  FiTool,
+  FiBookOpen,
+  FiPause,
+  FiPlay,
 } from "react-icons/fi";
 import { ModernNavigation } from "../components/ModernNavigation";
 import { HeroSection } from "../components/sections/HeroSection";
@@ -44,85 +49,92 @@ interface TourStep {
     | "bottom-right"
     | "bottom-left"
     | "center"
-    | "bottom-center";
+    | "bottom-center"
+    | "work-experience-top"
+    | "education-left"
+    | "bottom-right-lower"
+    | "education-below";
 }
 
 const tourSteps: TourStep[] = [
   {
-    id: "overview",
-    title: "🚀 My PM Journey",
+    id: "intro",
+    title: "👋 Welcome! I'm Lawrence Hua.",
     content:
-      "3 concurrent PM roles, driving measurable impact through AI-powered solutions, community growth, and operational excellence.",
+      "A Product Manager with a passion for building innovative, user-centric AI products. Let's take a quick tour of my work.",
     targetSection: "hero",
-    icon: <FiBriefcase className="w-5 h-5" />,
+    icon: <FiUser className="w-5 h-5" />,
     color: "from-purple-600 to-pink-600",
-    duration: 11000,
-    highlights: [
-      "3 Concurrent Roles",
-      "AI Product Consultant",
-      "Founder & CEO",
-    ],
+    duration: 8000,
     position: "top-right",
   },
   {
-    id: "metrics",
-    title: "📊 Data-Driven Results",
+    id: "skills",
+    title: "🛠️ My Core Skills",
     content:
-      "Every decision backed by metrics: 30% community growth, 50% engagement lift, 20% waste reduction, 35% test score improvement.",
-    targetSection: "timeline",
-    icon: <FiTrendingUp className="w-5 h-5" />,
+      "I specialize in the full product lifecycle, from deep data analysis to full-stack development. My expertise lies in Product Management, Data Analysis, and hands-on Engineering.",
+    targetSection: "skills",
+    icon: <FiTool className="w-5 h-5" />,
     color: "from-blue-600 to-cyan-600",
-    duration: 11500,
-    highlights: ["30% Growth", "50% Engagement", "20% Waste Reduction"],
-    position: "top-right",
-  },
-  {
-    id: "leadership",
-    title: "👥 Cross-Functional Leadership",
-    content:
-      "Led teams across engineering, design, and business. From Motorola's embedded systems to startup founder managing full product lifecycle.",
-    targetSection: "timeline",
-    icon: <FiUsers className="w-5 h-5" />,
-    color: "from-green-600 to-teal-600",
-    duration: 12000,
-    highlights: ["Team Leadership", "Stakeholder Management", "GTM Strategy"],
-    position: "bottom-right",
-  },
-  {
-    id: "ai-innovation",
-    title: "🤖 AI Product Innovation",
-    content:
-      "Built CV + GPT platforms, automated workflows saving 15hrs/week, and created AI-driven decision tools reducing time by 26%.",
-    targetSection: "projects",
-    icon: <FiActivity className="w-5 h-5" />,
-    color: "from-orange-600 to-red-600",
-    duration: 11500,
-    highlights: ["Computer Vision", "GPT Integration", "15hrs/week Saved"],
-    position: "bottom-left",
-  },
-  {
-    id: "customer-focus",
-    title: "🎯 Customer-Centric Approach",
-    content:
-      "250+ shopper surveys, 15 executive interviews, 95% customer satisfaction. I obsess over user needs and translate them into features.",
-    targetSection: "projects",
-    icon: <FiTarget className="w-5 h-5" />,
-    color: "from-indigo-600 to-purple-600",
-    duration: 12000,
-    highlights: ["250+ Surveys", "User Research", "95% CSAT"],
+    duration: 10000,
+    highlights: [
+      "Product Management",
+      "Data Analysis",
+      "Full-Stack Development",
+    ],
     position: "top-left",
   },
   {
-    id: "execution",
-    title: "⚡ Rapid Execution",
+    id: "education",
+    title: "🎓 Technical Foundations",
     content:
-      "From ideation to launch: Built MVP in 3 months, secured pilot opportunities, won venture competitions. I ship fast and iterate faster.",
+      "My journey started with a strong technical education, from a Top-5 public university at UF to the #1 ranked graduate programs at Carnegie Mellon University.",
+    targetSection: "timeline",
+    icon: <FiBookOpen className="w-5 h-5" />,
+    color: "from-green-600 to-teal-600",
+    duration: 10000,
+    highlights: ["Carnegie Mellon", "University of Florida"],
+    position: "work-experience-top",
+  },
+  {
+    id: "experience",
+    title: "💼 Professional Journey",
+    content:
+      "I've built a diverse skillset through roles like an Embedded Android Engineer at Motorola, an AI Product Consultant, and multiple PM internships.",
+    targetSection: "timeline",
+    icon: <FiBriefcase className="w-5 h-5" />,
+    color: "from-orange-600 to-red-600",
+    duration: 12000,
+    highlights: ["Android Engineer", "AI Consultant", "Product Internships"],
+    position: "education-below",
+  },
+  {
+    id: "project-expired-solutions",
+    title: "💡 Featured Project: Expired Solutions",
+    content:
+      "I founded and led the development of an AI platform that helps grocery stores reduce food waste, resulting in a 20% shrink reduction during our pilot.",
     targetSection: "projects",
-    icon: <FiStar className="w-5 h-5" />,
+    icon: <FiTarget className="w-5 h-5" />,
+    color: "from-indigo-600 to-purple-600",
+    duration: 10000,
+    highlights: [
+      "Founder & CEO",
+      "AI-Powered Platform",
+      "20% Shrink Reduction",
+    ],
+    position: "bottom-right-lower",
+  },
+  {
+    id: "project-bbw",
+    title: "💡 Featured Project: BBW Demo",
+    content:
+      "An enterprise decision-support tool I built for a Kearney consulting engagement that reduced decision-making time by 18 hours/week using LLM technology.",
+    targetSection: "projects",
+    icon: <FiTrendingUp className="w-5 h-5" />,
     color: "from-pink-600 to-rose-600",
-    duration: 11000,
-    highlights: ["3-Month MVP", "McGinnis Finalist", "Giant Eagle Pilot"],
-    position: "center",
+    duration: 10000,
+    highlights: ["LLM Technology", "18hrs/week saved", "Enterprise Tool"],
+    position: "bottom-left",
   },
 ];
 
@@ -138,12 +150,20 @@ const TourArrows = ({
 
   // Define which timeline experiences each step points to
   const stepTargets = {
-    0: [], // Step 1: Overview - no specific arrows, just general
-    1: ["pm-happy-hour", "expired-solutions", "tutora"], // Step 2: Data-driven results
-    2: ["expired-solutions", "pm-happy-hour", "giant-eagle"], // Step 3: Leadership
-    3: ["expired-solutions", "tutora"], // Step 4: AI Innovation
-    4: ["expired-solutions"], // Step 5: Customer focus
-    5: ["expired-solutions"], // Step 6: Execution
+    0: [], // Step 1: Intro - no arrows
+    1: [
+      "skill-product-strategy",
+      "skill-stakeholder-management",
+      "skill-data-analysis",
+      "skill-cloud-azure",
+    ], // Step 2: Skills
+    2: [
+      "timeline-carnegie-mellon-university",
+      "timeline-university-of-florida",
+    ], // Step 3: Education
+    3: ["work-experience-title"], // Step 4: Work Experience - single arrow at title
+    4: ["project-expired"], // Step 5: Expired Solutions Project
+    5: ["project-bbw"], // Step 6: BBW Project
   };
 
   const targets = stepTargets[currentStep as keyof typeof stepTargets] || [];
@@ -157,28 +177,24 @@ const TourArrows = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0 }}
           transition={{ delay: index * 0.2, duration: 0.4 }}
-          className="fixed z-40 pointer-events-none"
-          style={{
-            top: getArrowPosition(target).top,
-            left: getArrowPosition(target).left,
-            right: getArrowPosition(target).right,
-          }}
+          className="fixed z-50 pointer-events-none"
+          style={getArrowPosition(target)}
         >
           <div className="relative">
             {/* Animated Arrow */}
             <motion.div
               animate={{
-                y: [0, -8, 0],
-                scale: [1, 1.1, 1],
+                y: [0, -12, 0],
+                scale: [1, 1.2, 1],
               }}
               transition={{
-                duration: 2,
+                duration: 1.5,
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className={`flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white shadow-lg`}
+              className={`flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white shadow-2xl border-4 border-white`}
             >
-              <FiArrowDown className="w-6 h-6" />
+              <FiArrowDown className="w-8 h-8" />
             </motion.div>
 
             {/* Arrow tail/line */}
@@ -190,15 +206,15 @@ const TourArrows = ({
             {/* Pulse effect */}
             <motion.div
               animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.7, 0, 0.7],
+                scale: [1, 2, 1],
+                opacity: [0.8, 0, 0.8],
               }}
               transition={{
-                duration: 2,
+                duration: 1.5,
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className={`absolute inset-0 w-12 h-12 rounded-full bg-gradient-to-r ${tourSteps[currentStep].color}`}
+              className={`absolute inset-0 w-16 h-16 rounded-full bg-gradient-to-r ${tourSteps[currentStep].color}`}
             />
           </div>
         </motion.div>
@@ -208,86 +224,23 @@ const TourArrows = ({
 };
 
 // Helper function to get arrow positions for different timeline elements
-const getArrowPosition = (target: string) => {
+const getArrowPosition = (targetId: string) => {
   if (typeof window === "undefined") {
     return { top: "50%", left: "50%", right: "auto" };
   }
 
-  const isMobile = window.innerWidth < 768;
+  const targetElement = document.getElementById(targetId);
 
-  // Try to find the actual element on the page
-  const timelineSection = document.getElementById("timeline");
-  if (timelineSection) {
-    const rect = timelineSection.getBoundingClientRect();
-    const timelineTop = rect.top + window.scrollY;
-
-    // Calculate positions relative to timeline section
-    const baseTop = timelineTop + 200; // Start 200px into timeline
-    const stepHeight = isMobile ? 120 : 150; // Height between each experience
-
-    const positions = {
-      "pm-happy-hour": {
-        top: `${baseTop + stepHeight * 0}px`, // First experience
-        left: isMobile ? "15%" : "25%",
-        right: "auto",
-      },
-      "expired-solutions": {
-        top: `${baseTop + stepHeight * 1}px`, // Second experience
-        left: isMobile ? "70%" : "65%",
-        right: "auto",
-      },
-      tutora: {
-        top: `${baseTop + stepHeight * 2}px`, // Third experience
-        left: isMobile ? "20%" : "30%",
-        right: "auto",
-      },
-      "giant-eagle": {
-        top: `${baseTop + stepHeight * 3}px`, // Fourth experience
-        left: isMobile ? "65%" : "60%",
-        right: "auto",
-      },
-    };
-
-    return (
-      positions[target as keyof typeof positions] || {
-        top: `${baseTop}px`,
-        left: "50%",
-        right: "auto",
-      }
-    );
+  if (targetElement) {
+    const rect = targetElement.getBoundingClientRect();
+    // Position arrow slightly above the element
+    const top = rect.top - 70; // 70px above the target
+    const left = rect.left + rect.width / 2 - 32; // Center the 64px arrow
+    return { top: `${top}px`, left: `${left}px`, right: "auto" };
   }
 
-  // Fallback static positions
-  const positions = {
-    "pm-happy-hour": {
-      top: isMobile ? "600px" : "650px",
-      left: isMobile ? "15%" : "25%",
-      right: "auto",
-    },
-    "expired-solutions": {
-      top: isMobile ? "750px" : "800px",
-      left: isMobile ? "70%" : "65%",
-      right: "auto",
-    },
-    tutora: {
-      top: isMobile ? "900px" : "950px",
-      left: isMobile ? "20%" : "30%",
-      right: "auto",
-    },
-    "giant-eagle": {
-      top: isMobile ? "1050px" : "1100px",
-      left: isMobile ? "65%" : "60%",
-      right: "auto",
-    },
-  };
-
-  return (
-    positions[target as keyof typeof positions] || {
-      top: "50%",
-      left: "50%",
-      right: "auto",
-    }
-  );
+  // Fallback if element not found (e.g., during transitions)
+  return { top: "-500px", left: "-500px", right: "auto" };
 };
 
 export default function ModernHome() {
@@ -303,6 +256,11 @@ export default function ModernHome() {
   const [currentCharacterIndex, setCurrentCharacterIndex] = useState(0);
   const [countdown, setCountdown] = useState(0);
   const [showFinalCTA, setShowFinalCTA] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Tour invitation popup state
+  const [showTourInvitation, setShowTourInvitation] = useState(false);
+  const [tourInvitationDismissed, setTourInvitationDismissed] = useState(false);
 
   // Helper function to render highlighted text
   const renderHighlightedText = (text: string, highlightIndex: number) => {
@@ -363,6 +321,7 @@ export default function ModernHome() {
     setHighlightedIndex(0);
     setCountdown(0);
     setCurrentCharacterIndex(0);
+    setIsPaused(false);
     // Scroll to top first
     window.scrollTo({ top: 0, behavior: "smooth" });
     // Start with first step after a delay
@@ -372,15 +331,47 @@ export default function ModernHome() {
   };
 
   const scrollToSection = (sectionId: string) => {
-    // For step 6, just scroll to the projects section normally and center the popup
     const element = document.getElementById(sectionId);
     if (element) {
       const isMobile = window.innerWidth < 768;
-      const offset = isMobile ? 80 : 100; // Smaller offset on mobile
-      const elementPosition = element.offsetTop - offset;
+
+      // Special handling for step 4 (experience) targeting timeline - position to show work experience
+      if (sectionId === "timeline" && isActive && currentStep === 3) {
+        const offset = isMobile ? 400 : 560; // Moderate offset to show work experience section
+        const elementRect = element.getBoundingClientRect();
+        const absoluteElementTop = elementRect.top + window.pageYOffset;
+        const finalScrollPosition = absoluteElementTop + offset; // Add offset instead of subtract to go further down
+
+        window.scrollTo({
+          top: finalScrollPosition,
+          behavior: "smooth",
+        });
+        return;
+      }
+
+      // Special handling for work-experience-bottom to show all work items
+      if (sectionId === "work-experience-bottom") {
+        const offset = isMobile ? 75 : 100; // Reduced offset - about half of previous values
+        const elementRect = element.getBoundingClientRect();
+        const absoluteElementTop = elementRect.top + window.pageYOffset;
+        const finalScrollPosition = absoluteElementTop - offset;
+
+        window.scrollTo({
+          top: finalScrollPosition,
+          behavior: "smooth",
+        });
+        return;
+      }
+
+      const offset = isMobile ? 80 : 100;
+
+      // Get the element's position relative to the document
+      const elementRect = element.getBoundingClientRect();
+      const absoluteElementTop = elementRect.top + window.pageYOffset;
+      const finalScrollPosition = absoluteElementTop - offset;
 
       window.scrollTo({
-        top: elementPosition,
+        top: finalScrollPosition,
         behavior: "smooth",
       });
     }
@@ -423,6 +414,26 @@ export default function ModernHome() {
           transform: "translate(-50%, -50%)",
           right: "auto",
         };
+      case "work-experience-top":
+        // Position on top of the work experience section
+        return {
+          top: "300px",
+          right: "24px",
+          left: "auto",
+        };
+      case "education-left":
+        // Position on the left side for education
+        return {
+          top: "400px",
+          left: "24px",
+          right: "auto",
+        };
+      case "bottom-right-lower":
+        // Position lower than normal bottom-right for step 5
+        return { bottom: "20px", right: "24px", left: "auto" };
+      case "education-below":
+        // Position below the education section (left side, middle-low)
+        return { top: "500px", left: "24px", right: "auto" };
       default:
         return { top: "80px", right: "24px", left: "auto" };
     }
@@ -435,6 +446,7 @@ export default function ModernHome() {
       setHighlightedIndex(0);
       setCountdown(0);
       setCurrentCharacterIndex(0);
+      setIsPaused(false);
       scrollToSection(tourSteps[nextStepIndex].targetSection);
     } else {
       // Tour complete, scroll to testimonials first then show final CTA
@@ -466,6 +478,7 @@ export default function ModernHome() {
       setHighlightedIndex(0);
       setCountdown(0);
       setCurrentCharacterIndex(0);
+      setIsPaused(false);
       scrollToSection(tourSteps[prevStepIndex].targetSection);
     }
   };
@@ -475,6 +488,15 @@ export default function ModernHome() {
     setShowFinalCTA(false);
     setCountdown(0);
     setCurrentCharacterIndex(0);
+    setIsPaused(false);
+
+    // Ensure scrolling is restored
+    document.body.style.overflow = "unset";
+    document.documentElement.style.overflow = "unset";
+  };
+
+  const togglePause = () => {
+    setIsPaused(!isPaused);
   };
 
   const handleFinalCTAAction = (action: "message" | "meeting") => {
@@ -498,7 +520,7 @@ export default function ModernHome() {
 
   // Tour effects
   useEffect(() => {
-    if (isActive) {
+    if (isActive && !isPaused) {
       const currentStepData = tourSteps[currentStep];
       const characters = currentStepData.content.split("");
       const totalCharacters = characters.length;
@@ -527,10 +549,31 @@ export default function ModernHome() {
         clearInterval(interval);
       };
     }
-  }, [isActive, currentStep]);
+  }, [isActive, currentStep, isPaused]);
+
+  // Scroll lock effect
+  useEffect(() => {
+    const shouldLockScroll = isActive && !isPaused;
+
+    if (shouldLockScroll) {
+      // Lock scrolling
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      // Allow scrolling
+      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "unset";
+    }
+
+    // Cleanup function to ensure scrolling is restored
+    return () => {
+      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "unset";
+    };
+  }, [isActive, isPaused]);
 
   useEffect(() => {
-    if (isActive && tourSteps[currentStep].highlights) {
+    if (isActive && tourSteps[currentStep].highlights && !isPaused) {
       const interval = setInterval(() => {
         setHighlightedIndex(
           (prev) =>
@@ -540,7 +583,7 @@ export default function ModernHome() {
 
       return () => clearInterval(interval);
     }
-  }, [isActive, currentStep]);
+  }, [isActive, currentStep, isPaused]);
 
   useEffect(() => {
     if (showFinalCTA) {
@@ -551,6 +594,28 @@ export default function ModernHome() {
       return () => clearTimeout(timer);
     }
   }, [showFinalCTA]);
+
+  // Tour invitation popup effect
+  useEffect(() => {
+    if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
+      const timer = setTimeout(() => {
+        setShowTourInvitation(true);
+      }, 2000); // Show after 2 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [isActive, tourInvitationDismissed, showFinalCTA]);
+
+  const handleTourInvitationAccept = () => {
+    setShowTourInvitation(false);
+    setTourInvitationDismissed(true);
+    startTour();
+  };
+
+  const handleTourInvitationDismiss = () => {
+    setShowTourInvitation(false);
+    setTourInvitationDismissed(true);
+  };
 
   return (
     <main className="min-h-screen bg-white dark:bg-slate-950">
@@ -567,7 +632,7 @@ export default function ModernHome() {
       <SkillsSection />
 
       {/* Timeline Section */}
-      <TimelineSection tourActive={isActive} />
+      <TimelineSection tourActive={isActive} currentStep={currentStep} />
 
       {/* Projects Section */}
       <ProjectsSection />
@@ -592,6 +657,79 @@ export default function ModernHome() {
       {/* Tour Arrows */}
       <TourArrows isActive={isActive} currentStep={currentStep} />
 
+      {/* Tour Invitation Popup */}
+      <AnimatePresence>
+        {showTourInvitation && !isActive && (
+          <motion.div
+            initial={{ opacity: 0, x: 100, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 100, scale: 0.9 }}
+            transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            className="fixed top-1/2 right-6 -translate-y-1/2 z-50 max-w-sm"
+          >
+            <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-1 rounded-2xl shadow-2xl">
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 relative">
+                {/* Close button */}
+                <button
+                  onClick={handleTourInvitationDismiss}
+                  className="absolute top-3 right-3 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-400 hover:text-gray-600"
+                >
+                  <FiX className="w-4 h-4" />
+                </button>
+
+                {/* Content */}
+                <div className="flex items-start gap-3 mb-4">
+                  <motion.div
+                    animate={{
+                      rotate: [0, 10, -10, 0],
+                      scale: [1, 1.1, 1],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                    className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white flex-shrink-0"
+                  >
+                    <span className="text-2xl">👋</span>
+                  </motion.div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                      Hey there!
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4">
+                      Let me tell you my story in exactly{" "}
+                      <span className="font-semibold text-purple-600 dark:text-purple-400">
+                        1 minute
+                      </span>
+                    </p>
+
+                    {/* CTA Button */}
+                    <motion.button
+                      onClick={handleTourInvitationAccept}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
+                    >
+                      <span className="text-lg">🎯</span>
+                      Take The Tour
+                    </motion.button>
+                  </div>
+                </div>
+
+                {/* Small dismiss option */}
+                <button
+                  onClick={handleTourInvitationDismiss}
+                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors w-full text-center"
+                >
+                  Maybe later
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Tour Step Popups */}
       <AnimatePresence>
         {isActive && (
@@ -603,22 +741,39 @@ export default function ModernHome() {
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
             className="fixed z-50 w-full max-w-sm mx-4 md:max-w-md md:mx-0"
             style={getPopupPosition(tourSteps[currentStep].position)}
+            onClick={togglePause}
           >
             <div
-              className={`bg-gradient-to-br ${tourSteps[currentStep].color} p-1 rounded-2xl shadow-2xl`}
+              className={`bg-gradient-to-br ${tourSteps[currentStep].color} p-1 rounded-2xl shadow-2xl cursor-pointer`}
             >
               <div className="bg-white dark:bg-gray-900 rounded-xl p-4 md:p-6 relative">
                 <button
-                  onClick={closeTour}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    closeTour();
+                  }}
                   className="absolute top-2 right-2 md:top-3 md:right-3 px-2 py-1 md:px-3 md:py-1 text-xs font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-md transition-colors min-h-[32px] min-w-[44px] flex items-center justify-center"
                 >
                   STOP
                 </button>
 
+                {/* Pause Indicator */}
+                {isPaused && (
+                  <div className="absolute top-2 left-2 md:top-3 md:left-3 flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                    <FiPause className="w-4 h-4" />
+                    <span className="text-xs font-semibold">
+                      PAUSED - You can scroll
+                    </span>
+                  </div>
+                )}
+
                 {/* Mobile Navigation Buttons - Bottom */}
                 <div className="flex md:hidden justify-between items-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <motion.button
-                    onClick={prevStep}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      prevStep();
+                    }}
                     whileTap={{ scale: 0.9 }}
                     className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg shadow-lg transition-all duration-300"
                   >
@@ -631,7 +786,10 @@ export default function ModernHome() {
                     {currentStep + 1} of {tourSteps.length}
                   </span>
                   <motion.button
-                    onClick={nextStep}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextStep();
+                    }}
                     whileTap={{ scale: 0.9 }}
                     className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg shadow-lg transition-all duration-300"
                   >
@@ -642,7 +800,10 @@ export default function ModernHome() {
 
                 {/* Desktop Navigation Buttons - Side */}
                 <motion.button
-                  onClick={prevStep}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevStep();
+                  }}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   className="hidden md:block absolute top-1/2 -left-4 -translate-y-1/2 p-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
@@ -652,7 +813,10 @@ export default function ModernHome() {
                 </motion.button>
 
                 <motion.button
-                  onClick={nextStep}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextStep();
+                  }}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   className="hidden md:block absolute top-1/2 -right-4 -translate-y-1/2 p-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
@@ -717,7 +881,8 @@ export default function ModernHome() {
                     ))}
                   </div>
                   <span className="text-xs text-gray-500">
-                    Step {currentStep + 1} of {tourSteps.length}
+                    Step {currentStep + 1} of {tourSteps.length} • Click to{" "}
+                    {isPaused ? "resume" : "pause & scroll"}
                   </span>
                 </div>
               </div>

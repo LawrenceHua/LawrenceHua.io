@@ -111,6 +111,18 @@ function formatMessage(
     .replace(
       /<button-upload>(.*?)<\/button-upload>/g,
       '<button onclick="window.chatbotButtonClick(\'upload\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
+    )
+    .replace(
+      /<button-expired>(.*?)<\/button-expired>/g,
+      "<button onclick=\"window.open('https://expiredsolutions.com', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+    )
+    .replace(
+      /<button-tutora>(.*?)<\/button-tutora>/g,
+      "<button onclick=\"window.open('https://www.tutoraprep.com/', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+    )
+    .replace(
+      /<button-pmhappyhour>(.*?)<\/button-pmhappyhour>/g,
+      "<button onclick=\"window.open('https://www.notion.so/pmhappyhour/PM-Happy-Hour-37b20a5dc2ea481e8e3437a95811e54b', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
     );
 
   // Special styling for typed commands - make them more visible and attractive
@@ -485,11 +497,89 @@ What would you like to know?`,
     }, delay);
   };
 
+  // Function to determine if a query will likely take longer
+  const willTakeLonger = (message: string): boolean => {
+    const longRunningTriggers = [
+      "experience",
+      "background",
+      "tell me about lawrence",
+      "lawrence's experience",
+      "what has lawrence done",
+      "his work",
+      "career",
+      "professional",
+      "work history",
+      "resume",
+      "cv",
+      "skills",
+      "abilities",
+      "technical",
+      "expertise",
+      "capabilities",
+      "projects",
+      "accomplishments",
+      "achievements",
+      "portfolio",
+    ];
+
+    const lowerMessage = message.toLowerCase();
+    return longRunningTriggers.some((trigger) =>
+      lowerMessage.includes(trigger)
+    );
+  };
+
+  // Get a varied loading message
+  const getLoadingMessage = (messageText: string): string => {
+    const loadingMessages = [
+      "⏳ Bear with me while I gather Lawrence's detailed info...",
+      "🔍 Pulling up Lawrence's comprehensive background...",
+      "📊 Analyzing Lawrence's experience and achievements...",
+      "💼 Compiling his professional journey for you...",
+      "🚀 Loading all the exciting details about Lawrence...",
+      "⚡ Gathering insights from his extensive portfolio...",
+    ];
+
+    // Choose based on message content for more relevance
+    const lowerMessage = messageText.toLowerCase();
+    if (lowerMessage.includes("skill") || lowerMessage.includes("technical")) {
+      return "🛠️ Compiling Lawrence's technical skills and expertise...";
+    } else if (
+      lowerMessage.includes("project") ||
+      lowerMessage.includes("portfolio")
+    ) {
+      return "🚀 Loading his impressive project portfolio...";
+    } else if (
+      lowerMessage.includes("experience") ||
+      lowerMessage.includes("background")
+    ) {
+      return "💼 Gathering his comprehensive work experience...";
+    }
+
+    // Random selection for general queries
+    return loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+  };
+
   // API call function that can be reused
   const sendMessageToAPI = async (
     messageText: string,
     currentMessages: Message[]
   ) => {
+    // Check if this query will likely take longer
+    const isLongRunning = willTakeLonger(messageText);
+
+    // Add predictive loading message for longer queries
+    if (isLongRunning) {
+      const loadingMessage: Message = {
+        role: "assistant",
+        content: getLoadingMessage(messageText),
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, loadingMessage]);
+
+      // Small delay to show the loading message
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
     setIsLoading(true);
 
     try {
@@ -520,25 +610,73 @@ What would you like to know?`,
         setIsLoveMode(true);
       }
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: data.response,
-          timestamp: new Date(),
-        },
-      ]);
+      // Replace loading message with actual response, or append if no loading message
+      setMessages((prev) => {
+        // Check if the last message is our loading message
+        const lastMessage = prev[prev.length - 1];
+        const isLoadingMessage =
+          lastMessage &&
+          (lastMessage.content.includes("⏳ Bear with me while I gather") ||
+            lastMessage.content.includes("🔍 Pulling up Lawrence's") ||
+            lastMessage.content.includes("📊 Analyzing Lawrence's") ||
+            lastMessage.content.includes("💼 Compiling his") ||
+            lastMessage.content.includes("🚀 Loading") ||
+            lastMessage.content.includes("⚡ Gathering insights") ||
+            lastMessage.content.includes("🛠️ Compiling Lawrence's"));
+
+        if (isLoadingMessage && isLongRunning) {
+          // Replace the loading message with the actual response
+          return [
+            ...prev.slice(0, -1),
+            {
+              role: "assistant",
+              content: data.response,
+              timestamp: new Date(),
+            },
+          ];
+        } else {
+          // Append normally if no loading message
+          return [
+            ...prev,
+            {
+              role: "assistant",
+              content: data.response,
+              timestamp: new Date(),
+            },
+          ];
+        }
+      });
     } catch (error) {
       console.error("Chatbot error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
+
+      // Replace loading message with error response, or append if no loading message
+      setMessages((prev) => {
+        const lastMessage = prev[prev.length - 1];
+        const isLoadingMessage =
+          lastMessage &&
+          (lastMessage.content.includes("⏳ Bear with me while I gather") ||
+            lastMessage.content.includes("🔍 Pulling up Lawrence's") ||
+            lastMessage.content.includes("📊 Analyzing Lawrence's") ||
+            lastMessage.content.includes("💼 Compiling his") ||
+            lastMessage.content.includes("🚀 Loading") ||
+            lastMessage.content.includes("⚡ Gathering insights") ||
+            lastMessage.content.includes("🛠️ Compiling Lawrence's"));
+
+        const errorMessage = {
+          role: "assistant" as const,
           content:
             "I'm sorry, I'm having trouble connecting right now. Please try again later or reach out to Lawrence directly.",
           timestamp: new Date(),
-        },
-      ]);
+        };
+
+        if (isLoadingMessage && isLongRunning) {
+          // Replace the loading message with the error message
+          return [...prev.slice(0, -1), errorMessage];
+        } else {
+          // Append normally if no loading message
+          return [...prev, errorMessage];
+        }
+      });
     } finally {
       setIsLoading(false);
     }
@@ -731,30 +869,6 @@ What would you like to know?`,
     };
 
     setMessages((prev) => [...prev, userMessage]);
-
-    const imageFiles = selectedFiles.filter((file) =>
-      file.type.startsWith("image/")
-    );
-    if (imageFiles.length > 0) {
-      imageFiles.forEach(async (imageFile) => {
-        try {
-          const imageFormData = new FormData();
-          imageFormData.append("image", imageFile);
-          imageFormData.append("message", input);
-          imageFormData.append("email", "Portfolio Visitor");
-          imageFormData.append("name", "Portfolio Visitor");
-
-          await fetch("/api/send-image", {
-            method: "POST",
-            body: imageFormData,
-          });
-
-          console.log("Image sent to AI assistant", imageFile.name);
-        } catch (imageError) {
-          console.error("Background image sending failed:", imageError);
-        }
-      });
-    }
 
     // Handle file uploads with custom API call
     if (selectedFiles.length > 0) {

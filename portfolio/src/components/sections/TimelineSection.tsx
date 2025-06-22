@@ -252,10 +252,21 @@ const categories = [
 
 interface TimelineSectionProps {
   tourActive?: boolean;
+  currentStep?: number;
 }
+
+const generateId = (item: TimelineEvent) => {
+  const orgSlug = item.org
+    .toLowerCase()
+    .replace(/ /g, "-")
+    .split("·")[0]
+    .replace(/-+$/, "");
+  return `timeline-${orgSlug}`;
+};
 
 export function TimelineSection({
   tourActive = false,
+  currentStep = -1,
 }: TimelineSectionProps = {}) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -265,12 +276,32 @@ export function TimelineSection({
   const [showScrollIndicator, setShowScrollIndicator] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const filteredTimeline = timelineData.filter(
-    (item) =>
-      activeCategory === "all" ||
-      item.category === activeCategory ||
-      item.type === "education"
-  );
+  const filteredTimeline = React.useMemo(() => {
+    // Special filtering for tour step 4 - show specific experiences
+    if (tourActive && currentStep === 3) {
+      const filtered = timelineData.filter(
+        (item) =>
+          item.type === "experience" &&
+          ((item.title === "Embedded Android Engineer" &&
+            item.org.includes("Motorola")) ||
+            (item.title === "Student Consultant, Technical Lead" &&
+              item.org.includes("Kearney")) ||
+            (item.title === "AI Product Consultant & CS Instructor" &&
+              item.org.includes("Tutora")) ||
+            (item.title === "Product Manager" &&
+              item.org.includes("PM Happy Hour")))
+      );
+
+      return filtered;
+    }
+
+    return timelineData.filter(
+      (item) =>
+        activeCategory === "all" ||
+        item.category === activeCategory ||
+        item.type === "education"
+    );
+  }, [activeCategory, tourActive, currentStep]);
 
   const toggleCard = (id: string) => {
     setExpandedCards((prev) => {
@@ -434,10 +465,12 @@ export function TimelineSection({
                 .map((item) => {
                   const cardId = `${item.type}-${item.year}-${item.title}`;
                   const isExpanded = expandedCards.has(cardId);
+                  const timelineId = generateId(item);
 
                   return (
                     <motion.div
                       key={cardId}
+                      id={timelineId}
                       variants={itemVariants}
                       className="relative"
                     >
@@ -515,7 +548,10 @@ export function TimelineSection({
 
           {/* Work Experience Column */}
           <motion.div variants={itemVariants} className="relative">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-8 text-center">
+            <h3
+              id="work-experience-title"
+              className="text-2xl font-bold text-slate-900 dark:text-white mb-8 text-center"
+            >
               Work Experience
             </h3>
             <div className="relative">
@@ -524,27 +560,19 @@ export function TimelineSection({
                 ref={scrollContainerRef}
                 onScroll={handleScroll}
                 onWheel={handleWheel}
-                className="h-[600px] overflow-y-auto bg-gradient-to-b from-slate-50/20 to-transparent dark:from-slate-800/20 rounded-xl p-4 space-y-4"
-                style={{
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "#cbd5e1 transparent",
-                  WebkitOverflowScrolling: "touch",
-                }}
+                className="relative space-y-6 overflow-y-auto max-h-[600px] scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent pr-4 -mr-4"
               >
-                {timelineData
+                {filteredTimeline
                   .filter((item) => item.type === "experience")
-                  .filter(
-                    (item) =>
-                      activeCategory === "all" ||
-                      item.category === activeCategory
-                  )
                   .map((item) => {
                     const cardId = `${item.type}-${item.year}-${item.title}`;
                     const isExpanded = expandedCards.has(cardId);
+                    const timelineId = generateId(item);
 
                     return (
                       <motion.div
                         key={cardId}
+                        id={timelineId}
                         variants={itemVariants}
                         className="relative"
                       >

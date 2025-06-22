@@ -431,10 +431,10 @@ export function AboutSection() {
           </p>
           <motion.button
             onClick={() => {
-              const contactSection = document.getElementById("contact");
-              if (contactSection) {
+              const skillsSection = document.getElementById("skills");
+              if (skillsSection) {
                 const elementPosition =
-                  contactSection.getBoundingClientRect().top;
+                  skillsSection.getBoundingClientRect().top;
                 const offsetPosition =
                   elementPosition + window.pageYOffset - 120;
                 window.scrollTo({
@@ -447,7 +447,7 @@ export function AboutSection() {
             whileTap={{ scale: 0.95 }}
             className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-white font-semibold shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/25"
           >
-            Let's Connect
+            Explore My Skills
           </motion.button>
         </motion.div>
       </motion.div>
