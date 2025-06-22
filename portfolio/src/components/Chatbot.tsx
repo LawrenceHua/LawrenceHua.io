@@ -13,6 +13,7 @@ import {
   FiHeart,
   FiCpu,
   FiUser,
+  FiMenu,
 } from "react-icons/fi";
 import styles from "./Chatbot.module.css";
 
@@ -77,35 +78,35 @@ function formatMessage(
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/\n/g, "<br>");
 
-  // Replace custom button tags with actual clickable buttons
+  // Replace custom button tags with actual clickable buttons (smaller size)
   formatted = formatted
     .replace(
       /<button-experience>(.*?)<\/button-experience>/g,
-      '<button onclick="window.chatbotButtonClick(\'experience\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+      '<button onclick="window.chatbotButtonClick(\'experience\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
     )
     .replace(
       /<button-skills>(.*?)<\/button-skills>/g,
-      '<button onclick="window.chatbotButtonClick(\'skills\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+      '<button onclick="window.chatbotButtonClick(\'skills\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
     )
     .replace(
       /<button-projects>(.*?)<\/button-projects>/g,
-      '<button onclick="window.chatbotButtonClick(\'projects\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+      '<button onclick="window.chatbotButtonClick(\'projects\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
     )
     .replace(
       /<button-funfact>(.*?)<\/button-funfact>/g,
-      '<button onclick="window.chatbotButtonClick(\'funfact\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+      '<button onclick="window.chatbotButtonClick(\'funfact\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
     )
     .replace(
       /<button-message>(.*?)<\/button-message>/g,
-      '<button onclick="window.chatbotButtonClick(\'message\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+      '<button onclick="window.chatbotButtonClick(\'message\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
     )
     .replace(
       /<button-meeting>(.*?)<\/button-meeting>/g,
-      '<button onclick="window.chatbotButtonClick(\'meeting\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+      '<button onclick="window.chatbotButtonClick(\'meeting\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
     )
     .replace(
       /<button-upload>(.*?)<\/button-upload>/g,
-      '<button onclick="window.chatbotButtonClick(\'upload\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+      '<button onclick="window.chatbotButtonClick(\'upload\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
     );
 
   // Special styling for typed commands - make them more visible and attractive
@@ -156,19 +157,11 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: `Hi! I'm Lawrence's AI assistant! 🤖
+      content: `Hi! I'm Lawrence's AI! 🤖
 
-**Quick Clicks:**
-<button-experience>Experience 💼</button-experience>
-<button-skills>Skills 🛠️</button-skills>
-<button-projects>Projects 🚀</button-projects>
-<button-funfact>Fun Fact 🎯</button-funfact>
+<button-experience>Experience</button-experience> <button-skills>Skills</button-skills> <button-projects>Projects</button-projects> <button-funfact>Fun Fact</button-funfact>
 
-**Contact:**
-<button-message>/message</button-message> <button-meeting>/meeting</button-meeting>
-
-**Recruiters:**
-<button-upload>📎 Upload Job Description</button-upload>
+<button-message>/message</button-message> <button-meeting>/meeting</button-meeting> <button-upload>📎 Upload Job</button-upload>
 
 What would you like to know?`,
       timestamp: new Date(),
@@ -182,6 +175,7 @@ What would you like to know?`,
   const [isLoveMode, setIsLoveMode] = useState(false);
   const [awaitingGirlfriendPassword, setAwaitingGirlfriendPassword] =
     useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -569,7 +563,7 @@ What would you like to know?`,
                 ) : (
                   <>
                     <FiMessageCircle className="inline-block mr-2" />
-                    Lawrence's AI Assistant
+                    Lawrence's AI
                   </>
                 )}
               </span>
@@ -585,6 +579,13 @@ What would you like to know?`,
                 )}
                 <button
                   className={styles.actionButton + " actionButton"}
+                  title="Menu"
+                  onClick={() => setShowMenu(!showMenu)}
+                >
+                  <FiMenu />
+                </button>
+                <button
+                  className={styles.actionButton + " actionButton"}
                   title="Close"
                   onClick={onClose}
                 >
@@ -592,6 +593,77 @@ What would you like to know?`,
                 </button>
               </div>
             </div>
+
+            {/* Hamburger Menu */}
+            {showMenu && !isMinimized && (
+              <div className="absolute top-12 right-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 py-2 min-w-[200px]">
+                <button
+                  onClick={() => {
+                    handleButtonClick("experience");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  💼 Experience
+                </button>
+                <button
+                  onClick={() => {
+                    handleButtonClick("skills");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  🛠️ Skills
+                </button>
+                <button
+                  onClick={() => {
+                    handleButtonClick("projects");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  🚀 Projects
+                </button>
+                <button
+                  onClick={() => {
+                    handleButtonClick("funfact");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  🎯 Fun Fact
+                </button>
+                <hr className="my-2 border-gray-200 dark:border-gray-600" />
+                <button
+                  onClick={() => {
+                    handleButtonClick("message");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  📧 /message
+                </button>
+                <button
+                  onClick={() => {
+                    handleButtonClick("meeting");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  📅 /meeting
+                </button>
+                <hr className="my-2 border-gray-200 dark:border-gray-600" />
+                <button
+                  onClick={() => {
+                    handleButtonClick("upload");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  📎 Upload Job Description
+                </button>
+              </div>
+            )}
 
             {/* Messages */}
             {!isMinimized && (
