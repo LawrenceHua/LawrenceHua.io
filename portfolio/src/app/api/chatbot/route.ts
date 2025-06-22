@@ -167,15 +167,21 @@ async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
 
       // Try to parse PDF
       try {
-        // @ts-ignore
-        const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
-        const data = await pdfParse(buffer);
-        resumeContent = data.text;
-        console.log(
-          "Successfully read resume.pdf, length:",
-          resumeContent.length
-        );
-        break;
+        const pdfParse = await import("pdf-parse")
+          .then((m) => m.default)
+          .catch(() => null);
+        if (pdfParse) {
+          const data = await pdfParse(buffer);
+          resumeContent = data.text;
+          console.log(
+            "Successfully read resume.pdf, length:",
+            resumeContent.length
+          );
+          break;
+        } else {
+          console.log("PDF parsing library not available");
+          continue;
+        }
       } catch (pdfError: any) {
         console.log("PDF parsing failed:", pdfError.message);
         continue;
@@ -392,10 +398,16 @@ async function getFileContent(
       return { content, type: "text" };
     } else if (fileExtension === "pdf") {
       try {
-        // @ts-ignore
-        const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
-        const data = await pdfParse(buffer);
-        return { content: data.text, type: "pdf" };
+        // Use dynamic import with error handling for pdf-parse
+        const pdfParse = await import("pdf-parse")
+          .then((m) => m.default)
+          .catch(() => null);
+        if (pdfParse) {
+          const data = await pdfParse(buffer);
+          return { content: data.text, type: "pdf" };
+        } else {
+          throw new Error("PDF parsing library not available");
+        }
       } catch (pdfError: any) {
         return {
           content:
