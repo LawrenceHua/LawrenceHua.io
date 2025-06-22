@@ -112,7 +112,7 @@ const tourSteps: TourStep[] = [
     id: "project-expired-solutions",
     title: "💡 Featured Project: Expired Solutions",
     content:
-      "I founded and led the development of an AI platform that helps grocery stores reduce food waste, resulting in a 20% shrink reduction during our pilot.",
+      "I founded and led the development of an AI platform that helps grocery stores reduce food waste. We pitched this solution and secured pilot opportunities with major retailers.",
     targetSection: "projects",
     icon: <FiTarget className="w-5 h-5" />,
     color: "from-indigo-600 to-purple-600",
@@ -161,7 +161,7 @@ const TourArrows = ({
       "timeline-university-of-florida",
     ], // Step 3: Education - pointing to degree titles
     3: ["work-experience-title"], // Step 4: Work Experience - single arrow at title
-    4: ["projects"], // Step 5: Projects Section - pointing to projects section
+    4: ["project-expired-solutions"], // Step 5: Expired Solutions Project - pointing to project card
     5: ["project-bbw"], // Step 6: BBW Project
   };
 

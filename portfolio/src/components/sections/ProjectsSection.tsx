@@ -396,7 +396,11 @@ export function ProjectsSection() {
                 return (
                   <motion.div
                     key={project.title}
-                    id={projectId}
+                    id={
+                      project.title.includes("Expired Solutions")
+                        ? "project-expired-solutions"
+                        : projectId
+                    }
                     variants={cardVariants}
                     className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 shadow-2xl transition-all duration-500 hover:shadow-3xl hover:shadow-yellow-500/10 hover:-translate-y-3"
                   >
