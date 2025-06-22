@@ -25,9 +25,9 @@ Want a beautiful, AI-powered portfolio like this? Follow these steps to create y
    ```
 4. **Customize your content**
    - Update your projects, timeline, and skills in `portfolio/src/app/page.tsx`.
-   - Replace images in `portfolio/portfolio/public/images/` and `portfolio/public/logos/`.
+   - Replace images in `portfolio/public/images/` and `portfolio/public/logos/`.
    - Update the chatbot prompts in `portfolio/src/components/Chatbot.tsx`.
-   - Change your profile picture: replace `profile.jpg` in `portfolio/portfolio/public/images/`.
+   - Change your profile picture: replace `profile.jpg` in `portfolio/public/`.
 5. **Set up environment variables**
    - Copy `.env.example` to `.env.local` and fill in your API keys (e.g., OpenAI, Firebase, Resend).
 6. **Run locally**
@@ -44,6 +44,15 @@ Want a beautiful, AI-powered portfolio like this? Follow these steps to create y
 ---
 
 ## 🌟 Portfolio Features
+
+### Interactive Product Manager Tour
+
+- **1-Minute Guided Experience**: Take users through Lawrence's PM journey
+- **6 Strategic Steps**: PM experience, data-driven results, leadership, AI innovation, customer focus, and execution
+- **Mobile-Responsive Design**: Centered popups on mobile, side navigation on desktop
+- **Dynamic Text Highlighting**: Character-by-character text animation with strategic pauses
+- **Smart Scrolling**: Automatically positions content for optimal viewing
+- **Professional CTAs**: Seamless transition to contact forms at tour completion
 
 ### Interactive Experience Timeline
 
@@ -246,7 +255,7 @@ This portfolio features:
 ## 👤 About Me
 
 <p align="center">
-  <img src="portfolio/portfolio/public/images/profile.jpg" alt="Lawrence Hua" width="160" style="border-radius: 50%; margin-bottom: 1rem;" />
+  <img src="portfolio/public/profile.jpg" alt="Lawrence Hua" width="160" style="border-radius: 50%; margin-bottom: 1rem;" />
 </p>
 
 **Lawrence W. Hua**  
@@ -271,4 +280,3 @@ This project is open source and available under the [MIT License](LICENSE).
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-// random test change

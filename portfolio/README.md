@@ -4,6 +4,15 @@ A sophisticated, modern portfolio website showcasing Lawrence's experience as an
 
 ## ✨ Key Features
 
+### 🎯 **Interactive Product Manager Tour**
+
+- **1-Minute Guided Experience**: Strategic journey through Lawrence's PM capabilities
+- **6 Dynamic Steps**: PM experience, metrics, leadership, AI innovation, customer focus, and execution
+- **Smart Positioning**: Automatically scrolls to relevant content sections
+- **Mobile-Optimized**: Centered popups and touch-friendly navigation
+- **Character Animation**: Dynamic text highlighting with strategic timing
+- **Professional Flow**: Seamless transition to contact forms upon completion
+
 ### 🤖 **Enhanced AI Chatbot with Natural Language Processing**
 
 - **OpenAI GPT-4 Integration**: Advanced conversational AI with enhanced natural language understanding
@@ -284,12 +293,12 @@ The portfolio includes a sophisticated automatic versioning system:
 - **Live Version Display**: Real-time version tracking in footer
 - **Timestamp Tracking**: EST timezone with git commit integration
 - **API Access**: Version information available via `/api/version`
-- **Current Version**: **1.0.40** (auto-incremented)
+- **Current Version**: **Latest** (auto-incremented on every deployment)
 
 ### How It Works
 
 1. Push to `main` branch → GitHub Actions triggers
-2. Version increments (1.0.40 → 1.0.41)
+2. Version increments automatically (e.g., 1.0.40 → 1.0.41)
 3. Timestamp updates to current time
 4. Changes committed back to repository
 5. Live site reflects new version immediately

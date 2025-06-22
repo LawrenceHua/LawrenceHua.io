@@ -204,25 +204,77 @@ export default function ModernHome() {
   };
 
   const scrollToSection = (sectionId: string) => {
+    // Special handling for step 6 (execution) - scroll to "All Projects" title
+    if (currentStep === 5 && sectionId === "projects") {
+      // Add a delay to ensure the DOM is fully rendered
+      setTimeout(() => {
+        // Try multiple selectors to find the "All Projects" title
+        let allProjectsTitle = Array.from(document.querySelectorAll("h3")).find(
+          (h3) => h3.textContent?.trim() === "All Projects"
+        );
+
+        // Fallback: look for any h3 containing "All Projects"
+        if (!allProjectsTitle) {
+          allProjectsTitle = Array.from(document.querySelectorAll("h3")).find(
+            (h3) => h3.textContent?.includes("All Projects")
+          );
+        }
+
+        // Fallback: look for the paragraph with the specific description
+        if (!allProjectsTitle) {
+          const descriptionElement = Array.from(
+            document.querySelectorAll("p")
+          ).find((p) =>
+            p.textContent?.includes(
+              "AI-driven solutions and product innovations"
+            )
+          );
+          if (descriptionElement) {
+            // Find the previous h3 sibling
+            let element = descriptionElement.previousElementSibling;
+            while (element && element.tagName !== "H3") {
+              element = element.previousElementSibling;
+            }
+            if (element && element.tagName === "H3") {
+              allProjectsTitle = element as HTMLHeadingElement;
+            }
+          }
+        }
+
+        if (allProjectsTitle) {
+          const isMobile = window.innerWidth < 768;
+          const offset = isMobile ? 80 : 100;
+          const titlePosition = allProjectsTitle.offsetTop - offset;
+
+          window.scrollTo({
+            top: titlePosition,
+            behavior: "smooth",
+          });
+        } else {
+          // Final fallback: scroll to middle of projects section
+          const element = document.getElementById(sectionId);
+          if (element) {
+            const isMobile = window.innerWidth < 768;
+            const offset = isMobile ? 80 : 100;
+            const middlePosition =
+              element.offsetTop + element.offsetHeight * 0.4 - offset;
+
+            window.scrollTo({
+              top: middlePosition,
+              behavior: "smooth",
+            });
+          }
+        }
+      }, 100);
+      return;
+    }
+
+    // Default behavior for all other steps
     const element = document.getElementById(sectionId);
     if (element) {
-      let elementPosition;
       const isMobile = window.innerWidth < 768;
       const offset = isMobile ? 80 : 100; // Smaller offset on mobile
-
-      // Special handling for step 6 (execution) - scroll to bottom of projects section
-      if (currentStep === 5 && sectionId === "projects") {
-        // Scroll to the bottom of the projects section
-        const bottomOffset = isMobile ? 120 : 50;
-        elementPosition =
-          element.offsetTop +
-          element.offsetHeight -
-          window.innerHeight +
-          bottomOffset;
-      } else {
-        // Normal scroll to top of section
-        elementPosition = element.offsetTop - offset;
-      }
+      const elementPosition = element.offsetTop - offset;
 
       window.scrollTo({
         top: elementPosition,
