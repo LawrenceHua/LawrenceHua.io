@@ -465,12 +465,12 @@ export function HeroSection({
                     }
                   }
                 }}
-                className="group flex flex-col items-center justify-center space-y-2 text-slate-400 hover:text-blue-400 transition-all duration-300 cursor-pointer"
+                className="group flex flex-col items-center justify-center space-y-2 text-slate-400 hover:text-blue-400 transition-all duration-300 cursor-pointer hover:scale-105"
               >
-                <div className="transform -rotate-90 whitespace-nowrap text-xs font-medium tracking-wider uppercase flex items-center justify-center">
-                  Take a tour
+                <div className="transform -rotate-90 whitespace-nowrap text-xs font-medium tracking-wider uppercase flex items-center justify-center group-hover:text-blue-300 transition-colors duration-300">
+                  Explore
                 </div>
-                <div className="w-px h-8 bg-gradient-to-b from-blue-400 to-transparent group-hover:from-blue-300 transition-colors duration-300 mx-auto"></div>
+                <div className="w-px h-8 bg-gradient-to-b from-blue-400 to-transparent group-hover:from-blue-300 group-hover:shadow-sm group-hover:shadow-blue-400/50 transition-all duration-300 mx-auto"></div>
                 <div className="flex items-center justify-center">
                   <FiArrowDown className="h-4 w-4 group-hover:translate-y-1 transition-transform duration-300" />
                 </div>
@@ -503,9 +503,9 @@ export function HeroSection({
                 }
               }
             }}
-            className="mb-3 text-sm text-slate-400 hover:text-blue-400 transition-colors duration-200 cursor-pointer text-center"
+            className="mb-3 text-sm text-slate-400 hover:text-blue-400 transition-all duration-300 cursor-pointer text-center font-medium hover:scale-105"
           >
-            Take a tour
+            Explore my work
           </button>
           <motion.div
             animate={

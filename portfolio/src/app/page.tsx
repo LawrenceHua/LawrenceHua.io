@@ -331,23 +331,10 @@ export default function ModernHome() {
 
         if (currentCharacterCount >= totalCharacters) {
           clearInterval(interval);
-          // After highlighting is complete, clear highlights and show countdown
+          // After highlighting is complete, immediately move to next step
           setTimeout(() => {
             setCurrentCharacterIndex(-1); // Clear all highlights
-
-            // Start 1.5-second countdown
-            let countdownValue = 1.5;
-            setCountdown(countdownValue);
-
-            const countdownInterval = setInterval(() => {
-              countdownValue -= 0.1;
-              setCountdown(Math.max(0, countdownValue));
-
-              if (countdownValue <= 0) {
-                clearInterval(countdownInterval);
-                nextStep();
-              }
-            }, 100);
+            nextStep();
           }, 100);
         }
       }, intervalTime);
