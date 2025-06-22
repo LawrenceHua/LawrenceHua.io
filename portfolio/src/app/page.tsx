@@ -429,6 +429,30 @@ export default function ModernHome() {
     }
   };
 
+  const scrollToSpecificElement = (elementId: string) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      const isMobile = window.innerWidth < 768;
+      const elementRect = element.getBoundingClientRect();
+      const absoluteElementTop = elementRect.top + window.pageYOffset;
+
+      if (isMobile) {
+        // On mobile, position the specific element in the upper portion of the viewport
+        // so it's clearly visible above the tour popup
+        const finalPosition = absoluteElementTop - 150;
+        window.scrollTo({ top: finalPosition, behavior: "smooth" });
+      } else {
+        // Desktop handling
+        const offset = 100;
+        const finalScrollPosition = absoluteElementTop - offset;
+        window.scrollTo({
+          top: finalScrollPosition,
+          behavior: "smooth",
+        });
+      }
+    }
+  };
+
   const getPopupPosition = (position: string) => {
     const isMobile = window.innerWidth < 768;
 
@@ -499,7 +523,17 @@ export default function ModernHome() {
       setCountdown(0);
       setCurrentCharacterIndex(0);
       setIsPaused(false);
-      scrollToSection(tourSteps[nextStepIndex].targetSection);
+
+      // Special handling for project steps to scroll to specific project cards
+      if (nextStepIndex === 4) {
+        // Step 5: Expired Solutions project
+        scrollToSpecificElement("project-expired-solutions");
+      } else if (nextStepIndex === 5) {
+        // Step 6: BBW project - scroll to BBW card specifically
+        scrollToSpecificElement("project-bbw");
+      } else {
+        scrollToSection(tourSteps[nextStepIndex].targetSection);
+      }
     } else {
       // Tour complete, scroll to testimonials first then show final CTA
       const testimonialsSection = document.getElementById("testimonials");
@@ -531,7 +565,17 @@ export default function ModernHome() {
       setCountdown(0);
       setCurrentCharacterIndex(0);
       setIsPaused(false);
-      scrollToSection(tourSteps[prevStepIndex].targetSection);
+
+      // Special handling for project steps to scroll to specific project cards
+      if (prevStepIndex === 4) {
+        // Step 5: Expired Solutions project
+        scrollToSpecificElement("project-expired-solutions");
+      } else if (prevStepIndex === 5) {
+        // Step 6: BBW project - scroll to BBW card specifically
+        scrollToSpecificElement("project-bbw");
+      } else {
+        scrollToSection(tourSteps[prevStepIndex].targetSection);
+      }
     }
   };
 
