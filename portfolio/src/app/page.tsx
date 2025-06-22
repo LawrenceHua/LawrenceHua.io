@@ -14,6 +14,10 @@ import {
   FiChevronRight,
   FiMessageCircle,
   FiCalendar,
+  FiArrowDown,
+  FiArrowUp,
+  FiArrowLeft,
+  FiArrowRight,
 } from "react-icons/fi";
 import { ModernNavigation } from "../components/ModernNavigation";
 import { HeroSection } from "../components/sections/HeroSection";
@@ -121,6 +125,170 @@ const tourSteps: TourStep[] = [
     position: "center",
   },
 ];
+
+// Tour Arrows Component
+const TourArrows = ({
+  isActive,
+  currentStep,
+}: {
+  isActive: boolean;
+  currentStep: number;
+}) => {
+  if (!isActive) return null;
+
+  // Define which timeline experiences each step points to
+  const stepTargets = {
+    0: [], // Step 1: Overview - no specific arrows, just general
+    1: ["pm-happy-hour", "expired-solutions", "tutora"], // Step 2: Data-driven results
+    2: ["expired-solutions", "pm-happy-hour", "giant-eagle"], // Step 3: Leadership
+    3: ["expired-solutions", "tutora"], // Step 4: AI Innovation
+    4: ["expired-solutions"], // Step 5: Customer focus
+    5: ["expired-solutions"], // Step 6: Execution
+  };
+
+  const targets = stepTargets[currentStep as keyof typeof stepTargets] || [];
+
+  return (
+    <AnimatePresence>
+      {targets.map((target, index) => (
+        <motion.div
+          key={`${currentStep}-${target}`}
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0 }}
+          transition={{ delay: index * 0.2, duration: 0.4 }}
+          className="fixed z-40 pointer-events-none"
+          style={{
+            top: getArrowPosition(target).top,
+            left: getArrowPosition(target).left,
+            right: getArrowPosition(target).right,
+          }}
+        >
+          <div className="relative">
+            {/* Animated Arrow */}
+            <motion.div
+              animate={{
+                y: [0, -8, 0],
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className={`flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white shadow-lg`}
+            >
+              <FiArrowDown className="w-6 h-6" />
+            </motion.div>
+
+            {/* Arrow tail/line */}
+            <div
+              className={`absolute top-12 left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b ${tourSteps[currentStep].color} rounded-full`}
+              style={{ height: "60px" }}
+            />
+
+            {/* Pulse effect */}
+            <motion.div
+              animate={{
+                scale: [1, 1.5, 1],
+                opacity: [0.7, 0, 0.7],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className={`absolute inset-0 w-12 h-12 rounded-full bg-gradient-to-r ${tourSteps[currentStep].color}`}
+            />
+          </div>
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  );
+};
+
+// Helper function to get arrow positions for different timeline elements
+const getArrowPosition = (target: string) => {
+  if (typeof window === "undefined") {
+    return { top: "50%", left: "50%", right: "auto" };
+  }
+
+  const isMobile = window.innerWidth < 768;
+
+  // Try to find the actual element on the page
+  const timelineSection = document.getElementById("timeline");
+  if (timelineSection) {
+    const rect = timelineSection.getBoundingClientRect();
+    const timelineTop = rect.top + window.scrollY;
+
+    // Calculate positions relative to timeline section
+    const baseTop = timelineTop + 200; // Start 200px into timeline
+    const stepHeight = isMobile ? 120 : 150; // Height between each experience
+
+    const positions = {
+      "pm-happy-hour": {
+        top: `${baseTop + stepHeight * 0}px`, // First experience
+        left: isMobile ? "15%" : "25%",
+        right: "auto",
+      },
+      "expired-solutions": {
+        top: `${baseTop + stepHeight * 1}px`, // Second experience
+        left: isMobile ? "70%" : "65%",
+        right: "auto",
+      },
+      tutora: {
+        top: `${baseTop + stepHeight * 2}px`, // Third experience
+        left: isMobile ? "20%" : "30%",
+        right: "auto",
+      },
+      "giant-eagle": {
+        top: `${baseTop + stepHeight * 3}px`, // Fourth experience
+        left: isMobile ? "65%" : "60%",
+        right: "auto",
+      },
+    };
+
+    return (
+      positions[target as keyof typeof positions] || {
+        top: `${baseTop}px`,
+        left: "50%",
+        right: "auto",
+      }
+    );
+  }
+
+  // Fallback static positions
+  const positions = {
+    "pm-happy-hour": {
+      top: isMobile ? "600px" : "650px",
+      left: isMobile ? "15%" : "25%",
+      right: "auto",
+    },
+    "expired-solutions": {
+      top: isMobile ? "750px" : "800px",
+      left: isMobile ? "70%" : "65%",
+      right: "auto",
+    },
+    tutora: {
+      top: isMobile ? "900px" : "950px",
+      left: isMobile ? "20%" : "30%",
+      right: "auto",
+    },
+    "giant-eagle": {
+      top: isMobile ? "1050px" : "1100px",
+      left: isMobile ? "65%" : "60%",
+      right: "auto",
+    },
+  };
+
+  return (
+    positions[target as keyof typeof positions] || {
+      top: "50%",
+      left: "50%",
+      right: "auto",
+    }
+  );
+};
 
 export default function ModernHome() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -420,6 +588,9 @@ export default function ModernHome() {
         onOpenChange={setIsChatbotOpen}
         tourActive={isActive}
       />
+
+      {/* Tour Arrows */}
+      <TourArrows isActive={isActive} currentStep={currentStep} />
 
       {/* Tour Step Popups */}
       <AnimatePresence>
