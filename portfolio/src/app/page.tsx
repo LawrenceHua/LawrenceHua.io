@@ -581,7 +581,9 @@ export default function ModernHome() {
 
   // Scroll lock effect
   useEffect(() => {
-    const shouldLockScroll = isActive && !isPaused;
+    // Disable scroll lock for step 4 (work experience) to allow users to scroll and see all experiences
+    const isWorkExperienceStep = currentStep === 3; // Step 4 is index 3
+    const shouldLockScroll = isActive && !isPaused && !isWorkExperienceStep;
 
     if (shouldLockScroll) {
       // Lock scrolling
@@ -598,7 +600,7 @@ export default function ModernHome() {
       document.body.style.overflow = "unset";
       document.documentElement.style.overflow = "unset";
     };
-  }, [isActive, isPaused]);
+  }, [isActive, isPaused, currentStep]);
 
   useEffect(() => {
     if (isActive && tourSteps[currentStep].highlights && !isPaused) {
