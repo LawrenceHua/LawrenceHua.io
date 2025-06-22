@@ -311,6 +311,28 @@ What would you like to know?`,
     };
   }, [messages]);
 
+  // Listen for tour triggers
+  useEffect(() => {
+    const handleTourCommand = (event: CustomEvent) => {
+      const { command } = event.detail;
+      if (command === "message" || command === "meeting") {
+        handleButtonClick(command);
+      }
+    };
+
+    window.addEventListener(
+      "triggerChatbotCommand",
+      handleTourCommand as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "triggerChatbotCommand",
+        handleTourCommand as EventListener
+      );
+    };
+  }, []);
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

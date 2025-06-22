@@ -5,8 +5,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X } from "lucide-react";
 import Chatbot from "./Chatbot";
 
-export function FloatingChatbot() {
-  const [isOpen, setIsOpen] = useState(false);
+interface FloatingChatbotProps {
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function FloatingChatbot({
+  isOpen: externalIsOpen,
+  onOpenChange,
+}: FloatingChatbotProps = {}) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+
+  // Use external state if provided, otherwise use internal state
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = onOpenChange || setInternalIsOpen;
   const [showPopup, setShowPopup] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
   const [dismissCount, setDismissCount] = useState(0);
