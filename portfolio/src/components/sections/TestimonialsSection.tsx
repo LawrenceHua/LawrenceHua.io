@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaLinkedin, FaQuoteLeft } from "react-icons/fa";
+import { FaLinkedin, FaQuoteLeft, FaPause, FaPlay } from "react-icons/fa";
 
 interface Testimonial {
   name: string;
@@ -67,6 +67,7 @@ const formatTestimonialText = (text: string) => {
 export function TestimonialsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const [isPaused, setIsPaused] = useState(false);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -239,9 +240,26 @@ export function TestimonialsSection() {
         {/* Enhanced Scrolling Testimonials Banner */}
         <motion.div
           variants={itemVariants}
-          className="overflow-hidden rounded-2xl bg-gradient-to-r from-blue-50/80 via-purple-50/80 to-blue-50/80 dark:from-slate-800/80 dark:via-slate-900/80 dark:to-slate-800/80 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 p-8"
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-50/80 via-purple-50/80 to-blue-50/80 dark:from-slate-800/80 dark:via-slate-900/80 dark:to-slate-800/80 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 p-8 cursor-pointer"
+          onClick={() => setIsPaused(!isPaused)}
         >
-          <div className="flex animate-scroll space-x-8">
+          {/* Small Pause/Play Button - Top Left */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsPaused(!isPaused);
+            }}
+            className="absolute top-3 left-3 z-20 w-6 h-6 rounded-full bg-gray-400/80 hover:bg-gray-500/80 dark:bg-gray-600/80 dark:hover:bg-gray-500/80 flex items-center justify-center transition-all duration-200 hover:scale-110 touch-manipulation"
+            aria-label={isPaused ? "Resume testimonials" : "Pause testimonials"}
+          >
+            {isPaused ? (
+              <FaPlay className="w-2.5 h-2.5 text-white ml-0.5" />
+            ) : (
+              <FaPause className="w-2.5 h-2.5 text-white" />
+            )}
+          </button>
+
+          <div className={`flex space-x-8 ${isPaused ? "" : "animate-scroll"}`}>
             {[...testimonialsData, ...testimonialsData].map(
               (testimonial, index) => (
                 <div
@@ -255,6 +273,7 @@ export function TestimonialsSection() {
                       rel="noopener noreferrer"
                       className="relative h-12 w-12 overflow-hidden rounded-full flex-shrink-0 hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer"
                       title={`View ${testimonial.name}'s LinkedIn profile`}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <Image
                         src={testimonial.image}
