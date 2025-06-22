@@ -106,10 +106,6 @@ function formatMessage(
     .replace(
       /<button-upload>(.*?)<\/button-upload>/g,
       '<button onclick="window.chatbotButtonClick(\'upload\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
-    )
-    .replace(
-      /<button-camera>(.*?)<\/button-camera>/g,
-      '<button onclick="window.chatbotButtonClick(\'camera\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
     );
 
   // Special styling for typed commands - make them more visible and attractive
@@ -173,7 +169,7 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
 • Type or click <button-meeting>/meeting</button-meeting> to schedule a meeting 📅
 
 **Recruiters & Hiring Managers:**
-<button-upload>📎 Upload Job Description</button-upload> or <button-camera>📷 Snap a Photo</button-camera>
+<button-upload>📎 Upload Job Description</button-upload>
 Drop in a job description to see if Lawrence is a good fit!
 
 What would you like to know?`,
@@ -292,27 +288,8 @@ What would you like to know?`,
         message = "/meeting";
         break;
       case "upload":
-        // Trigger file input for document upload
+        // Trigger file input - let mobile handle the options naturally
         if (fileInputRef.current) {
-          fileInputRef.current.setAttribute(
-            "accept",
-            ".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
-          );
-          fileInputRef.current.click();
-        }
-        return;
-      case "camera":
-        // Trigger camera capture on mobile or file input on desktop
-        if (fileInputRef.current) {
-          if (isMobile) {
-            fileInputRef.current.setAttribute("accept", "image/*");
-            fileInputRef.current.setAttribute("capture", "environment");
-          } else {
-            fileInputRef.current.setAttribute(
-              "accept",
-              "image/*,.pdf,.doc,.docx,.txt"
-            );
-          }
           fileInputRef.current.click();
         }
         return;
