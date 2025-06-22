@@ -894,11 +894,6 @@ export default function ModernHome() {
                       {tourSteps[currentStep].title}
                     </h3>
                     <div className="text-xs md:text-base leading-tight md:leading-relaxed">
-                      {/* Mobile pause indicator */}
-                      <div className="md:hidden mb-2 text-xs text-gray-500 bg-gray-100 dark:bg-gray-800 rounded-full px-3 py-1 inline-flex items-center gap-1">
-                        👆 Tap to {isPaused ? "resume" : "pause"}
-                      </div>
-
                       {renderHighlightedText(
                         tourSteps[currentStep].content,
                         currentCharacterIndex
