@@ -67,13 +67,52 @@ function clearSession() {
 }
 
 // Markdown formatting function
-function formatMessage(content: string, isLoveMode: boolean = false) {
+function formatMessage(
+  content: string,
+  isLoveMode: boolean = false,
+  onButtonClick?: (type: string) => void
+) {
   let formatted = content
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/\n/g, "<br>");
 
-  // Special styling for commands - make them more visible and attractive
+  // Replace custom button tags with actual clickable buttons
+  formatted = formatted
+    .replace(
+      /<button-experience>(.*?)<\/button-experience>/g,
+      '<button onclick="window.chatbotButtonClick(\'experience\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+    )
+    .replace(
+      /<button-skills>(.*?)<\/button-skills>/g,
+      '<button onclick="window.chatbotButtonClick(\'skills\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+    )
+    .replace(
+      /<button-projects>(.*?)<\/button-projects>/g,
+      '<button onclick="window.chatbotButtonClick(\'projects\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+    )
+    .replace(
+      /<button-funfact>(.*?)<\/button-funfact>/g,
+      '<button onclick="window.chatbotButtonClick(\'funfact\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+    )
+    .replace(
+      /<button-message>(.*?)<\/button-message>/g,
+      '<button onclick="window.chatbotButtonClick(\'message\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+    )
+    .replace(
+      /<button-meeting>(.*?)<\/button-meeting>/g,
+      '<button onclick="window.chatbotButtonClick(\'meeting\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+    )
+    .replace(
+      /<button-upload>(.*?)<\/button-upload>/g,
+      '<button onclick="window.chatbotButtonClick(\'upload\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+    )
+    .replace(
+      /<button-camera>(.*?)<\/button-camera>/g,
+      '<button onclick="window.chatbotButtonClick(\'camera\')" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-lg font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-1 my-1 cursor-pointer transform hover:scale-105">$1</button>'
+    );
+
+  // Special styling for typed commands - make them more visible and attractive
   formatted = formatted
     .replace(
       /`\/message`/g,
@@ -123,16 +162,19 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
       role: "assistant",
       content: `Hi! I'm Lawrence's AI assistant! 🤖 I can help you learn more about his:
 
-• **Experience** 💼
-• **Skills** 🛠️  
-• **Projects** 🚀
-• and more!
+**Quick Topics:**
+<button-experience>Experience 💼</button-experience>
+<button-skills>Skills 🛠️</button-skills>
+<button-projects>Projects 🚀</button-projects>
+<button-funfact>Fun Fact 🎯</button-funfact>
 
 **To contact Lawrence:**
-• Type \`/message\` to send a message 📧
-• Type \`/meeting\` to schedule a meeting 📅
+• Type or click <button-message>/message</button-message> to send a message 📧
+• Type or click <button-meeting>/meeting</button-meeting> to schedule a meeting 📅
 
-**Recruiters**: Drop in a job description to see if Lawrence is a good fit! 📄
+**Recruiters & Hiring Managers:**
+<button-upload>📎 Upload Job Description</button-upload> or <button-camera>📷 Snap a Photo</button-camera>
+Drop in a job description to see if Lawrence is a good fit!
 
 What would you like to know?`,
       timestamp: new Date(),
@@ -166,6 +208,139 @@ What would you like to know?`,
   }, []);
 
   const isDesktop = !isMobile;
+
+  // API call function that can be reused
+  const sendMessageToAPI = async (
+    messageText: string,
+    currentMessages: Message[]
+  ) => {
+    setIsLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("message", messageText);
+      formData.append("history", JSON.stringify(currentMessages.slice(0, -1))); // Exclude the last message we just added
+      formData.append("sessionId", getSessionId());
+
+      const response = await fetch("/api/chatbot", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      const data = await response.json();
+
+      // Check if this is the Myley easter egg response using the flag from backend
+      const isMyleyResponse = data.isMyleyResponse;
+
+      // Check if password is needed
+      const needsPassword = data.needsPassword;
+      setAwaitingGirlfriendPassword(!!needsPassword);
+
+      if (isMyleyResponse && !needsPassword) {
+        setIsLoveMode(true);
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.response,
+          timestamp: new Date(),
+        },
+      ]);
+    } catch (error) {
+      console.error("Chatbot error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "I'm sorry, I'm having trouble connecting right now. Please try again later or reach out to Lawrence directly.",
+          timestamp: new Date(),
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle button clicks for quick topics and commands
+  const handleButtonClick = (type: string) => {
+    let message = "";
+
+    switch (type) {
+      case "experience":
+        message = "Tell me about Lawrence's experience and background";
+        break;
+      case "skills":
+        message = "What are Lawrence's key skills and technical abilities?";
+        break;
+      case "projects":
+        message = "Show me Lawrence's most impressive projects";
+        break;
+      case "funfact":
+        message = "Tell me a fun fact about Lawrence";
+        break;
+      case "message":
+        message = "/message";
+        break;
+      case "meeting":
+        message = "/meeting";
+        break;
+      case "upload":
+        // Trigger file input for document upload
+        if (fileInputRef.current) {
+          fileInputRef.current.setAttribute(
+            "accept",
+            ".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
+          );
+          fileInputRef.current.click();
+        }
+        return;
+      case "camera":
+        // Trigger camera capture on mobile or file input on desktop
+        if (fileInputRef.current) {
+          if (isMobile) {
+            fileInputRef.current.setAttribute("accept", "image/*");
+            fileInputRef.current.setAttribute("capture", "environment");
+          } else {
+            fileInputRef.current.setAttribute(
+              "accept",
+              "image/*,.pdf,.doc,.docx,.txt"
+            );
+          }
+          fileInputRef.current.click();
+        }
+        return;
+      default:
+        return;
+    }
+
+    // Add the message as if user typed it
+    const userMessage: Message = {
+      role: "user",
+      content: message,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+
+    // Automatically send to API
+    sendMessageToAPI(message, [...messages, userMessage]);
+  };
+
+  // Set up global function for button clicks
+  useEffect(() => {
+    (window as any).chatbotButtonClick = handleButtonClick;
+
+    return () => {
+      delete (window as any).chatbotButtonClick;
+    };
+  }, [messages]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -240,62 +415,68 @@ What would you like to know?`,
       });
     }
 
-    const formData = new FormData();
-    formData.append("message", input);
-    formData.append("history", JSON.stringify(messages));
-    formData.append("sessionId", getSessionId()); // This also updates activity timestamp
-    selectedFiles.forEach((file) => {
-      formData.append("files", file);
-    });
-
-    setInput("");
-    setSelectedFiles([]);
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/chatbot", {
-        method: "POST",
-        body: formData,
+    // Handle file uploads with custom API call
+    if (selectedFiles.length > 0) {
+      const formData = new FormData();
+      formData.append("message", input);
+      formData.append("history", JSON.stringify(messages));
+      formData.append("sessionId", getSessionId());
+      selectedFiles.forEach((file) => {
+        formData.append("files", file);
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to get response");
+      setInput("");
+      setSelectedFiles([]);
+      setIsLoading(true);
+
+      try {
+        const response = await fetch("/api/chatbot", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to get response");
+        }
+
+        const data = await response.json();
+
+        // Check if this is the Myley easter egg response using the flag from backend
+        const isMyleyResponse = data.isMyleyResponse;
+        const needsPassword = data.needsPassword;
+        setAwaitingGirlfriendPassword(!!needsPassword);
+
+        if (isMyleyResponse && !needsPassword) {
+          setIsLoveMode(true);
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: data.response,
+            timestamp: new Date(),
+          },
+        ]);
+      } catch (error) {
+        console.error("Chatbot error:", error);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content:
+              "I'm sorry, I'm having trouble connecting right now. Please try again later or reach out to Lawrence directly.",
+            timestamp: new Date(),
+          },
+        ]);
+      } finally {
+        setIsLoading(false);
       }
-
-      const data = await response.json();
-
-      // Check if this is the Myley easter egg response using the flag from backend
-      const isMyleyResponse = data.isMyleyResponse;
-
-      // Check if password is needed
-      const needsPassword = data.needsPassword;
-      setAwaitingGirlfriendPassword(!!needsPassword);
-
-      if (isMyleyResponse && !needsPassword) {
-        setIsLoveMode(true);
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: data.response,
-          timestamp: new Date(),
-        },
-      ]);
-    } catch (error) {
-      console.error("Chatbot error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "I'm sorry, I'm having trouble connecting right now. Please try again later or reach out to Lawrence directly.",
-          timestamp: new Date(),
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
+    } else {
+      // Use the shared API function for text-only messages
+      setInput("");
+      setSelectedFiles([]);
+      sendMessageToAPI(input, [...messages, userMessage]);
     }
   };
 
