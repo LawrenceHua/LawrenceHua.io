@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
@@ -68,38 +68,54 @@ export function TestimonialsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const [isPaused, setIsPaused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: isMobile ? 1 : 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15,
-        duration: 0.8,
+        staggerChildren: isMobile ? 0 : 0.15,
+        duration: isMobile ? 0 : 0.8,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 40 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.8,
+        duration: isMobile ? 0 : 0.8,
         ease: [0.25, 0.25, 0.25, 0.75],
       },
     },
   };
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    hidden: {
+      opacity: isMobile ? 1 : 0,
+      y: isMobile ? 0 : 30,
+      scale: isMobile ? 1 : 0.95,
+    },
     visible: {
       opacity: 1,
       y: 0,
       scale: 1,
       transition: {
-        duration: 0.7,
+        duration: isMobile ? 0 : 0.7,
         ease: [0.25, 0.25, 0.25, 0.75],
       },
     },

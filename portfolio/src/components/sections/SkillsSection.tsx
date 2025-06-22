@@ -386,35 +386,41 @@ export function SkillsSection() {
   }, [activeCategory, activeLevel]);
 
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: isMobile ? 1 : 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0, // Set stagger to 0 to make them appear at once
-        duration: 0.3,
+        staggerChildren: isMobile ? 0 : 0, // Set stagger to 0 to make them appear at once
+        duration: isMobile ? 0 : 0.3,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: isMobile || prefersReducedMotion ? 15 : 30 },
+    hidden: {
+      opacity: isMobile ? 1 : 0,
+      y: isMobile ? 0 : prefersReducedMotion ? 15 : 30,
+    },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: isMobile || prefersReducedMotion ? 0.3 : 0.6,
+        duration: isMobile ? 0 : prefersReducedMotion ? 0.3 : 0.6,
         ease: "easeOut",
       },
     },
   };
 
   const skillVariants = {
-    hidden: { opacity: 0, scale: isMobile || prefersReducedMotion ? 1 : 0.8 },
+    hidden: {
+      opacity: isMobile ? 1 : 0,
+      scale: isMobile ? 1 : prefersReducedMotion ? 1 : 0.8,
+    },
     visible: {
       opacity: 1,
       scale: 1,
       transition: {
-        duration: isMobile || prefersReducedMotion ? 0.2 : 0.4,
+        duration: isMobile ? 0 : prefersReducedMotion ? 0.2 : 0.4,
         ease: "easeOut",
       },
     },

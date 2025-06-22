@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
@@ -270,6 +270,18 @@ export function TimelineSection({
 }: TimelineSectionProps = {}) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
@@ -352,12 +364,12 @@ export function TimelineSection({
         visible: { opacity: 1 },
       }
     : {
-        hidden: { opacity: 0 },
+        hidden: { opacity: isMobile ? 1 : 0 },
         visible: {
           opacity: 1,
           transition: {
-            staggerChildren: 0.1,
-            duration: 0.6,
+            staggerChildren: isMobile ? 0 : 0.1,
+            duration: isMobile ? 0 : 0.6,
           },
         },
       };
@@ -368,12 +380,12 @@ export function TimelineSection({
         visible: { opacity: 1, y: 0 },
       }
     : {
-        hidden: { opacity: 0, y: 30 },
+        hidden: { opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 30 },
         visible: {
           opacity: 1,
           y: 0,
           transition: {
-            duration: 0.6,
+            duration: isMobile ? 0 : 0.6,
             ease: "easeOut",
           },
         },

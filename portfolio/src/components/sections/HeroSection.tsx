@@ -87,25 +87,25 @@ export function HeroSection({
     }
   }, [textGallery.length, prefersReducedMotion, tourActive]);
 
-  // Simplified animations for mobile
+  // Simplified animations for mobile - instant on mobile, normal on desktop
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: isMobile ? 1 : 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: isMobile ? 0.1 : 0.2,
-        duration: isMobile ? 0.3 : 0.6,
+        staggerChildren: isMobile ? 0 : 0.2,
+        duration: isMobile ? 0 : 0.6,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: isMobile ? 15 : 30 },
+    hidden: { opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 30 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: isMobile ? 0.3 : 0.6,
+        duration: isMobile ? 0 : 0.6,
         ease: "easeOut",
       },
     },
@@ -127,10 +127,10 @@ export function HeroSection({
 
   const textVariants = {
     initial: {
-      opacity: 0,
-      y: isMobile ? 10 : 20,
-      scale: isMobile ? 1 : 0.8,
-      filter: isMobile ? "blur(0px)" : "blur(10px)",
+      opacity: isMobile ? 1 : 0,
+      y: isMobile ? 0 : 20,
+      scale: 1,
+      filter: "blur(0px)",
     },
     animate: {
       opacity: 1,
@@ -138,17 +138,17 @@ export function HeroSection({
       scale: 1,
       filter: "blur(0px)",
       transition: {
-        duration: isMobile ? 0.3 : 0.6,
+        duration: isMobile ? 0 : 0.6,
         ease: "easeOut",
       },
     },
     exit: {
-      opacity: 0,
-      y: isMobile ? -10 : -20,
-      scale: isMobile ? 1 : 1.1,
-      filter: isMobile ? "blur(0px)" : "blur(10px)",
+      opacity: isMobile ? 1 : 0,
+      y: isMobile ? 0 : -20,
+      scale: 1,
+      filter: "blur(0px)",
       transition: {
-        duration: isMobile ? 0.2 : 0.4,
+        duration: isMobile ? 0 : 0.4,
         ease: "easeIn",
       },
     },
