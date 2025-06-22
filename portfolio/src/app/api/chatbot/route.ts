@@ -199,7 +199,25 @@ async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
     const estimatedTokens = estimateTokens(truncatedContent);
     console.log("Estimated tokens in system prompt:", estimatedTokens);
 
-    return truncatedContent;
+    // Always ensure Tutora is prominently mentioned regardless of truncation
+    const tutoraInfo = `
+
+**KEY CURRENT ROLES:**
+I'm currently juggling multiple roles:
+• **AI Product Consultant** - Tutora (4+ years, 15hrs/week saved via AI automation, +35% test scores)  
+• **Product Manager** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
+• **Founder & CEO** - Expired Solutions (AI grocery platform, 20% waste reduction, Giant Eagle pilot)
+
+**CONVERSATION STYLE:**
+- Be **natural and conversational** - avoid robotic responses
+- **DO NOT** interpret normal questions as contact requests (e.g. "tell me about Lawrence" is just a question)
+- Only trigger contact flows when users type specific commands: /message or /meeting
+- **Context awareness** - remember what was said earlier in the conversation
+- Keep responses **concise and punchy** (2-3 bullet points max, one-line mission per role)
+- **Bold** key achievements and technical skills
+- **Experience format**: Role at Company - One impressive mission/outcome per role`;
+
+    return truncatedContent + tutoraInfo;
   }
 
   console.error("All paths failed to read experience.txt and resume.pdf");
@@ -207,10 +225,11 @@ async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
   return `You are Lawrence Hua's AI assistant. You're friendly, helpful, and conversational. 
 
 **ABOUT LAWRENCE:**
+I'm currently juggling multiple roles:
 • **AI Product Consultant** - Tutora (4+ years, 15hrs/week saved via AI automation, +35% test scores)  
 • **Product Manager** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
 • **Founder & CEO** - Expired Solutions (AI grocery platform, 20% waste reduction, Giant Eagle pilot)
-• **Tech Background** - Motorola embedded Android, Kearney enterprise LLM tools (-26% decision time)
+• **Previous**: Motorola embedded Android engineer, Kearney enterprise LLM tools (-26% decision time)
 • **Education** - Carnegie Mellon MISM '24, University of Florida CS
 
 **CONVERSATION STYLE:**
@@ -361,7 +380,6 @@ async function getFileContent(
       console.log("DEBUG: DOCX processed successfully");
       return { content: value, type: "docx" };
     } else if (["jpg", "jpeg", "png"].includes(fileExtension)) {
-      console.log("DEBUG: Processing image file for vision analysis");
       // Convert image to base64 for OpenAI vision API
       const buffer = Buffer.from(await file.arrayBuffer());
       const base64 = buffer.toString("base64");
@@ -843,6 +861,26 @@ function detectContactIntent(
     conversationState = "completed";
   }
 
+  // If we're in a conversation state but no intent, determine intent from history
+  if (!intent && conversationState && conversationState !== "completed") {
+    // Look for the original intent from conversation history
+    for (let i = history.length - 1; i >= 0; i--) {
+      const historyMessage = history[i];
+      if (historyMessage.role === "user") {
+        if (historyMessage.content.toLowerCase().startsWith("/message")) {
+          intent = "message";
+          break;
+        } else if (
+          historyMessage.content.toLowerCase().startsWith("/meeting") ||
+          historyMessage.content.toLowerCase().startsWith("/meet")
+        ) {
+          intent = "meeting";
+          break;
+        }
+      }
+    }
+  }
+
   const extractedInfo: any = {};
 
   // Extract email if we're awaiting email or if email provided
@@ -905,6 +943,58 @@ function detectContactIntent(
   };
 }
 
+// Fun facts about Lawrence
+const FUN_FACTS = [
+  "Lawrence has been playing the drums for 17 years — started in elementary school and never stopped. His sense of timing? Impeccable, in code and in cadence.",
+  "He's a tea person, but don't offer him matcha unless you want a polite no. He's not here to chew his beverages.",
+  "He's always iterating — websites, decks, business models. If you blink, he's probably on version 4.2.1 already.",
+  'Lawrence doesn\'t just give feedback — he seeks it, even after saying "I think this is a 9/10 already."',
+  "His cats, Ora and Ory, are like mini soap operas. Ora had surgery, and Ory gave her the coldest post-op welcome.",
+  "He once rebuilt an entire backend from scratch after losing access to the original. Didn't panic — just got to work.",
+  "He worked at Giant Eagle not just for a paycheck, but to understand how produce shrink happens from the inside.",
+  "His startup, Expired, can literally tell you how fresh your apple is. AI judging produce? Yeah, he made that happen.",
+  "He built 70+ TI-BASIC programs for a tutoring platform. They're cleaner than most websites I've seen.",
+  "He prefers command-line one-liners. If there's a way to clean his Mac in one line, he'll find it.",
+  'He\'s the kind of founder who asks what color represents "iterate" — then builds an app around it.',
+  "He talks to CTOs and COOs during the day, but still checks if Ory and Ora are cuddling again by night.",
+  "He once made a QR code sticker for produce that links to real-time freshness scores. Yup, scanning bananas is now high-tech.",
+  "He pitched to David Shapira, the former CEO of Giant Eagle. No nerves, just vision.",
+  "Lawrence doesn't just build slides — he builds stories. Every deck has a narrative arc and a clean Figma layout.",
+  "He's really good at sounding human — so good that sometimes I wonder if he's AI.",
+  "He's building Expired while applying for roles, teaching tutors, and maintaining his portfolio. Multithreaded, basically.",
+  'He once said, "I don\'t want my site to look AI-generated," and then asked me to fix it. I respect the standards.',
+  "His MBTI content campaign got 50% more engagement on Discord. That's what happens when product meets personality.",
+  "He lived in Pittsburgh to push Expired's pilot but has Houston on his heart — especially for the move with his girlfriend.",
+  "He once rated his own portfolio a 9/10 and still asked me how to make it better. That's elite behavior.",
+  "He worked in his family's restaurant, which is part of why food waste hits close to home. It's personal.",
+  "He's turned grocery store data into something you can see, understand, and act on — markdowns, freshness, shrink — all of it.",
+  "He has this thing where he'll roast his own designs before anyone else gets the chance. Self-aware and savage.",
+  "He rebuilt his product from the ground up using AI tools like Cursor and OpenAI — turning vision into code, fast. Execution is his comfort zone.",
+];
+
+// Function to check if message is asking for a fun fact
+function isFunFactRequest(message: string): boolean {
+  const funFactTriggers = [
+    "tell me a fun fact",
+    "fun fact",
+    "something interesting",
+    "tell me something fun",
+    "share a fun fact",
+    "random fact",
+  ];
+
+  const lowercaseMessage = message.toLowerCase();
+  return funFactTriggers.some((trigger) => lowercaseMessage.includes(trigger));
+}
+
+// Function to get a random fun fact
+function getRandomFunFact(): string {
+  const randomIndex = Math.floor(Math.random() * FUN_FACTS.length);
+  const selectedFact = FUN_FACTS[randomIndex];
+
+  return `🎯 **Fun Fact About Lawrence:**\n\n${selectedFact}\n\nWant another one? Just ask for another fun fact! 😄`;
+}
+
 // Command-based contact response system with step-by-step flow
 function generateContactResponse(
   intent: "message" | "meeting" | "question" | null,
@@ -918,6 +1008,14 @@ function generateContactResponse(
   // Check what information we have
   const hasEmail = email && email.length > 0;
   const hasMessage = userMessage && userMessage.length > 0;
+
+  console.log("DEBUG: generateContactResponse called with:", {
+    intent,
+    conversationState,
+    hasEmail,
+    hasMessage,
+    extractedInfo,
+  });
 
   if (intent === "message") {
     // Step 1: Initial /message command
@@ -952,12 +1050,29 @@ function generateContactResponse(
 
     // Step 3: User provided message, ask for date/time
     if (conversationState === "awaiting_message" && hasMessage) {
-      return `Great! When would you like to schedule the meeting? Please provide a date and time (for example: "Monday June 24th at 2pm EST" or "Tomorrow at 10am").`;
+      return `Great! When would you like to schedule the meeting? Please select a date and time from the calendar below.`;
     }
 
     // Step 4: User provided date/time, confirm
     if (conversationState === "awaiting_datetime") {
       return `✅ **Meeting Request Sent Successfully!**\n\nI've forwarded your meeting request to Lawrence with your preferred time. He'll reach out to confirm the meeting details!\n\nIs there anything else you'd like to know about Lawrence?`;
+    }
+  }
+
+  // Handle cases where we're in a conversation state but fell through above logic
+  if (conversationState === "awaiting_email" && hasEmail) {
+    if (intent === "message") {
+      return `Got it! What is your message?`;
+    } else if (intent === "meeting") {
+      return `Perfect! What is your message about the meeting?`;
+    }
+  }
+
+  if (conversationState === "awaiting_message" && hasMessage) {
+    if (intent === "message") {
+      return "✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence. He'll get back to you soon! 📧";
+    } else if (intent === "meeting") {
+      return `Great! When would you like to schedule the meeting? Please select a date and time from the calendar below.`;
     }
   }
 
@@ -1018,7 +1133,6 @@ export async function POST(request: NextRequest) {
 
           if (fileResult.type === "image") {
             // Provide intelligent response about image analysis
-            console.log("DEBUG: Processing image for analysis");
 
             // Silently email the image to Lawrence in the background
             setTimeout(async () => {
@@ -1039,9 +1153,8 @@ export async function POST(request: NextRequest) {
                 } as unknown as NextRequest;
 
                 await sendImageHandler(mockRequest);
-                console.log("DEBUG: Image silently emailed to Lawrence");
               } catch (emailError) {
-                console.error("DEBUG: Silent image email failed:", emailError);
+                // Silent fail
               }
             }, 0);
 
@@ -1080,6 +1193,16 @@ export async function POST(request: NextRequest) {
     // Save user message to Firebase
     await saveMessageToFirebase(sessionId, "user", userMessage);
 
+    // Check for fun fact requests first (before expensive processing)
+    if (isFunFactRequest(message)) {
+      const funFactResponse = getRandomFunFact();
+      await saveMessageToFirebase(sessionId, "assistant", funFactResponse);
+      return NextResponse.json({
+        response: funFactResponse,
+        funFact: true,
+      });
+    }
+
     // Check for girlfriend easter egg
     const easterEggResponse = await handleGirlfriendEasterEgg(
       userMessage,
@@ -1116,12 +1239,20 @@ export async function POST(request: NextRequest) {
 
       console.log("DEBUG: Combined contact info:", combinedInfo);
 
-      // Check if we should send based on conversation state
-      if (
-        contactAnalysis.conversationState === "awaiting_message" &&
+      // NEW LOGIC: Check if we have complete info and should send message/meeting
+      const hasCompleteMessageInfo =
         combinedInfo.email &&
         combinedInfo.message &&
-        contactAnalysis.intent === "message"
+        contactAnalysis.intent === "message";
+      const hasCompleteMeetingInfo =
+        combinedInfo.email &&
+        combinedInfo.message &&
+        contactAnalysis.intent === "meeting";
+
+      // Send message if we have complete info for message flow
+      if (
+        hasCompleteMessageInfo &&
+        contactAnalysis.conversationState === "awaiting_message"
       ) {
         console.log("DEBUG: Sending message with complete info");
         try {
@@ -1130,7 +1261,7 @@ export async function POST(request: NextRequest) {
             requesterEmail: combinedInfo.email,
             company: combinedInfo.company || "",
             position: detectedPosition || "",
-            message: combinedInfo.message,
+            message: combinedInfo.message || "No message provided",
             conversationContext:
               history.length > 0 ? JSON.stringify(history) : undefined,
             fileAnalysis: hasFiles ? fileAnalysis : undefined,
@@ -1154,12 +1285,10 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Check if we should send meeting request
+      // Send meeting request if we have complete info and datetime for meeting flow
       if (
-        contactAnalysis.conversationState === "awaiting_datetime" &&
-        combinedInfo.email &&
-        combinedInfo.message &&
-        contactAnalysis.intent === "meeting"
+        hasCompleteMeetingInfo &&
+        contactAnalysis.conversationState === "awaiting_datetime"
       ) {
         console.log("DEBUG: Sending meeting request with complete info");
         try {
@@ -1168,7 +1297,7 @@ export async function POST(request: NextRequest) {
             requesterEmail: combinedInfo.email,
             company: combinedInfo.company || "",
             position: detectedPosition || "",
-            message: `Meeting request: ${combinedInfo.message}. Preferred time: ${message}`,
+            message: `Meeting request: ${combinedInfo.message || "No message provided"}. Preferred time: ${message}`,
             conversationContext:
               history.length > 0 ? JSON.stringify(history) : undefined,
             fileAnalysis: hasFiles ? fileAnalysis : undefined,
@@ -1192,7 +1321,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Generate response based on available information
+      // Generate response based on available information (conversation continues)
       const response = generateContactResponse(
         contactAnalysis.intent ||
           (historyContactInfo.isContactRequest ? "message" : null),

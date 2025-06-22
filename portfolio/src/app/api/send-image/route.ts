@@ -11,10 +11,6 @@ export async function POST(request: NextRequest) {
     const userEmail = (formData.get("email") as string) || "Anonymous";
     const userName = (formData.get("name") as string) || "Portfolio Visitor";
 
-    console.log("[SEND IMAGE] Received image:", image?.name);
-    console.log("[SEND IMAGE] Message:", message);
-    console.log("[SEND IMAGE] User:", userName, userEmail);
-
     if (!image) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
@@ -73,14 +69,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error("[SEND IMAGE] Resend error:", error);
       return NextResponse.json(
         { error: "Failed to send image email" },
         { status: 500 }
       );
     }
-
-    console.log("[SEND IMAGE] Email sent successfully");
     return NextResponse.json(
       {
         message: "Image sent successfully",
@@ -90,7 +83,6 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("[SEND IMAGE] Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

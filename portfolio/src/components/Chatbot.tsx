@@ -14,6 +14,10 @@ import {
   FiCpu,
   FiUser,
   FiMenu,
+  FiCalendar,
+  FiClock,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 import styles from "./Chatbot.module.css";
 
@@ -153,12 +157,283 @@ function getFileIcon(file: File) {
   return <FiFile className="h-4 w-4" />;
 }
 
+// Calendar/Time Picker Component
+function CalendarTimePicker({
+  onDateTimeSelect,
+  onCancel,
+  onScrollToBottom,
+}: {
+  onDateTimeSelect: (dateTime: string) => void;
+  onCancel: () => void;
+  onScrollToBottom?: () => void;
+}) {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  const today = new Date();
+  const daysInMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 1,
+    0
+  ).getDate();
+  const firstDayOfMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth(),
+    1
+  ).getDay();
+
+  const timeSlots = [
+    "9:00 AM",
+    "9:30 AM",
+    "10:00 AM",
+    "10:30 AM",
+    "11:00 AM",
+    "11:30 AM",
+    "12:00 PM",
+    "12:30 PM",
+    "1:00 PM",
+    "1:30 PM",
+    "2:00 PM",
+    "2:30 PM",
+    "3:00 PM",
+    "3:30 PM",
+    "4:00 PM",
+    "4:30 PM",
+    "5:00 PM",
+    "5:30 PM",
+  ];
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const isDateAvailable = (date: Date) => {
+    const dayOfWeek = date.getDay();
+    // Only weekdays (Monday to Friday)
+    return dayOfWeek >= 1 && dayOfWeek <= 5 && date >= today;
+  };
+
+  const formatSelectedDateTime = () => {
+    if (!selectedDate || !selectedTime) return "";
+    const dateStr = selectedDate.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    return `${dateStr} at ${selectedTime} EST`;
+  };
+
+  const handleSubmit = () => {
+    if (selectedDate && selectedTime) {
+      onDateTimeSelect(formatSelectedDateTime());
+    }
+  };
+
+  const renderCalendarDays = () => {
+    const days = [];
+
+    // Empty cells for days before the first day of the month
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push(<div key={`empty-${i}`} className="p-2"></div>);
+    }
+
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        day
+      );
+      const isAvailable = isDateAvailable(date);
+      const isSelected =
+        selectedDate && selectedDate.toDateString() === date.toDateString();
+
+      days.push(
+        <button
+          key={day}
+          onClick={() => isAvailable && setSelectedDate(date)}
+          disabled={!isAvailable}
+          className={`p-2 text-sm rounded-lg transition-all duration-200 ${
+            isSelected
+              ? "bg-blue-500 text-white shadow-md"
+              : isAvailable
+                ? "hover:bg-blue-50 text-gray-700 hover:text-blue-600"
+                : "text-gray-300 cursor-not-allowed"
+          }`}
+        >
+          {day}
+        </button>
+      );
+    }
+
+    return days;
+  };
+
+  const navigateMonth = (direction: "prev" | "next") => {
+    const newMonth = new Date(currentMonth);
+    if (direction === "prev") {
+      newMonth.setMonth(newMonth.getMonth() - 1);
+    } else {
+      newMonth.setMonth(newMonth.getMonth() + 1);
+    }
+
+    // Don't go before current month
+    if (newMonth >= new Date(today.getFullYear(), today.getMonth(), 1)) {
+      setCurrentMonth(newMonth);
+    }
+  };
+
+  // Auto-scroll when date is selected (to show time slots)
+  useEffect(() => {
+    if (selectedDate && onScrollToBottom) {
+      onScrollToBottom();
+    }
+  }, [selectedDate, onScrollToBottom]);
+
+  // Auto-scroll when both date and time are selected (to show confirmation)
+  useEffect(() => {
+    if (selectedDate && selectedTime && onScrollToBottom) {
+      onScrollToBottom();
+    }
+  }, [selectedDate, selectedTime, onScrollToBottom]);
+
+  return (
+    <div
+      ref={calendarRef}
+      className="bg-white rounded-lg border border-gray-200 p-4 shadow-lg max-w-md mx-auto"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+          <FiCalendar className="w-5 h-5" />
+          Schedule Meeting
+        </h3>
+        <button
+          onClick={onCancel}
+          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <FiX className="w-4 h-4 text-gray-500" />
+        </button>
+      </div>
+
+      {/* Calendar Header */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => navigateMonth("prev")}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          disabled={
+            currentMonth.getMonth() === today.getMonth() &&
+            currentMonth.getFullYear() === today.getFullYear()
+          }
+        >
+          <FiChevronLeft className="w-4 h-4" />
+        </button>
+        <h4 className="font-medium text-gray-800">
+          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        </h4>
+        <button
+          onClick={() => navigateMonth("next")}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <FiChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Day Headers */}
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {dayNames.map((day) => (
+          <div
+            key={day}
+            className="p-2 text-xs font-medium text-gray-500 text-center"
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-7 gap-1 mb-6">{renderCalendarDays()}</div>
+
+      {/* Time Slots */}
+      {selectedDate && (
+        <div className="mb-6">
+          <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+            <FiClock className="w-4 h-4" />
+            Select Time (EST)
+          </h4>
+          <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
+            {timeSlots.map((time) => (
+              <button
+                key={time}
+                onClick={() => setSelectedTime(time)}
+                className={`px-3 py-2 text-xs rounded-lg transition-all duration-200 ${
+                  selectedTime === time
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                }`}
+              >
+                {time}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Selected Date/Time Display */}
+      {selectedDate && selectedTime && (
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>Selected:</strong> {formatSelectedDateTime()}
+          </p>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <button
+          onClick={onCancel}
+          className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={!selectedDate || !selectedTime}
+          className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            selectedDate && selectedTime
+              ? "bg-blue-500 text-white hover:bg-blue-600"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+          }`}
+        >
+          Schedule Meeting
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       content: `Hi! I'm Lawrence's AI! 🤖
 
+**Quick Clicks:**
 <button-experience>Experience</button-experience> <button-skills>Skills</button-skills> <button-projects>Projects</button-projects> <button-funfact>Fun Fact</button-funfact>
 
 <button-message>/message</button-message> <button-meeting>/meeting</button-meeting> <button-upload>📎 Upload Job</button-upload>
@@ -176,6 +451,7 @@ What would you like to know?`,
   const [awaitingGirlfriendPassword, setAwaitingGirlfriendPassword] =
     useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -196,6 +472,16 @@ What would you like to know?`,
   }, []);
 
   const isDesktop = !isMobile;
+
+  // Auto-scroll function for smooth scrolling to bottom
+  const scrollToBottom = (delay: number = 100) => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }, delay);
+  };
 
   // API call function that can be reused
   const sendMessageToAPI = async (
@@ -335,8 +621,29 @@ What would you like to know?`,
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    scrollToBottom();
   }, [messages]);
+
+  // Auto-scroll when calendar shows/hides
+  useEffect(() => {
+    if (showCalendar) {
+      scrollToBottom();
+    }
+  }, [showCalendar]);
+
+  // Auto-scroll when loading state changes (for new assistant responses)
+  useEffect(() => {
+    if (!isLoading) {
+      scrollToBottom();
+    }
+  }, [isLoading]);
+
+  // Auto-scroll when file error appears
+  useEffect(() => {
+    if (fileError) {
+      scrollToBottom();
+    }
+  }, [fileError]);
 
   // Clear session when chatbot is closed
   useEffect(() => {
@@ -364,6 +671,47 @@ What would you like to know?`,
       e.stopPropagation();
     }
   };
+
+  // Check if the last assistant message should trigger the calendar
+  const shouldShowCalendar = () => {
+    const lastMessage = messages[messages.length - 1];
+    return (
+      lastMessage &&
+      lastMessage.role === "assistant" &&
+      lastMessage.content.includes(
+        "When would you like to schedule the meeting"
+      )
+    );
+  };
+
+  // Handle calendar date/time selection
+  const handleDateTimeSelect = async (dateTime: string) => {
+    setShowCalendar(false);
+
+    // Add user message with selected date/time
+    const userMessage: Message = {
+      role: "user",
+      content: dateTime,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+
+    // Send the selected date/time to API to complete the meeting request
+    sendMessageToAPI(dateTime, [...messages, userMessage]);
+  };
+
+  // Handle calendar cancellation
+  const handleCalendarCancel = () => {
+    setShowCalendar(false);
+  };
+
+  // Show calendar when appropriate
+  useEffect(() => {
+    if (shouldShowCalendar() && !showCalendar) {
+      setShowCalendar(true);
+    }
+  }, [messages, showCalendar]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -480,9 +828,13 @@ What would you like to know?`,
       setFileError(
         "File size exceeds the 10MB limit. Please select a smaller file."
       );
+      scrollToBottom();
       return;
     }
     setSelectedFiles(files);
+    if (files.length > 0) {
+      scrollToBottom();
+    }
   };
 
   const removeFile = (index: number) => {
@@ -490,16 +842,12 @@ What would you like to know?`,
   };
 
   return (
-    <AnimatePresence>
+    <>
       {isOpen && (
         <>
-          {/* Animated Backdrop */}
+          {/* Backdrop */}
           {!isMinimized && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+            <div
               style={{
                 position: "fixed",
                 inset: 0,
@@ -509,36 +857,12 @@ What would you like to know?`,
                 alignItems: "center",
                 justifyContent: "center",
               }}
-              onClick={isDesktop ? onClose : undefined}
+              onClick={onClose}
             />
           )}
 
-          {/* Animated Modal */}
-          <motion.div
-            initial={{
-              opacity: 0,
-              scale: 0.8,
-              x: isDesktop ? 100 : 0,
-              y: isDesktop ? 100 : 20,
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              x: 0,
-              y: 0,
-            }}
-            exit={{
-              opacity: 0,
-              scale: 0.9,
-              x: isDesktop ? 50 : 0,
-              y: isDesktop ? 50 : 20,
-            }}
-            transition={{
-              type: "spring",
-              damping: 25,
-              stiffness: 300,
-              duration: 0.3,
-            }}
+          {/* Modal */}
+          <div
             className={
               `chatbotContainer ${styles.chatbotContainer} ` +
               (isMinimized ? styles.minimized : "") +
@@ -546,21 +870,22 @@ What would you like to know?`,
               (isLoveMode ? styles.loveMode : "")
             }
             style={{
-              maxWidth: isFullscreen || isDesktop ? "500px" : undefined,
-              maxHeight: isFullscreen ? "100vh" : undefined,
-              width: isFullscreen ? "100vw" : isDesktop ? "500px" : undefined,
+              maxWidth: isFullscreen || isDesktop ? "600px" : "100vw",
+              maxHeight: isFullscreen ? "100vh" : isMobile ? "100vh" : "80vh",
+              width: isFullscreen ? "100vw" : isDesktop ? "600px" : "100vw",
               height: isMinimized
                 ? "64px"
                 : isFullscreen
                   ? "100vh"
                   : isDesktop
-                    ? "65vh"
-                    : undefined,
-              bottom: isFullscreen ? 0 : isDesktop ? "6rem" : undefined,
-              right: isFullscreen ? 0 : isDesktop ? "1.5rem" : undefined,
-              left: isFullscreen ? 0 : undefined,
-              borderRadius: isFullscreen ? 0 : "1rem",
-              position: isDesktop ? "fixed" : undefined,
+                    ? "80vh"
+                    : "100vh",
+              bottom: isFullscreen ? 0 : isDesktop ? "6rem" : 0,
+              right: isFullscreen ? 0 : isDesktop ? "1.5rem" : 0,
+              left: isFullscreen ? 0 : isMobile ? 0 : undefined,
+              top: isMobile && !isFullscreen ? 0 : undefined,
+              borderRadius: isFullscreen || isMobile ? 0 : "1rem",
+              position: "fixed",
               zIndex: 1000,
               boxShadow:
                 "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1)",
@@ -778,6 +1103,21 @@ What would you like to know?`,
                     </div>
                   </div>
                 )}
+                {showCalendar && (
+                  <div className="flex flex-col items-start mt-4 px-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <FiCpu className="h-3 w-3 text-blue-400" />
+                      <span className="text-xs font-medium text-blue-400">
+                        Lawrence's AI
+                      </span>
+                    </div>
+                    <CalendarTimePicker
+                      onDateTimeSelect={handleDateTimeSelect}
+                      onCancel={handleCalendarCancel}
+                      onScrollToBottom={scrollToBottom}
+                    />
+                  </div>
+                )}
                 <div ref={messagesEndRef} />
               </div>
             )}
@@ -854,14 +1194,14 @@ What would you like to know?`,
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-1.5 sm:p-2 rounded-full text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-colors focus:outline-none"
+                        className={`${styles.attachButton} attachButton`}
                         title="Attach files"
                         disabled={isLoading}
                       >
                         <FiPaperclip className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                       <button
-                        className="ml-1 mr-1 sm:mr-2 p-1.5 sm:p-2 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white shadow transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                        className={`${styles.sendButton} sendButton ml-1 mr-1 sm:mr-2`}
                         type="submit"
                         disabled={
                           isLoading ||
@@ -876,9 +1216,9 @@ What would you like to know?`,
                 </div>
               </form>
             )}
-          </motion.div>
+          </div>
         </>
       )}
-    </AnimatePresence>
+    </>
   );
 }

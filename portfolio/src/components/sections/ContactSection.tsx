@@ -19,7 +19,17 @@ import {
 import { FaLinkedin, FaGithub, FaFacebookF } from "react-icons/fa6";
 import "react-datepicker/dist/react-datepicker.css";
 
-export function ContactSection() {
+interface ContactSectionProps {
+  externalFormType?: "none" | "message" | "calendar";
+  onFormTypeChange?: (formType: "none" | "message" | "calendar") => void;
+  tourActive?: boolean;
+}
+
+export function ContactSection({
+  externalFormType,
+  onFormTypeChange,
+  tourActive = false,
+}: ContactSectionProps = {}) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -41,9 +51,13 @@ export function ContactSection() {
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
-  const [activeForm, setActiveForm] = useState<"none" | "message" | "calendar">(
-    "message"
-  );
+  const [internalActiveForm, setInternalActiveForm] = useState<
+    "none" | "message" | "calendar"
+  >("message");
+
+  // Use external form type if provided, otherwise use internal state
+  const activeForm = externalFormType ?? internalActiveForm;
+  const setActiveForm = onFormTypeChange ?? setInternalActiveForm;
 
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [version, setVersion] = useState("1.0.39");
@@ -154,28 +168,32 @@ export function ContactSection() {
     }));
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        duration: 0.6,
-      },
-    },
-  };
+  const containerVariants = tourActive
+    ? undefined
+    : {
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: {
+            staggerChildren: 0.1,
+            duration: 0.6,
+          },
+        },
+      };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut",
-      },
-    },
-  };
+  const itemVariants = tourActive
+    ? undefined
+    : {
+        hidden: { opacity: 0, y: 30 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: {
+            duration: 0.6,
+            ease: "easeOut",
+          },
+        },
+      };
 
   const socialLinks = [
     {
@@ -245,20 +263,9 @@ export function ContactSection() {
             Whether you're looking for a product manager, technical consultant,
             or just want to chat,
             <br />
-            <motion.strong
-              className="text-slate-900 dark:text-white text-xl font-bold"
-              animate={{
-                scale: [1, 1.05, 1],
-                textShadow: [
-                  "0 0 0 rgba(59, 130, 246, 0)",
-                  "0 0 20px rgba(59, 130, 246, 0.3)",
-                  "0 0 0 rgba(59, 130, 246, 0)",
-                ],
-              }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
+            <strong className="text-slate-900 dark:text-white text-xl font-bold">
               I'd love to hear from you.
-            </motion.strong>
+            </strong>
           </p>
           <div className="mx-auto mt-6 h-1 w-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full" />
         </motion.div>

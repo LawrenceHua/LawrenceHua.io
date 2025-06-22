@@ -8,11 +8,13 @@ import Chatbot from "./Chatbot";
 interface FloatingChatbotProps {
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  tourActive?: boolean;
 }
 
 export function FloatingChatbot({
   isOpen: externalIsOpen,
   onOpenChange,
+  tourActive = false,
 }: FloatingChatbotProps = {}) {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
 
@@ -123,9 +125,9 @@ export function FloatingChatbot({
       {/* Floating Button */}
       <motion.div
         className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1, duration: 0.3 }}
+        initial={tourActive ? false : { scale: 0, opacity: 0 }}
+        animate={tourActive ? false : { scale: 1, opacity: 1 }}
+        transition={tourActive ? {} : { delay: 1, duration: 0.3 }}
       >
         {/* Scroll Popup */}
         <AnimatePresence>
@@ -171,49 +173,13 @@ export function FloatingChatbot({
         <motion.button
           onClick={openChatbot}
           className="h-14 w-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          animate={
-            !hasBeenOpened && !permanentlyDismissed
-              ? {
-                  boxShadow: [
-                    "0 4px 14px 0 rgba(59, 130, 246, 0.3)",
-                    "0 4px 20px 0 rgba(147, 51, 234, 0.4)",
-                    "0 4px 14px 0 rgba(59, 130, 246, 0.3)",
-                  ],
-                }
-              : {}
-          }
-          transition={
-            !hasBeenOpened && !permanentlyDismissed
-              ? {
-                  boxShadow: {
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  },
-                }
-              : {}
-          }
+          whileHover={tourActive ? {} : { scale: 1.1 }}
+          whileTap={tourActive ? {} : { scale: 0.9 }}
         >
           <MessageCircle className="h-6 w-6 transition-transform group-hover:scale-110" />
         </motion.button>
 
-        {/* Pulse Ring Animation */}
-        {!hasBeenOpened && !permanentlyDismissed && (
-          <motion.div
-            className="absolute inset-0 rounded-full border-2 border-blue-400 pointer-events-none"
-            animate={{
-              scale: [1, 1.5, 1],
-              opacity: [0.7, 0, 0.7],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        )}
+        {/* Removed pulse animation for performance */}
       </motion.div>
 
       {/* Chatbot Modal */}

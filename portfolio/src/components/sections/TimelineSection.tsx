@@ -250,7 +250,13 @@ const categories = [
   { key: "retail", label: "Retail" },
 ];
 
-export function TimelineSection() {
+interface TimelineSectionProps {
+  tourActive?: boolean;
+}
+
+export function TimelineSection({
+  tourActive = false,
+}: TimelineSectionProps = {}) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -309,28 +315,38 @@ export function TimelineSection() {
     });
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        duration: 0.6,
-      },
-    },
-  };
+  const containerVariants = tourActive
+    ? {
+        hidden: { opacity: 1 },
+        visible: { opacity: 1 },
+      }
+    : {
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: {
+            staggerChildren: 0.1,
+            duration: 0.6,
+          },
+        },
+      };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut",
-      },
-    },
-  };
+  const itemVariants = tourActive
+    ? {
+        hidden: { opacity: 1, y: 0 },
+        visible: { opacity: 1, y: 0 },
+      }
+    : {
+        hidden: { opacity: 0, y: 30 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: {
+            duration: 0.6,
+            ease: "easeOut",
+          },
+        },
+      };
 
   const getCategoryColor = (category?: string) => {
     switch (category) {
@@ -617,15 +633,7 @@ export function TimelineSection() {
                   exit={{ opacity: 0 }}
                   className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center text-slate-600 dark:text-slate-300 z-20 pointer-events-none"
                 >
-                  <motion.div
-                    animate={{ y: [0, 8, 0] }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="flex flex-col items-center bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full px-4 py-3 shadow-xl border border-slate-200/50 dark:border-slate-700/50"
-                  >
+                  <div className="flex flex-col items-center bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full px-4 py-3 shadow-xl border border-slate-200/50 dark:border-slate-700/50">
                     <span className="text-xs font-semibold mb-1">
                       Scroll for more
                     </span>
@@ -642,7 +650,7 @@ export function TimelineSection() {
                         d="M19 14l-7 7m0 0l-7-7m7 7V3"
                       />
                     </svg>
-                  </motion.div>
+                  </div>
                 </motion.div>
               )}
             </div>

@@ -7,6 +7,7 @@ import { useTheme } from "./providers/ThemeProvider";
 
 interface NavigationProps {
   sections?: Array<{ id: string; label: string; href: string }>;
+  tourActive?: boolean;
 }
 
 const defaultSections = [
@@ -21,6 +22,7 @@ const defaultSections = [
 
 export function ModernNavigation({
   sections = defaultSections,
+  tourActive = false,
 }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -95,9 +97,9 @@ export function ModernNavigation({
 
   return (
     <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      initial={tourActive ? false : { y: -100 }}
+      animate={tourActive ? false : { y: 0 }}
+      transition={tourActive ? {} : { duration: 0.6, ease: "easeOut" }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
           ? "bg-white/90 dark:bg-slate-950/90 backdrop-blur-md shadow-lg"
@@ -108,9 +110,9 @@ export function ModernNavigation({
         <div className="flex h-20 items-center justify-between">
           {/* Logo and Alert */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
+            initial={tourActive ? false : { opacity: 0, x: -20 }}
+            animate={tourActive ? false : { opacity: 1, x: 0 }}
+            transition={tourActive ? {} : { delay: 0.2 }}
             className="flex flex-col items-start"
           >
             <button
@@ -128,20 +130,7 @@ export function ModernNavigation({
               transition={{ delay: 0.8 }}
               className="mt-1"
             >
-              <motion.button
-                animate={{
-                  scale: [1, 1.05, 1],
-                  boxShadow: [
-                    "0 2px 8px 0 rgba(34, 197, 94, 0.2)",
-                    "0 4px 12px 0 rgba(34, 197, 94, 0.4)",
-                    "0 2px 8px 0 rgba(34, 197, 94, 0.2)",
-                  ],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
+              <button
                 className="flex items-center space-x-1 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 px-1.5 py-0.5 text-white shadow-md backdrop-blur-md cursor-pointer hover:scale-105 transition-transform duration-200 text-[10px]"
                 onClick={() => {
                   const contactSection = document.getElementById("contact");
@@ -157,20 +146,13 @@ export function ModernNavigation({
                   }
                 }}
               >
-                <motion.div
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                >
+                <div>
                   <AlertCircle className="h-2 w-2" />
-                </motion.div>
+                </div>
                 <span className="font-semibold whitespace-nowrap">
                   Open to AI PM/APM roles!
                 </span>
-              </motion.button>
+              </button>
             </motion.div>
           </motion.div>
 
@@ -270,20 +252,7 @@ export function ModernNavigation({
                   animate={{ opacity: 1, x: 0 }}
                   className="mb-4 flex justify-center"
                 >
-                  <motion.button
-                    animate={{
-                      scale: [1, 1.05, 1],
-                      boxShadow: [
-                        "0 2px 8px 0 rgba(34, 197, 94, 0.2)",
-                        "0 4px 12px 0 rgba(34, 197, 94, 0.4)",
-                        "0 2px 8px 0 rgba(34, 197, 94, 0.2)",
-                      ],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
+                  <button
                     className="flex items-center space-x-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 px-3 py-2 text-white shadow-md backdrop-blur-md cursor-pointer hover:scale-105 transition-transform duration-200 text-sm"
                     onClick={() => {
                       const contactSection = document.getElementById("contact");
@@ -300,20 +269,13 @@ export function ModernNavigation({
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    <motion.div
-                      animate={{ rotate: [0, 10, -10, 0] }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
+                    <div>
                       <AlertCircle className="h-2.5 w-2.5" />
-                    </motion.div>
+                    </div>
                     <span className="font-semibold whitespace-nowrap">
                       Open to AI PM/APM roles!
                     </span>
-                  </motion.button>
+                  </button>
                 </motion.div>
 
                 {sections.map((section, index) => (
