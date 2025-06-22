@@ -807,10 +807,23 @@ function detectContactIntent(
   const isMeetingCommand =
     lowerMessage.startsWith("/meeting") || lowerMessage.startsWith("/meet");
 
+  // Check if this is a regular question about Lawrence (not a contact request)
+  const isRegularQuestion =
+    /^(what|how|when|where|why|who|tell me|so what|can you|could you|is lawrence|does lawrence|has lawrence)/.test(
+      lowerMessage
+    ) ||
+    lowerMessage.includes("about lawrence") ||
+    lowerMessage.includes("lawrence up to") ||
+    lowerMessage.includes("lawrence doing") ||
+    lowerMessage.includes("lawrence currently") ||
+    lowerMessage.includes("his experience") ||
+    lowerMessage.includes("his skills") ||
+    lowerMessage.includes("his projects");
+
   let intent: "message" | "meeting" | "question" | null = null;
   if (isMessageCommand) intent = "message";
   else if (isMeetingCommand) intent = "meeting";
-  else if (message.includes("?")) intent = "question";
+  else if (message.includes("?") || isRegularQuestion) intent = "question";
 
   // Check conversation state from history
   const lastAssistantMessage =
@@ -821,20 +834,35 @@ function detectContactIntent(
   let conversationState = "";
 
   // Determine what state we're in based on last assistant message
-  if (lastAssistantMessage.includes("email address")) {
+  // Only set conversation state if we're actively in a contact flow
+  if (
+    lastAssistantMessage.includes("email address") &&
+    !lastAssistantMessage.includes("Message Sent Successfully")
+  ) {
     conversationState = "awaiting_email";
   } else if (
-    lastAssistantMessage.includes("What is your message") ||
-    lastAssistantMessage.includes("Got it!") ||
-    lastAssistantMessage.includes("Perfect!")
+    (lastAssistantMessage.includes("What is your message") ||
+      lastAssistantMessage.includes("Got it!") ||
+      lastAssistantMessage.includes("Perfect!")) &&
+    !lastAssistantMessage.includes("Message Sent Successfully") &&
+    !lastAssistantMessage.includes("Meeting Request Sent Successfully")
   ) {
     conversationState = "awaiting_message";
   } else if (
-    lastAssistantMessage.includes("when would you like to schedule") ||
-    lastAssistantMessage.includes("What date and time") ||
-    lastAssistantMessage.includes("Great!")
+    (lastAssistantMessage.includes("when would you like to schedule") ||
+      lastAssistantMessage.includes("What date and time") ||
+      lastAssistantMessage.includes("Great!")) &&
+    !lastAssistantMessage.includes("Meeting Request Sent Successfully")
   ) {
     conversationState = "awaiting_datetime";
+  }
+
+  // Reset conversation state if contact flow was completed
+  if (
+    lastAssistantMessage.includes("Message Sent Successfully") ||
+    lastAssistantMessage.includes("Meeting Request Sent Successfully")
+  ) {
+    conversationState = "completed";
   }
 
   const extractedInfo: any = {};
@@ -889,7 +917,10 @@ function detectContactIntent(
 
   return {
     isContactRequest:
-      isMessageCommand || isMeetingCommand || conversationState !== "",
+      (isMessageCommand ||
+        isMeetingCommand ||
+        (conversationState !== "" && conversationState !== "completed")) &&
+      !isRegularQuestion,
     intent,
     extractedInfo,
     conversationState,
