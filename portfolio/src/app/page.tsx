@@ -376,7 +376,7 @@ export default function ModernHome() {
           return;
         } else if (sectionId === "timeline" && currentStep === 3) {
           // Work experience step - scroll to show work experience section
-          const finalPosition = absoluteElementTop + 300;
+          const finalPosition = absoluteElementTop + 500;
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "projects") {
@@ -396,7 +396,7 @@ export default function ModernHome() {
       // Desktop handling (unchanged)
       // Special handling for step 4 (experience) targeting timeline - position to show work experience
       if (sectionId === "timeline" && isActive && currentStep === 3) {
-        const offset = 560; // Desktop offset to show work experience section
+        const offset = 750; // Desktop offset to show work experience section
         const finalScrollPosition = absoluteElementTop + offset;
 
         window.scrollTo({
@@ -792,7 +792,7 @@ export default function ModernHome() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -50 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed z-50 w-full max-w-xs mx-2 md:max-w-md md:mx-0"
+            className="fixed z-50 max-w-xs md:max-w-md"
             style={getPopupPosition(tourSteps[currentStep].position)}
             onClick={togglePause}
           >
