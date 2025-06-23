@@ -786,14 +786,6 @@ export default function ModernHome() {
                     </h3>
                   </div>
 
-                  {/* Subtitle */}
-                  <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6">
-                    Let me tell you my story in{" "}
-                    <span className="font-semibold text-purple-600 dark:text-purple-400">
-                      1 minute!
-                    </span>
-                  </p>
-
                   {/* CTA Button */}
                   <motion.button
                     onClick={handleTourInvitationAccept}
