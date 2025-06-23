@@ -1550,7 +1550,7 @@ You can also scroll down to see his full project portfolio and work experience o
 
       // FIXED: Build contact info step by step from conversation history, not from content analysis
       // Only use structured data collected during the contact flow
-      let combinedInfo = {
+      const combinedInfo = {
         name: "",
         email: "",
         company: "",
