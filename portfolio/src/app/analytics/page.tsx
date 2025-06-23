@@ -368,6 +368,9 @@ export default function AnalyticsPage() {
   const resetCounters = () => {
     setFirebaseReads(0);
     setFirebaseWrites(0);
+    setRefreshCost({ reads: 0, writes: 0 });
+    setLastRefreshTime(null);
+    setShowCostWarning(false);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("firebaseReads", "0");
       sessionStorage.setItem("firebaseWrites", "0");
@@ -1628,124 +1631,142 @@ export default function AnalyticsPage() {
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
-            >
-              <FiArrowLeft className="h-5 w-5" />
-              Back to Portfolio
-            </Link>
-            <Tooltip content="Comprehensive analytics dashboard tracking visitor behavior, recruiter interest, AI chatbot usage, and business intelligence for your portfolio website.">
-              <h1 className="text-3xl font-bold">
-                Portfolio Analytics Dashboard
-              </h1>
-            </Tooltip>
-          </div>
-          <div className="flex items-center gap-4">
-            {/* Firebase Usage Display */}
-            <Tooltip content="Real-time Firebase database usage monitoring. Green = efficient usage, Yellow = moderate usage, Red = expensive usage. Tracks reads/writes for cost optimization.">
-              <div className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
-                <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1">
-                    <span className="text-blue-400">📖</span>
-                    <span className="text-gray-300">Reads:</span>
-                    <span
-                      className={`font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}
-                    >
-                      {firebaseReads}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-orange-400">✏️</span>
-                    <span className="text-gray-300">Writes:</span>
-                    <span
-                      className={`font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}
-                    >
-                      {firebaseWrites}
-                    </span>
-                  </div>
-                  <button
-                    onClick={resetCounters}
-                    className="text-xs text-gray-400 hover:text-gray-300 px-2 py-1 bg-gray-700 rounded"
-                    title="Reset counters"
-                  >
-                    Reset
-                  </button>
-                </div>
-              </div>
-            </Tooltip>
-
-            {/* Time Range Selector */}
-            <div className="flex items-center gap-2">
-              <Tooltip content="Filter analytics data by time period. Affects all metrics and visualizations shown in the dashboard.">
-                <select
-                  value={timeRange}
-                  onChange={(e) => setTimeRange(e.target.value as any)}
-                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
-                  disabled={loading || refreshInProgress}
-                >
-                  <option value="1d">Last 24 hours</option>
-                  <option value="7d">Last 7 days</option>
-                  <option value="30d">Last 30 days</option>
-                  <option value="all">All time</option>
-                </select>
+        <div className="space-y-6 mb-8">
+          {/* Top Section - Title and Back Button */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <FiArrowLeft className="h-5 w-5" />
+                Back to Portfolio
+              </Link>
+              <Tooltip content="Comprehensive analytics dashboard tracking visitor behavior, recruiter interest, AI chatbot usage, and business intelligence for your portfolio website.">
+                <h1 className="text-2xl md:text-3xl font-bold">
+                  Portfolio Analytics Dashboard
+                </h1>
               </Tooltip>
             </div>
+          </div>
 
-            {/* Manual Refresh Button */}
-            <Tooltip content="Manually refresh analytics data from Firebase. Shows estimated read cost to help manage Firebase usage and expenses.">
-              <button
-                onClick={handleManualRefresh}
-                disabled={loading || refreshInProgress}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  loading || refreshInProgress
-                    ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
-                }`}
-              >
-                {refreshInProgress ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Refreshing...
-                  </>
-                ) : (
-                  <>
-                    <FiActivity className="h-4 w-4" />
-                    Refresh Data
-                    {lastRefreshTime && (
-                      <span className="text-xs bg-blue-700 px-2 py-1 rounded">
-                        ~{estimateRefreshCost().reads} reads
+          {/* Controls Section */}
+          <div className="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700">
+            <div className="space-y-4">
+              {/* Top Row - Firebase Usage */}
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <Tooltip content="Real-time Firebase database usage monitoring. Green = efficient usage, Yellow = moderate usage, Red = expensive usage. Tracks reads/writes for cost optimization.">
+                  <div className="flex items-center gap-3">
+                    <span className="text-gray-400 text-sm font-medium">
+                      Firebase Usage:
+                    </span>
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-1">
+                        <span className="text-blue-400">📖</span>
+                        <span className="text-gray-300">Reads:</span>
+                        <span
+                          className={`font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}
+                        >
+                          {firebaseReads}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-orange-400">✏️</span>
+                        <span className="text-gray-300">Writes:</span>
+                        <span
+                          className={`font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}
+                        >
+                          {firebaseWrites}
+                        </span>
+                      </div>
+                      <button
+                        onClick={resetCounters}
+                        className="text-xs text-gray-400 hover:text-gray-300 px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                        title="Reset Firebase usage counters"
+                      >
+                        Reset Counters
+                      </button>
+                    </div>
+                  </div>
+                </Tooltip>
+
+                {/* Time Range Selector */}
+                <div className="flex items-center gap-2">
+                  <Tooltip content="Filter analytics data by time period. Affects all metrics and visualizations shown in the dashboard.">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400 text-sm">Time Range:</span>
+                      <select
+                        value={timeRange}
+                        onChange={(e) => setTimeRange(e.target.value as any)}
+                        className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 min-w-[140px] text-sm"
+                        disabled={loading || refreshInProgress}
+                      >
+                        <option value="1d">Last 24 hours</option>
+                        <option value="7d">Last 7 days</option>
+                        <option value="30d">Last 30 days</option>
+                        <option value="all">All time</option>
+                      </select>
+                    </div>
+                  </Tooltip>
+                </div>
+              </div>
+
+              {/* Bottom Row - Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 justify-center sm:justify-start pt-2 border-t border-gray-700">
+                {/* Manual Refresh Button */}
+                <Tooltip content="Manually refresh analytics data from Firebase. Shows estimated read cost to help manage Firebase usage and expenses.">
+                  <button
+                    onClick={handleManualRefresh}
+                    disabled={loading || refreshInProgress}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all duration-200 min-w-[140px] justify-center text-sm ${
+                      loading || refreshInProgress
+                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                    }`}
+                  >
+                    {refreshInProgress ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Refreshing...
+                      </>
+                    ) : (
+                      <>
+                        <FiActivity className="h-4 w-4" />
+                        Refresh Data
+                        {lastRefreshTime && (
+                          <span className="text-xs bg-blue-700 px-2 py-1 rounded">
+                            ~{estimateRefreshCost().reads} reads
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </button>
+                </Tooltip>
+
+                {/* Reset Analytics Button */}
+                <Tooltip content="Reset analytics metrics to start fresh from today. Historical data is preserved but hidden. You can undo this reset at any time.">
+                  <button
+                    onClick={() => setShowResetModal(true)}
+                    disabled={loading || refreshInProgress}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all duration-200 min-w-[140px] justify-center text-sm ${
+                      loading || refreshInProgress
+                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                        : resetDate
+                          ? "bg-orange-600 hover:bg-orange-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                          : "bg-yellow-600 hover:bg-yellow-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                    }`}
+                  >
+                    <span className="text-sm">🔄</span>
+                    <span>{resetDate ? "Reset Active" : "Reset Metrics"}</span>
+                    {resetDate && (
+                      <span className="text-xs bg-orange-700 px-2 py-1 rounded ml-1">
+                        Since {resetDate.toLocaleDateString()}
                       </span>
                     )}
-                  </>
-                )}
-              </button>
-            </Tooltip>
-
-            {/* Reset Analytics Button */}
-            <Tooltip content="Reset analytics metrics to start fresh from today. Historical data is preserved but hidden. You can undo this reset at any time.">
-              <button
-                onClick={() => setShowResetModal(true)}
-                disabled={loading || refreshInProgress}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                  loading || refreshInProgress
-                    ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                    : resetDate
-                      ? "bg-orange-600 hover:bg-orange-700 text-white shadow-lg hover:shadow-xl"
-                      : "bg-yellow-600 hover:bg-yellow-700 text-white shadow-lg hover:shadow-xl"
-                }`}
-              >
-                <span className="text-sm">🔄</span>
-                {resetDate ? "Reset Active" : "Reset Metrics"}
-                {resetDate && (
-                  <span className="text-xs bg-orange-700 px-2 py-1 rounded">
-                    Since {resetDate.toLocaleDateString()}
-                  </span>
-                )}
-              </button>
-            </Tooltip>
+                  </button>
+                </Tooltip>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1777,8 +1798,8 @@ export default function AnalyticsPage() {
 
         {/* Cost Warning Modal */}
         {showCostWarning && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 border border-yellow-500/20">
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md mx-auto border border-yellow-500/20 shadow-2xl my-8">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-2xl">⚠️</span>
                 <h3 className="text-xl font-bold text-yellow-400">
@@ -3112,51 +3133,86 @@ export default function AnalyticsPage() {
 
         {/* Sessions for Keyword Modal */}
         {selectedKeyword && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-xl p-8 max-w-2xl w-full">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold">
-                  Sessions containing &ldquo;{selectedKeyword}&rdquo;
-                </h3>
-                <button
-                  onClick={() => setSelectedKeyword(null)}
-                  className="text-gray-400 hover:text-white"
-                >
-                  <FiX className="h-6 w-6" />
-                </button>
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
+              {/* Fixed Header */}
+              <div className="flex-shrink-0 p-6 border-b border-gray-700">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-2xl font-bold">
+                    Sessions containing &ldquo;{selectedKeyword}&rdquo;
+                  </h3>
+                  <button
+                    onClick={() => setSelectedKeyword(null)}
+                    className="text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600 p-2 rounded-lg transition-colors"
+                  >
+                    <FiX className="h-6 w-6" />
+                  </button>
+                </div>
               </div>
-              <div className="space-y-4 max-h-[70vh] overflow-y-auto">
-                {sessions
-                  .filter((session) =>
+
+              {/* Scrollable Content */}
+              <div className="flex-1 min-h-0 p-6">
+                <div
+                  className="space-y-4 h-full overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700"
+                  style={{
+                    scrollBehavior: "smooth",
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#6b7280 #374151",
+                    WebkitOverflowScrolling: "touch",
+                  }}
+                  onWheel={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  {sessions
+                    .filter((session) =>
+                      analyticsData?.foundKeywords
+                        .find((k) => k.keyword === selectedKeyword)
+                        ?.sessionIds.includes(session.sessionId)
+                    )
+                    .map((session) => (
+                      <div
+                        key={session.sessionId}
+                        className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition-colors"
+                      >
+                        <h4 className="font-semibold text-lg mb-3 text-blue-300">
+                          Session {session.sessionId.slice(-6)}
+                        </h4>
+                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                          {session.messages.map((message) => (
+                            <div
+                              key={message.id}
+                              className={`text-sm p-2 rounded ${
+                                message.role === "user"
+                                  ? "bg-blue-900/30 text-blue-200 border-l-2 border-blue-400"
+                                  : "bg-gray-600/50 text-gray-200 border-l-2 border-gray-400"
+                              }`}
+                            >
+                              <span className="font-bold text-xs">
+                                {message.role === "user"
+                                  ? "👤 User:"
+                                  : "🤖 AI:"}
+                              </span>
+                              <p className="mt-1">{message.message}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+
+                  {sessions.filter((session) =>
                     analyticsData?.foundKeywords
                       .find((k) => k.keyword === selectedKeyword)
                       ?.sessionIds.includes(session.sessionId)
-                  )
-                  .map((session) => (
-                    <div
-                      key={session.sessionId}
-                      className="bg-gray-700 rounded-lg p-4"
-                    >
-                      <h4 className="font-semibold text-lg mb-2">
-                        Session {session.sessionId.slice(-6)}
-                      </h4>
-                      {session.messages.map((message) => (
-                        <p
-                          key={message.id}
-                          className={`text-sm mb-1 ${
-                            message.role === "user"
-                              ? "text-blue-300"
-                              : "text-gray-300"
-                          }`}
-                        >
-                          <span className="font-bold">
-                            {message.role === "user" ? "User: " : "AI: "}
-                          </span>
-                          {message.message}
-                        </p>
-                      ))}
+                  ).length === 0 && (
+                    <div className="text-center py-12 text-gray-400">
+                      <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg">
+                        No sessions found for this keyword
+                      </p>
                     </div>
-                  ))}
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -3288,8 +3344,8 @@ export default function AnalyticsPage() {
 
         {/* Full Chatbot Sessions Modal - Gallery Style */}
         {showChatbotFullScreen && (
-          <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
-            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-6xl h-[90vh] flex flex-col relative">
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-hidden">
+            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-7xl max-h-[95vh] h-[95vh] flex flex-col relative border border-gray-700">
               {/* Header Section - Fixed */}
               <div className="flex-shrink-0 p-6 border-b border-gray-700">
                 <button
@@ -3528,8 +3584,8 @@ export default function AnalyticsPage() {
 
         {/* Reset Analytics Modal */}
         {showResetModal && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 border border-yellow-500/20">
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-gray-800 rounded-xl p-6 w-full max-w-lg mx-auto border border-yellow-500/20 shadow-2xl my-8">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-2xl">🔄</span>
                 <h3 className="text-xl font-bold text-yellow-400">

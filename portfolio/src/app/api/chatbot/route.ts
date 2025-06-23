@@ -251,7 +251,7 @@ async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
 
 **KEY CURRENT ROLES:**
 I'm currently juggling multiple roles:
-• **External Expert – AI Model Evaluation** - Amazon MTurk Experts Program (Qualification Rating: Expert, AI alignment, prompt assessment, human-vs-AI evaluation)
+• **JUST STARTED: AI Expert – Amazon MTurk Experts Program** - Evaluating AI model outputs, prompt quality assessment, human-vs-AI comparisons for model training
 • **AI Product Consultant** - Tutora (4+ years, part-time, 15hrs/week saved via AI automation, +35% test scores)  
 • **Product Manager Intern** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
 • **Founder & CEO** - Expired Solutions (AI grocery platform, 20% waste reduction, Giant Eagle pilot)
@@ -285,7 +285,7 @@ Always include these buttons after mentioning the respective project/experience.
 
 **ABOUT LAWRENCE:**
 I'm currently juggling multiple roles:
-• **External Expert – AI Model Evaluation** - Amazon MTurk Experts Program (Qualification Rating: Expert, AI alignment, prompt assessment, human-vs-AI evaluation)
+• **JUST STARTED: AI Expert – Amazon MTurk Experts Program** - Evaluating AI model outputs, prompt quality assessment, human-vs-AI comparisons for model training
 • **Founder & CEO** - Expired Solutions (AI grocery platform, 20% waste reduction, Giant Eagle pilot)
 • **Product Manager** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
 • **AI Product Consultant** - Tutora (4+ years, 15hrs/week saved via AI automation, +35% test scores)  
@@ -686,6 +686,27 @@ function extractContactInfoFromHistory(
   // Create an ordered list of all conversation entries
   const conversation = [...history, { role: "user", content: currentMessage }];
 
+  // Find the most recent /message or /meeting command to isolate this flow
+  let mostRecentCommandIndex = -1;
+  for (let i = conversation.length - 1; i >= 0; i--) {
+    const entry = conversation[i];
+    if (entry.role === "user") {
+      const content = entry.content.toLowerCase();
+      if (content.startsWith("/message") || content.startsWith("/meeting")) {
+        mostRecentCommandIndex = i;
+        break;
+      }
+    }
+  }
+
+  // If no command found, return empty
+  if (mostRecentCommandIndex === -1) {
+    return extractedInfo;
+  }
+
+  // Only process conversation from the most recent command onwards
+  const relevantConversation = conversation.slice(mostRecentCommandIndex);
+
   // Track the conversation flow state machine
   let foundMessageCommand = false;
   let foundMeetingCommand = false;
@@ -695,9 +716,9 @@ function extractContactInfoFromHistory(
   let askedForMessage = false;
   let askedForDateTime = false;
 
-  // Process conversation in order
-  for (let i = 0; i < conversation.length; i++) {
-    const entry = conversation[i];
+  // Process only the relevant conversation in order
+  for (let i = 0; i < relevantConversation.length; i++) {
+    const entry = relevantConversation[i];
     const content = entry.content.toLowerCase();
 
     // Detect command initiation
