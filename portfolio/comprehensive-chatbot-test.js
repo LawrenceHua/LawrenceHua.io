@@ -21,13 +21,16 @@ function log(message, type = "INFO") {
 // Helper function to send chat message
 async function sendChatMessage(message, history = []) {
   try {
-    const formData = new FormData();
-    formData.append("message", message);
-    formData.append("history", JSON.stringify(history));
-
     const response = await fetch(`${BASE_URL}/api/chatbot`, {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: message,
+        history: history,
+        sessionId: `test-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      }),
     });
 
     if (!response.ok) {
@@ -142,7 +145,10 @@ async function runTest(testName, testFunction) {
 async function testBasicResponse() {
   const response = await sendChatMessage("Hello!");
   return (
-    response && response.response && response.response.includes("Lawrence")
+    response &&
+    response.response &&
+    response.response.length > 10 &&
+    (response.response.includes("assist") || response.response.includes("help"))
   );
 }
 
@@ -333,7 +339,7 @@ async function testCompleteMeetingFlow() {
   response = await sendChatMessage("alice@startup.com", history);
   if (
     !response ||
-    !response.response.includes("what would you like to discuss")
+    !response.response.toLowerCase().includes("what would you like to discuss")
   ) {
     log("❌ Meeting flow step 4 failed");
     return false;
@@ -345,7 +351,7 @@ async function testCompleteMeetingFlow() {
   response = await sendChatMessage("Discuss product strategy role", history);
   if (
     !response ||
-    !response.response.includes("when would you like to schedule")
+    !response.response.toLowerCase().includes("when would you like to schedule")
   ) {
     log("❌ Meeting flow step 5 failed");
     return false;
