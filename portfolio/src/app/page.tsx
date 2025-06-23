@@ -304,17 +304,28 @@ export default function ModernHome() {
   // Firebase state
   const [db, setDb] = useState<any>(null);
 
+  // Component mount debugging
+  useEffect(() => {
+    console.log("🏠 ModernHome component mounted");
+    return () => {
+      console.log("🏠 ModernHome component unmounting");
+    };
+  }, []);
+
   // Initialize Firebase
   useEffect(() => {
     if (typeof window !== "undefined") {
       let app;
       if (!getApps().length) {
         app = initializeApp(firebaseConfig);
+        console.log("🔥 Firebase app initialized");
       } else {
         app = getApps()[0];
+        console.log("🔥 Using existing Firebase app");
       }
       const firestore = getFirestore(app);
       setDb(firestore);
+      console.log("🔥 Firestore database ready");
     }
   }, []);
 
@@ -340,12 +351,17 @@ export default function ModernHome() {
     stepIndex?: number,
     ctaAction?: "message" | "meeting" | "restart"
   ) => {
+    console.log(
+      `📊 trackTourEvent called with: ${eventType}, stepId: ${stepId}, stepIndex: ${stepIndex}`
+    );
+
     if (!db) {
-      console.warn("Firebase not initialized, cannot track tour event");
+      console.warn("❌ Firebase not initialized, cannot track tour event");
       return;
     }
 
     try {
+      console.log("📊 Creating tour event object...");
       // Create base tour event (geolocation is optional)
       const tourEvent = {
         sessionId: getSessionId(),
@@ -361,24 +377,41 @@ export default function ModernHome() {
         city: "Unknown",
       };
 
+      console.log("📊 Base tour event created:", {
+        ...tourEvent,
+        timestamp: "serverTimestamp()",
+      });
+
       // Try to add geolocation, but don't fail if it doesn't work
       try {
+        console.log("🌍 Fetching geolocation...");
         const geoResponse = await fetch("/api/geolocation");
         if (geoResponse.ok) {
           const geoData = await geoResponse.json();
           tourEvent.country = geoData.country_name || "Unknown";
           tourEvent.region = geoData.region || "Unknown";
           tourEvent.city = geoData.city || "Unknown";
+          console.log("🌍 Geolocation added:", {
+            country: tourEvent.country,
+            region: tourEvent.region,
+            city: tourEvent.city,
+          });
+        } else {
+          console.log(
+            "🌍 Geolocation API response not ok:",
+            geoResponse.status
+          );
         }
       } catch (geoError) {
-        console.log("Geolocation fetch failed, using defaults:", geoError);
+        console.log("🌍 Geolocation fetch failed, using defaults:", geoError);
       }
 
-      await addDoc(collection(db, "tour_events"), tourEvent);
-      console.log(
-        `✅ Tour event tracked successfully: ${eventType}`,
-        tourEvent
-      );
+      console.log("📊 Saving to Firebase...");
+      const docRef = await addDoc(collection(db, "tour_events"), tourEvent);
+      console.log(`✅ Tour event tracked successfully: ${eventType}`, {
+        docId: docRef.id,
+        eventData: { ...tourEvent, timestamp: "serverTimestamp()" },
+      });
     } catch (error) {
       console.error("❌ Error tracking tour event:", error);
     }
@@ -437,6 +470,9 @@ export default function ModernHome() {
 
   // Tour functions
   const startTour = () => {
+    console.log("🚀 Starting tour...");
+    console.log("🔥 Firebase DB status:", db ? "Ready" : "Not initialized");
+
     setIsActive(true);
     setCurrentStep(0);
     setShowFinalCTA(false);
@@ -446,6 +482,7 @@ export default function ModernHome() {
     setIsPaused(false);
 
     // Track tour start
+    console.log("📊 About to track tour_start event...");
     trackTourEvent("tour_start", tourSteps[0].id, 0);
 
     // Scroll to top first
@@ -862,6 +899,7 @@ export default function ModernHome() {
   }, [isActive, tourInvitationDismissed, showFinalCTA]);
 
   const handleTourInvitationAccept = () => {
+    console.log("🎯 Tour invitation accepted! Starting tour...");
     setShowTourInvitation(false);
     setTourInvitationDismissed(true);
     startTour();
