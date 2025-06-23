@@ -267,7 +267,7 @@ I'm currently juggling multiple roles:
 
 **PROJECT LINKS:**
 When mentioning specific projects or experiences, include these custom buttons:
-- Amazon MTurk work: <button-mturk>View MTurk AI Evaluation Work</button-mturk>
+- Amazon MTurk work: <button-mturk>Come back for more in July!</button-mturk>
 - Expired Solutions: <button-expired>View Expired Solutions</button-expired>
 - Tutora work: <button-tutora>Visit Tutora Website</button-tutora>
 - PM Happy Hour: <button-pmhappyhour>Learn About PM Happy Hour</button-pmhappyhour>
@@ -312,7 +312,7 @@ AI/ML, Product Strategy, Computer Vision, GPT Integration, Enterprise Software, 
 
 **PROJECT LINKS:**
 When mentioning specific projects or experiences, include these custom buttons:
-- Amazon MTurk work: <button-mturk>View MTurk AI Evaluation Work</button-mturk>
+- Amazon MTurk work: <button-mturk>Come back for more in July!</button-mturk>
 - Expired Solutions: <button-expired>View Expired Solutions</button-expired>
 - Tutora work: <button-tutora>Visit Tutora Website</button-tutora>
 - PM Happy Hour: <button-pmhappyhour>Learn About PM Happy Hour</button-pmhappyhour>
