@@ -340,12 +340,13 @@ export default function ModernHome() {
     stepIndex?: number,
     ctaAction?: "message" | "meeting" | "restart"
   ) => {
-    if (!db) return;
+    if (!db) {
+      console.warn("Firebase not initialized, cannot track tour event");
+      return;
+    }
 
     try {
-      const geoResponse = await fetch("/api/geolocation");
-      const geoData = await geoResponse.json();
-
+      // Create base tour event (geolocation is optional)
       const tourEvent = {
         sessionId: getSessionId(),
         eventType,
@@ -355,15 +356,31 @@ export default function ModernHome() {
         timestamp: serverTimestamp(),
         userAgent: navigator.userAgent,
         referrer: document.referrer || "direct",
-        country: geoData.country_name,
-        region: geoData.region,
-        city: geoData.city,
+        country: "Unknown",
+        region: "Unknown",
+        city: "Unknown",
       };
 
+      // Try to add geolocation, but don't fail if it doesn't work
+      try {
+        const geoResponse = await fetch("/api/geolocation");
+        if (geoResponse.ok) {
+          const geoData = await geoResponse.json();
+          tourEvent.country = geoData.country_name || "Unknown";
+          tourEvent.region = geoData.region || "Unknown";
+          tourEvent.city = geoData.city || "Unknown";
+        }
+      } catch (geoError) {
+        console.log("Geolocation fetch failed, using defaults:", geoError);
+      }
+
       await addDoc(collection(db, "tour_events"), tourEvent);
-      console.log(`Tour event tracked: ${eventType}`, tourEvent);
+      console.log(
+        `✅ Tour event tracked successfully: ${eventType}`,
+        tourEvent
+      );
     } catch (error) {
-      console.error("Error tracking tour event:", error);
+      console.error("❌ Error tracking tour event:", error);
     }
   };
 

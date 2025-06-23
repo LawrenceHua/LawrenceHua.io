@@ -3487,103 +3487,102 @@ export default function AnalyticsPage() {
 
               {/* Simplified Scrollable Content */}
               <div className="flex-1 overflow-auto px-6 py-4">
-                  <div className="space-y-4">
-                    {filteredSessions.length === 0 ? (
-                      <div className="text-center py-12 text-gray-400">
-                        <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p className="text-lg">No chat sessions found</p>
-                        <p className="text-sm">Try adjusting your filters</p>
-                      </div>
-                    ) : (
-                      <div className="grid gap-4">
-                        {filteredSessions.map((session) => (
-                          <div
-                            key={session.sessionId}
-                            className="bg-gray-800/60 rounded-lg p-4 border border-gray-700/50 hover:border-purple-500/50 hover:bg-gray-800/80 transition-all duration-200 shadow-lg hover:shadow-purple-500/10"
-                          >
-                            {/* Compact Session Header */}
-                            <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-700/50">
-                              <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                                <div>
-                                  <h3 className="font-bold text-sm text-white">
-                                    Session {session.sessionId.slice(-8)}
-                                  </h3>
-                                  <p className="text-[10px] text-gray-400">
-                                    🕐 {formatTimestamp(session.startTime)}
+                <div className="space-y-4">
+                  {filteredSessions.length === 0 ? (
+                    <div className="text-center py-12 text-gray-400">
+                      <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg">No chat sessions found</p>
+                      <p className="text-sm">Try adjusting your filters</p>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4">
+                      {filteredSessions.map((session) => (
+                        <div
+                          key={session.sessionId}
+                          className="bg-gray-800/60 rounded-lg p-4 border border-gray-700/50 hover:border-purple-500/50 hover:bg-gray-800/80 transition-all duration-200 shadow-lg hover:shadow-purple-500/10"
+                        >
+                          {/* Compact Session Header */}
+                          <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-700/50">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                              <div>
+                                <h3 className="font-bold text-sm text-white">
+                                  Session {session.sessionId.slice(-8)}
+                                </h3>
+                                <p className="text-[10px] text-gray-400">
+                                  🕐 {formatTimestamp(session.startTime)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right bg-purple-900/30 px-2 py-1 rounded text-xs">
+                              <p className="text-purple-300 font-bold">
+                                {getSessionDuration(
+                                  session.startTime,
+                                  session.endTime
+                                )}
+                              </p>
+                              <p className="text-[10px] text-gray-400">
+                                {session.messageCount} msgs
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Simplified Messages Gallery */}
+                          <div className="space-y-2 max-h-48 overflow-auto">
+                            {session.messages.map((message, index) => (
+                              <div
+                                key={message.id}
+                                className={`p-2 rounded-lg transition-all duration-200 ${
+                                  message.role === "user"
+                                    ? "bg-gradient-to-r from-blue-900/40 to-blue-800/30 border-l-2 border-blue-500 ml-2"
+                                    : "bg-gradient-to-r from-gray-700/50 to-gray-600/40 border-l-2 border-gray-500 mr-2"
+                                }`}
+                              >
+                                {/* Compact Message Header */}
+                                <div className="flex items-center justify-between mb-1">
+                                  <span
+                                    className={`text-[10px] font-bold px-2 py-1 rounded ${
+                                      message.role === "user"
+                                        ? "bg-blue-600/50 text-blue-100"
+                                        : "bg-gray-600/50 text-gray-100"
+                                    }`}
+                                  >
+                                    {message.role === "user" ? "👤" : "🤖"} #
+                                    {index + 1}
+                                  </span>
+                                </div>
+
+                                {/* Compact Message Content */}
+                                <div
+                                  className={`text-xs leading-relaxed ${
+                                    message.role === "user"
+                                      ? "text-blue-100"
+                                      : "text-gray-100"
+                                  }`}
+                                >
+                                  <p className="whitespace-pre-wrap line-clamp-3">
+                                    {message.message}
                                   </p>
                                 </div>
                               </div>
-                              <div className="text-right bg-purple-900/30 px-2 py-1 rounded text-xs">
-                                <p className="text-purple-300 font-bold">
-                                  {getSessionDuration(
-                                    session.startTime,
-                                    session.endTime
-                                  )}
-                                </p>
-                                <p className="text-[10px] text-gray-400">
-                                  {session.messageCount} msgs
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Simplified Messages Gallery */}
-                            <div className="space-y-2 max-h-48 overflow-auto">
-                              {session.messages.map((message, index) => (
-                                <div
-                                  key={message.id}
-                                  className={`p-2 rounded-lg transition-all duration-200 ${
-                                    message.role === "user"
-                                      ? "bg-gradient-to-r from-blue-900/40 to-blue-800/30 border-l-2 border-blue-500 ml-2"
-                                      : "bg-gradient-to-r from-gray-700/50 to-gray-600/40 border-l-2 border-gray-500 mr-2"
-                                  }`}
-                                >
-                                  {/* Compact Message Header */}
-                                  <div className="flex items-center justify-between mb-1">
-                                    <span
-                                      className={`text-[10px] font-bold px-2 py-1 rounded ${
-                                        message.role === "user"
-                                          ? "bg-blue-600/50 text-blue-100"
-                                          : "bg-gray-600/50 text-gray-100"
-                                      }`}
-                                    >
-                                      {message.role === "user" ? "👤" : "🤖"} #
-                                      {index + 1}
-                                    </span>
-                                  </div>
-
-                                  {/* Compact Message Content */}
-                                  <div
-                                    className={`text-xs leading-relaxed ${
-                                      message.role === "user"
-                                        ? "text-blue-100"
-                                        : "text-gray-100"
-                                    }`}
-                                  >
-                                    <p className="whitespace-pre-wrap line-clamp-3">
-                                      {message.message}
-                                    </p>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-                    {/* Load More Section */}
-                    {hasMore && (
-                      <div className="flex justify-center pt-6">
-                        <button
-                          onClick={loadMoreSessions}
-                          className="px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-purple-500/30 transform hover:scale-105"
-                        >
-                          Load More Sessions
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  {/* Load More Section */}
+                  {hasMore && (
+                    <div className="flex justify-center pt-6">
+                      <button
+                        onClick={loadMoreSessions}
+                        className="px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-purple-500/30 transform hover:scale-105"
+                      >
+                        Load More Sessions
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
