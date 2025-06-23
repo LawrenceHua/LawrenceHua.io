@@ -3498,8 +3498,19 @@ export default function AnalyticsPage() {
 
         {/* Full Chatbot Sessions Modal - Gallery Style */}
         {showChatbotFullScreen && (
-          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-hidden">
-            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-7xl max-h-[95vh] h-[95vh] flex flex-col relative border border-gray-700">
+          <div
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+            onClick={(e) => {
+              // Only close if clicking on the backdrop, not the modal content
+              if (e.target === e.currentTarget) {
+                setShowChatbotFullScreen(false);
+              }
+            }}
+          >
+            <div
+              className="bg-gray-900 rounded-xl shadow-xl w-full max-w-7xl max-h-[95vh] h-[95vh] flex flex-col relative border border-gray-700"
+              onClick={(e) => e.stopPropagation()} // Prevent backdrop clicks from closing modal
+            >
               {/* Header Section - Fixed */}
               <div className="flex-shrink-0 p-6 border-b border-gray-700">
                 <button
@@ -3583,15 +3594,34 @@ export default function AnalyticsPage() {
                 </div>
               </div>
 
-              {/* Enhanced Scrollable Content with Proper Hierarchy */}
+              {/* Enhanced Scrollable Content - Force Scrollable */}
               <div
-                className="flex-1 overflow-y-scroll overflow-x-hidden"
+                className="flex-1 overflow-y-scroll overflow-x-hidden min-h-0"
                 style={{
                   scrollBehavior: "smooth",
                   WebkitOverflowScrolling: "touch",
+                  scrollbarWidth: "thin", // Firefox
+                  scrollbarColor: "#8B5CF6 #374151", // Firefox - purple theme
+                }}
+                onWheel={(e) => {
+                  // Always allow scrolling within this container
+                  e.stopPropagation();
                 }}
               >
-                <div className="px-6 py-4">
+                <div className="px-6 py-4 min-h-[200px]">
+                  {/* Scroll Indicator */}
+                  <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur-sm p-2 rounded-lg mb-4 border border-purple-500/30">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-purple-300 font-medium">
+                        📜 Scrollable Sessions Gallery
+                      </span>
+                      <span className="text-gray-400">
+                        {filteredSessions.length} of {sessions.length} sessions
+                        • Use mouse wheel to navigate
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="space-y-4">
                     {filteredSessions.length === 0 ? (
                       <div className="text-center py-12 text-gray-400">
@@ -3720,6 +3750,18 @@ export default function AnalyticsPage() {
                         >
                           Load More Sessions
                         </button>
+                      </div>
+                    )}
+
+                    {/* Bottom Scroll Indicator */}
+                    {filteredSessions.length > 0 && !hasMore && (
+                      <div className="text-center py-8 border-t border-gray-700/50 mt-8">
+                        <div className="text-sm text-gray-400 bg-gray-700/30 px-4 py-2 rounded-lg inline-block">
+                          🎯 End of all sessions -
+                          <span className="text-purple-300 ml-1">
+                            {filteredSessions.length} total sessions displayed
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>
