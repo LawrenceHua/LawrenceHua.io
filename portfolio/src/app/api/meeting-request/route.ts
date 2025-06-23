@@ -186,40 +186,18 @@ export async function POST(request: NextRequest) {
               
               <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <h3 style="margin-top: 0; color: #1e40af;">📞 What Happens Next?</h3>
-                <ul style="margin: 10px 0; padding-left: 20px; color: #374151;">
-                  <li>I'll review your meeting request personally and reach out to you directly within 1-2 business days</li>
-                  <li>You can contact me back at <strong><a href="mailto:${process.env.EMAIL_NAME || "lawrencehua2@gmail.com"}" style="color: #2563eb;">${process.env.EMAIL_NAME || "lawrencehua2@gmail.com"}</a></strong></li>
-                  <li>In the meantime, feel free to explore more about my work at <a href="https://lawrencehua.io" style="color: #2563eb;">lawrencehua.io</a></li>
-                  <li>If you don't hear back from me within a few days, please don't hesitate to email me directly</li>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                  <li>I'll send a personalized response within 24 hours</li>
+                  <li>In the meantime, feel free to explore more about my work at <a href="https://www.lawrencehua.com" style="color: #2563eb;">www.lawrencehua.com</a></li>
                 </ul>
-              </div>
-
-              <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <h4 style="margin-top: 0; color: #92400e;">💡 Learn More About Me</h4>
-                <p style="margin: 0; color: #374151; font-size: 14px;">
-                  I'm a Product Manager and AI consultant with 4+ years of experience. I'm passionate about building AI-powered solutions and helping companies leverage technology to solve real-world problems. Visit <a href="https://lawrencehua.io" style="color: #2563eb;">my website</a> to find out more information about my background, projects, and experience.
-                </p>
-              </div>
-              
-              <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                <h4 style="margin-top: 0; color: #1e40af;">📧 Direct Contact</h4>
-                <p style="margin: 5px 0; color: #374151;">
-                  If I don't reach out within a reasonable time, feel free to email me directly at:
-                </p>
-                <p style="margin: 10px 0; font-size: 18px;">
-                  <a href="mailto:${process.env.EMAIL_NAME || "lawrencehua2@gmail.com"}" 
-                     style="color: #2563eb; font-weight: bold; text-decoration: none; background: #dbeafe; padding: 8px 16px; border-radius: 6px; display: inline-block;">
-                    ${process.env.EMAIL_NAME || "lawrencehua2@gmail.com"}
-                  </a>
-                </p>
-              </div>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <p style="color: #64748b; font-size: 14px; margin: 0;">
-                  Thank you again for your interest and for taking the time to reach out. I look forward to connecting with you soon!
-                </p>
-                <p style="color: #64748b; font-size: 12px; margin: 10px 0 0 0;">
-                  Request sent on ${new Date().toLocaleString()}
+                
+                <p style="color: #334155; font-size: 16px;">Best regards,<br><strong>Lawrence Hua</strong></p>
+                
+                <p style="color: #64748b; font-size: 14px; line-height: 1.6; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                  📧 ${process.env.FROM_EMAIL || "noreply@lawrencehua.com"}<br>
+                  🔗 <a href="https://www.lawrencehua.com" style="color: #2563eb;">www.lawrencehua.com</a><br>
+                  🎯 AI Product Manager | Full-Stack Developer | Startup Founder<br><br>
+                  <em>I'm passionate about leveraging AI and data to solve real-world problems. Visit <a href="https://www.lawrencehua.com" style="color: #2563eb;">my website</a> to find out more information about my background, projects, and experience.</em>
                 </p>
               </div>
             </div>

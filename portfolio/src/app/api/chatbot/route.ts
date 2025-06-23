@@ -683,157 +683,113 @@ function extractContactInfoFromHistory(
     isContactRequest: false,
   };
 
-  // Extract information from all messages
-  const allConversationText = [
-    ...history.map((h) => h.content),
-    currentMessage,
-  ];
+  // Create an ordered list of all conversation entries
+  const conversation = [...history, { role: "user", content: currentMessage }];
 
-  for (const messageText of allConversationText) {
-    // Extract name
-    if (!extractedInfo.name) {
-      const namePatterns = [
-        /(?:i'm|im|my name is)\s+([a-z\s]+?)(?:[,.]|$)/i,
-        /(?:this is|hey i'm|hey im)\s+([a-z\s]+?)(?:[,.]|$)/i,
-        /(?:from|by)\s+([a-z]+)(?:\s+at|\s+@|$)/i, // "from john at" or "by mike @"
-        /^hey\s+([a-z\s]+?)(?:[,.]|$)/i,
-      ];
+  // Track the conversation flow state machine
+  let foundMessageCommand = false;
+  let foundMeetingCommand = false;
+  let askedForName = false;
+  let askedForCompany = false;
+  let askedForEmail = false;
+  let askedForMessage = false;
+  let askedForDateTime = false;
 
-      for (const pattern of namePatterns) {
-        const match = messageText.match(pattern);
-        if (match && match[1] && match[1].trim().length > 0) {
-          const name = match[1].trim();
-          if (
-            ![
-              "hey",
-              "hi",
-              "hello",
-              "lawrence",
-              "getting",
-              "really",
-              "interested",
-            ].includes(name.toLowerCase())
-          ) {
-            extractedInfo.name = name;
-            break;
-          }
-        }
-      }
+  // Process conversation in order
+  for (let i = 0; i < conversation.length; i++) {
+    const entry = conversation[i];
+    const content = entry.content.toLowerCase();
+
+    // Detect command initiation
+    if (
+      entry.role === "user" &&
+      (content.startsWith("/message") || content.startsWith("/meeting"))
+    ) {
+      foundMessageCommand = content.startsWith("/message");
+      foundMeetingCommand = content.startsWith("/meeting");
+      continue;
     }
 
-    // Extract email
-    if (!extractedInfo.email) {
-      const emailMatch = messageText.match(
-        /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i
-      );
-      if (emailMatch) {
-        extractedInfo.email = emailMatch[0];
-      }
-    }
-
-    // Extract company
-    if (!extractedInfo.company) {
-      const companyPatterns = [
-        /(?:from|at|work at)\s+([a-z\s&]+?)(?:[,.]|$)/i,
-        /company:\s*([a-z\s&]+?)(?:\n|$)/i,
-      ];
-
-      for (const pattern of companyPatterns) {
-        const match = messageText.match(pattern);
-        if (match && match[1]) {
-          extractedInfo.company = match[1].trim();
-          break;
-        }
-      }
-    }
-  }
-
-  // Extract message content - prioritize explicit message statements
-  const messagePatterns = [
-    /(?:the message is|message:|tell him|let him know)\s*(.+?)(?:\.|$)/i,
-    /(?:about|regarding)\s+(.+?)(?:\.|$)/i,
-  ];
-
-  for (const messageText of [...allConversationText].reverse()) {
-    // Start from most recent
-    for (const pattern of messagePatterns) {
-      const match = messageText.match(pattern);
-      if (match && match[1] && match[1].trim().length > 3) {
-        extractedInfo.message = match[1].trim();
-        break;
-      }
-    }
-    if (extractedInfo.message) break;
-  }
-
-  // If no explicit message found, try to extract from context
-  if (!extractedInfo.message) {
-    // Only look for messages that are NOT contact requests
-    const meaningfulMessages = allConversationText.filter((msg) => {
-      // Skip if it's just a contact request
+    // Track assistant prompts
+    if (entry.role === "assistant") {
       if (
-        /^(hey|hi|hello)?\s*(?:can you|could you)?\s*(?:send|forward|tell).*(?:message|email).*(?:to )?lawrence/i.test(
-          msg.trim()
-        )
+        content.includes("what's your name") ||
+        content.includes("what is your name")
       ) {
-        return false;
-      }
-
-      // Look for explicit message indicators
-      if (
-        /(?:the message is|message is|tell him|tell lawrence|message:)\s*(.+)/i.test(
-          msg
-        )
+        askedForName = true;
+        askedForCompany = false;
+        askedForEmail = false;
+        askedForMessage = false;
+        askedForDateTime = false;
+      } else if (content.includes("what company are you with")) {
+        askedForCompany = true;
+        askedForName = false;
+        askedForEmail = false;
+        askedForMessage = false;
+        askedForDateTime = false;
+      } else if (content.includes("email address")) {
+        askedForEmail = true;
+        askedForName = false;
+        askedForCompany = false;
+        askedForMessage = false;
+        askedForDateTime = false;
+      } else if (
+        content.includes("what's your message") ||
+        content.includes("what is your message") ||
+        content.includes("what would you like to discuss")
       ) {
-        return true;
+        askedForMessage = true;
+        askedForName = false;
+        askedForCompany = false;
+        askedForEmail = false;
+        askedForDateTime = false;
+      } else if (
+        content.includes("when would you like to schedule") ||
+        content.includes("preferred date and time")
+      ) {
+        askedForDateTime = true;
+        askedForName = false;
+        askedForCompany = false;
+        askedForEmail = false;
+        askedForMessage = false;
       }
+    }
 
-      // Allow messages that seem to be actual content (not contact requests)
-      const cleanMsg = msg
-        .toLowerCase()
-        .replace(/(?:i'm|im|my name is|my email is|email is)/g, "")
-        .replace(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi, "") // Remove emails
-        .trim();
+    // Extract user responses based on what was asked
+    if (entry.role === "user" && i > 0) {
+      const userContent = entry.content.trim();
 
-      // Check if it's a short, meaningful phrase (like "great website!")
-      if (cleanMsg.length <= 50 && cleanMsg.length > 8) {
-        // Must not contain contact-related words
+      if (askedForName && !extractedInfo.name) {
+        // This is the name response - take it as-is unless it's a common non-name
         if (
-          !/(?:send|forward|tell|contact|message|email|lawrence)/i.test(
-            cleanMsg
+          !["none", "no", "yes", "ok", "okay"].includes(
+            userContent.toLowerCase()
           )
         ) {
-          return true;
+          extractedInfo.name = userContent;
         }
-      }
-
-      return false;
-    });
-
-    if (meaningfulMessages.length > 0) {
-      // Use the most recent meaningful message
-      let substantialMessage =
-        meaningfulMessages[meaningfulMessages.length - 1];
-
-      // Clean it up
-      substantialMessage = substantialMessage
-        .replace(
-          /(?:i'm|im|my name is|my email is|email is)\s+[a-z0-9@.\s]+/gi,
-          ""
-        )
-        .replace(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi, "")
-        .replace(/^(hey|hi|hello)\s*/i, "")
-        .replace(
-          /(?:the message is|message is|tell him|tell lawrence|message:)\s*/i,
-          ""
-        )
-        .trim();
-
-      if (substantialMessage.length > 8) {
-        extractedInfo.message = substantialMessage;
+      } else if (askedForCompany && !extractedInfo.company) {
+        // This is the company response
+        extractedInfo.company = userContent;
+      } else if (askedForEmail && !extractedInfo.email) {
+        // Extract email from response
+        const emailMatch = userContent.match(
+          /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i
+        );
+        if (emailMatch) {
+          extractedInfo.email = emailMatch[0];
+        }
+      } else if (askedForMessage && !extractedInfo.message) {
+        // This is the message/topic
+        extractedInfo.message = userContent;
+      } else if (askedForDateTime && extractedInfo.message) {
+        // If we already have a message and now getting datetime, keep the message as is
+        // The datetime will be handled separately
       }
     }
   }
+
+  extractedInfo.isContactRequest = foundMessageCommand || foundMeetingCommand;
 
   return extractedInfo;
 }
@@ -1165,9 +1121,42 @@ async function generateContactResponse(
       }
     }
 
-    // Step 5: User provided message, send it
+    // Step 5: User provided message, actually send it!
     if (conversationState === "awaiting_message" && hasMessage) {
-      return "✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence. He'll get back to you soon! 📧";
+      try {
+        // Extract all collected information from conversation history
+        const collectedInfo = extractContactInfoFromHistory(history, message);
+
+        // Import the contact handler directly to avoid port issues
+        const { POST: contactHandler } = await import("../contact/route");
+
+        // Create a mock request object
+        const mockRequest = {
+          json: async () => ({
+            message:
+              collectedInfo.message || userMessage || "No message provided",
+            senderEmail: collectedInfo.email || "",
+            senderName: collectedInfo.name || "Anonymous",
+            company: collectedInfo.company || "Not specified",
+          }),
+        } as unknown as NextRequest;
+
+        console.log("DEBUG: Calling contact handler directly");
+        const response = await contactHandler(mockRequest);
+        const result = await response.json();
+
+        console.log("DEBUG: Contact message result:", result);
+
+        if (response.status === 200 && result.success) {
+          return "✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence. He'll get back to you soon! 📧";
+        } else {
+          console.error("DEBUG: Contact message failed:", result);
+          return "❌ **Message Send Failed**\n\nI'm sorry, there was an issue sending your message. Please try again or contact Lawrence directly.";
+        }
+      } catch (error) {
+        console.error("DEBUG: Error sending contact message:", error);
+        return "❌ **Message Send Failed**\n\nI'm sorry, there was an issue sending your message. Please try again or contact Lawrence directly.";
+      }
     }
   }
 

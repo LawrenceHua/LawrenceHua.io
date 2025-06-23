@@ -580,6 +580,9 @@ What would you like to know?`,
       };
       setMessages((prev) => [...prev, loadingMessage]);
 
+      // Scroll to bottom after adding loading message
+      scrollToBottom();
+
       // Small delay to show the loading message
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
