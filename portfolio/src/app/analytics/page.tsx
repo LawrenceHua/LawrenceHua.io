@@ -408,6 +408,22 @@ export default function AnalyticsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, isAuthenticated]);
 
+  // Recalculate analytics data when timeRange changes
+  useEffect(() => {
+    if (
+      sessions.length > 0 ||
+      pageViews.length > 0 ||
+      interactions.length > 0
+    ) {
+      const recalculatedData = calculateAnalyticsData(
+        sessions,
+        pageViews,
+        interactions
+      );
+      setAnalyticsData(recalculatedData);
+    }
+  }, [timeRange, resetDate, sessions, pageViews, interactions]);
+
   const startDataCollection = () => {
     // Track page view
     trackPageView();
@@ -781,15 +797,51 @@ export default function AnalyticsPage() {
     pageViews: PageView[],
     interactions: UserInteraction[]
   ): AnalyticsData => {
-    // Unique visitors (unique session IDs)
+    // Apply time range filtering to all data
+    const now = new Date();
+    let startDate: Date;
+
+    switch (timeRange) {
+      case "1d":
+        startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        break;
+      case "7d":
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case "30d":
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case "all":
+      default:
+        startDate = new Date(0); // Beginning of time
+        break;
+    }
+
+    // Apply reset date filter if set
+    if (resetDate) {
+      startDate = new Date(Math.max(startDate.getTime(), resetDate.getTime()));
+    }
+
+    // Filter data based on time range
+    const filteredSessions = sessions.filter(
+      (session) => session.startTime >= startDate
+    );
+    const filteredPageViews = pageViews.filter(
+      (pv) => pv.timestamp.toDate() >= startDate
+    );
+    const filteredInteractions = interactions.filter(
+      (interaction) => interaction.timestamp.toDate() >= startDate
+    );
+
+    // Use filtered data for calculations
     const uniqueSessions = new Set([
-      ...sessions.map((s) => s.sessionId),
-      ...pageViews.map((p) => p.sessionId),
+      ...filteredSessions.map((s) => s.sessionId),
+      ...filteredPageViews.map((p) => p.sessionId),
     ]);
 
     // Top pages
     const pageCounts = new Map<string, number>();
-    pageViews.forEach((pv) => {
+    filteredPageViews.forEach((pv) => {
       pageCounts.set(pv.page, (pageCounts.get(pv.page) || 0) + 1);
     });
     const topPages = Array.from(pageCounts.entries())
@@ -799,7 +851,7 @@ export default function AnalyticsPage() {
 
     // Device types
     const deviceCounts = new Map<string, number>();
-    pageViews.forEach((pv) => {
+    filteredPageViews.forEach((pv) => {
       const isMobile = /Mobile|Android|iPhone|iPad/.test(pv.userAgent);
       const isTablet = /iPad|Android(?=.*\bMobile\b)(?=.*\bSafari\b)/.test(
         pv.userAgent
@@ -816,7 +868,7 @@ export default function AnalyticsPage() {
 
     // Top referrers
     const referrerCounts = new Map<string, number>();
-    pageViews.forEach((pv) => {
+    filteredPageViews.forEach((pv) => {
       const referrer =
         pv.referrer === "direct"
           ? "Direct"
@@ -835,7 +887,7 @@ export default function AnalyticsPage() {
 
     // Hourly activity
     const hourlyCounts = new Map<number, number>();
-    pageViews.forEach((pv) => {
+    filteredPageViews.forEach((pv) => {
       const hour = pv.timestamp.toDate().getHours();
       hourlyCounts.set(hour, (hourlyCounts.get(hour) || 0) + 1);
     });
@@ -844,29 +896,37 @@ export default function AnalyticsPage() {
       count: hourlyCounts.get(i) || 0,
     }));
 
-    // Daily activity (last 7 days)
+    // Daily activity (adjust based on time range)
     const dailyCounts = new Map<string, number>();
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const dayCount =
+      timeRange === "1d"
+        ? 1
+        : timeRange === "7d"
+          ? 7
+          : timeRange === "30d"
+            ? 30
+            : 7;
+    const recentDays = Array.from({ length: dayCount }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - i);
       return date.toISOString().split("T")[0];
     }).reverse();
 
-    pageViews.forEach((pv) => {
+    filteredPageViews.forEach((pv) => {
       const date = pv.timestamp.toDate().toISOString().split("T")[0];
-      if (last7Days.includes(date)) {
+      if (recentDays.includes(date)) {
         dailyCounts.set(date, (dailyCounts.get(date) || 0) + 1);
       }
     });
 
-    const dailyActivity = last7Days.map((date) => ({
+    const dailyActivity = recentDays.map((date) => ({
       date,
       count: dailyCounts.get(date) || 0,
     }));
 
     // Popular interactions
     const interactionCounts = new Map<string, number>();
-    interactions.forEach((interaction) => {
+    filteredInteractions.forEach((interaction) => {
       interactionCounts.set(
         interaction.type,
         (interactionCounts.get(interaction.type) || 0) + 1
@@ -877,11 +937,13 @@ export default function AnalyticsPage() {
       .sort((a, b) => b.count - a.count);
 
     // Average session duration
-    const totalDuration = sessions.reduce((sum, session) => {
+    const totalDuration = filteredSessions.reduce((sum, session) => {
       return sum + (session.endTime.getTime() - session.startTime.getTime());
     }, 0);
     const avgSessionDuration =
-      sessions.length > 0 ? totalDuration / sessions.length / 1000 / 60 : 0; // in minutes
+      filteredSessions.length > 0
+        ? totalDuration / filteredSessions.length / 1000 / 60
+        : 0; // in minutes
 
     // Visitor Locations
     const countryCounts = new Map<string, number>();
@@ -890,7 +952,7 @@ export default function AnalyticsPage() {
       { city: string; country: string; count: number }
     >();
 
-    pageViews.forEach((pv) => {
+    filteredPageViews.forEach((pv) => {
       if (pv.country) {
         countryCounts.set(pv.country, (countryCounts.get(pv.country) || 0) + 1);
       }
@@ -913,7 +975,7 @@ export default function AnalyticsPage() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    // Potential Recruiter Identification
+    // Potential Recruiter Identification (use filtered data)
     let potentialRecruiters = 0;
     const recruiterMetrics = {
       keywordHits: 0,
@@ -939,7 +1001,7 @@ export default function AnalyticsPage() {
       { count: number; sessionIds: Set<string> }
     >();
 
-    sessions.forEach((session) => {
+    filteredSessions.forEach((session) => {
       let score = 0;
       const chatMessages = session.messages
         .map((m) => m.message?.toLowerCase() || "")
@@ -961,7 +1023,7 @@ export default function AnalyticsPage() {
         score += 1;
       }
 
-      const sessionInteractions = interactions.filter(
+      const sessionInteractions = filteredInteractions.filter(
         (i) => i.sessionId === session.sessionId
       );
       const hasKeyClick = sessionInteractions.some(
@@ -1014,8 +1076,8 @@ export default function AnalyticsPage() {
       tourConversionRate: 0,
     };
 
-    // Time-Based Intelligence
-    const recruiterSessions = sessions.filter((session) => {
+    // Time-Based Intelligence (use filtered data)
+    const recruiterSessions = filteredSessions.filter((session) => {
       let score = 0;
       const chatMessages = session.messages
         .map((m) => m.message?.toLowerCase() || "")
@@ -1030,7 +1092,7 @@ export default function AnalyticsPage() {
       if (sessionDurationMinutes > 3) score += 1;
       if (sessionDurationMinutes > 10) score += 1;
 
-      const sessionInteractions = interactions.filter(
+      const sessionInteractions = filteredInteractions.filter(
         (i) => i.sessionId === session.sessionId
       );
       const hasKeyClick = sessionInteractions.some(
@@ -1080,9 +1142,9 @@ export default function AnalyticsPage() {
         ([month, activity]) => ({ month, activity })
       ),
       timeToEngage:
-        sessions.length > 0
-          ? sessions.reduce((sum, session) => {
-              const firstInteraction = interactions
+        filteredSessions.length > 0
+          ? filteredSessions.reduce((sum, session) => {
+              const firstInteraction = filteredInteractions
                 .filter((i) => i.sessionId === session.sessionId)
                 .sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate())[0];
               if (firstInteraction) {
@@ -1094,11 +1156,11 @@ export default function AnalyticsPage() {
                 );
               }
               return sum;
-            }, 0) / sessions.length
+            }, 0) / filteredSessions.length
           : 0,
     };
 
-    // Industry Intelligence (enhanced with email domain analysis)
+    // Industry Intelligence (use filtered data)
     const domainIndustries = new Map<
       string,
       { industry: string; size: string }
@@ -1140,7 +1202,7 @@ export default function AnalyticsPage() {
       { count: number; conversions: number }
     >();
 
-    pageViews.forEach((pv) => {
+    filteredPageViews.forEach((pv) => {
       let industry = "Unknown";
       let size = "unknown";
 
@@ -1167,7 +1229,7 @@ export default function AnalyticsPage() {
       }
 
       // Calculate engagement score based on time on page and interactions
-      const sessionInteractions = interactions.filter(
+      const sessionInteractions = filteredInteractions.filter(
         (i) => i.sessionId === pv.sessionId
       ).length;
       const engagementScore = (pv.timeOnPage || 0) + sessionInteractions * 30;
@@ -1205,12 +1267,15 @@ export default function AnalyticsPage() {
       identifiedCompanies: [], // Will be populated when we have better domain tracking
       recruitingIntensity: Math.min(
         10,
-        Math.max(1, (potentialRecruiters / uniqueSessions.size) * 10)
+        Math.max(
+          1,
+          (potentialRecruiters / Math.max(1, uniqueSessions.size)) * 10
+        )
       ),
     };
 
-    // Engagement Quality Metrics
-    const scrollDepths = interactions
+    // Engagement Quality Metrics (use filtered data)
+    const scrollDepths = filteredInteractions
       .filter((i) => i.type === "scroll")
       .map((i) => parseInt(i.element.match(/\d+/)?.[0] || "0"));
 
@@ -1218,9 +1283,9 @@ export default function AnalyticsPage() {
       string,
       { time: number; scrolls: number; interactions: number; bounces: number }
     >();
-    pageViews.forEach((pv) => {
+    filteredPageViews.forEach((pv) => {
       const section = pv.page === "/" ? "home" : pv.page.replace("/", "");
-      const sessionInteractions = interactions.filter(
+      const sessionInteractions = filteredInteractions.filter(
         (i) => i.sessionId === pv.sessionId && i.page === pv.page
       );
       const isBounce =
@@ -1245,7 +1310,7 @@ export default function AnalyticsPage() {
 
     const multiVisitSessions = new Set<string>();
     const sessionCounts = new Map<string, number>();
-    pageViews.forEach((pv) => {
+    filteredPageViews.forEach((pv) => {
       sessionCounts.set(
         pv.sessionId,
         (sessionCounts.get(pv.sessionId) || 0) + 1
@@ -1255,10 +1320,10 @@ export default function AnalyticsPage() {
       if (count > 1) multiVisitSessions.add(sessionId);
     });
 
-    const deepEngagementSessions = sessions.filter((session) => {
+    const deepEngagementSessions = filteredSessions.filter((session) => {
       const sessionDurationMinutes =
         (session.endTime.getTime() - session.startTime.getTime()) / 60000;
-      const sessionInteractions = interactions.filter(
+      const sessionInteractions = filteredInteractions.filter(
         (i) => i.sessionId === session.sessionId
       );
       return sessionDurationMinutes > 5 && sessionInteractions.length > 3;
@@ -1276,192 +1341,38 @@ export default function AnalyticsPage() {
             data.time /
             Math.max(
               1,
-              pageViews.filter((pv) => pv.page.includes(section)).length
+              filteredPageViews.filter((pv) => {
+                const pageSection =
+                  pv.page === "/" ? "home" : pv.page.replace("/", "");
+                return pageSection === section;
+              }).length
             ),
           scrollDepth: data.scrolls,
           interactions: data.interactions,
           bounceRate:
-            (data.bounces /
-              Math.max(
-                1,
-                pageViews.filter((pv) => pv.page.includes(section)).length
-              )) *
-            100,
+            data.bounces /
+            Math.max(
+              1,
+              filteredPageViews.filter((pv) => {
+                const pageSection =
+                  pv.page === "/" ? "home" : pv.page.replace("/", "");
+                return pageSection === section;
+              }).length
+            ),
         })
       ),
-      multiVisitRate: (multiVisitSessions.size / uniqueSessions.size) * 100,
-      returnVisitorEngagement: 85, // Mock data
+      multiVisitRate:
+        multiVisitSessions.size / Math.max(1, uniqueSessions.size),
+      returnVisitorEngagement: 0, // Will be calculated when we have return visitor tracking
       deepEngagementSessions,
     };
 
-    // Skill Analysis
-    const inDemandSkills = [
-      {
-        skill: "React",
-        searches: 45,
-        trend: "up" as const,
-        relatedTerms: ["JavaScript", "Frontend"],
-      },
-      {
-        skill: "Python",
-        searches: 38,
-        trend: "up" as const,
-        relatedTerms: ["Machine Learning", "Data Science"],
-      },
-      {
-        skill: "Product Management",
-        searches: 32,
-        trend: "stable" as const,
-        relatedTerms: ["Strategy", "Analytics"],
-      },
-      {
-        skill: "AI/ML",
-        searches: 29,
-        trend: "up" as const,
-        relatedTerms: ["TensorFlow", "PyTorch"],
-      },
-      {
-        skill: "Node.js",
-        searches: 25,
-        trend: "stable" as const,
-        relatedTerms: ["Backend", "Express"],
-      },
-    ];
-
-    const skillAnalysis = {
-      inDemandSkills,
-      missingKeywords: [
-        "Kubernetes",
-        "Docker",
-        "AWS Certified",
-        "Agile Scrum Master",
-      ],
-      competitiveSkills: [
-        "Full-stack Development",
-        "Product Strategy",
-        "Data Analytics",
-      ],
-      skillTrendScore: 7.5,
-    };
-
-    // Conversion Tracking
-    const conversionEvents = [
-      {
-        type: "resume_download" as const,
-        count: 12,
-        conversionRate: 8.5,
-        sessionIds: [],
-      },
-      {
-        type: "linkedin_click" as const,
-        count: 18,
-        conversionRate: 12.8,
-        sessionIds: [],
-      },
-      {
-        type: "contact_form" as const,
-        count: 7,
-        conversionRate: 5.0,
-        sessionIds: [],
-      },
-      {
-        type: "meeting_scheduled" as const,
-        count: 3,
-        conversionRate: 2.1,
-        sessionIds: [],
-      },
-      {
-        type: "email_sent" as const,
-        count: 5,
-        conversionRate: 3.6,
-        sessionIds: [],
-      },
-    ];
-
-    const conversions = {
-      totalConversions: conversionEvents.reduce(
-        (sum, event) => sum + event.count,
-        0
-      ),
-      conversionRate: 12.3,
-      conversionFunnel: conversionEvents,
-      highValueActions: [
-        { action: "Resume Download", value: 10, count: 12 },
-        { action: "LinkedIn Profile Visit", value: 8, count: 18 },
-        { action: "Meeting Scheduled", value: 25, count: 3 },
-      ],
-    };
-
-    // Geographic Intelligence
-    const geoIntelligence = {
-      remoteFriendlyMarkets: [
-        { location: "San Francisco, CA", remoteJobs: 245, interest: 18 },
-        { location: "New York, NY", remoteJobs: 198, interest: 15 },
-        { location: "Seattle, WA", remoteJobs: 167, interest: 12 },
-      ],
-      hiringHotspots: topCities.slice(0, 5).map((city) => ({
-        city: city.city,
-        country: city.country,
-        hiringActivity: city.count * 2.5,
-      })),
-      visaSponsorship: [
-        { country: "United States", visaLikely: true, interest: 45 },
-        { country: "Canada", visaLikely: true, interest: 28 },
-        { country: "United Kingdom", visaLikely: false, interest: 15 },
-      ],
-      marketPenetration: [
-        { region: "North America", penetration: 65, opportunity: 85 },
-        { region: "Europe", penetration: 25, opportunity: 70 },
-        { region: "Asia Pacific", penetration: 10, opportunity: 60 },
-      ],
-    };
-
-    // Competitive Analysis
-    const competitiveAnalysis = {
-      trafficSources: topReferrers.map((ref) => ({
-        source: ref.referrer,
-        quality:
-          ref.referrer === "LinkedIn" ? 9 : ref.referrer === "Google" ? 7 : 5,
-        recruiterRatio: ref.referrer === "LinkedIn" ? 0.35 : 0.15,
-      })),
-      benchmarkMetrics: [
-        {
-          metric: "Page Load Time",
-          yourValue: 1.2,
-          industry: 2.1,
-          percentile: 85,
-        },
-        { metric: "Bounce Rate", yourValue: 32, industry: 45, percentile: 75 },
-        {
-          metric: "Session Duration",
-          yourValue: avgSessionDuration,
-          industry: 3.2,
-          percentile: 78,
-        },
-        {
-          metric: "Conversion Rate",
-          yourValue: 12.3,
-          industry: 8.5,
-          percentile: 82,
-        },
-      ],
-      opportunityAreas: [
-        "SEO Optimization",
-        "Social Media Presence",
-        "Content Marketing",
-      ],
-      strengthAreas: [
-        "User Experience",
-        "Technical Implementation",
-        "Analytics Tracking",
-      ],
-    };
-
+    // Return analytics data with filtered totals
     return {
-      totalPageViews: pageViews.length,
+      totalPageViews: filteredPageViews.length,
       uniqueVisitors: uniqueSessions.size,
-      totalChatSessions: sessions.length,
-      totalMessages: sessions.reduce(
+      totalChatSessions: filteredSessions.length,
+      totalMessages: filteredSessions.reduce(
         (sum, session) => sum + session.messageCount,
         0
       ),
@@ -1481,10 +1392,30 @@ export default function AnalyticsPage() {
       timeIntelligence,
       industryIntel,
       engagementMetrics,
-      skillAnalysis,
-      conversions,
-      geoIntelligence,
-      competitiveAnalysis,
+      skillAnalysis: {
+        inDemandSkills: [],
+        missingKeywords: [],
+        competitiveSkills: [],
+        skillTrendScore: 0,
+      },
+      conversions: {
+        totalConversions: 0,
+        conversionRate: 0,
+        conversionFunnel: [],
+        highValueActions: [],
+      },
+      geoIntelligence: {
+        remoteFriendlyMarkets: [],
+        hiringHotspots: [],
+        visaSponsorship: [],
+        marketPenetration: [],
+      },
+      competitiveAnalysis: {
+        trafficSources: [],
+        benchmarkMetrics: [],
+        opportunityAreas: [],
+        strengthAreas: [],
+      },
     };
   };
 
@@ -1883,107 +1814,167 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* Main Stats Grid */}
+        {/* Priority Metrics - Compact Grid */}
         {analyticsData && (
-          <div className="grid grid-cols-2 lg:grid-cols-7 gap-3 mb-6">
-            <Tooltip content="Total number of page loads across your entire portfolio website. Each page view represents someone accessing a page on your site.">
-              <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-200 text-xs">Page Views</p>
-                    <p className="text-xl font-bold">
+          <>
+            {/* Top Priority Row - Business Critical */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <Tooltip content="Visitors identified as potential recruiters based on keywords used, time spent, and interaction patterns. AI-powered detection of recruitment interest.">
+                <div className="bg-gradient-to-br from-red-600 to-red-700 p-4 rounded-xl border border-red-500/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-red-200 text-xs font-medium">
+                        🎯 Recruiters
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {analyticsData.potentialRecruiters}
+                      </p>
+                      <p className="text-red-300 text-[10px] mt-1">
+                        {analyticsData.foundKeywords.length} keywords used
+                      </p>
+                    </div>
+                    <FiUserCheck className="h-6 w-6 text-red-200" />
+                  </div>
+                </div>
+              </Tooltip>
+
+              <Tooltip content="Number of conversations started with your AI chatbot. Each session represents someone actively engaging with your AI assistant.">
+                <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-xl border border-purple-500/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-200 text-xs font-medium">
+                        💬 Chat Sessions
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {analyticsData.totalChatSessions}
+                      </p>
+                      <p className="text-purple-300 text-[10px] mt-1">
+                        {analyticsData.totalMessages} total messages
+                      </p>
+                    </div>
+                    <FiMessageCircle className="h-6 w-6 text-purple-200" />
+                  </div>
+                </div>
+              </Tooltip>
+
+              <Tooltip content="Unique individuals who visited your portfolio. This counts each person once, regardless of how many pages they viewed.">
+                <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl border border-green-500/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-200 text-xs font-medium">
+                        👥 Visitors
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {analyticsData.uniqueVisitors}
+                      </p>
+                      <p className="text-green-300 text-[10px] mt-1">
+                        {Math.round(analyticsData.avgSessionDuration)}m avg
+                        session
+                      </p>
+                    </div>
+                    <FiUsers className="h-6 w-6 text-green-200" />
+                  </div>
+                </div>
+              </Tooltip>
+
+              <Tooltip content="Number of visitors who started the interactive Product Manager portfolio tour. This guided experience showcases your PM skills and achievements.">
+                <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 p-4 rounded-xl border border-indigo-500/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-indigo-200 text-xs font-medium">
+                        🎯 Tour Starts
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {analyticsData.tourAnalytics.totalTourStarts}
+                      </p>
+                      <p className="text-indigo-300 text-[10px] mt-1">
+                        {analyticsData.tourAnalytics.completionRate}% complete
+                        rate
+                      </p>
+                    </div>
+                    <span className="text-indigo-200 text-2xl">🎯</span>
+                  </div>
+                </div>
+              </Tooltip>
+            </div>
+
+            {/* Secondary Metrics Row - Supporting Data */}
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">
+              <Tooltip content="Total number of page loads across your entire portfolio website.">
+                <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-3 rounded-lg">
+                  <div className="text-center">
+                    <FiEye className="h-4 w-4 text-blue-200 mx-auto mb-1" />
+                    <p className="text-blue-200 text-[10px]">Page Views</p>
+                    <p className="text-lg font-bold">
                       {analyticsData.totalPageViews}
                     </p>
                   </div>
-                  <FiEye className="h-5 w-5 text-blue-200" />
                 </div>
-              </div>
-            </Tooltip>
+              </Tooltip>
 
-            <Tooltip content="Unique individuals who visited your portfolio. This counts each person once, regardless of how many pages they viewed.">
-              <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-200 text-xs">Visitors</p>
-                    <p className="text-xl font-bold">
-                      {analyticsData.uniqueVisitors}
-                    </p>
-                  </div>
-                  <FiUsers className="h-5 w-5 text-green-200" />
-                </div>
-              </div>
-            </Tooltip>
-
-            <Tooltip content="Number of conversations started with your AI chatbot. Each session represents someone actively engaging with your AI assistant.">
-              <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-200 text-xs">Chat Sessions</p>
-                    <p className="text-xl font-bold">
-                      {analyticsData.totalChatSessions}
-                    </p>
-                  </div>
-                  <FiMessageCircle className="h-5 w-5 text-purple-200" />
-                </div>
-              </div>
-            </Tooltip>
-
-            <Tooltip content="Average time visitors spend on your portfolio in minutes. Higher duration indicates strong engagement and interest in your content.">
-              <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-orange-200 text-xs">Avg Session</p>
-                    <p className="text-xl font-bold">
+              <Tooltip content="Average time visitors spend on your portfolio in minutes.">
+                <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-3 rounded-lg">
+                  <div className="text-center">
+                    <FiClock className="h-4 w-4 text-orange-200 mx-auto mb-1" />
+                    <p className="text-orange-200 text-[10px]">Avg Time</p>
+                    <p className="text-lg font-bold">
                       {Math.round(analyticsData.avgSessionDuration)}m
                     </p>
                   </div>
-                  <FiClock className="h-5 w-5 text-orange-200" />
                 </div>
-              </div>
-            </Tooltip>
+              </Tooltip>
 
-            <Tooltip content="Total number of messages exchanged between visitors and your AI chatbot. Shows the depth of AI assistant engagement.">
-              <div className="bg-gradient-to-br from-teal-600 to-teal-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-teal-200 text-xs">Messages</p>
-                    <p className="text-xl font-bold">
+              <Tooltip content="Total messages exchanged with your AI chatbot.">
+                <div className="bg-gradient-to-br from-teal-600 to-teal-700 p-3 rounded-lg">
+                  <div className="text-center">
+                    <FiMessageCircle className="h-4 w-4 text-teal-200 mx-auto mb-1" />
+                    <p className="text-teal-200 text-[10px]">Messages</p>
+                    <p className="text-lg font-bold">
                       {analyticsData.totalMessages}
                     </p>
                   </div>
-                  <FiMessageCircle className="h-5 w-5 text-teal-200" />
                 </div>
-              </div>
-            </Tooltip>
+              </Tooltip>
 
-            <Tooltip content="Visitors identified as potential recruiters based on keywords used, time spent, and interaction patterns. AI-powered detection of recruitment interest.">
-              <div className="bg-gradient-to-br from-red-600 to-red-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-red-200 text-xs">Recruiters</p>
-                    <p className="text-xl font-bold">
-                      {analyticsData.potentialRecruiters}
+              <Tooltip content="Engagement quality score based on interactions and time spent.">
+                <div className="bg-gradient-to-br from-yellow-600 to-yellow-700 p-3 rounded-lg">
+                  <div className="text-center">
+                    <FiActivity className="h-4 w-4 text-yellow-200 mx-auto mb-1" />
+                    <p className="text-yellow-200 text-[10px]">Engagement</p>
+                    <p className="text-lg font-bold">
+                      {analyticsData.engagementMetrics.deepEngagementSessions}
                     </p>
                   </div>
-                  <FiUserCheck className="h-5 w-5 text-red-200" />
                 </div>
-              </div>
-            </Tooltip>
+              </Tooltip>
 
-            <Tooltip content="Number of visitors who started the interactive Product Manager portfolio tour. This guided experience showcases your PM skills and achievements.">
-              <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-indigo-200 text-xs">Tour Taken</p>
-                    <p className="text-xl font-bold">
-                      {analyticsData.tourAnalytics.totalTourStarts}
+              <Tooltip content="Visitors using mobile devices vs desktop.">
+                <div className="bg-gradient-to-br from-gray-600 to-gray-700 p-3 rounded-lg">
+                  <div className="text-center">
+                    <FiSmartphone className="h-4 w-4 text-gray-200 mx-auto mb-1" />
+                    <p className="text-gray-200 text-[10px]">Mobile</p>
+                    <p className="text-lg font-bold">
+                      {analyticsData.deviceTypes.find(
+                        (d) => d.device === "Mobile"
+                      )?.count || 0}
                     </p>
                   </div>
-                  <span className="text-indigo-200 text-lg">🎯</span>
                 </div>
-              </div>
-            </Tooltip>
-          </div>
+              </Tooltip>
+
+              <Tooltip content="Geographic diversity of your visitors.">
+                <div className="bg-gradient-to-br from-pink-600 to-pink-700 p-3 rounded-lg">
+                  <div className="text-center">
+                    <FiGlobe className="h-4 w-4 text-pink-200 mx-auto mb-1" />
+                    <p className="text-pink-200 text-[10px]">Countries</p>
+                    <p className="text-lg font-bold">
+                      {analyticsData.visitorLocations.length}
+                    </p>
+                  </div>
+                </div>
+              </Tooltip>
+            </div>
+          </>
         )}
 
         {/* Chatbot Analytics - PROMINENT POSITION */}
@@ -3131,87 +3122,189 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* Sessions for Keyword Modal */}
+        {/* Sessions for Keyword Modal - Enhanced Scrolling */}
         {selectedKeyword && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-hidden">
+            <div className="bg-gray-800 rounded-xl w-full max-w-5xl max-h-[95vh] flex flex-col shadow-2xl border border-gray-600">
               {/* Fixed Header */}
-              <div className="flex-shrink-0 p-6 border-b border-gray-700">
+              <div className="flex-shrink-0 p-6 border-b border-gray-700 bg-gray-800">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-2xl font-bold">
-                    Sessions containing &ldquo;{selectedKeyword}&rdquo;
-                  </h3>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">
+                      Sessions containing &ldquo;{selectedKeyword}&rdquo;
+                    </h3>
+                    <p className="text-sm text-gray-400 mt-1">
+                      {
+                        sessions.filter((session) =>
+                          analyticsData?.foundKeywords
+                            .find((k) => k.keyword === selectedKeyword)
+                            ?.sessionIds.includes(session.sessionId)
+                        ).length
+                      }{" "}
+                      sessions found
+                    </p>
+                  </div>
                   <button
                     onClick={() => setSelectedKeyword(null)}
-                    className="text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600 p-2 rounded-lg transition-colors"
+                    className="text-gray-400 hover:text-white bg-gray-700 hover:bg-gray-600 p-2 rounded-lg transition-colors flex-shrink-0"
                   >
                     <FiX className="h-6 w-6" />
                   </button>
                 </div>
               </div>
 
-              {/* Scrollable Content */}
-              <div className="flex-1 min-h-0 p-6">
+              {/* Scrollable Sessions Gallery */}
+              <div className="flex-1 min-h-0 overflow-hidden">
                 <div
-                  className="space-y-4 h-full overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700"
+                  className="h-full overflow-y-auto overflow-x-hidden p-6 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-700"
                   style={{
                     scrollBehavior: "smooth",
                     scrollbarWidth: "thin",
-                    scrollbarColor: "#6b7280 #374151",
+                    scrollbarColor: "#3b82f6 #374151",
                     WebkitOverflowScrolling: "touch",
                   }}
                   onWheel={(e) => {
+                    // Prevent event bubbling but allow natural scrolling within modal
                     e.stopPropagation();
                   }}
                 >
-                  {sessions
-                    .filter((session) =>
+                  <div className="space-y-6">
+                    {sessions
+                      .filter((session) =>
+                        analyticsData?.foundKeywords
+                          .find((k) => k.keyword === selectedKeyword)
+                          ?.sessionIds.includes(session.sessionId)
+                      )
+                      .map((session, index) => (
+                        <div
+                          key={session.sessionId}
+                          className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl p-6 hover:from-gray-650 hover:to-gray-750 transition-all duration-200 border border-gray-600/50 hover:border-blue-500/30"
+                        >
+                          {/* Session Header */}
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-lg text-blue-300">
+                                  Session {session.sessionId.slice(-8)}
+                                </h4>
+                                <p className="text-xs text-gray-400">
+                                  {formatTimestamp(session.startTime)} •{" "}
+                                  {session.messageCount} messages
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-400 bg-gray-600/50 px-3 py-1 rounded-full">
+                              {getSessionDuration(
+                                session.startTime,
+                                session.endTime
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Messages Gallery with Enhanced Scrolling */}
+                          <div
+                            className="space-y-3 max-h-80 overflow-y-auto pr-3 scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-600"
+                            style={{
+                              scrollBehavior: "smooth",
+                              scrollbarWidth: "thin",
+                              scrollbarColor: "#6b7280 #4b5563",
+                              WebkitOverflowScrolling: "touch",
+                            }}
+                            onWheel={(e) => {
+                              // Allow natural scrolling within each session's messages
+                              e.stopPropagation();
+                            }}
+                          >
+                            {session.messages.map((message, msgIndex) => (
+                              <div
+                                key={message.id}
+                                className={`text-sm p-4 rounded-lg transition-all duration-200 ${
+                                  message.role === "user"
+                                    ? "bg-gradient-to-r from-blue-900/40 to-blue-800/30 border-l-4 border-blue-400 text-blue-100 hover:from-blue-800/50 hover:to-blue-700/40"
+                                    : "bg-gradient-to-r from-gray-600/40 to-gray-500/30 border-l-4 border-gray-400 text-gray-100 hover:from-gray-500/50 hover:to-gray-400/40"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-bold text-xs flex items-center gap-2">
+                                    {message.role === "user" ? (
+                                      <>
+                                        <span className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[10px]">
+                                          👤
+                                        </span>
+                                        User
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span className="w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center text-[10px]">
+                                          🤖
+                                        </span>
+                                        AI Assistant
+                                      </>
+                                    )}
+                                  </span>
+                                  <span className="text-xs opacity-60">
+                                    #{msgIndex + 1}
+                                  </span>
+                                </div>
+                                <p className="mt-2 leading-relaxed whitespace-pre-wrap">
+                                  {message.message}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+
+                    {/* No Sessions Found State */}
+                    {sessions.filter((session) =>
                       analyticsData?.foundKeywords
                         .find((k) => k.keyword === selectedKeyword)
                         ?.sessionIds.includes(session.sessionId)
-                    )
-                    .map((session) => (
-                      <div
-                        key={session.sessionId}
-                        className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition-colors"
-                      >
-                        <h4 className="font-semibold text-lg mb-3 text-blue-300">
-                          Session {session.sessionId.slice(-6)}
-                        </h4>
-                        <div className="space-y-2 max-h-60 overflow-y-auto">
-                          {session.messages.map((message) => (
-                            <div
-                              key={message.id}
-                              className={`text-sm p-2 rounded ${
-                                message.role === "user"
-                                  ? "bg-blue-900/30 text-blue-200 border-l-2 border-blue-400"
-                                  : "bg-gray-600/50 text-gray-200 border-l-2 border-gray-400"
-                              }`}
-                            >
-                              <span className="font-bold text-xs">
-                                {message.role === "user"
-                                  ? "👤 User:"
-                                  : "🤖 AI:"}
-                              </span>
-                              <p className="mt-1">{message.message}</p>
-                            </div>
-                          ))}
+                    ).length === 0 && (
+                      <div className="text-center py-16 text-gray-400">
+                        <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <FiMessageCircle className="h-8 w-8 opacity-50" />
                         </div>
+                        <h4 className="text-xl font-semibold mb-2">
+                          No Sessions Found
+                        </h4>
+                        <p className="text-sm">
+                          No chat sessions contain the keyword "
+                          {selectedKeyword}"
+                        </p>
                       </div>
-                    ))}
+                    )}
+                  </div>
+                </div>
+              </div>
 
-                  {sessions.filter((session) =>
-                    analyticsData?.foundKeywords
-                      .find((k) => k.keyword === selectedKeyword)
-                      ?.sessionIds.includes(session.sessionId)
-                  ).length === 0 && (
-                    <div className="text-center py-12 text-gray-400">
-                      <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-lg">
-                        No sessions found for this keyword
-                      </p>
-                    </div>
-                  )}
+              {/* Footer with Stats */}
+              <div className="flex-shrink-0 p-4 border-t border-gray-700 bg-gray-800/50">
+                <div className="flex items-center justify-between text-sm text-gray-400">
+                  <span>
+                    Keyword:{" "}
+                    <span className="text-blue-400 font-semibold">
+                      "{selectedKeyword}"
+                    </span>
+                  </span>
+                  <span>
+                    Found in{" "}
+                    {analyticsData?.foundKeywords.find(
+                      (k) => k.keyword === selectedKeyword
+                    )?.count || 0}{" "}
+                    messages across{" "}
+                    {
+                      sessions.filter((session) =>
+                        analyticsData?.foundKeywords
+                          .find((k) => k.keyword === selectedKeyword)
+                          ?.sessionIds.includes(session.sessionId)
+                      ).length
+                    }{" "}
+                    sessions
+                  </span>
                 </div>
               </div>
             </div>

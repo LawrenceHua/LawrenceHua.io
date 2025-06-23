@@ -370,21 +370,37 @@ export default function ModernHome() {
 
         // Special handling for specific sections on mobile
         if (sectionId === "timeline" && currentStep === 2) {
-          // Education step - focus on education entries
+          // Education step - focus on bottom of education gallery
+          // Find the last education item to position at the bottom of education section
+          const educationItems = document.querySelectorAll(
+            '[id^="timeline-university"], [id^="timeline-carnegie"], [id^="timeline-spanish"]'
+          );
+          if (educationItems.length > 0) {
+            const lastEducationItem = educationItems[educationItems.length - 1];
+            const lastItemRect = lastEducationItem.getBoundingClientRect();
+            const lastItemAbsoluteTop = lastItemRect.top + window.pageYOffset;
+            // Position to show the bottom of the education section
+            const finalPosition =
+              lastItemAbsoluteTop + lastItemRect.height - 200;
+            window.scrollTo({ top: finalPosition, behavior: "smooth" });
+            return;
+          }
+          // Fallback positioning
           const finalPosition = absoluteElementTop - 150;
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "timeline" && currentStep === 3) {
-          // Work experience step - scroll to show work experience section
-          // Find the work-experience-title element for more precise positioning
+          // Work experience step - scroll to bottom of work experience gallery
+          // Target the scroll indicator area at the bottom of work experience
           const workExperienceTitle = document.getElementById(
             "work-experience-title"
           );
           if (workExperienceTitle) {
             const workRect = workExperienceTitle.getBoundingClientRect();
             const workAbsoluteTop = workRect.top + window.pageYOffset;
-            // Position the work experience title near the top of viewport on mobile
-            const finalPosition = workAbsoluteTop - 120;
+            // Position to show the bottom area of work experience where "scroll for more" appears
+            // Add extra offset to show the scrollable gallery bottom
+            const finalPosition = workAbsoluteTop + 500; // Show the bottom of the work experience gallery
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
