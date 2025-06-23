@@ -277,7 +277,7 @@ export default function AnalyticsPage() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
     null
   );
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Changed to false - no auto-load
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "user" | "assistant">(
     "all"
@@ -298,25 +298,50 @@ export default function AnalyticsPage() {
   const PAGE_SIZE = 100;
   const [showChatbotFullScreen, setShowChatbotFullScreen] = useState(false);
 
-  // Track Firebase reads and writes for this session
-  let firebaseReads = 0;
-  let firebaseWrites = 0;
-  if (typeof window !== "undefined") {
-    firebaseReads = Number(sessionStorage.getItem("firebaseReads") || 0);
-    firebaseWrites = Number(sessionStorage.getItem("firebaseWrites") || 0);
-  }
+  // New states for Firebase optimization
+  const [refreshCost, setRefreshCost] = useState({ reads: 0, writes: 0 });
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
+  const [showCostWarning, setShowCostWarning] = useState(false);
+  const [refreshInProgress, setRefreshInProgress] = useState(false);
+
+  // Track Firebase reads and writes for this session with state management
+  const [firebaseReads, setFirebaseReads] = useState(() => {
+    if (typeof window !== "undefined") {
+      return Number(sessionStorage.getItem("firebaseReads") || 0);
+    }
+    return 0;
+  });
+  const [firebaseWrites, setFirebaseWrites] = useState(() => {
+    if (typeof window !== "undefined") {
+      return Number(sessionStorage.getItem("firebaseWrites") || 0);
+    }
+    return 0;
+  });
+
   function incrementRead() {
     if (typeof window !== "undefined") {
-      firebaseReads++;
-      sessionStorage.setItem("firebaseReads", firebaseReads.toString());
+      const newReads = firebaseReads + 1;
+      setFirebaseReads(newReads);
+      sessionStorage.setItem("firebaseReads", newReads.toString());
     }
   }
   function incrementWrite() {
     if (typeof window !== "undefined") {
-      firebaseWrites++;
-      sessionStorage.setItem("firebaseWrites", firebaseWrites.toString());
+      const newWrites = firebaseWrites + 1;
+      setFirebaseWrites(newWrites);
+      sessionStorage.setItem("firebaseWrites", newWrites.toString());
     }
   }
+
+  // Reset Firebase counters
+  const resetCounters = () => {
+    setFirebaseReads(0);
+    setFirebaseWrites(0);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("firebaseReads", "0");
+      sessionStorage.setItem("firebaseWrites", "0");
+    }
+  };
 
   useEffect(() => {
     // Check for password in session storage
@@ -343,11 +368,11 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (db && isAuthenticated) {
-      fetchAllData();
+      // Only start data collection (tracking), don't fetch data automatically
       startDataCollection();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [db, timeRange, isAuthenticated]);
+  }, [db, isAuthenticated]);
 
   const startDataCollection = () => {
     // Track page view
@@ -394,10 +419,29 @@ export default function AnalyticsPage() {
 
   const trackUserInteractions = () => {
     const sessionId = getSessionId();
+    let lastClickTime = 0;
+    let scrollTrackingEnabled = true;
 
-    // Track clicks
+    // Track clicks with throttling to prevent spam
     document.addEventListener("click", async (e) => {
+      const now = Date.now();
+      if (now - lastClickTime < 1000) return; // Throttle clicks to 1 per second
+      lastClickTime = now;
+
       const target = e.target as HTMLElement;
+
+      // Only track meaningful clicks (buttons, links, important elements)
+      const isImportantClick =
+        target.tagName.toLowerCase() === "button" ||
+        target.tagName.toLowerCase() === "a" ||
+        target.getAttribute("role") === "button" ||
+        target.className.includes("btn") ||
+        target.className.includes("click") ||
+        target.id.includes("nav") ||
+        target.id.includes("contact");
+
+      if (!isImportantClick) return;
+
       const interaction = {
         type: "click",
         element:
@@ -412,26 +456,30 @@ export default function AnalyticsPage() {
       if (db) {
         try {
           await addDoc(collection(db, "user_interactions"), interaction);
+          incrementWrite();
         } catch (error) {
           console.error("Error tracking interaction:", error);
         }
       }
     });
 
-    // Track scroll depth
+    // Track scroll depth - only major milestones and disable after analytics page
     let maxScroll = 0;
     window.addEventListener("scroll", async () => {
+      if (!scrollTrackingEnabled || window.location.pathname === "/analytics")
+        return;
+
       const scrollPercent = Math.round(
         (window.scrollY / (document.body.scrollHeight - window.innerHeight)) *
           100
       );
       if (scrollPercent > maxScroll) {
         maxScroll = scrollPercent;
-        if (maxScroll % 25 === 0) {
-          // Track every 25% scroll
+        // Only track 50% and 100% scroll to reduce writes
+        if (maxScroll === 50 || maxScroll >= 90) {
           const interaction = {
             type: "scroll",
-            element: `scroll_${maxScroll}%`,
+            element: `scroll_${maxScroll >= 90 ? 100 : maxScroll}%`,
             page: window.location.pathname,
             sessionId,
             timestamp: serverTimestamp(),
@@ -440,9 +488,15 @@ export default function AnalyticsPage() {
           if (db) {
             try {
               await addDoc(collection(db, "user_interactions"), interaction);
+              incrementWrite();
             } catch (error) {
               console.error("Error tracking scroll:", error);
             }
+          }
+
+          // Disable scroll tracking after reaching 100%
+          if (maxScroll >= 90) {
+            scrollTrackingEnabled = false;
           }
         }
       }
@@ -464,6 +518,7 @@ export default function AnalyticsPage() {
 
     try {
       await addDoc(collection(db, "device_info"), deviceInfo);
+      incrementWrite();
     } catch (error) {
       console.error("Error tracking device info:", error);
     }
@@ -477,6 +532,61 @@ export default function AnalyticsPage() {
       sessionStorage.setItem("sessionId", sessionId);
     }
     return sessionId;
+  };
+
+  // Estimate Firebase costs for a refresh
+  const estimateRefreshCost = () => {
+    // Firebase Firestore pricing: ~$0.36 per 100K reads, $1.08 per 100K writes
+    // We typically do 3 reads per refresh (messages, page_views, interactions)
+    const estimatedReads = 3;
+    const estimatedWrites = 0; // Refresh only reads data
+
+    return {
+      reads: estimatedReads,
+      writes: estimatedWrites,
+      cost:
+        (estimatedReads * 0.36) / 100000 + (estimatedWrites * 1.08) / 100000,
+    };
+  };
+
+  // Manual refresh function with cost awareness
+  const handleManualRefresh = async () => {
+    const cost = estimateRefreshCost();
+    setRefreshCost(cost);
+
+    // Show warning if high cost or frequent refreshes
+    const timeSinceLastRefresh = lastRefreshTime
+      ? (Date.now() - lastRefreshTime.getTime()) / 1000 / 60
+      : Infinity; // minutes
+
+    if (cost.reads > 5 || timeSinceLastRefresh < 2) {
+      setShowCostWarning(true);
+      return;
+    }
+
+    await performRefresh();
+  };
+
+  // Perform the actual refresh
+  const performRefresh = async () => {
+    setShowCostWarning(false);
+    setRefreshInProgress(true);
+    const startReads = firebaseReads;
+    const startWrites = firebaseWrites;
+
+    try {
+      await fetchAllData();
+      setLastRefreshTime(new Date());
+
+      // Calculate actual cost of this refresh
+      const actualCost = {
+        reads: firebaseReads - startReads,
+        writes: firebaseWrites - startWrites,
+      };
+      setRefreshCost(actualCost);
+    } finally {
+      setRefreshInProgress(false);
+    }
   };
 
   const fetchAllData = async (append = false) => {
@@ -1386,8 +1496,14 @@ export default function AnalyticsPage() {
     return filtered;
   }, [sessions, roleFilter, searchTerm, sortOrder]);
 
-  const loadMoreSessions = () => {
-    fetchAllData(true);
+  const loadMoreSessions = async () => {
+    if (
+      confirm(
+        `This will consume additional Firebase reads. Current session: ${firebaseReads} reads. Continue?`
+      )
+    ) {
+      await fetchAllData(true);
+    }
   };
 
   const formatTimestamp = (timestamp: any) => {
@@ -1478,11 +1594,44 @@ export default function AnalyticsPage() {
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            {/* Firebase Usage Display */}
+            <div className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <span className="text-blue-400">📖</span>
+                  <span className="text-gray-300">Reads:</span>
+                  <span
+                    className={`font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}
+                  >
+                    {firebaseReads}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-orange-400">✏️</span>
+                  <span className="text-gray-300">Writes:</span>
+                  <span
+                    className={`font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}
+                  >
+                    {firebaseWrites}
+                  </span>
+                </div>
+                <button
+                  onClick={resetCounters}
+                  className="text-xs text-gray-400 hover:text-gray-300 px-2 py-1 bg-gray-700 rounded"
+                  title="Reset counters"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            {/* Time Range Selector */}
             <div className="flex items-center gap-2">
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value as any)}
                 className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+                disabled={loading || refreshInProgress}
               >
                 <option value="1d">Last 24 hours</option>
                 <option value="7d">Last 7 days</option>
@@ -1490,8 +1639,123 @@ export default function AnalyticsPage() {
                 <option value="all">All time</option>
               </select>
             </div>
+
+            {/* Manual Refresh Button */}
+            <button
+              onClick={handleManualRefresh}
+              disabled={loading || refreshInProgress}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                loading || refreshInProgress
+                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
+              }`}
+            >
+              {refreshInProgress ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Refreshing...
+                </>
+              ) : (
+                <>
+                  <FiActivity className="h-4 w-4" />
+                  Refresh Data
+                  {lastRefreshTime && (
+                    <span className="text-xs bg-blue-700 px-2 py-1 rounded">
+                      ~{estimateRefreshCost().reads} reads
+                    </span>
+                  )}
+                </>
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Cost Warning Modal */}
+        {showCostWarning && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 border border-yellow-500/20">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">⚠️</span>
+                <h3 className="text-xl font-bold text-yellow-400">
+                  Firebase Usage Warning
+                </h3>
+              </div>
+              <div className="space-y-3 mb-6">
+                <p className="text-gray-300">
+                  This refresh will consume approximately{" "}
+                  <span className="font-bold text-yellow-400">
+                    {refreshCost.reads} reads
+                  </span>{" "}
+                  from Firebase.
+                </p>
+                {lastRefreshTime && (
+                  <p className="text-sm text-gray-400">
+                    Last refresh:{" "}
+                    {Math.round(
+                      (Date.now() - lastRefreshTime.getTime()) / 60000
+                    )}{" "}
+                    minutes ago
+                  </p>
+                )}
+                <div className="bg-gray-700 p-3 rounded-lg">
+                  <p className="text-xs text-gray-400 mb-2">
+                    Current session usage:
+                  </p>
+                  <div className="flex justify-between">
+                    <span>
+                      Reads:{" "}
+                      <span className="text-blue-400 font-bold">
+                        {firebaseReads}
+                      </span>
+                    </span>
+                    <span>
+                      Writes:{" "}
+                      <span className="text-orange-400 font-bold">
+                        {firebaseWrites}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowCostWarning(false)}
+                  className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={performRefresh}
+                  className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors font-medium"
+                >
+                  Proceed Anyway
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* No Data State */}
+        {!loading && !analyticsData && (
+          <div className="text-center py-16">
+            <div className="bg-gray-800 rounded-xl p-8 max-w-md mx-auto">
+              <span className="text-6xl mb-4 block">📊</span>
+              <h2 className="text-2xl font-bold mb-4">
+                No Analytics Data Loaded
+              </h2>
+              <p className="text-gray-400 mb-6">
+                Click "Refresh Data" to load your portfolio analytics. This will
+                consume approximately 3 Firebase reads.
+              </p>
+              <button
+                onClick={handleManualRefresh}
+                className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                Load Analytics Data
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Main Stats Grid */}
         {analyticsData && (
@@ -2694,32 +2958,114 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* System Stats */}
+        {/* System Performance & Firebase Usage */}
         <div className="bg-gray-800 rounded-xl p-6 mb-6">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <FiActivity className="h-5 w-5" />
-            System Performance
+            System Performance & Firebase Usage
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-gray-700 p-3 rounded-lg">
-              <h3 className="text-gray-400 text-xs">Firebase Reads</h3>
-              <p className="text-lg font-bold">{firebaseReads}</p>
+
+          {/* Firebase Usage Overview */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-xs mb-1">Session Reads</h3>
+              <p
+                className={`text-2xl font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}
+              >
+                {firebaseReads}
+              </p>
+              <p className="text-xs text-gray-500">
+                ~${((firebaseReads * 0.36) / 100000).toFixed(6)}
+              </p>
             </div>
-            <div className="bg-gray-700 p-3 rounded-lg">
-              <h3 className="text-gray-400 text-xs">Firebase Writes</h3>
-              <p className="text-lg font-bold">{firebaseWrites}</p>
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-xs mb-1">Session Writes</h3>
+              <p
+                className={`text-2xl font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}
+              >
+                {firebaseWrites}
+              </p>
+              <p className="text-xs text-gray-500">
+                ~${((firebaseWrites * 1.08) / 100000).toFixed(6)}
+              </p>
             </div>
-            <div className="bg-gray-700 p-3 rounded-lg">
-              <h3 className="text-gray-400 text-xs">Active Filters</h3>
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-xs mb-1">Last Refresh</h3>
+              <p className="text-lg font-bold">
+                {refreshCost.reads > 0 ? refreshCost.reads : "-"}
+              </p>
+              <p className="text-xs text-gray-500">reads used</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-xs mb-1">Estimated Cost</h3>
+              <p className="text-lg font-bold text-green-400">
+                $
+                {(
+                  (firebaseReads * 0.36 + firebaseWrites * 1.08) /
+                  100000
+                ).toFixed(6)}
+              </p>
+              <p className="text-xs text-gray-500">this session</p>
+            </div>
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-xs mb-1">Active Filters</h3>
               <p className="text-lg font-bold">
                 {roleFilter !== "all" ? 1 : 0}
               </p>
+              <p className="text-xs text-gray-500">applied</p>
             </div>
-            <div className="bg-gray-700 p-3 rounded-lg">
-              <h3 className="text-gray-400 text-xs">Time Range</h3>
+            <div className="bg-gray-700 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-xs mb-1">Time Range</h3>
               <p className="text-lg font-bold">{timeRange}</p>
+              <p className="text-xs text-gray-500">selected</p>
             </div>
           </div>
+
+          {/* Usage Guidelines */}
+          <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-500/20 rounded-lg p-4">
+            <h4 className="text-sm font-semibold mb-2 text-blue-300">
+              💡 Firebase Usage Guidelines
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div>
+                <span className="text-green-400 font-semibold">
+                  Low Usage (Good):
+                </span>
+                <p className="text-gray-400">
+                  ≤20 reads, ≤10 writes per session
+                </p>
+              </div>
+              <div>
+                <span className="text-yellow-400 font-semibold">
+                  Medium Usage (Caution):
+                </span>
+                <p className="text-gray-400">
+                  21-50 reads, 11-20 writes per session
+                </p>
+              </div>
+              <div>
+                <span className="text-red-400 font-semibold">
+                  High Usage (Expensive):
+                </span>
+                <p className="text-gray-400">
+                  &gt;50 reads, &gt;20 writes per session
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {lastRefreshTime && (
+            <div className="mt-4 text-sm text-gray-400">
+              <p>
+                Last refresh: {lastRefreshTime.toLocaleString()}
+                <span className="ml-2 text-green-400">
+                  (
+                  {Math.round((Date.now() - lastRefreshTime.getTime()) / 60000)}{" "}
+                  minutes ago)
+                </span>
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Full Chatbot Sessions Modal - Gallery Style */}
