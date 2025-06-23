@@ -1252,12 +1252,12 @@ Could you share more details about the specific position you'd like me to analyz
               const workingLinks = `
 
 **🔗 Explore Lawrence's Work:**
-• **Expired Solutions**: AI platform for grocery automation with computer vision
-• **PM Happy Hour**: Community-driven product management platform
-• **Technical Projects**: Full-stack applications and ML implementations
+<button-expired>Expired Solutions</button-expired> - AI platform for grocery automation with computer vision
+<button-pmhappyhour>PM Happy Hour</button-pmhappyhour> - Community-driven product management platform
+<button-projects>Technical Projects</button-projects> - Full-stack applications and ML implementations
 
 **📞 Next Steps:**
-Want to discuss this role further? Type \`/meeting\` to schedule a call or \`/message\` to send a quick note!
+Want to discuss this role further? <button-meeting>Schedule a call</button-meeting> or <button-message>Send a quick note</button-message>
 
 **💼 View More:**
 You can also scroll down to see his full project portfolio and work experience on this site.`;
@@ -1348,12 +1348,12 @@ IMPORTANT: Do not include any placeholder links or markdown links in your respon
               const workingLinks = `
 
 **🔗 Explore Lawrence's Work:**
-• **Expired Solutions**: AI platform for grocery automation with computer vision
-• **PM Happy Hour**: Community-driven product management platform
-• **Technical Projects**: Full-stack applications and ML implementations
+<button-expired>Expired Solutions</button-expired> - AI platform for grocery automation with computer vision
+<button-pmhappyhour>PM Happy Hour</button-pmhappyhour> - Community-driven product management platform
+<button-projects>Technical Projects</button-projects> - Full-stack applications and ML implementations
 
 **📞 Next Steps:**
-Want to discuss this role further? Type \`/meeting\` to schedule a call or \`/message\` to send a quick note!
+Want to discuss this role further? <button-meeting>Schedule a call</button-meeting> or <button-message>Send a quick note</button-message>
 
 **💼 View More:**
 You can also scroll down to see his full project portfolio and work experience on this site.`;
@@ -1404,12 +1404,12 @@ He would be an excellent fit for product, technical, or AI-focused roles. What s
               const workingLinks = `
 
 **🔗 Explore Lawrence's Work:**
-• **Expired Solutions**: AI platform for grocery automation with computer vision
-• **PM Happy Hour**: Community-driven product management platform
-• **Technical Projects**: Full-stack applications and ML implementations
+<button-expired>Expired Solutions</button-expired> - AI platform for grocery automation with computer vision
+<button-pmhappyhour>PM Happy Hour</button-pmhappyhour> - Community-driven product management platform
+<button-projects>Technical Projects</button-projects> - Full-stack applications and ML implementations
 
 **📞 Next Steps:**
-Want to discuss this role further? Type \`/meeting\` to schedule a call or \`/message\` to send a quick note!
+Want to discuss this role further? <button-meeting>Schedule a call</button-meeting> or <button-message>Send a quick note</button-message>
 
 **💼 View More:**
 You can also scroll down to see his full project portfolio and work experience on this site.`;
