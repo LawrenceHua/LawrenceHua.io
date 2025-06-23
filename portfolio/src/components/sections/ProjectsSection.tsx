@@ -103,6 +103,16 @@ const projectsData = {
       linkIcon: "external" as const,
     },
     {
+      title: "Amazon MTurk External Expert Projects",
+      description:
+        "AI Model Evaluation projects as External Expert for Amazon's Mechanical Turk Experts Program with Expert qualification rating. Evaluating AI-generated code, performing prompt assessments, and providing feedback for human-AI alignment.",
+      image: "/logos/mturk logo.png",
+      tags: ["AI Evaluation", "Expert Rating", "Human-AI Alignment", "Amazon"],
+      link: "https://www.linkedin.com/in/lawrencehua",
+      linkText: "View LinkedIn",
+      linkIcon: "external" as const,
+    },
+    {
       title: "Netflix Clone with KNN Model",
       description:
         "Developed a KNN model analyzing 10M+ reviews with A/B testing implementation and Grafana visualization.",

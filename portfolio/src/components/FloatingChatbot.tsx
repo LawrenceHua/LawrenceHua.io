@@ -107,6 +107,11 @@ export function FloatingChatbot({
   };
 
   const openChatbot = () => {
+    // Prevent opening chatbot when tour is active
+    if (tourActive) {
+      return;
+    }
+
     setIsOpen(true);
     setShowPopup(false);
     setHasBeenOpened(true);
@@ -185,11 +190,19 @@ export function FloatingChatbot({
         {/* Main Chat Button */}
         <motion.button
           onClick={openChatbot}
-          className="h-14 w-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+          disabled={tourActive}
+          className={`h-14 w-14 rounded-full text-white shadow-lg transition-all duration-300 flex items-center justify-center group ${
+            tourActive
+              ? "bg-gray-400 cursor-not-allowed opacity-50"
+              : "bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-xl cursor-pointer"
+          }`}
           whileHover={tourActive ? {} : { scale: 1.1 }}
           whileTap={tourActive ? {} : { scale: 0.9 }}
+          title={tourActive ? "Chat is disabled during tour" : "Open chat"}
         >
-          <MessageCircle className="h-6 w-6 transition-transform group-hover:scale-110" />
+          <MessageCircle
+            className={`h-6 w-6 transition-transform ${tourActive ? "" : "group-hover:scale-110"}`}
+          />
         </motion.button>
 
         {/* Removed pulse animation for performance */}

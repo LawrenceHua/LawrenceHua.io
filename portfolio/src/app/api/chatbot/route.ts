@@ -927,7 +927,11 @@ function detectContactIntent(
   let intent: "message" | "meeting" | "question" | null = null;
   if (isMessageCommand) intent = "message";
   else if (isMeetingCommand) intent = "meeting";
-  else if (message.includes("?") || isRegularQuestion) intent = "question";
+  else if (
+    (message.includes("?") || isRegularQuestion) &&
+    conversationState === ""
+  )
+    intent = "question"; // Only set question intent if NOT in contact flow
 
   // Reset conversation state if contact flow was completed
   if (

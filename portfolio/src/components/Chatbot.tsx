@@ -126,7 +126,7 @@ function formatMessage(
     )
     .replace(
       /<button-mturk>(.*?)<\/button-mturk>/g,
-      "<button onclick=\"window.open('/mturk-examples', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+      "<button onclick=\"window.open('https://www.linkedin.com/in/lawrencehua', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
     );
 
   // Special styling for typed commands - make them more visible and attractive
