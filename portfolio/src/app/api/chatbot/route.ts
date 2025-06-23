@@ -251,6 +251,7 @@ async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
 
 **KEY CURRENT ROLES:**
 I'm currently juggling multiple roles:
+• **External Expert – AI Model Evaluation** - Amazon MTurk Experts Program (Qualification Rating: Expert, AI alignment, prompt assessment, human-vs-AI evaluation)
 • **AI Product Consultant** - Tutora (4+ years, part-time, 15hrs/week saved via AI automation, +35% test scores)  
 • **Product Manager Intern** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
 • **Founder & CEO** - Expired Solutions (AI grocery platform, 20% waste reduction, Giant Eagle pilot)
@@ -266,6 +267,7 @@ I'm currently juggling multiple roles:
 
 **PROJECT LINKS:**
 When mentioning specific projects or experiences, include these custom buttons:
+- Amazon MTurk work: <button-mturk>View MTurk AI Evaluation Work</button-mturk>
 - Expired Solutions: <button-expired>View Expired Solutions</button-expired>
 - Tutora work: <button-tutora>Visit Tutora Website</button-tutora>
 - PM Happy Hour: <button-pmhappyhour>Learn About PM Happy Hour</button-pmhappyhour>
@@ -283,6 +285,7 @@ Always include these buttons after mentioning the respective project/experience.
 
 **ABOUT LAWRENCE:**
 I'm currently juggling multiple roles:
+• **External Expert – AI Model Evaluation** - Amazon MTurk Experts Program (Qualification Rating: Expert, AI alignment, prompt assessment, human-vs-AI evaluation)
 • **Founder & CEO** - Expired Solutions (AI grocery platform, 20% waste reduction, Giant Eagle pilot)
 • **Product Manager** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
 • **AI Product Consultant** - Tutora (4+ years, 15hrs/week saved via AI automation, +35% test scores)  
@@ -309,6 +312,7 @@ AI/ML, Product Strategy, Computer Vision, GPT Integration, Enterprise Software, 
 
 **PROJECT LINKS:**
 When mentioning specific projects or experiences, include these custom buttons:
+- Amazon MTurk work: <button-mturk>View MTurk AI Evaluation Work</button-mturk>
 - Expired Solutions: <button-expired>View Expired Solutions</button-expired>
 - Tutora work: <button-tutora>Visit Tutora Website</button-tutora>
 - PM Happy Hour: <button-pmhappyhour>Learn About PM Happy Hour</button-pmhappyhour>
@@ -885,22 +889,34 @@ function detectContactIntent(
   // Determine what state we're in based on last assistant message
   // Only set conversation state if we're actively in a contact flow
   if (
+    lastAssistantMessage.includes("What's your name") &&
+    !lastAssistantMessage.includes("Message Sent Successfully") &&
+    !lastAssistantMessage.includes("Meeting Request Sent Successfully")
+  ) {
+    conversationState = "awaiting_name";
+  } else if (
+    lastAssistantMessage.includes("What company are you with") &&
+    !lastAssistantMessage.includes("Message Sent Successfully") &&
+    !lastAssistantMessage.includes("Meeting Request Sent Successfully")
+  ) {
+    conversationState = "awaiting_company";
+  } else if (
     lastAssistantMessage.includes("email address") &&
-    !lastAssistantMessage.includes("Message Sent Successfully")
+    !lastAssistantMessage.includes("Message Sent Successfully") &&
+    !lastAssistantMessage.includes("Meeting Request Sent Successfully")
   ) {
     conversationState = "awaiting_email";
   } else if (
     (lastAssistantMessage.includes("What is your message") ||
-      lastAssistantMessage.includes("Got it!") ||
-      lastAssistantMessage.includes("Perfect!")) &&
+      lastAssistantMessage.includes("What's your message") ||
+      lastAssistantMessage.includes("what would you like to discuss")) &&
     !lastAssistantMessage.includes("Message Sent Successfully") &&
     !lastAssistantMessage.includes("Meeting Request Sent Successfully")
   ) {
     conversationState = "awaiting_message";
   } else if (
     (lastAssistantMessage.includes("when would you like to schedule") ||
-      lastAssistantMessage.includes("What date and time") ||
-      lastAssistantMessage.includes("Great!")) &&
+      lastAssistantMessage.includes("What date and time")) &&
     !lastAssistantMessage.includes("Meeting Request Sent Successfully")
   ) {
     conversationState = "awaiting_datetime";
@@ -936,51 +952,67 @@ function detectContactIntent(
 
   const extractedInfo: any = {};
 
-  // Extract email if we're awaiting email or if email provided
-  const emailMatch = message.match(
-    /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i
-  );
-  if (emailMatch) {
-    extractedInfo.email = emailMatch[0];
-  }
+  // Only extract specific information based on what state we're in
+  // This prevents cross-contamination from conversation context
 
-  // Extract name if provided
-  const namePatterns = [
-    /(?:i'm|im|my name is)\s+([a-z\s]+?)(?:[,.]|$)/i,
-    /(?:this is|hey)\s+([a-z\s]+?)(?:[,.]|$)/i,
-  ];
+  if (conversationState === "awaiting_name") {
+    // Extract name - only when explicitly asked for name
+    const namePatterns = [
+      /^([a-z\s]+?)$/i, // Just the name by itself
+      /(?:i'm|im|my name is)\s+([a-z\s]+?)(?:[,.]|$)/i,
+      /(?:this is|hey)\s+([a-z\s]+?)(?:[,.]|$)/i,
+    ];
 
-  for (const pattern of namePatterns) {
-    const match = message.match(pattern);
-    if (match && match[1] && match[1].trim().length > 0) {
-      const name = match[1].trim();
-      // Filter out common false positives
-      if (!["hey", "hi", "hello", "lawrence"].includes(name.toLowerCase())) {
-        extractedInfo.name = name;
-        break;
+    for (const pattern of namePatterns) {
+      const match = message.match(pattern);
+      if (match && match[1] && match[1].trim().length > 0) {
+        const name = match[1].trim();
+        // Filter out common false positives
+        if (
+          !["hey", "hi", "hello", "lawrence", "none", "no"].includes(
+            name.toLowerCase()
+          )
+        ) {
+          extractedInfo.name = name;
+          break;
+        }
       }
     }
-  }
+  } else if (conversationState === "awaiting_company") {
+    // Extract company - only when explicitly asked for company
+    if (
+      message.toLowerCase().trim() === "none" ||
+      message.toLowerCase().trim() === "no company"
+    ) {
+      extractedInfo.company = "None";
+    } else {
+      const companyPatterns = [
+        /^([a-z\s&\.]+?)$/i, // Just the company name by itself
+        /(?:from|at|work at)\s+([a-z\s&\.]+?)(?:[,.]|$)/i,
+        /company:\s*([a-z\s&\.]+?)(?:\n|$)/i,
+      ];
 
-  // Extract company if provided
-  const companyPatterns = [
-    /(?:from|at|work at)\s+([a-z\s&]+?)(?:[,.]|$)/i,
-    /company:\s*([a-z\s&]+?)(?:\n|$)/i,
-  ];
-
-  for (const pattern of companyPatterns) {
-    const match = message.match(pattern);
-    if (match && match[1]) {
-      extractedInfo.company = match[1].trim();
-      break;
+      for (const pattern of companyPatterns) {
+        const match = message.match(pattern);
+        if (match && match[1]) {
+          extractedInfo.company = match[1].trim();
+          break;
+        }
+      }
     }
-  }
-
-  // Extract message content if we're in awaiting_message state or if it's not a command
-  if (
+  } else if (conversationState === "awaiting_email") {
+    // Extract email - only when explicitly asked for email
+    const emailMatch = message.match(
+      /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i
+    );
+    if (emailMatch) {
+      extractedInfo.email = emailMatch[0];
+    }
+  } else if (
     conversationState === "awaiting_message" ||
     conversationState === "awaiting_datetime"
   ) {
+    // Extract message content - only when explicitly asked for message
     extractedInfo.message = message.trim();
   }
 
@@ -1056,15 +1088,19 @@ function generateContactResponse(
   history: Array<{ role: string; content: string }>,
   conversationState?: string
 ): string {
-  const { email, message: userMessage } = extractedInfo;
+  const { name, company, email, message: userMessage } = extractedInfo;
 
   // Check what information we have
+  const hasName = name && name.length > 0;
+  const hasCompany = company && company.length > 0;
   const hasEmail = email && email.length > 0;
   const hasMessage = userMessage && userMessage.length > 0;
 
   console.log("DEBUG: generateContactResponse called with:", {
     intent,
     conversationState,
+    hasName,
+    hasCompany,
     hasEmail,
     hasMessage,
     extractedInfo,
@@ -1073,19 +1109,37 @@ function generateContactResponse(
   if (intent === "message") {
     // Step 1: Initial /message command
     if (message.toLowerCase().trim().startsWith("/message")) {
-      return `I'll help you send a message to Lawrence! What's your email address for the message?`;
+      return `I'll help you send a message to Lawrence! What's your name?`;
     }
 
-    // Step 2: Handle email input - validate email is provided
+    // Step 2: Handle name input
+    if (conversationState === "awaiting_name") {
+      if (hasName) {
+        return `Nice to meet you, ${name}! What company are you with? (Type "none" if not applicable)`;
+      } else {
+        return `I need your name to send the message to Lawrence. Please provide your name.`;
+      }
+    }
+
+    // Step 3: Handle company input
+    if (conversationState === "awaiting_company") {
+      if (hasCompany) {
+        return `Got it! What's your email address?`;
+      } else {
+        return `Please provide your company name, or type "none" if not applicable.`;
+      }
+    }
+
+    // Step 4: Handle email input
     if (conversationState === "awaiting_email") {
       if (hasEmail) {
-        return `Got it! What is your message?`;
+        return `Perfect! What's your message?`;
       } else {
         return `I need your email address to send the message to Lawrence. Please provide your email address.`;
       }
     }
 
-    // Step 3: User provided message, send it
+    // Step 5: User provided message, send it
     if (conversationState === "awaiting_message" && hasMessage) {
       return "✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence. He'll get back to you soon! 📧";
     }
@@ -1097,51 +1151,44 @@ function generateContactResponse(
       message.toLowerCase().trim().startsWith("/meeting") ||
       message.toLowerCase().trim().startsWith("/meet")
     ) {
-      return `I'll help you schedule a meeting with Lawrence! What's your email address for the meeting?`;
+      return `I'll help you schedule a meeting with Lawrence! What's your name?`;
     }
 
-    // Step 2: Handle email input - validate email is provided
+    // Step 2: Handle name input
+    if (conversationState === "awaiting_name") {
+      if (hasName) {
+        return `Nice to meet you, ${name}! What company are you with? (Type "none" if not applicable)`;
+      } else {
+        return `I need your name to schedule the meeting with Lawrence. Please provide your name.`;
+      }
+    }
+
+    // Step 3: Handle company input
+    if (conversationState === "awaiting_company") {
+      if (hasCompany) {
+        return `Got it! What's your email address?`;
+      } else {
+        return `Please provide your company name, or type "none" if not applicable.`;
+      }
+    }
+
+    // Step 4: Handle email input
     if (conversationState === "awaiting_email") {
       if (hasEmail) {
-        return `Perfect! What is your message about the meeting?`;
+        return `Perfect! What would you like to discuss in the meeting?`;
       } else {
         return `I need your email address to schedule the meeting with Lawrence. Please provide your email address.`;
       }
     }
 
-    // Step 3: User provided message, ask for date/time
+    // Step 5: User provided meeting message, ask for date/time
     if (conversationState === "awaiting_message" && hasMessage) {
       return `Great! When would you like to schedule the meeting? Please select a date and time from the calendar below.`;
     }
 
-    // Step 4: User provided date/time, confirm
+    // Step 6: User provided date/time, confirm
     if (conversationState === "awaiting_datetime") {
       return `✅ **Meeting Request Sent Successfully!**\n\nI've forwarded your meeting request to Lawrence with your preferred time. He'll reach out to confirm the meeting details!\n\nIs there anything else you'd like to know about Lawrence?`;
-    }
-  }
-
-  // Handle cases where we're in a conversation state but fell through above logic
-  if (conversationState === "awaiting_email") {
-    if (hasEmail) {
-      if (intent === "message") {
-        return `Got it! What is your message?`;
-      } else if (intent === "meeting") {
-        return `Perfect! What is your message about the meeting?`;
-      }
-    } else {
-      if (intent === "message") {
-        return `I need your email address to send the message to Lawrence. Please provide your email address.`;
-      } else if (intent === "meeting") {
-        return `I need your email address to schedule the meeting with Lawrence. Please provide your email address.`;
-      }
-    }
-  }
-
-  if (conversationState === "awaiting_message" && hasMessage) {
-    if (intent === "message") {
-      return "✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence. He'll get back to you soon! 📧";
-    } else if (intent === "meeting") {
-      return `Great! When would you like to schedule the meeting? Please select a date and time from the calendar below.`;
     }
   }
 
@@ -1264,25 +1311,22 @@ You can also scroll down to see his full project portfolio and work experience o
 
               const imageResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\n${basicAnalysis}${workingLinks}`;
 
-              // Silently send image to Lawrence via email (no mention to user)
+              // Send simple image notification to Lawrence
               try {
-                const silentEmailData = {
-                  requesterName: "Anonymous Chatbot User",
-                  requesterEmail: "portfolio-chatbot@noreply.com",
+                const imageNotification = {
+                  requesterName: "Anonymous",
+                  requesterEmail: "",
                   company: "",
                   position: "",
-                  message: `Image uploaded to chatbot with message: "${message}"`,
-                  conversationContext:
-                    history.length > 0
-                      ? JSON.stringify(history.slice(-3))
-                      : undefined,
+                  message: message || "No message provided",
+                  conversationContext: "",
                   fileAnalysis:
-                    "Fallback analysis (OpenAI not available): Job posting or role description image uploaded",
+                    "Image uploaded - OpenAI not available for analysis",
                   attachments: attachments.length > 0 ? attachments : undefined,
                 };
-                await sendMeetingRequest(silentEmailData);
+                await sendMeetingRequest(imageNotification);
               } catch (emailError) {
-                console.error("Silent email send failed:", emailError);
+                console.error("Image notification send failed:", emailError);
               }
 
               await saveMessageToFirebase(
@@ -1360,24 +1404,21 @@ You can also scroll down to see his full project portfolio and work experience o
 
               const imageResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\n${rawResponse}${workingLinks}`;
 
-              // Silently send image to Lawrence via email (no mention to user)
+              // Send simple image notification to Lawrence
               try {
-                const silentEmailData = {
-                  requesterName: "Anonymous Chatbot User",
-                  requesterEmail: "portfolio-chatbot@noreply.com",
+                const imageNotification = {
+                  requesterName: "Anonymous",
+                  requesterEmail: "",
                   company: "",
                   position: "",
-                  message: `Image uploaded to chatbot with message: "${message}"`,
-                  conversationContext:
-                    history.length > 0
-                      ? JSON.stringify(history.slice(-3))
-                      : undefined,
+                  message: message || "No message provided",
+                  conversationContext: "",
                   fileAnalysis: "AI Vision Analysis: " + rawResponse,
                   attachments: attachments.length > 0 ? attachments : undefined,
                 };
-                await sendMeetingRequest(silentEmailData);
+                await sendMeetingRequest(imageNotification);
               } catch (emailError) {
-                console.error("Silent email send failed:", emailError);
+                console.error("Image notification send failed:", emailError);
               }
 
               await saveMessageToFirebase(
@@ -1416,25 +1457,21 @@ You can also scroll down to see his full project portfolio and work experience o
 
               const fallbackResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\n${fallbackAnalysis}${workingLinks}`;
 
-              // Silently send image to Lawrence via email (no mention to user)
+              // Send simple image notification to Lawrence
               try {
-                const silentEmailData = {
-                  requesterName: "Anonymous Chatbot User",
-                  requesterEmail: "portfolio-chatbot@noreply.com",
+                const imageNotification = {
+                  requesterName: "Anonymous",
+                  requesterEmail: "",
                   company: "",
                   position: "",
-                  message: `Image uploaded to chatbot with message: "${message}"`,
-                  conversationContext:
-                    history.length > 0
-                      ? JSON.stringify(history.slice(-3))
-                      : undefined,
-                  fileAnalysis:
-                    "Error fallback analysis: Job posting or role description image uploaded (OpenAI Vision API failed)",
+                  message: message || "No message provided",
+                  conversationContext: "",
+                  fileAnalysis: "Image uploaded - OpenAI Vision API failed",
                   attachments: attachments.length > 0 ? attachments : undefined,
                 };
-                await sendMeetingRequest(silentEmailData);
+                await sendMeetingRequest(imageNotification);
               } catch (emailError) {
-                console.error("Silent email send failed:", emailError);
+                console.error("Image notification send failed:", emailError);
               }
 
               await saveMessageToFirebase(
@@ -1511,29 +1548,87 @@ You can also scroll down to see his full project portfolio and work experience o
       );
       console.log("DEBUG: History info:", historyContactInfo);
 
-      // FIXED: When awaiting email, only use current message email, not historical
-      let combinedInfo;
-      if (contactAnalysis.conversationState === "awaiting_email") {
-        // Only use current message info when specifically awaiting email
-        combinedInfo = {
-          name: contactAnalysis.extractedInfo.name || historyContactInfo.name,
-          email: contactAnalysis.extractedInfo.email, // Only current message email
-          company:
-            contactAnalysis.extractedInfo.company || historyContactInfo.company,
-          message:
-            contactAnalysis.extractedInfo.message || historyContactInfo.message,
-        };
-      } else {
-        // For other states, combine current and historical info
-        combinedInfo = {
-          name: contactAnalysis.extractedInfo.name || historyContactInfo.name,
-          email:
-            contactAnalysis.extractedInfo.email || historyContactInfo.email,
-          company:
-            contactAnalysis.extractedInfo.company || historyContactInfo.company,
-          message:
-            contactAnalysis.extractedInfo.message || historyContactInfo.message,
-        };
+      // FIXED: Build contact info step by step from conversation history, not from content analysis
+      // Only use structured data collected during the contact flow
+      let combinedInfo = {
+        name: "",
+        email: "",
+        company: "",
+        message: "",
+      };
+
+      // Collect structured info from the conversation history step by step
+      const conversationHistory = [
+        ...history,
+        { role: "user", content: message },
+      ];
+      let contactFlowStarted = false;
+      let awaitingName = false;
+      let awaitingCompany = false;
+      let awaitingEmail = false;
+      let awaitingMessage = false;
+
+      for (let i = 0; i < conversationHistory.length; i++) {
+        const msg = conversationHistory[i];
+
+        // Check if contact flow started
+        if (
+          msg.role === "user" &&
+          (msg.content.startsWith("/message") ||
+            msg.content.startsWith("/meeting"))
+        ) {
+          contactFlowStarted = true;
+          continue;
+        }
+
+        if (!contactFlowStarted) continue;
+
+        // Check assistant prompts to understand what we're waiting for
+        if (msg.role === "assistant") {
+          if (msg.content.includes("What's your name")) {
+            awaitingName = true;
+            awaitingCompany = false;
+            awaitingEmail = false;
+            awaitingMessage = false;
+          } else if (msg.content.includes("What company are you with")) {
+            awaitingName = false;
+            awaitingCompany = true;
+            awaitingEmail = false;
+            awaitingMessage = false;
+          } else if (msg.content.includes("email address")) {
+            awaitingName = false;
+            awaitingCompany = false;
+            awaitingEmail = true;
+            awaitingMessage = false;
+          } else if (
+            msg.content.includes("What's your message") ||
+            msg.content.includes("what would you like to discuss")
+          ) {
+            awaitingName = false;
+            awaitingCompany = false;
+            awaitingEmail = false;
+            awaitingMessage = true;
+          }
+        }
+
+        // Collect user responses
+        if (msg.role === "user") {
+          if (awaitingName && !combinedInfo.name) {
+            combinedInfo.name = msg.content.trim();
+          } else if (awaitingCompany && !combinedInfo.company) {
+            combinedInfo.company =
+              msg.content.trim() === "none" ? "None" : msg.content.trim();
+          } else if (awaitingEmail && !combinedInfo.email) {
+            const emailMatch = msg.content.match(
+              /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i
+            );
+            if (emailMatch) {
+              combinedInfo.email = emailMatch[0];
+            }
+          } else if (awaitingMessage && !combinedInfo.message) {
+            combinedInfo.message = msg.content.trim();
+          }
+        }
       }
 
       console.log("DEBUG: Combined contact info:", combinedInfo);

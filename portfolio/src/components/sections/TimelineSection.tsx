@@ -60,21 +60,21 @@ const timelineData: TimelineEvent[] = [
     ],
   },
   // Experience (Most Recent First)
-  // COMMENTED OUT - Amazon MTurk position no longer active
-  // {
-  //   type: "experience",
-  //   year: "2025",
-  //   title: "External AI Expert",
-  //   org: "Amazon Mechanical Turk (AGI Projects) · Contract",
-  //   date: "Jun 2025 - Present",
-  //   logo: "/logos/mturk logo.png",
-  //   category: "product",
-  //   bullets: [
-  //     "Contribute to the development of Amazon's next-gen AI models by evaluating and annotating coding-related responses, enabling more nuanced machine learning outcomes",
-  //     "Perform structured comparison tasks between human and AI-generated outputs to refine model accuracy, safety, and alignment with real-world expectations",
-  //     "Apply human judgment and product sense to assess user experience quality in AI-generated results, supporting responsible innovation in artificial general intelligence (AGI)",
-  //   ],
-  // },
+  {
+    type: "experience",
+    year: "2025",
+    title: "External Expert – AI Model Evaluation",
+    org: "Amazon Mechanical Turk Experts Program · Contract · Qualification Rating: Expert",
+    date: "Jun 2025 - Present",
+    logo: "/logos/mturk logo.png",
+    category: "product",
+    bullets: [
+      "Evaluated and improved AI-generated code and natural language responses for real-world reliability, accuracy, and ethical alignment",
+      "Performed high-impact prompt assessments and human-vs-AI demonstrations to enhance large language model performance",
+      "Provided expert feedback on model behavior to support the development of safer, more human-aligned AI systems",
+      "Contributing human expertise to train and refine the next generation of responsible, high-precision AI systems",
+    ],
+  },
   {
     type: "experience",
     year: "2025",

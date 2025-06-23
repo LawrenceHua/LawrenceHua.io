@@ -123,6 +123,10 @@ function formatMessage(
     .replace(
       /<button-pmhappyhour>(.*?)<\/button-pmhappyhour>/g,
       "<button onclick=\"window.open('https://www.notion.so/pmhappyhour/PM-Happy-Hour-37b20a5dc2ea481e8e3437a95811e54b', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+    )
+    .replace(
+      /<button-mturk>(.*?)<\/button-mturk>/g,
+      "<button onclick=\"window.open('/mturk-examples', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
     );
 
   // Special styling for typed commands - make them more visible and attractive

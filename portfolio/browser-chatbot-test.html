@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lawrence's Chatbot Test Suite</title>
+    <style>
+      body {
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        background: #1a1a1a;
+        color: #e0e0e0;
+        margin: 0;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      h1 {
+        color: #4a9eff;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .test-section {
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 8px;
+        margin: 20px 0;
+        padding: 20px;
+      }
+      .test-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      button {
+        background: #4a9eff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 14px;
+      }
+      button:hover {
+        background: #357abd;
+      }
+      button:disabled {
+        background: #555;
+        cursor: not-allowed;
+      }
+      .success {
+        color: #4caf50;
+      }
+      .error {
+        color: #f44336;
+      }
+      .info {
+        color: #2196f3;
+      }
+      .warning {
+        color: #ff9800;
+      }
+      #log {
+        background: #1e1e1e;
+        border: 1px solid #444;
+        border-radius: 4px;
+        padding: 15px;
+        height: 500px;
+        overflow-y: auto;
+        font-size: 12px;
+        white-space: pre-wrap;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+      .stat-card {
+        background: #333;
+        padding: 15px;
+        border-radius: 5px;
+        text-align: center;
+      }
+      .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .image-upload {
+        margin: 10px 0;
+      }
+      input[type="file"] {
+        background: #333;
+        color: #e0e0e0;
+        border: 1px solid #555;
+        padding: 5px;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🤖 Lawrence's Chatbot Test Suite</h1>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-number success" id="passed">0</div>
+          <div>Passed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number error" id="failed">0</div>
+          <div>Failed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number info" id="total">0</div>
+          <div>Total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number warning" id="success-rate">0%</div>
+          <div>Success Rate</div>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>🎮 Test Controls</h3>
+        <div class="test-controls">
+          <button onclick="runAllTests()">Run All Tests</button>
+          <button onclick="testBasicResponse()">Basic Response</button>
+          <button onclick="testMessageFlow()">Message Flow</button>
+          <button onclick="testMeetingFlow()">Meeting Flow</button>
+          <button onclick="testImageUpload()">Image Upload</button>
+          <button onclick="testRecruiterQuestions()">
+            Recruiter Questions
+          </button>
+          <button onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <div class="image-upload">
+          <label>Upload Test Image: </label>
+          <input type="file" id="testImageFile" accept="image/*" />
+          <button onclick="testCustomImageUpload()">Test Custom Image</button>
+        </div>
+      </div>
+
+      <div class="test-section">
+        <h3>📋 Test Results</h3>
+        <div id="log"></div>
+      </div>
+    </div>
+
+    <script>
+      const BASE_URL = window.location.origin;
+      let testCount = 0;
+      let passedTests = 0;
+      let failedTests = 0;
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toISOString().substr(11, 8);
+        const logElement = document.getElementById("log");
+        const className =
+          type === "pass"
+            ? "success"
+            : type === "fail"
+              ? "error"
+              : type === "warn"
+                ? "warning"
+                : "info";
+        logElement.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+        logElement.scrollTop = logElement.scrollHeight;
+      }
+
+      function updateStats() {
+        document.getElementById("passed").textContent = passedTests;
+        document.getElementById("failed").textContent = failedTests;
+        document.getElementById("total").textContent = testCount;
+        const successRate =
+          testCount > 0 ? ((passedTests / testCount) * 100).toFixed(1) : 0;
+        document.getElementById("success-rate").textContent = successRate + "%";
+      }
+
+      function clearLog() {
+        document.getElementById("log").innerHTML = "";
+        testCount = 0;
+        passedTests = 0;
+        failedTests = 0;
+        updateStats();
+      }
+
+      async function sendChatMessage(message, history = []) {
+        try {
+          const formData = new FormData();
+          formData.append("message", message);
+          formData.append("history", JSON.stringify(history));
+
+          const response = await fetch(`${BASE_URL}/api/chatbot`, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          return await response.json();
+        } catch (error) {
+          log(`❌ Error sending message: ${error.message}`, "fail");
+          return null;
+        }
+      }
+
+      async function sendChatMessageWithImage(
+        message,
+        imageFile,
+        history = []
+      ) {
+        try {
+          const formData = new FormData();
+          formData.append("message", message);
+          formData.append("history", JSON.stringify(history));
+          formData.append("files", imageFile);
+
+          const response = await fetch(`${BASE_URL}/api/chatbot`, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          return await response.json();
+        } catch (error) {
+          log(`❌ Error sending image: ${error.message}`, "fail");
+          return null;
+        }
+      }
+
+      function createTestImage() {
+        return new Promise((resolve) => {
+          const canvas = document.createElement("canvas");
+          canvas.width = 300;
+          canvas.height = 200;
+          const ctx = canvas.getContext("2d");
+
+          // Create a mock job posting
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, 300, 200);
+
+          ctx.fillStyle = "#000000";
+          ctx.font = "bold 16px Arial";
+          ctx.fillText("AI Product Manager", 20, 30);
+
+          ctx.font = "12px Arial";
+          ctx.fillText("TechCorp Inc.", 20, 50);
+          ctx.fillText("Remote | Full-time", 20, 70);
+
+          ctx.fillText("Requirements:", 20, 100);
+          ctx.fillText("• 3+ years product management", 20, 120);
+          ctx.fillText("• AI/ML experience", 20, 140);
+          ctx.fillText("• Python, SQL knowledge", 20, 160);
+          ctx.fillText("• Startup experience preferred", 20, 180);
+
+          canvas.toBlob((blob) => {
+            const file = new File([blob], "test-job-posting.png", {
+              type: "image/png",
+            });
+            resolve(file);
+          });
+        });
+      }
+
+      async function runTest(testName, testFunction) {
+        testCount++;
+        log(`🧪 Test ${testCount}: ${testName}`, "info");
+
+        try {
+          const result = await testFunction();
+          if (result) {
+            passedTests++;
+            log(`✅ PASSED: ${testName}`, "pass");
+          } else {
+            failedTests++;
+            log(`❌ FAILED: ${testName}`, "fail");
+          }
+        } catch (error) {
+          failedTests++;
+          log(`❌ FAILED: ${testName} - ${error.message}`, "fail");
+        }
+
+        updateStats();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+
+      async function testBasicResponse() {
+        log("Testing basic chatbot response...", "info");
+        const response = await sendChatMessage("Hello!");
+        return (
+          response &&
+          response.response &&
+          response.response.includes("Lawrence")
+        );
+      }
+
+      async function testFunFact() {
+        log("Testing fun fact request...", "info");
+        const response = await sendChatMessage("Tell me a fun fact");
+        return (
+          response &&
+          response.response &&
+          response.response.includes("Fun Fact About Lawrence")
+        );
+      }
+
+      async function testExperience() {
+        log("Testing experience question...", "info");
+        const response = await sendChatMessage(
+          "Tell me about Lawrence's experience"
+        );
+        return (
+          response &&
+          response.response &&
+          (response.response.includes("Product Manager") ||
+            response.response.includes("AI") ||
+            response.response.includes("Expired Solutions"))
+        );
+      }
+
+      async function testMTurkQuestion() {
+        log("Testing Amazon MTurk question...", "info");
+        const response = await sendChatMessage(
+          "Tell me about Lawrence's Amazon MTurk work"
+        );
+        return (
+          response &&
+          response.response &&
+          (response.response.includes("Amazon") ||
+            response.response.includes("MTurk") ||
+            response.response.includes("AI Evaluation") ||
+            response.response.includes("button-mturk"))
+        );
+      }
+
+      async function testCompleteMessageFlow() {
+        log("Testing complete message flow...", "info");
+        let history = [];
+
+        // Step 1: Start message flow
+        let response = await sendChatMessage("/message", history);
+        if (!response || !response.response.includes("What's your name")) {
+          log("❌ Message flow step 1 failed", "fail");
+          return false;
+        }
+        history.push({ role: "user", content: "/message" });
+        history.push({ role: "assistant", content: response.response });
+
+        // Step 2: Provide name
+        response = await sendChatMessage("John Doe", history);
+        if (
+          !response ||
+          !response.response.includes("What company are you with")
+        ) {
+          log("❌ Message flow step 2 failed", "fail");
+          return false;
+        }
+        history.push({ role: "user", content: "John Doe" });
+        history.push({ role: "assistant", content: response.response });
+
+        // Step 3: Provide company
+        response = await sendChatMessage("TechCorp", history);
+        if (!response || !response.response.includes("email address")) {
+          log("❌ Message flow step 3 failed", "fail");
+          return false;
+        }
+        history.push({ role: "user", content: "TechCorp" });
+        history.push({ role: "assistant", content: response.response });
+
+        // Step 4: Provide email
+        response = await sendChatMessage("john@techcorp.com", history);
+        if (!response || !response.response.includes("What's your message")) {
+          log("❌ Message flow step 4 failed", "fail");
+          return false;
+        }
+        history.push({ role: "user", content: "john@techcorp.com" });
+        history.push({ role: "assistant", content: response.response });
+
+        // Step 5: Provide message
+        response = await sendChatMessage(
+          "Interested in discussing a product manager role",
+          history
+        );
+        if (
+          !response ||
+          !response.response.includes("Message Sent Successfully")
+        ) {
+          log("❌ Message flow step 5 failed", "fail");
+          return false;
+        }
+
+        log("✅ Complete message flow successful", "pass");
+        return true;
+      }
+
+      async function testCompleteMeetingFlow() {
+        log("Testing complete meeting flow...", "info");
+        let history = [];
+
+        // Step 1: Start meeting flow
+        let response = await sendChatMessage("/meeting", history);
+        if (!response || !response.response.includes("What's your name")) {
+          log("❌ Meeting flow step 1 failed", "fail");
+          return false;
+        }
+        history.push({ role: "user", content: "/meeting" });
+        history.push({ role: "assistant", content: response.response });
+
+        // Step 2: Provide name
+        response = await sendChatMessage("Alice Johnson", history);
+        if (
+          !response ||
+          !response.response.includes("What company are you with")
+        ) {
+          log("❌ Meeting flow step 2 failed", "fail");
+          return false;
+        }
+        history.push({ role: "user", content: "Alice Johnson" });
+        history.push({ role: "assistant", content: response.response });
+
+        // Step 3: Provide company
+        response = await sendChatMessage("Startup Inc", history);
+        if (!response || !response.response.includes("email address")) {
+          log("❌ Meeting flow step 3 failed", "fail");
+          return false;
+        }
+        history.push({ role: "user", content: "Startup Inc" });
+        history.push({ role: "assistant", content: response.response });
+
+        // Step 4: Provide email
+        response = await sendChatMessage("alice@startup.com", history);
+        if (
+          !response ||
+          !response.response.includes("what would you like to discuss")
+        ) {
+          log("❌ Meeting flow step 4 failed", "fail");
+          return false;
+        }
+        history.push({ role: "user", content: "alice@startup.com" });
+        history.push({ role: "assistant", content: response.response });
+
+        // Step 5: Provide meeting topic
+        response = await sendChatMessage(
+          "Discuss product strategy role",
+          history
+        );
+        if (
+          !response ||
+          !response.response.includes("when would you like to schedule")
+        ) {
+          log("❌ Meeting flow step 5 failed", "fail");
+          return false;
+        }
+        history.push({
+          role: "user",
+          content: "Discuss product strategy role",
+        });
+        history.push({ role: "assistant", content: response.response });
+
+        // Step 6: Provide datetime
+        response = await sendChatMessage("Tuesday at 2 PM EST", history);
+        if (
+          !response ||
+          !response.response.includes("Meeting Request Sent Successfully")
+        ) {
+          log("❌ Meeting flow step 6 failed", "fail");
+          return false;
+        }
+
+        log("✅ Complete meeting flow successful", "pass");
+        return true;
+      }
+
+      async function testImageUploadFlow() {
+        log("Testing image upload...", "info");
+        try {
+          const testImage = await createTestImage();
+          const response = await sendChatMessageWithImage(
+            "This is a job posting",
+            testImage,
+            []
+          );
+
+          if (!response || !response.response) {
+            log("❌ Image upload failed - no response", "fail");
+            return false;
+          }
+
+          if (!response.response.includes("IMAGE UPLOADED & ANALYZED")) {
+            log("❌ Image upload failed - incorrect response format", "fail");
+            return false;
+          }
+
+          log("✅ Image upload successful", "pass");
+          return true;
+        } catch (error) {
+          log(`❌ Image upload failed: ${error.message}`, "fail");
+          return false;
+        }
+      }
+
+      async function testRecruiterQuestionsFlow() {
+        log("Testing recruiter questions...", "info");
+        const questions = [
+          "Is Lawrence available for full-time roles?",
+          "What's Lawrence's experience with AI?",
+          "What companies has Lawrence worked for?",
+          "Does Lawrence have startup experience?",
+          "What's Lawrence's educational background?",
+        ];
+
+        for (let i = 0; i < questions.length; i++) {
+          const question = questions[i];
+          const response = await sendChatMessage(question);
+
+          if (
+            !response ||
+            !response.response ||
+            response.response.length < 50
+          ) {
+            log(`❌ Recruiter question ${i + 1} failed: "${question}"`, "fail");
+            return false;
+          }
+
+          log(`✅ Recruiter question ${i + 1} answered`, "pass");
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+
+        return true;
+      }
+
+      // Individual test functions for buttons
+      async function testMessageFlow() {
+        await runTest("Complete Message Flow", testCompleteMessageFlow);
+      }
+
+      async function testMeetingFlow() {
+        await runTest("Complete Meeting Flow", testCompleteMeetingFlow);
+      }
+
+      async function testImageUpload() {
+        await runTest("Image Upload", testImageUploadFlow);
+      }
+
+      async function testRecruiterQuestions() {
+        await runTest("Recruiter Questions", testRecruiterQuestionsFlow);
+      }
+
+      async function testCustomImageUpload() {
+        const fileInput = document.getElementById("testImageFile");
+        if (!fileInput.files || fileInput.files.length === 0) {
+          log("❌ No image file selected", "fail");
+          return;
+        }
+
+        log("Testing custom image upload...", "info");
+        try {
+          const response = await sendChatMessageWithImage(
+            "Please analyze this job posting",
+            fileInput.files[0],
+            []
+          );
+
+          if (
+            response &&
+            response.response &&
+            response.response.includes("IMAGE UPLOADED & ANALYZED")
+          ) {
+            log("✅ Custom image upload successful", "pass");
+          } else {
+            log("❌ Custom image upload failed", "fail");
+          }
+        } catch (error) {
+          log(`❌ Custom image upload error: ${error.message}`, "fail");
+        }
+      }
+
+      async function runAllTests() {
+        log("🚀 Starting Comprehensive Chatbot Test Suite", "info");
+        log("=".repeat(60), "info");
+
+        clearLog();
+
+        // Run all tests
+        await runTest("Basic Response", testBasicResponse);
+        await runTest("Fun Fact", testFunFact);
+        await runTest("Experience Question", testExperience);
+        await runTest("Amazon MTurk Question", testMTurkQuestion);
+        await runTest("Complete Message Flow", testCompleteMessageFlow);
+        await runTest("Complete Meeting Flow", testCompleteMeetingFlow);
+        await runTest("Image Upload", testImageUploadFlow);
+        await runTest("Recruiter Questions", testRecruiterQuestionsFlow);
+
+        // Final summary
+        log("=".repeat(60), "info");
+        log("🎯 TEST SUITE COMPLETE!", "info");
+        log(`Total Tests: ${testCount}`, "info");
+        log(`Passed: ${passedTests} ✅`, "pass");
+        log(`Failed: ${failedTests} ❌`, "fail");
+        const successRate = ((passedTests / testCount) * 100).toFixed(1);
+        log(`Success Rate: ${successRate}%`, "info");
+
+        if (failedTests === 0) {
+          log(
+            "🎉 ALL TESTS PASSED! Your chatbot is working perfectly!",
+            "pass"
+          );
+        } else {
+          log(
+            `⚠️ ${failedTests} test(s) failed. Check the logs above for details.`,
+            "warn"
+          );
+        }
+      }
+
+      // Auto-clear log on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        log("💬 Chatbot Test Suite Ready!", "info");
+        log('Click "Run All Tests" to start comprehensive testing', "info");
+        log(
+          "Or use individual test buttons for specific functionality",
+          "info"
+        );
+      });
+    </script>
+  </body>
+</html>

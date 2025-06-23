@@ -63,13 +63,13 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
 ══════════════════════════════════════════
 🚀  PROFESSIONAL EXPERIENCE  (CHRONOLOGICAL)
 
-// COMMENTED OUT - Amazon MTurk position no longer active
-// 1. **External AI Expert – Amazon Mechanical Turk (AGI Projects, Jun 2025-Present)**  
-//    • Contribute to Amazon's next-gen AI models by evaluating and annotating coding-related responses, enabling more nuanced machine learning outcomes  
-//    • Perform structured comparison tasks between human and AI-generated outputs to refine model accuracy, safety, and alignment with real-world expectations  
-//    • Apply human judgment and product sense to assess user experience quality in AI-generated results, supporting responsible innovation in artificial general intelligence (AGI)  
+1. **External Expert – AI Model Evaluation – Amazon Mechanical Turk Experts Program (Contract, Qualification Rating: Expert, Jun 2025-Present)**  
+   • Evaluated and improved AI-generated code and natural language responses for real-world reliability, accuracy, and ethical alignment  
+   • Performed high-impact prompt assessments and human-vs-AI demonstrations to enhance large language model performance  
+   • Provided expert feedback on model behavior to support the development of safer, more human-aligned AI systems  
+   • Mission: Contributing human expertise to train and refine the next generation of responsible, high-precision AI systems  
 
-1. **Product Manager – PM Happy Hour (Internship, Mar 2025-Present)**  
+2. **Product Manager – PM Happy Hour (Internship, Mar 2025-Present)**  
    • Scaled community 30% with AIGC campaigns; MBTI×PM event ↑ engagement 50%  
    • Drove A/B testing program → 20% lift in feature adoption  
    • Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement
@@ -78,7 +78,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Developed content calendar, analytics tracking, and engagement benchmarks to guide strategy
    • Collaborated across marketing, content, and community leads to optimize growth and retention
 
-2. **Founder / CEO – Expired Solutions (Full-time, Aug 2024-Present)**  
+3. **Founder / CEO – Expired Solutions (Full-time, Aug 2024-Present)**  
    • Built CV + GPT platform automating produce markdowns → up to 20% shrink reduction  
    • Led mobile dev (iOS/Android), Azure infra, compliance, GTM; pitched 8-week Giant Eagle pilot after 15 exec interviews & 250 shopper surveys  
    • Finalist, *McGinnis Venture Competition* 2025 (Top-4 Social Enterprise) & Gerhalt *Sandbox* Scholar  
@@ -362,7 +362,7 @@ more context:
 
 **Cleaned Experience List (org : role ; dates ; location ; focus ; key achievements)**
 
-* **Amazon Mechanical Turk : External AI Expert ; Jun 2025 – Present, Remote ; AGI model development ;** contribute to Amazon's next-gen AI models by evaluating and annotating coding-related responses, perform structured comparison tasks between human and AI-generated outputs, apply human judgment and product sense to assess user experience quality in AI-generated results.
+* **Amazon Mechanical Turk : External Expert – AI Model Evaluation ; Jun 2025 – Present, Remote ; Qualification Rating: Expert ; AGI model development ;** evaluate and improve AI-generated code and natural language responses for real-world reliability, accuracy, and ethical alignment; perform high-impact prompt assessments and human-vs-AI demonstrations to enhance large language model performance; provide expert feedback on model behavior to support the development of safer, more human-aligned AI systems.
 * **PM Happy Hour : Product Manager (Intern) ; Mar 2025 – Present, Remote ; community growth & engagement ;** scaled Discord community 30%, ran MBTI×PM AIGC campaign (+50% interactions), lifted feature adoption 20%, built analytics/feedback loops.
 * **Expired Solutions : Founder & CEO ; Aug 2024 – Present, Remote ; AI grocery-waste platform ;** launched CV + GPT freshness/markdown system, pitched Giant Eagle pilot, built shopper app, McGinnis finalist (Top 4), led Azure/GPT/CV dev & GTM.
 * **Tutora : AI Product Consultant & CS Instructor (Part-time) ; Mar 2021 – Present, Remote ; EdTech automation & curriculum ;** saved 15 hrs/wk with AI workflows, deployed 50 TI-BASIC programs (+35% scores), taught CS & data structures, wrote docs/training.
