@@ -325,15 +325,7 @@ export default function AnalyticsPage() {
   const [showCostWarning, setShowCostWarning] = useState(false);
   const [refreshInProgress, setRefreshInProgress] = useState(false);
 
-  // Analytics Reset Functionality
-  const [resetDate, setResetDate] = useState<Date | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("analytics_reset_date");
-      return stored ? new Date(stored) : null;
-    }
-    return null;
-  });
-  const [showResetModal, setShowResetModal] = useState(false);
+  // Removed reset functionality - redundant with time range selector
 
   // Track Firebase reads and writes for this session with state management
   const [firebaseReads, setFirebaseReads] = useState(() => {
@@ -422,7 +414,7 @@ export default function AnalyticsPage() {
       );
       setAnalyticsData(recalculatedData);
     }
-  }, [timeRange, resetDate, sessions, pageViews, interactions]);
+  }, [timeRange, sessions, pageViews, interactions]);
 
   const startDataCollection = () => {
     // Track page view
@@ -817,10 +809,7 @@ export default function AnalyticsPage() {
         break;
     }
 
-    // Apply reset date filter if set
-    if (resetDate) {
-      startDate = new Date(Math.max(startDate.getTime(), resetDate.getTime()));
-    }
+    // Time range filtering only (no reset date needed)
 
     // Filter data based on time range
     const filteredSessions = sessions.filter(
@@ -1478,42 +1467,7 @@ export default function AnalyticsPage() {
     }
   };
 
-  // Function to reset analytics from today
-  const resetAnalyticsFromToday = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to start of day
-    setResetDate(today);
-    localStorage.setItem("analytics_reset_date", today.toISOString());
-    setShowResetModal(false);
-
-    // Clear current data and refetch with new filter
-    setSessions([]);
-    setPageViews([]);
-    setInteractions([]);
-    setAnalyticsData(null);
-
-    // Trigger a refresh with the new reset date
-    if (db) {
-      performRefresh();
-    }
-  };
-
-  // Function to clear reset and show all historical data
-  const clearReset = () => {
-    setResetDate(null);
-    localStorage.removeItem("analytics_reset_date");
-
-    // Clear current data and refetch all data
-    setSessions([]);
-    setPageViews([]);
-    setInteractions([]);
-    setAnalyticsData(null);
-
-    // Trigger a refresh to show all data
-    if (db) {
-      performRefresh();
-    }
-  };
+  // Reset functions removed - time range selector provides all needed filtering
 
   if (!isAuthenticated) {
     return (
@@ -1674,58 +1628,13 @@ export default function AnalyticsPage() {
                   </button>
                 </Tooltip>
 
-                {/* Reset Analytics Button */}
-                <Tooltip content="Reset analytics metrics to start fresh from today. Historical data is preserved but hidden. You can undo this reset at any time.">
-                  <button
-                    onClick={() => setShowResetModal(true)}
-                    disabled={loading || refreshInProgress}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all duration-200 min-w-[140px] justify-center text-sm ${
-                      loading || refreshInProgress
-                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                        : resetDate
-                          ? "bg-orange-600 hover:bg-orange-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-                          : "bg-yellow-600 hover:bg-yellow-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-                    }`}
-                  >
-                    <span className="text-sm">🔄</span>
-                    <span>{resetDate ? "Reset Active" : "Reset Metrics"}</span>
-                    {resetDate && (
-                      <span className="text-xs bg-orange-700 px-2 py-1 rounded ml-1">
-                        Since {resetDate.toLocaleDateString()}
-                      </span>
-                    )}
-                  </button>
-                </Tooltip>
+                {/* Reset button removed - use time range selector instead */}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Reset Active Banner */}
-        {resetDate && (
-          <div className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-xl p-4 mb-6 border border-orange-500/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🔄</span>
-                <div>
-                  <h3 className="text-white font-bold">
-                    Analytics Reset Active
-                  </h3>
-                  <p className="text-orange-100 text-sm">
-                    Showing metrics from {resetDate.toLocaleDateString()}{" "}
-                    onwards. Historical data is preserved but hidden.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={clearReset}
-                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                Clear Reset
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Reset banner removed - using time range selector instead */}
 
         {/* Cost Warning Modal */}
         {showCostWarning && (
@@ -3648,70 +3557,7 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* Reset Analytics Modal */}
-        {showResetModal && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-gray-800 rounded-xl p-6 w-full max-w-lg mx-auto border border-yellow-500/20 shadow-2xl my-8">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-2xl">🔄</span>
-                <h3 className="text-xl font-bold text-yellow-400">
-                  Reset Analytics Metrics
-                </h3>
-              </div>
-              <div className="space-y-3 mb-6">
-                <p className="text-gray-300">
-                  This will reset your analytics metrics to start fresh from
-                  today. All historical data is preserved but will be hidden
-                  from the dashboard.
-                </p>
-                <div className="bg-blue-900/30 p-3 rounded-lg border border-blue-500/20">
-                  <p className="text-xs text-blue-400 mb-2">
-                    ✅ Safe Reset Benefits:
-                  </p>
-                  <ul className="text-xs text-gray-300 space-y-1">
-                    <li>• Historical data is preserved</li>
-                    <li>• You can undo this reset anytime</li>
-                    <li>• No Firebase data is deleted</li>
-                    <li>• Fresh metrics start from today</li>
-                  </ul>
-                </div>
-                {resetDate && (
-                  <div className="bg-orange-900/30 p-3 rounded-lg border border-orange-500/20">
-                    <p className="text-xs text-orange-400 mb-1">
-                      Current reset active:
-                    </p>
-                    <p className="text-sm text-white">
-                      Since {resetDate.toLocaleDateString()}
-                    </p>
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowResetModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                {resetDate ? (
-                  <button
-                    onClick={clearReset}
-                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
-                  >
-                    Clear Reset
-                  </button>
-                ) : (
-                  <button
-                    onClick={resetAnalyticsFromToday}
-                    className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors font-medium"
-                  >
-                    Reset From Today
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Reset modal removed - time range selector provides all needed functionality */}
       </div>
     </div>
   );
