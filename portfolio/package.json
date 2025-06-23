@@ -13,7 +13,6 @@
     "test:headless": "node test-suite.js --headless"
   },
   "dependencies": {
-    "@studio-freight/lenis": "^1.0.42",
     "firebase": "^11.9.1",
     "form-data": "^4.0.3",
     "framer-motion": "^11.18.2",
@@ -35,6 +34,8 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
     "autoprefixer": "^10.0.1",
     "dotenv": "^16.5.0",
     "eslint": "^8",

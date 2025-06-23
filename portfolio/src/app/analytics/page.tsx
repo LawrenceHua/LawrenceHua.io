@@ -195,6 +195,7 @@ export default function AnalyticsPage() {
       fetchAllData();
       startDataCollection();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, timeRange, isAuthenticated]);
 
   const startDataCollection = () => {
@@ -1396,7 +1397,7 @@ export default function AnalyticsPage() {
             <div className="bg-gray-800 rounded-xl p-8 max-w-2xl w-full">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-bold">
-                  Sessions containing "{selectedKeyword}"
+                  Sessions containing &ldquo;{selectedKeyword}&rdquo;
                 </h3>
                 <button
                   onClick={() => setSelectedKeyword(null)}
