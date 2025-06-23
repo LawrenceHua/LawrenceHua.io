@@ -1107,13 +1107,13 @@ function getRandomFunFact(): string {
 }
 
 // Command-based contact response system with step-by-step flow
-function generateContactResponse(
+async function generateContactResponse(
   intent: "message" | "meeting" | "question" | null,
   extractedInfo: any,
   message: string,
   history: Array<{ role: string; content: string }>,
   conversationState?: string
-): string {
+): Promise<string> {
   const { name, company, email, message: userMessage } = extractedInfo;
 
   // Check what information we have
@@ -1212,9 +1212,38 @@ function generateContactResponse(
       return `Great! When would you like to schedule the meeting? Please provide your preferred date and time.`;
     }
 
-    // Step 6: User provided date/time, confirm
+    // Step 6: User provided date/time, actually send the meeting request!
     if (conversationState === "awaiting_datetime") {
-      return `✅ **Meeting Request Sent Successfully!**\n\nI've forwarded your meeting request to Lawrence with your preferred time. He'll reach out to confirm the meeting details!\n\nIs there anything else you'd like to know about Lawrence?`;
+      try {
+        // Extract all collected information from conversation history
+        const collectedInfo = extractContactInfoFromHistory(history, message);
+
+        // Prepare meeting data with all collected information
+        const meetingData = {
+          requesterName: collectedInfo.name || "Anonymous",
+          requesterEmail: collectedInfo.email || "",
+          company: collectedInfo.company || "",
+          position: "", // Could be extracted from conversation if needed
+          message: `Meeting Request Details:\n\nTopic: ${collectedInfo.message || "No topic specified"}\nPreferred Date/Time: ${message}\n\nRequested via chatbot conversation flow.`,
+          conversationContext: JSON.stringify(history),
+          fileAnalysis: "",
+          attachments: undefined,
+        };
+
+        console.log("DEBUG: Sending meeting request with data:", meetingData);
+
+        // Actually send the meeting request email
+        const meetingResult = await sendMeetingRequest(meetingData);
+
+        if (meetingResult.success) {
+          return `✅ **Meeting Request Sent Successfully!**\n\nI've forwarded your meeting request to Lawrence with your preferred time. He'll reach out to confirm the meeting details!\n\nIs there anything else you'd like to know about Lawrence?`;
+        } else {
+          return `❌ **Meeting Request Failed**\n\nI'm sorry, there was an issue sending your meeting request. Please try again or contact Lawrence directly at his email.\n\nIs there anything else I can help you with?`;
+        }
+      } catch (error) {
+        console.error("DEBUG: Error sending meeting request:", error);
+        return `❌ **Meeting Request Failed**\n\nI'm sorry, there was an issue sending your meeting request. Please try again or contact Lawrence directly.\n\nIs there anything else I can help you with?`;
+      }
     }
   }
 
@@ -1575,7 +1604,7 @@ You can also scroll down to see his full project portfolio and work experience o
       console.log("DEBUG: History info:", historyContactInfo);
 
       // Generate response based on available information (conversation continues)
-      const response = generateContactResponse(
+      const response = await generateContactResponse(
         contactAnalysis.intent ||
           (historyContactInfo.isContactRequest ? "message" : null),
         contactAnalysis.extractedInfo,
