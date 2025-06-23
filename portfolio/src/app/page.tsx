@@ -390,22 +390,32 @@ export default function ModernHome() {
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "timeline" && currentStep === 3) {
-          // Work experience step - scroll to bottom of work experience gallery
-          // Target the scroll indicator area at the bottom of work experience
-          const workExperienceTitle = document.getElementById(
-            "work-experience-title"
-          );
-          if (workExperienceTitle) {
-            const workRect = workExperienceTitle.getBoundingClientRect();
-            const workAbsoluteTop = workRect.top + window.pageYOffset;
-            // Position to show the bottom area of work experience where "scroll for more" appears
-            // Add extra offset to show the scrollable gallery bottom
-            const finalPosition = workAbsoluteTop + 500; // Show the bottom of the work experience gallery
+          // Work experience step - position at bottom of Professional Journey section
+          // First try to position at the very top of Projects section
+          const projectsSection = document.getElementById("projects");
+          if (projectsSection) {
+            const projectsRect = projectsSection.getBoundingClientRect();
+            const projectsAbsoluteTop = projectsRect.top + window.pageYOffset;
+            // Position just above the Projects section (at the bottom of Professional Journey)
+            const finalPosition = projectsAbsoluteTop - 100;
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
-          // Fallback if work-experience-title not found
-          const finalPosition = absoluteElementTop + 700;
+
+          // Fallback: Position at bottom of timeline section with moderate offset
+          const timelineSection = document.getElementById("timeline");
+          if (timelineSection) {
+            const timelineRect = timelineSection.getBoundingClientRect();
+            const timelineAbsoluteBottom =
+              timelineRect.bottom + window.pageYOffset;
+            // Position near the bottom of the timeline section
+            const finalPosition = timelineAbsoluteBottom - 200;
+            window.scrollTo({ top: finalPosition, behavior: "smooth" });
+            return;
+          }
+
+          // Final fallback
+          const finalPosition = absoluteElementTop + 200; // Much smaller offset
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "projects") {
