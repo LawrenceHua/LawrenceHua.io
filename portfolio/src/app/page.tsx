@@ -24,6 +24,13 @@ import {
   FiPause,
   FiPlay,
 } from "react-icons/fi";
+import { initializeApp, getApps } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { ModernNavigation } from "../components/ModernNavigation";
 import { HeroSection } from "../components/sections/HeroSection";
 import { AboutSection } from "../components/sections/AboutSection";
@@ -33,6 +40,17 @@ import { ProjectsSection } from "../components/sections/ProjectsSection";
 import { TestimonialsSection } from "../components/sections/TestimonialsSection";
 import { ContactSection } from "../components/sections/ContactSection";
 import { FloatingChatbot } from "../components/FloatingChatbot";
+
+// Firebase config (using environment variables)
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+};
 
 interface TourStep {
   id: string;
@@ -283,6 +301,72 @@ export default function ModernHome() {
   const [showTourInvitation, setShowTourInvitation] = useState(false);
   const [tourInvitationDismissed, setTourInvitationDismissed] = useState(false);
 
+  // Firebase state
+  const [db, setDb] = useState<any>(null);
+
+  // Initialize Firebase
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      let app;
+      if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+      } else {
+        app = getApps()[0];
+      }
+      const firestore = getFirestore(app);
+      setDb(firestore);
+    }
+  }, []);
+
+  // Tour tracking functions
+  const getSessionId = () => {
+    if (typeof window === "undefined") return "ssr-session";
+    let sessionId = sessionStorage.getItem("sessionId");
+    if (!sessionId) {
+      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      sessionStorage.setItem("sessionId", sessionId);
+    }
+    return sessionId;
+  };
+
+  const trackTourEvent = async (
+    eventType:
+      | "tour_start"
+      | "tour_step"
+      | "tour_complete"
+      | "tour_abandon"
+      | "tour_cta_action",
+    stepId?: string,
+    stepIndex?: number,
+    ctaAction?: "message" | "meeting" | "restart"
+  ) => {
+    if (!db) return;
+
+    try {
+      const geoResponse = await fetch("/api/geolocation");
+      const geoData = await geoResponse.json();
+
+      const tourEvent = {
+        sessionId: getSessionId(),
+        eventType,
+        stepId,
+        stepIndex,
+        ctaAction,
+        timestamp: serverTimestamp(),
+        userAgent: navigator.userAgent,
+        referrer: document.referrer || "direct",
+        country: geoData.country_name,
+        region: geoData.region,
+        city: geoData.city,
+      };
+
+      await addDoc(collection(db, "tour_events"), tourEvent);
+      console.log(`Tour event tracked: ${eventType}`, tourEvent);
+    } catch (error) {
+      console.error("Error tracking tour event:", error);
+    }
+  };
+
   // Helper function to render highlighted text
   const renderHighlightedText = (text: string, highlightIndex: number) => {
     const characters = text.split("");
@@ -343,6 +427,10 @@ export default function ModernHome() {
     setCountdown(0);
     setCurrentCharacterIndex(0);
     setIsPaused(false);
+
+    // Track tour start
+    trackTourEvent("tour_start", tourSteps[0].id, 0);
+
     // Scroll to top first
     window.scrollTo({ top: 0, behavior: "smooth" });
     // Start with first step after a delay
@@ -563,6 +651,9 @@ export default function ModernHome() {
       setCurrentCharacterIndex(0);
       setIsPaused(false);
 
+      // Track tour step progression
+      trackTourEvent("tour_step", tourSteps[nextStepIndex].id, nextStepIndex);
+
       // Special handling for project steps to scroll to specific project cards
       if (nextStepIndex === 4) {
         // Step 5: Expired Solutions project
@@ -584,6 +675,9 @@ export default function ModernHome() {
           behavior: "smooth",
         });
       }
+
+      // Track tour completion
+      trackTourEvent("tour_complete", "final", tourSteps.length);
 
       setIsActive(false);
       // Show final CTA after scroll completes
@@ -619,6 +713,11 @@ export default function ModernHome() {
   };
 
   const closeTour = () => {
+    // Track tour abandonment if not at the end
+    if (currentStep < tourSteps.length - 1) {
+      trackTourEvent("tour_abandon", tourSteps[currentStep].id, currentStep);
+    }
+
     setIsActive(false);
     setShowFinalCTA(false);
     setCountdown(0);
@@ -635,6 +734,9 @@ export default function ModernHome() {
   };
 
   const handleFinalCTAAction = (action: "message" | "meeting") => {
+    // Track CTA action
+    trackTourEvent("tour_cta_action", "final_cta", tourSteps.length, action);
+
     // Close tour
     closeTour();
 

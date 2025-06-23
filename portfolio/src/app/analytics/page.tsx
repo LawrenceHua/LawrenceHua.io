@@ -295,6 +295,7 @@ export default function AnalyticsPage() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [pageViews, setPageViews] = useState<PageView[]>([]);
   const [interactions, setInteractions] = useState<UserInteraction[]>([]);
+  const [tourEvents, setTourEvents] = useState<TourEvent[]>([]);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
     null
   );
@@ -405,16 +406,18 @@ export default function AnalyticsPage() {
     if (
       sessions.length > 0 ||
       pageViews.length > 0 ||
-      interactions.length > 0
+      interactions.length > 0 ||
+      tourEvents.length > 0
     ) {
       const recalculatedData = calculateAnalyticsData(
         sessions,
         pageViews,
-        interactions
+        interactions,
+        tourEvents
       );
       setAnalyticsData(recalculatedData);
     }
-  }, [timeRange, sessions, pageViews, interactions]);
+  }, [timeRange, sessions, pageViews, interactions, tourEvents]);
 
   const startDataCollection = () => {
     // Track page view
@@ -721,6 +724,20 @@ export default function AnalyticsPage() {
         })
       ) as UserInteraction[];
 
+      // Fetch tour events
+      const tourEventsRef = collection(db, "tour_events");
+      const tourEventsQuery = query(
+        tourEventsRef,
+        orderBy("timestamp", "desc")
+      );
+      const tourEventsSnap = await getDocs(tourEventsQuery);
+      incrementRead();
+
+      const tourEventsData: TourEvent[] = tourEventsSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as TourEvent[];
+
       // Update state
       setSessions((prev) =>
         append ? [...prev, ...chatSessions] : chatSessions
@@ -731,12 +748,16 @@ export default function AnalyticsPage() {
       setInteractions((prev) =>
         append ? [...prev, ...interactionsData] : interactionsData
       );
+      setTourEvents((prev) =>
+        append ? [...prev, ...tourEventsData] : tourEventsData
+      );
 
       // Calculate analytics
       const analytics = calculateAnalyticsData(
         append ? [...sessions, ...chatSessions] : chatSessions,
         append ? [...pageViews, ...pageViewsData] : pageViewsData,
-        append ? [...interactions, ...interactionsData] : interactionsData
+        append ? [...interactions, ...interactionsData] : interactionsData,
+        append ? [...tourEvents, ...tourEventsData] : tourEventsData
       );
       setAnalyticsData(analytics);
 
@@ -760,7 +781,8 @@ export default function AnalyticsPage() {
   const calculateAnalyticsData = (
     sessions: ChatSession[],
     pageViews: PageView[],
-    interactions: UserInteraction[]
+    interactions: UserInteraction[],
+    tourEvents: TourEvent[] = []
   ): AnalyticsData => {
     // Apply time range filtering to all data
     const now = new Date();
@@ -1026,16 +1048,96 @@ export default function AnalyticsPage() {
       }))
       .sort((a, b) => b.count - a.count);
 
-    // Tour Analytics (mock data for now - will be updated when tour events are tracked)
+    // Tour Analytics (using real tour events data)
+    const filteredTourEvents = tourEvents.filter(
+      (event) => event.timestamp.toDate() >= startDate
+    );
+
+    const tourStarts = filteredTourEvents.filter(
+      (event) => event.eventType === "tour_start"
+    );
+    const tourCompletions = filteredTourEvents.filter(
+      (event) => event.eventType === "tour_complete"
+    );
+    const tourSteps = filteredTourEvents.filter(
+      (event) => event.eventType === "tour_step"
+    );
+    const tourAbandons = filteredTourEvents.filter(
+      (event) => event.eventType === "tour_abandon"
+    );
+    const tourCTAs = filteredTourEvents.filter(
+      (event) => event.eventType === "tour_cta_action"
+    );
+
+    const completionRate =
+      tourStarts.length > 0
+        ? (tourCompletions.length / tourStarts.length) * 100
+        : 0;
+
+    // Calculate average steps completed
+    const sessionSteps = new Map<string, number>();
+    tourSteps.forEach((step) => {
+      const maxStep = Math.max(
+        sessionSteps.get(step.sessionId) || 0,
+        step.stepIndex || 0
+      );
+      sessionSteps.set(step.sessionId, maxStep);
+    });
+    const totalStepsCompleted = Array.from(sessionSteps.values()).reduce(
+      (sum, steps) => sum + steps,
+      0
+    );
+    const averageStepsCompleted =
+      sessionSteps.size > 0 ? totalStepsCompleted / sessionSteps.size : 0;
+
+    // Most popular step (most frequent stepId)
+    const stepCounts = new Map<string, number>();
+    tourSteps.forEach((step) => {
+      if (step.stepId) {
+        stepCounts.set(step.stepId, (stepCounts.get(step.stepId) || 0) + 1);
+      }
+    });
+    const mostPopularStep =
+      Array.from(stepCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ||
+      "intro";
+
+    // Abandonment points
+    const abandonCounts = new Map<string, number>();
+    tourAbandons.forEach((abandon) => {
+      if (abandon.stepId) {
+        abandonCounts.set(
+          abandon.stepId,
+          (abandonCounts.get(abandon.stepId) || 0) + 1
+        );
+      }
+    });
+    const abandonmentPoints = Array.from(abandonCounts.entries())
+      .map(([step, count]) => ({ step, count }))
+      .sort((a, b) => b.count - a.count);
+
+    // CTA Actions
+    const ctaCounts = new Map<string, number>();
+    tourCTAs.forEach((cta) => {
+      if (cta.ctaAction) {
+        ctaCounts.set(cta.ctaAction, (ctaCounts.get(cta.ctaAction) || 0) + 1);
+      }
+    });
+    const ctaActions = Array.from(ctaCounts.entries())
+      .map(([action, count]) => ({ action, count }))
+      .sort((a, b) => b.count - a.count);
+
+    const tourConversionRate =
+      tourStarts.length > 0 ? (tourCTAs.length / tourStarts.length) * 100 : 0;
+
     const tourAnalytics = {
-      totalTourStarts: 0,
-      totalTourCompletions: 0,
-      completionRate: 0,
-      averageStepsCompleted: 0,
-      mostPopularStep: "overview",
-      abandonmentPoints: [],
-      ctaActions: [],
-      tourConversionRate: 0,
+      totalTourStarts: tourStarts.length,
+      totalTourCompletions: tourCompletions.length,
+      completionRate: Math.round(completionRate),
+      averageStepsCompleted: Math.round(averageStepsCompleted * 10) / 10,
+      mostPopularStep,
+      abandonmentPoints,
+      ctaActions,
+      tourConversionRate: Math.round(tourConversionRate),
     };
 
     // Time-Based Intelligence (use filtered data)
