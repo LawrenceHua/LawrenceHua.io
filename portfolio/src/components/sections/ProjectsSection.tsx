@@ -109,7 +109,7 @@ const projectsData = {
       image: "/logos/mturk logo.png",
       tags: ["AI Evaluation", "Expert Rating", "Human-AI Alignment", "Amazon"],
       link: "https://www.linkedin.com/in/lawrencehua",
-      linkText: "View LinkedIn",
+      linkText: "Come back for more in July!",
       linkIcon: "external" as const,
     },
     {

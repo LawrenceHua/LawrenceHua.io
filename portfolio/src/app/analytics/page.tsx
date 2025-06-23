@@ -3106,10 +3106,10 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* Sessions for Keyword Modal - Enhanced Scrolling */}
+        {/* Sessions for Keyword Modal - Fixed Scrolling */}
         {selectedKeyword && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-hidden">
-            <div className="bg-gray-800 rounded-xl w-full max-w-5xl max-h-[95vh] flex flex-col shadow-2xl border border-gray-600">
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl border border-gray-600">
               {/* Fixed Header */}
               <div className="flex-shrink-0 p-6 border-b border-gray-700 bg-gray-800">
                 <div className="flex justify-between items-center">
@@ -3137,124 +3137,104 @@ export default function AnalyticsPage() {
                 </div>
               </div>
 
-              {/* Scrollable Sessions Gallery */}
-              <div className="flex-1 min-h-0 overflow-hidden">
-                <div
-                  className="h-full overflow-y-scroll overflow-x-hidden p-6 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-700"
-                  style={{
-                    scrollBehavior: "smooth",
-                    scrollbarWidth: "thin",
-                    scrollbarColor: "#3b82f6 #374151",
-                    WebkitOverflowScrolling: "touch",
-                    maxHeight: "calc(95vh - 200px)", // Ensure proper height constraints
-                  }}
-                >
-                  <div className="space-y-6">
-                    {sessions
-                      .filter((session) =>
-                        analyticsData?.foundKeywords
-                          .find((k) => k.keyword === selectedKeyword)
-                          ?.sessionIds.includes(session.sessionId)
-                      )
-                      .map((session, index) => (
-                        <div
-                          key={session.sessionId}
-                          className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl p-6 hover:from-gray-650 hover:to-gray-750 transition-all duration-200 border border-gray-600/50 hover:border-blue-500/30"
-                        >
-                          {/* Session Header */}
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                {index + 1}
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-lg text-blue-300">
-                                  Session {session.sessionId.slice(-8)}
-                                </h4>
-                                <p className="text-xs text-gray-400">
-                                  {formatTimestamp(session.startTime)} •{" "}
-                                  {session.messageCount} messages
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-xs text-gray-400 bg-gray-600/50 px-3 py-1 rounded-full">
-                              {getSessionDuration(
-                                session.startTime,
-                                session.endTime
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Messages Gallery with Enhanced Scrolling */}
-                          <div
-                            className="space-y-3 max-h-60 overflow-y-scroll pr-3 scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-600"
-                            style={{
-                              scrollBehavior: "smooth",
-                              scrollbarWidth: "thin",
-                              scrollbarColor: "#6b7280 #4b5563",
-                              WebkitOverflowScrolling: "touch",
-                            }}
-                          >
-                            {session.messages.map((message, msgIndex) => (
-                              <div
-                                key={message.id}
-                                className={`text-sm p-4 rounded-lg transition-all duration-200 ${
-                                  message.role === "user"
-                                    ? "bg-gradient-to-r from-blue-900/40 to-blue-800/30 border-l-4 border-blue-400 text-blue-100 hover:from-blue-800/50 hover:to-blue-700/40"
-                                    : "bg-gradient-to-r from-gray-600/40 to-gray-500/30 border-l-4 border-gray-400 text-gray-100 hover:from-gray-500/50 hover:to-gray-400/40"
-                                }`}
-                              >
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="font-bold text-xs flex items-center gap-2">
-                                    {message.role === "user" ? (
-                                      <>
-                                        <span className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[10px]">
-                                          👤
-                                        </span>
-                                        User
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span className="w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center text-[10px]">
-                                          🤖
-                                        </span>
-                                        AI Assistant
-                                      </>
-                                    )}
-                                  </span>
-                                  <span className="text-xs opacity-60">
-                                    #{msgIndex + 1}
-                                  </span>
-                                </div>
-                                <p className="mt-2 leading-relaxed whitespace-pre-wrap">
-                                  {message.message}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-
-                    {/* No Sessions Found State */}
-                    {sessions.filter((session) =>
+              {/* Simplified Scrollable Content */}
+              <div className="flex-1 overflow-auto p-6">
+                <div className="space-y-6">
+                  {sessions
+                    .filter((session) =>
                       analyticsData?.foundKeywords
                         .find((k) => k.keyword === selectedKeyword)
                         ?.sessionIds.includes(session.sessionId)
-                    ).length === 0 && (
-                      <div className="text-center py-16 text-gray-400">
-                        <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <FiMessageCircle className="h-8 w-8 opacity-50" />
+                    )
+                    .map((session, index) => (
+                      <div
+                        key={session.sessionId}
+                        className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl p-6 hover:from-gray-650 hover:to-gray-750 transition-all duration-200 border border-gray-600/50 hover:border-blue-500/30"
+                      >
+                        {/* Session Header */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                              {index + 1}
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-lg text-blue-300">
+                                Session {session.sessionId.slice(-8)}
+                              </h4>
+                              <p className="text-xs text-gray-400">
+                                {formatTimestamp(session.startTime)} •{" "}
+                                {session.messageCount} messages
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-xs text-gray-400 bg-gray-600/50 px-3 py-1 rounded-full">
+                            {getSessionDuration(
+                              session.startTime,
+                              session.endTime
+                            )}
+                          </div>
                         </div>
-                        <h4 className="text-xl font-semibold mb-2">
-                          No Sessions Found
-                        </h4>
-                        <p className="text-sm">
-                          No chat sessions contain the keyword "
-                          {selectedKeyword}"
-                        </p>
+
+                        {/* Simplified Messages Gallery */}
+                        <div className="space-y-3 max-h-60 overflow-auto">
+                          {session.messages.map((message, msgIndex) => (
+                            <div
+                              key={message.id}
+                              className={`text-sm p-4 rounded-lg transition-all duration-200 ${
+                                message.role === "user"
+                                  ? "bg-gradient-to-r from-blue-900/40 to-blue-800/30 border-l-4 border-blue-400 text-blue-100 hover:from-blue-800/50 hover:to-blue-700/40"
+                                  : "bg-gradient-to-r from-gray-600/40 to-gray-500/30 border-l-4 border-gray-400 text-gray-100 hover:from-gray-500/50 hover:to-gray-400/40"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-bold text-xs flex items-center gap-2">
+                                  {message.role === "user" ? (
+                                    <>
+                                      <span className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[10px]">
+                                        👤
+                                      </span>
+                                      User
+                                    </>
+                                  ) : (
+                                    <>
+                                      <span className="w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center text-[10px]">
+                                        🤖
+                                      </span>
+                                      AI Assistant
+                                    </>
+                                  )}
+                                </span>
+                                <span className="text-xs opacity-60">
+                                  #{msgIndex + 1}
+                                </span>
+                              </div>
+                              <p className="mt-2 leading-relaxed whitespace-pre-wrap">
+                                {message.message}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    )}
-                  </div>
+                    ))}
+
+                  {/* No Sessions Found State */}
+                  {sessions.filter((session) =>
+                    analyticsData?.foundKeywords
+                      .find((k) => k.keyword === selectedKeyword)
+                      ?.sessionIds.includes(session.sessionId)
+                  ).length === 0 && (
+                    <div className="text-center py-16 text-gray-400">
+                      <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FiMessageCircle className="h-8 w-8 opacity-50" />
+                      </div>
+                      <h4 className="text-xl font-semibold mb-2">
+                        No Sessions Found
+                      </h4>
+                      <p className="text-sm">
+                        No chat sessions contain the keyword "{selectedKeyword}"
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -3505,18 +3485,8 @@ export default function AnalyticsPage() {
                 </div>
               </div>
 
-              {/* Scrollable Content Area - Gallery Style */}
-              <div className="flex-1 flex flex-col min-h-0">
-                <div
-                  className="flex-1 overflow-y-scroll overflow-x-hidden px-6 py-4 scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-800"
-                  style={{
-                    scrollBehavior: "smooth",
-                    scrollbarWidth: "thin",
-                    scrollbarColor: "#7c3aed #374151",
-                    WebkitOverflowScrolling: "touch",
-                    maxHeight: "calc(95vh - 150px)", // Ensure proper height constraints
-                  }}
-                >
+              {/* Simplified Scrollable Content */}
+              <div className="flex-1 overflow-auto px-6 py-4">
                   <div className="space-y-4">
                     {filteredSessions.length === 0 ? (
                       <div className="text-center py-12 text-gray-400">
@@ -3557,16 +3527,8 @@ export default function AnalyticsPage() {
                               </div>
                             </div>
 
-                            {/* Compact Messages Gallery */}
-                            <div
-                              className="space-y-2 max-h-48 overflow-y-scroll pr-2 scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700"
-                              style={{
-                                scrollBehavior: "smooth",
-                                scrollbarWidth: "thin",
-                                scrollbarColor: "#6b7280 #374151",
-                                WebkitOverflowScrolling: "touch",
-                              }}
-                            >
+                            {/* Simplified Messages Gallery */}
+                            <div className="space-y-2 max-h-48 overflow-auto">
                               {session.messages.map((message, index) => (
                                 <div
                                   key={message.id}
