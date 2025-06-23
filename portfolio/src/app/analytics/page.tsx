@@ -39,6 +39,27 @@ import {
 import Link from "next/link";
 import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
 
+// Tooltip Component for Analytics Explanations
+const Tooltip = ({
+  children,
+  content,
+  className = "",
+}: {
+  children: React.ReactNode;
+  content: string;
+  className?: string;
+}) => {
+  return (
+    <div className={`relative group ${className}`}>
+      {children}
+      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 max-w-xs text-center border border-gray-700">
+        {content}
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+      </div>
+    </div>
+  );
+};
+
 // Firebase config (using environment variables)
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -1589,84 +1610,92 @@ export default function AnalyticsPage() {
               <FiArrowLeft className="h-5 w-5" />
               Back to Portfolio
             </Link>
-            <h1 className="text-3xl font-bold">
-              Portfolio Analytics Dashboard
-            </h1>
+            <Tooltip content="Comprehensive analytics dashboard tracking visitor behavior, recruiter interest, AI chatbot usage, and business intelligence for your portfolio website.">
+              <h1 className="text-3xl font-bold">
+                Portfolio Analytics Dashboard
+              </h1>
+            </Tooltip>
           </div>
           <div className="flex items-center gap-4">
             {/* Firebase Usage Display */}
-            <div className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <span className="text-blue-400">📖</span>
-                  <span className="text-gray-300">Reads:</span>
-                  <span
-                    className={`font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}
+            <Tooltip content="Real-time Firebase database usage monitoring. Green = efficient usage, Yellow = moderate usage, Red = expensive usage. Tracks reads/writes for cost optimization.">
+              <div className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <span className="text-blue-400">📖</span>
+                    <span className="text-gray-300">Reads:</span>
+                    <span
+                      className={`font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}
+                    >
+                      {firebaseReads}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-orange-400">✏️</span>
+                    <span className="text-gray-300">Writes:</span>
+                    <span
+                      className={`font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}
+                    >
+                      {firebaseWrites}
+                    </span>
+                  </div>
+                  <button
+                    onClick={resetCounters}
+                    className="text-xs text-gray-400 hover:text-gray-300 px-2 py-1 bg-gray-700 rounded"
+                    title="Reset counters"
                   >
-                    {firebaseReads}
-                  </span>
+                    Reset
+                  </button>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-orange-400">✏️</span>
-                  <span className="text-gray-300">Writes:</span>
-                  <span
-                    className={`font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}
-                  >
-                    {firebaseWrites}
-                  </span>
-                </div>
-                <button
-                  onClick={resetCounters}
-                  className="text-xs text-gray-400 hover:text-gray-300 px-2 py-1 bg-gray-700 rounded"
-                  title="Reset counters"
-                >
-                  Reset
-                </button>
               </div>
-            </div>
+            </Tooltip>
 
             {/* Time Range Selector */}
             <div className="flex items-center gap-2">
-              <select
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value as any)}
-                className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
-                disabled={loading || refreshInProgress}
-              >
-                <option value="1d">Last 24 hours</option>
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="all">All time</option>
-              </select>
+              <Tooltip content="Filter analytics data by time period. Affects all metrics and visualizations shown in the dashboard.">
+                <select
+                  value={timeRange}
+                  onChange={(e) => setTimeRange(e.target.value as any)}
+                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+                  disabled={loading || refreshInProgress}
+                >
+                  <option value="1d">Last 24 hours</option>
+                  <option value="7d">Last 7 days</option>
+                  <option value="30d">Last 30 days</option>
+                  <option value="all">All time</option>
+                </select>
+              </Tooltip>
             </div>
 
             {/* Manual Refresh Button */}
-            <button
-              onClick={handleManualRefresh}
-              disabled={loading || refreshInProgress}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                loading || refreshInProgress
-                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
-              }`}
-            >
-              {refreshInProgress ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Refreshing...
-                </>
-              ) : (
-                <>
-                  <FiActivity className="h-4 w-4" />
-                  Refresh Data
-                  {lastRefreshTime && (
-                    <span className="text-xs bg-blue-700 px-2 py-1 rounded">
-                      ~{estimateRefreshCost().reads} reads
-                    </span>
-                  )}
-                </>
-              )}
-            </button>
+            <Tooltip content="Manually refresh analytics data from Firebase. Shows estimated read cost to help manage Firebase usage and expenses.">
+              <button
+                onClick={handleManualRefresh}
+                disabled={loading || refreshInProgress}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                  loading || refreshInProgress
+                    ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
+                }`}
+              >
+                {refreshInProgress ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Refreshing...
+                  </>
+                ) : (
+                  <>
+                    <FiActivity className="h-4 w-4" />
+                    Refresh Data
+                    {lastRefreshTime && (
+                      <span className="text-xs bg-blue-700 px-2 py-1 rounded">
+                        ~{estimateRefreshCost().reads} reads
+                      </span>
+                    )}
+                  </>
+                )}
+              </button>
+            </Tooltip>
           </div>
         </div>
 
@@ -1760,99 +1789,115 @@ export default function AnalyticsPage() {
         {/* Main Stats Grid */}
         {analyticsData && (
           <div className="grid grid-cols-2 lg:grid-cols-7 gap-3 mb-6">
-            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-200 text-xs">Page Views</p>
-                  <p className="text-xl font-bold">
-                    {analyticsData.totalPageViews}
-                  </p>
+            <Tooltip content="Total number of page loads across your entire portfolio website. Each page view represents someone accessing a page on your site.">
+              <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-200 text-xs">Page Views</p>
+                    <p className="text-xl font-bold">
+                      {analyticsData.totalPageViews}
+                    </p>
+                  </div>
+                  <FiEye className="h-5 w-5 text-blue-200" />
                 </div>
-                <FiEye className="h-5 w-5 text-blue-200" />
               </div>
-            </div>
+            </Tooltip>
 
-            <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-green-200 text-xs">Visitors</p>
-                  <p className="text-xl font-bold">
-                    {analyticsData.uniqueVisitors}
-                  </p>
+            <Tooltip content="Unique individuals who visited your portfolio. This counts each person once, regardless of how many pages they viewed.">
+              <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-green-200 text-xs">Visitors</p>
+                    <p className="text-xl font-bold">
+                      {analyticsData.uniqueVisitors}
+                    </p>
+                  </div>
+                  <FiUsers className="h-5 w-5 text-green-200" />
                 </div>
-                <FiUsers className="h-5 w-5 text-green-200" />
               </div>
-            </div>
+            </Tooltip>
 
-            <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-purple-200 text-xs">Chat Sessions</p>
-                  <p className="text-xl font-bold">
-                    {analyticsData.totalChatSessions}
-                  </p>
+            <Tooltip content="Number of conversations started with your AI chatbot. Each session represents someone actively engaging with your AI assistant.">
+              <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-purple-200 text-xs">Chat Sessions</p>
+                    <p className="text-xl font-bold">
+                      {analyticsData.totalChatSessions}
+                    </p>
+                  </div>
+                  <FiMessageCircle className="h-5 w-5 text-purple-200" />
                 </div>
-                <FiMessageCircle className="h-5 w-5 text-purple-200" />
               </div>
-            </div>
+            </Tooltip>
 
-            <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-orange-200 text-xs">Avg Session</p>
-                  <p className="text-xl font-bold">
-                    {Math.round(analyticsData.avgSessionDuration)}m
-                  </p>
+            <Tooltip content="Average time visitors spend on your portfolio in minutes. Higher duration indicates strong engagement and interest in your content.">
+              <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-orange-200 text-xs">Avg Session</p>
+                    <p className="text-xl font-bold">
+                      {Math.round(analyticsData.avgSessionDuration)}m
+                    </p>
+                  </div>
+                  <FiClock className="h-5 w-5 text-orange-200" />
                 </div>
-                <FiClock className="h-5 w-5 text-orange-200" />
               </div>
-            </div>
+            </Tooltip>
 
-            <div className="bg-gradient-to-br from-teal-600 to-teal-700 p-4 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-teal-200 text-xs">Messages</p>
-                  <p className="text-xl font-bold">
-                    {analyticsData.totalMessages}
-                  </p>
+            <Tooltip content="Total number of messages exchanged between visitors and your AI chatbot. Shows the depth of AI assistant engagement.">
+              <div className="bg-gradient-to-br from-teal-600 to-teal-700 p-4 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-teal-200 text-xs">Messages</p>
+                    <p className="text-xl font-bold">
+                      {analyticsData.totalMessages}
+                    </p>
+                  </div>
+                  <FiMessageCircle className="h-5 w-5 text-teal-200" />
                 </div>
-                <FiMessageCircle className="h-5 w-5 text-teal-200" />
               </div>
-            </div>
+            </Tooltip>
 
-            <div className="bg-gradient-to-br from-red-600 to-red-700 p-4 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-red-200 text-xs">Recruiters</p>
-                  <p className="text-xl font-bold">
-                    {analyticsData.potentialRecruiters}
-                  </p>
+            <Tooltip content="Visitors identified as potential recruiters based on keywords used, time spent, and interaction patterns. AI-powered detection of recruitment interest.">
+              <div className="bg-gradient-to-br from-red-600 to-red-700 p-4 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-red-200 text-xs">Recruiters</p>
+                    <p className="text-xl font-bold">
+                      {analyticsData.potentialRecruiters}
+                    </p>
+                  </div>
+                  <FiUserCheck className="h-5 w-5 text-red-200" />
                 </div>
-                <FiUserCheck className="h-5 w-5 text-red-200" />
               </div>
-            </div>
+            </Tooltip>
 
-            <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 p-4 rounded-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-indigo-200 text-xs">Tour Taken</p>
-                  <p className="text-xl font-bold">
-                    {analyticsData.tourAnalytics.totalTourStarts}
-                  </p>
+            <Tooltip content="Number of visitors who started the interactive Product Manager portfolio tour. This guided experience showcases your PM skills and achievements.">
+              <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 p-4 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-indigo-200 text-xs">Tour Taken</p>
+                    <p className="text-xl font-bold">
+                      {analyticsData.tourAnalytics.totalTourStarts}
+                    </p>
+                  </div>
+                  <span className="text-indigo-200 text-lg">🎯</span>
                 </div>
-                <span className="text-indigo-200 text-lg">🎯</span>
               </div>
-            </div>
+            </Tooltip>
           </div>
         )}
 
         {/* Chatbot Analytics - PROMINENT POSITION */}
         <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 mb-6 border border-purple-500/20">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2 text-purple-300">
-              <FiMessageCircle className="h-6 w-6" />
-              Live Chatbot Analytics
-            </h2>
+            <Tooltip content="Real-time analytics for your AI chatbot showing conversation patterns, user engagement, and message statistics. Monitor how visitors interact with your AI assistant.">
+              <h2 className="text-2xl font-bold flex items-center gap-2 text-purple-300">
+                <FiMessageCircle className="h-6 w-6" />
+                Live Chatbot Analytics
+              </h2>
+            </Tooltip>
             <button
               onClick={() => setShowChatbotFullScreen(true)}
               className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -1864,40 +1909,52 @@ export default function AnalyticsPage() {
           {/* Quick Chat Stats */}
           {analyticsData && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
-                <h3 className="text-purple-300 text-xs">Active Sessions</h3>
-                <p className="text-lg font-bold text-white">
-                  {sessions.length}
-                </p>
-              </div>
-              <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
-                <h3 className="text-purple-300 text-xs">Total Messages</h3>
-                <p className="text-lg font-bold text-white">
-                  {analyticsData.totalMessages}
-                </p>
-              </div>
-              <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
-                <h3 className="text-purple-300 text-xs">Avg Msg/Session</h3>
-                <p className="text-lg font-bold text-white">
-                  {sessions.length > 0
-                    ? Math.round(analyticsData.totalMessages / sessions.length)
-                    : 0}
-                </p>
-              </div>
-              <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
-                <h3 className="text-purple-300 text-xs">Recent Activity</h3>
-                <p className="text-lg font-bold text-white">
-                  {filteredSessions.length}
-                </p>
-              </div>
+              <Tooltip content="Number of currently tracked chat sessions in your system. Shows recent chatbot activity and engagement.">
+                <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
+                  <h3 className="text-purple-300 text-xs">Active Sessions</h3>
+                  <p className="text-lg font-bold text-white">
+                    {sessions.length}
+                  </p>
+                </div>
+              </Tooltip>
+              <Tooltip content="Total number of messages sent between visitors and your AI chatbot across all conversations.">
+                <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
+                  <h3 className="text-purple-300 text-xs">Total Messages</h3>
+                  <p className="text-lg font-bold text-white">
+                    {analyticsData.totalMessages}
+                  </p>
+                </div>
+              </Tooltip>
+              <Tooltip content="Average number of messages per chat session. Higher numbers indicate deeper conversations and stronger engagement.">
+                <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
+                  <h3 className="text-purple-300 text-xs">Avg Msg/Session</h3>
+                  <p className="text-lg font-bold text-white">
+                    {sessions.length > 0
+                      ? Math.round(
+                          analyticsData.totalMessages / sessions.length
+                        )
+                      : 0}
+                  </p>
+                </div>
+              </Tooltip>
+              <Tooltip content="Number of chat sessions within your selected time range. Shows recent chatbot activity level.">
+                <div className="bg-purple-900/30 p-3 rounded-lg border border-purple-500/20">
+                  <h3 className="text-purple-300 text-xs">Recent Activity</h3>
+                  <p className="text-lg font-bold text-white">
+                    {filteredSessions.length}
+                  </p>
+                </div>
+              </Tooltip>
             </div>
           )}
 
           {/* Recent Chat Sessions - Compact View */}
           <div className="bg-gray-900/50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-3 text-purple-300">
-              Recent Chat Sessions
-            </h3>
+            <Tooltip content="Most recent conversations between visitors and your AI chatbot. Shows session duration, message count, and conversation snippets to understand visitor interests.">
+              <h3 className="text-lg font-semibold mb-3 text-purple-300">
+                Recent Chat Sessions
+              </h3>
+            </Tooltip>
             <div
               className="max-h-60 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-700 pr-2"
               style={{
@@ -1962,10 +2019,12 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             {/* Top Pages */}
             <div className="bg-gray-800 p-6 rounded-xl">
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <FiBarChart className="h-5 w-5" />
-                Top Pages
-              </h3>
+              <Tooltip content="Most visited pages on your portfolio website. Shows which sections attract the most attention and where visitors spend their time.">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <FiBarChart className="h-5 w-5" />
+                  Top Pages
+                </h3>
+              </Tooltip>
               <div className="space-y-3">
                 {analyticsData.topPages.map((page, index) => (
                   <div
@@ -1998,10 +2057,12 @@ export default function AnalyticsPage() {
 
             {/* Device Types */}
             <div className="bg-gray-800 p-6 rounded-xl">
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <FiPieChart className="h-5 w-5" />
-                Device Types
-              </h3>
+              <Tooltip content="Breakdown of devices used to visit your portfolio (Desktop, Mobile, Tablet). Helps understand your audience's viewing preferences and optimize accordingly.">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <FiPieChart className="h-5 w-5" />
+                  Device Types
+                </h3>
+              </Tooltip>
               <div className="space-y-3">
                 {analyticsData.deviceTypes.map((device, index) => (
                   <div
@@ -2076,10 +2137,12 @@ export default function AnalyticsPage() {
 
             {/* Popular Interactions */}
             <div className="bg-gray-800 p-6 rounded-xl">
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <FiActivity className="h-5 w-5" />
-                User Interactions
-              </h3>
+              <Tooltip content="Most common user interactions on your portfolio such as clicks, scrolls, and navigation. Shows what elements visitors engage with most.">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <FiActivity className="h-5 w-5" />
+                  Popular Interactions
+                </h3>
+              </Tooltip>
               <div className="space-y-3">
                 {analyticsData.popularInteractions.map((interaction, index) => (
                   <div
@@ -2114,10 +2177,12 @@ export default function AnalyticsPage() {
 
             {/* Potential Recruiters */}
             <div className="bg-gray-800 p-6 rounded-xl">
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <FiUserCheck className="h-5 w-5" />
-                Potential Recruiters
-              </h3>
+              <Tooltip content="AI-powered detection of visitors who show signs of recruitment interest. Based on keywords used, time spent, resume downloads, and LinkedIn clicks. Helps identify career opportunities.">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <FiUserCheck className="h-5 w-5" />
+                  Potential Recruiters
+                </h3>
+              </Tooltip>
               <div className="text-4xl font-bold text-teal-400">
                 {analyticsData.potentialRecruiters}
               </div>
@@ -2248,51 +2313,63 @@ export default function AnalyticsPage() {
           <>
             {/* Tour Analytics Dashboard */}
             <div className="bg-gray-800 rounded-xl p-6 mb-6">
-              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <span className="text-2xl">🎯</span>
-                Portfolio Tour Analytics
-              </h2>
+              <Tooltip content="Analytics for your interactive Product Manager portfolio tour. Tracks user engagement with the guided experience showcasing your PM skills, completion rates, and which steps are most effective.">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <span className="text-2xl">🎯</span>
+                  Portfolio Tour Analytics
+                </h2>
+              </Tooltip>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/20">
-                  <h3 className="text-indigo-300 text-sm">Tour Starts</h3>
-                  <p className="text-2xl font-bold text-white">
-                    {analyticsData.tourAnalytics.totalTourStarts}
-                  </p>
-                </div>
-                <div className="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/20">
-                  <h3 className="text-indigo-300 text-sm">Completions</h3>
-                  <p className="text-2xl font-bold text-white">
-                    {analyticsData.tourAnalytics.totalTourCompletions}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    {analyticsData.tourAnalytics.completionRate.toFixed(1)}%
-                    completion rate
-                  </p>
-                </div>
-                <div className="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/20">
-                  <h3 className="text-indigo-300 text-sm">Avg Steps</h3>
-                  <p className="text-2xl font-bold text-white">
-                    {analyticsData.tourAnalytics.averageStepsCompleted.toFixed(
-                      1
-                    )}
-                  </p>
-                  <p className="text-xs text-gray-400">out of 6 steps</p>
-                </div>
-                <div className="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/20">
-                  <h3 className="text-indigo-300 text-sm">Most Popular</h3>
-                  <p className="text-lg font-bold text-white capitalize">
-                    {analyticsData.tourAnalytics.mostPopularStep}
-                  </p>
-                  <p className="text-xs text-gray-400">step</p>
-                </div>
+                <Tooltip content="Number of visitors who started the interactive portfolio tour. Shows initial interest in your guided PM experience.">
+                  <div className="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/20">
+                    <h3 className="text-indigo-300 text-sm">Tour Starts</h3>
+                    <p className="text-2xl font-bold text-white">
+                      {analyticsData.tourAnalytics.totalTourStarts}
+                    </p>
+                  </div>
+                </Tooltip>
+                <Tooltip content="Number of visitors who completed the entire portfolio tour. High completion rates indicate engaging content and clear value proposition.">
+                  <div className="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/20">
+                    <h3 className="text-indigo-300 text-sm">Completions</h3>
+                    <p className="text-2xl font-bold text-white">
+                      {analyticsData.tourAnalytics.totalTourCompletions}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {analyticsData.tourAnalytics.completionRate.toFixed(1)}%
+                      completion rate
+                    </p>
+                  </div>
+                </Tooltip>
+                <Tooltip content="Average number of tour steps completed by visitors. Helps identify where users lose interest and which content resonates most.">
+                  <div className="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/20">
+                    <h3 className="text-indigo-300 text-sm">Avg Steps</h3>
+                    <p className="text-2xl font-bold text-white">
+                      {analyticsData.tourAnalytics.averageStepsCompleted.toFixed(
+                        1
+                      )}
+                    </p>
+                    <p className="text-xs text-gray-400">out of 6 steps</p>
+                  </div>
+                </Tooltip>
+                <Tooltip content="The tour step that receives the most engagement and time from visitors. Indicates which aspect of your PM profile is most compelling.">
+                  <div className="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/20">
+                    <h3 className="text-indigo-300 text-sm">Most Popular</h3>
+                    <p className="text-lg font-bold text-white capitalize">
+                      {analyticsData.tourAnalytics.mostPopularStep}
+                    </p>
+                    <p className="text-xs text-gray-400">step</p>
+                  </div>
+                </Tooltip>
               </div>
 
               {analyticsData.tourAnalytics.ctaActions.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="text-lg font-semibold mb-3">
-                      Tour CTA Actions
-                    </h4>
+                    <Tooltip content="Actions taken by visitors at the end of the tour (message, meeting request, restart). Shows how effectively the tour converts visitors into leads.">
+                      <h4 className="text-lg font-semibold mb-3">
+                        Tour CTA Actions
+                      </h4>
+                    </Tooltip>
                     <div className="space-y-2">
                       {analyticsData.tourAnalytics.ctaActions.map(
                         (action, index) => (
@@ -2336,10 +2413,12 @@ export default function AnalyticsPage() {
             {/* Time-Based Intelligence */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <div className="bg-gray-800 p-6 rounded-xl">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <FiClock className="h-5 w-5" />
-                  Peak Recruiter Hours
-                </h3>
+                <Tooltip content="Times of day when recruiting activity is highest on your portfolio. Helps identify when recruiters are most active and optimize your outreach timing.">
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <FiClock className="h-5 w-5" />
+                    Peak Recruiter Hours
+                  </h3>
+                </Tooltip>
                 <div className="space-y-3">
                   {analyticsData.timeIntelligence.peakHours
                     .filter((h) => h.recruiterActivity > 0)
@@ -2369,21 +2448,25 @@ export default function AnalyticsPage() {
                     ))}
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-700">
-                  <p className="text-sm text-gray-400">
-                    Average time to first engagement:{" "}
-                    <span className="text-yellow-400 font-semibold">
-                      {analyticsData.timeIntelligence.timeToEngage.toFixed(1)}{" "}
-                      minutes
-                    </span>
-                  </p>
+                  <Tooltip content="Average time it takes for visitors to start interacting with your portfolio after landing on the page. Lower times indicate engaging content that immediately captures attention.">
+                    <p className="text-sm text-gray-400">
+                      Average time to first engagement:{" "}
+                      <span className="text-yellow-400 font-semibold">
+                        {analyticsData.timeIntelligence.timeToEngage.toFixed(1)}{" "}
+                        minutes
+                      </span>
+                    </p>
+                  </Tooltip>
                 </div>
               </div>
 
               <div className="bg-gray-800 p-6 rounded-xl">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <FiTrendingUp className="h-5 w-5" />
-                  Weekly Patterns
-                </h3>
+                <Tooltip content="Days of the week with highest recruiting activity on your portfolio. Helps understand weekly patterns and optimal days for portfolio updates or outreach.">
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <FiTrendingUp className="h-5 w-5" />
+                    Weekly Patterns
+                  </h3>
+                </Tooltip>
                 <div className="space-y-3">
                   {analyticsData.timeIntelligence.peakDays.map((day) => (
                     <div
@@ -2412,13 +2495,19 @@ export default function AnalyticsPage() {
 
             {/* Industry Intelligence */}
             <div className="bg-gray-800 rounded-xl p-6 mb-6">
-              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <FiBriefcase className="h-5 w-5" />
-                Industry & Company Intelligence
-              </h2>
+              <Tooltip content="Advanced analytics about companies and industries visiting your portfolio. Identifies which sectors show most interest and helps target your job search strategy.">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <FiBriefcase className="h-5 w-5" />
+                  Industry & Company Intelligence
+                </h2>
+              </Tooltip>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <h4 className="text-lg font-semibold mb-3">Top Industries</h4>
+                  <Tooltip content="Industries with the highest number of visitors and engagement scores. Shows which sectors are most interested in your profile and skills.">
+                    <h4 className="text-lg font-semibold mb-3">
+                      Top Industries
+                    </h4>
+                  </Tooltip>
                   <div className="space-y-3">
                     {analyticsData.industryIntel.topIndustries
                       .slice(0, 5)
@@ -2454,7 +2543,11 @@ export default function AnalyticsPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold mb-3">Company Sizes</h4>
+                  <Tooltip content="Breakdown of visiting companies by size (startup, small, medium, enterprise). Shows which company types are most interested and their conversion rates.">
+                    <h4 className="text-lg font-semibold mb-3">
+                      Company Sizes
+                    </h4>
+                  </Tooltip>
                   <div className="space-y-3">
                     {analyticsData.industryIntel.companySizes.map((size) => (
                       <div
@@ -2478,9 +2571,11 @@ export default function AnalyticsPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold mb-3">
-                    Recruiting Intensity
-                  </h4>
+                  <Tooltip content="Overall recruiting activity level in your market on a scale of 1-10. Higher scores indicate more active hiring and better job market conditions.">
+                    <h4 className="text-lg font-semibold mb-3">
+                      Recruiting Intensity
+                    </h4>
+                  </Tooltip>
                   <div className="bg-gray-700 p-4 rounded-lg text-center">
                     <div className="text-4xl font-bold text-orange-400 mb-2">
                       {analyticsData.industryIntel.recruitingIntensity.toFixed(
@@ -2507,52 +2602,67 @@ export default function AnalyticsPage() {
             {/* Engagement Quality & Conversion Analytics */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <div className="bg-gray-800 p-6 rounded-xl">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <FiActivity className="h-5 w-5" />
-                  Engagement Quality
-                </h3>
+                <Tooltip content="Metrics measuring the quality and depth of visitor engagement with your portfolio. Higher quality engagement indicates stronger interest and better conversion potential.">
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <FiActivity className="h-5 w-5" />
+                    Engagement Quality
+                  </h3>
+                </Tooltip>
                 <div className="space-y-4">
-                  <div className="bg-gray-700 p-3 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Average Scroll Depth</span>
-                      <span className="font-bold text-blue-400">
-                        {analyticsData.engagementMetrics.averageScrollDepth.toFixed(
-                          0
-                        )}
-                        %
-                      </span>
+                  <Tooltip content="Percentage of page content that visitors scroll through on average. Higher values indicate visitors are consuming more of your content.">
+                    <div className="bg-gray-700 p-3 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Average Scroll Depth</span>
+                        <span className="font-bold text-blue-400">
+                          {analyticsData.engagementMetrics.averageScrollDepth.toFixed(
+                            0
+                          )}
+                          %
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="bg-gray-700 p-3 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Multi-Visit Rate</span>
-                      <span className="font-bold text-green-400">
-                        {analyticsData.engagementMetrics.multiVisitRate.toFixed(
-                          1
-                        )}
-                        %
-                      </span>
+                  </Tooltip>
+                  <Tooltip content="Percentage of visitors who return to your portfolio multiple times. High rates indicate memorable content and sustained interest.">
+                    <div className="bg-gray-700 p-3 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">Multi-Visit Rate</span>
+                        <span className="font-bold text-green-400">
+                          {analyticsData.engagementMetrics.multiVisitRate.toFixed(
+                            1
+                          )}
+                          %
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="bg-gray-700 p-3 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Deep Engagement Sessions</span>
-                      <span className="font-bold text-purple-400">
-                        {analyticsData.engagementMetrics.deepEngagementSessions}
-                      </span>
+                  </Tooltip>
+                  <Tooltip content="Number of sessions lasting more than 5 minutes with multiple interactions. These represent highly engaged visitors with strong interest in your profile.">
+                    <div className="bg-gray-700 p-3 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm">
+                          Deep Engagement Sessions
+                        </span>
+                        <span className="font-bold text-purple-400">
+                          {
+                            analyticsData.engagementMetrics
+                              .deepEngagementSessions
+                          }
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">
+                        5+ minutes with multiple interactions
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">
-                      5+ minutes with multiple interactions
-                    </p>
-                  </div>
+                  </Tooltip>
                 </div>
               </div>
 
               <div className="bg-gray-800 p-6 rounded-xl">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <FiBarChart className="h-5 w-5" />
-                  Conversion Funnel
-                </h3>
+                <Tooltip content="Track conversion events like resume downloads, LinkedIn clicks, contact forms, and meeting requests. Shows how effectively your portfolio converts visitors into leads.">
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <FiBarChart className="h-5 w-5" />
+                    Conversion Funnel
+                  </h3>
+                </Tooltip>
                 <div className="space-y-3">
                   {analyticsData.conversions.conversionFunnel.map((event) => (
                     <div
@@ -2600,23 +2710,29 @@ export default function AnalyticsPage() {
             {/* Skill Analysis & Competitive Insights */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <div className="bg-gray-800 p-6 rounded-xl">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <FiTrendingUp className="h-5 w-5" />
-                  Skill Demand Analysis
-                </h3>
+                <Tooltip content="Analysis of skill demand trends based on recruiter searches and market data. Helps identify which skills to highlight and which ones to develop.">
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <FiTrendingUp className="h-5 w-5" />
+                    Skill Demand Analysis
+                  </h3>
+                </Tooltip>
                 <div className="mb-4">
                   <div className="text-center mb-4">
-                    <div className="text-3xl font-bold text-yellow-400">
-                      {analyticsData.skillAnalysis.skillTrendScore}/10
-                    </div>
-                    <p className="text-sm text-gray-400">Skill Trend Score</p>
+                    <Tooltip content="Overall score (1-10) indicating how well your skills align with current market demand trends. Higher scores suggest better market positioning.">
+                      <div className="text-3xl font-bold text-yellow-400">
+                        {analyticsData.skillAnalysis.skillTrendScore}/10
+                      </div>
+                      <p className="text-sm text-gray-400">Skill Trend Score</p>
+                    </Tooltip>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div>
-                    <h5 className="text-sm font-semibold text-green-400 mb-2">
-                      In-Demand Skills
-                    </h5>
+                    <Tooltip content="Skills that are currently in high demand by recruiters and showing upward trends in the job market.">
+                      <h5 className="text-sm font-semibold text-green-400 mb-2">
+                        In-Demand Skills
+                      </h5>
+                    </Tooltip>
                     {analyticsData.skillAnalysis.inDemandSkills
                       .slice(0, 3)
                       .map((skill) => (
@@ -2650,9 +2766,11 @@ export default function AnalyticsPage() {
                       ))}
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-orange-400 mb-2">
-                      Missing Keywords
-                    </h5>
+                    <Tooltip content="Important keywords that are missing from your portfolio but are commonly searched by recruiters in your field.">
+                      <h5 className="text-sm font-semibold text-orange-400 mb-2">
+                        Missing Keywords
+                      </h5>
+                    </Tooltip>
                     <div className="flex flex-wrap gap-1">
                       {analyticsData.skillAnalysis.missingKeywords
                         .slice(0, 4)
@@ -2670,10 +2788,12 @@ export default function AnalyticsPage() {
               </div>
 
               <div className="bg-gray-800 p-6 rounded-xl">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <FiPieChart className="h-5 w-5" />
-                  Competitive Benchmarks
-                </h3>
+                <Tooltip content="Compare your portfolio performance against industry benchmarks. Shows where you excel and areas for improvement relative to other professionals.">
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <FiPieChart className="h-5 w-5" />
+                    Competitive Benchmarks
+                  </h3>
+                </Tooltip>
                 <div className="space-y-4">
                   {analyticsData.competitiveAnalysis.benchmarkMetrics.map(
                     (metric) => (
@@ -2750,15 +2870,19 @@ export default function AnalyticsPage() {
 
             {/* Geographic Intelligence */}
             <div className="bg-gray-800 rounded-xl p-6 mb-6">
-              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <FiGlobe className="h-5 w-5" />
-                Geographic & Market Intelligence
-              </h2>
+              <Tooltip content="Geographic analysis of your portfolio visitors and market intelligence. Identifies the best regions for job opportunities, remote work, and market penetration insights.">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <FiGlobe className="h-5 w-5" />
+                  Geographic & Market Intelligence
+                </h2>
+              </Tooltip>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
-                  <h4 className="text-lg font-semibold mb-3">
-                    Remote-Friendly Markets
-                  </h4>
+                  <Tooltip content="Geographic regions with high concentration of remote job opportunities and visitor interest in your profile. Great for targeting remote work applications.">
+                    <h4 className="text-lg font-semibold mb-3">
+                      Remote-Friendly Markets
+                    </h4>
+                  </Tooltip>
                   <div className="space-y-3">
                     {analyticsData.geoIntelligence.remoteFriendlyMarkets.map(
                       (market) => (
@@ -2784,9 +2908,11 @@ export default function AnalyticsPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold mb-3">
-                    Hiring Hotspots
-                  </h4>
+                  <Tooltip content="Cities and regions with high hiring activity and recruiter presence. These are prime locations for in-person job opportunities and networking.">
+                    <h4 className="text-lg font-semibold mb-3">
+                      Hiring Hotspots
+                    </h4>
+                  </Tooltip>
                   <div className="space-y-3">
                     {analyticsData.geoIntelligence.hiringHotspots.map(
                       (hotspot) => (
@@ -2817,9 +2943,11 @@ export default function AnalyticsPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold mb-3">
-                    Market Penetration
-                  </h4>
+                  <Tooltip content="Regional market analysis showing your current reach and untapped opportunities. Higher opportunity scores indicate markets with growth potential.">
+                    <h4 className="text-lg font-semibold mb-3">
+                      Market Penetration
+                    </h4>
+                  </Tooltip>
                   <div className="space-y-3">
                     {analyticsData.geoIntelligence.marketPenetration.map(
                       (market) => (
@@ -2960,65 +3088,79 @@ export default function AnalyticsPage() {
 
         {/* System Performance & Firebase Usage */}
         <div className="bg-gray-800 rounded-xl p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <FiActivity className="h-5 w-5" />
-            System Performance & Firebase Usage
-          </h2>
+          <Tooltip content="Real-time monitoring of your analytics system performance and Firebase database usage costs. Helps optimize expenses and track system efficiency.">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <FiActivity className="h-5 w-5" />
+              System Performance & Firebase Usage
+            </h2>
+          </Tooltip>
 
           {/* Firebase Usage Overview */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-xs mb-1">Session Reads</h3>
-              <p
-                className={`text-2xl font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}
-              >
-                {firebaseReads}
-              </p>
-              <p className="text-xs text-gray-500">
-                ~${((firebaseReads * 0.36) / 100000).toFixed(6)}
-              </p>
-            </div>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-xs mb-1">Session Writes</h3>
-              <p
-                className={`text-2xl font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}
-              >
-                {firebaseWrites}
-              </p>
-              <p className="text-xs text-gray-500">
-                ~${((firebaseWrites * 1.08) / 100000).toFixed(6)}
-              </p>
-            </div>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-xs mb-1">Last Refresh</h3>
-              <p className="text-lg font-bold">
-                {refreshCost.reads > 0 ? refreshCost.reads : "-"}
-              </p>
-              <p className="text-xs text-gray-500">reads used</p>
-            </div>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-xs mb-1">Estimated Cost</h3>
-              <p className="text-lg font-bold text-green-400">
-                $
-                {(
-                  (firebaseReads * 0.36 + firebaseWrites * 1.08) /
-                  100000
-                ).toFixed(6)}
-              </p>
-              <p className="text-xs text-gray-500">this session</p>
-            </div>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-xs mb-1">Active Filters</h3>
-              <p className="text-lg font-bold">
-                {roleFilter !== "all" ? 1 : 0}
-              </p>
-              <p className="text-xs text-gray-500">applied</p>
-            </div>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-xs mb-1">Time Range</h3>
-              <p className="text-lg font-bold">{timeRange}</p>
-              <p className="text-xs text-gray-500">selected</p>
-            </div>
+            <Tooltip content="Number of Firebase database read operations performed in this analytics session. Reads cost $0.36 per 100,000 operations.">
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-xs mb-1">Session Reads</h3>
+                <p
+                  className={`text-2xl font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}
+                >
+                  {firebaseReads}
+                </p>
+                <p className="text-xs text-gray-500">
+                  ~${((firebaseReads * 0.36) / 100000).toFixed(6)}
+                </p>
+              </div>
+            </Tooltip>
+            <Tooltip content="Number of Firebase database write operations performed in this session. Writes cost $1.08 per 100,000 operations.">
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-xs mb-1">Session Writes</h3>
+                <p
+                  className={`text-2xl font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}
+                >
+                  {firebaseWrites}
+                </p>
+                <p className="text-xs text-gray-500">
+                  ~${((firebaseWrites * 1.08) / 100000).toFixed(6)}
+                </p>
+              </div>
+            </Tooltip>
+            <Tooltip content="Number of Firebase reads consumed by the last manual data refresh operation. Helps track refresh costs.">
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-xs mb-1">Last Refresh</h3>
+                <p className="text-lg font-bold">
+                  {refreshCost.reads > 0 ? refreshCost.reads : "-"}
+                </p>
+                <p className="text-xs text-gray-500">reads used</p>
+              </div>
+            </Tooltip>
+            <Tooltip content="Estimated total cost for Firebase operations in this session based on current pricing. Includes both read and write operations.">
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-xs mb-1">Estimated Cost</h3>
+                <p className="text-lg font-bold text-green-400">
+                  $
+                  {(
+                    (firebaseReads * 0.36 + firebaseWrites * 1.08) /
+                    100000
+                  ).toFixed(6)}
+                </p>
+                <p className="text-xs text-gray-500">this session</p>
+              </div>
+            </Tooltip>
+            <Tooltip content="Number of active data filters currently applied to the analytics dashboard. Filters affect which data is displayed.">
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-xs mb-1">Active Filters</h3>
+                <p className="text-lg font-bold">
+                  {roleFilter !== "all" ? 1 : 0}
+                </p>
+                <p className="text-xs text-gray-500">applied</p>
+              </div>
+            </Tooltip>
+            <Tooltip content="Currently selected time range for analytics data. Affects all metrics and visualizations shown in the dashboard.">
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <h3 className="text-gray-400 text-xs mb-1">Time Range</h3>
+                <p className="text-lg font-bold">{timeRange}</p>
+                <p className="text-xs text-gray-500">selected</p>
+              </div>
+            </Tooltip>
           </div>
 
           {/* Usage Guidelines */}
