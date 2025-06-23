@@ -909,14 +909,20 @@ function detectContactIntent(
   } else if (
     (lastAssistantMessage.includes("What is your message") ||
       lastAssistantMessage.includes("What's your message") ||
-      lastAssistantMessage.includes("what would you like to discuss")) &&
+      lastAssistantMessage.includes("what would you like to discuss") ||
+      lastAssistantMessage.includes(
+        "What would you like to discuss in the meeting"
+      )) &&
     !lastAssistantMessage.includes("Message Sent Successfully") &&
     !lastAssistantMessage.includes("Meeting Request Sent Successfully")
   ) {
     conversationState = "awaiting_message";
   } else if (
     (lastAssistantMessage.includes("when would you like to schedule") ||
-      lastAssistantMessage.includes("What date and time")) &&
+      lastAssistantMessage.includes("What date and time") ||
+      lastAssistantMessage.includes(
+        "Please provide your preferred date and time"
+      )) &&
     !lastAssistantMessage.includes("Meeting Request Sent Successfully")
   ) {
     conversationState = "awaiting_datetime";
@@ -1183,7 +1189,7 @@ function generateContactResponse(
 
     // Step 5: User provided meeting message, ask for date/time
     if (conversationState === "awaiting_message" && hasMessage) {
-      return `Great! When would you like to schedule the meeting? Please select a date and time from the calendar below.`;
+      return `Great! When would you like to schedule the meeting? Please provide your preferred date and time.`;
     }
 
     // Step 6: User provided date/time, confirm
