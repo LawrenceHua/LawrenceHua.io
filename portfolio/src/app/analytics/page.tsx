@@ -476,14 +476,17 @@ export default function AnalyticsPage() {
       const target = e.target as HTMLElement;
 
       // Only track meaningful clicks (buttons, links, important elements)
+      const className = target.className?.toString() || "";
+      const id = target.id?.toString() || "";
+
       const isImportantClick =
         target.tagName.toLowerCase() === "button" ||
         target.tagName.toLowerCase() === "a" ||
         target.getAttribute("role") === "button" ||
-        target.className.includes("btn") ||
-        target.className.includes("click") ||
-        target.id.includes("nav") ||
-        target.id.includes("contact");
+        className.includes("btn") ||
+        className.includes("click") ||
+        id.includes("nav") ||
+        id.includes("contact");
 
       if (!isImportantClick) return;
 
@@ -697,7 +700,7 @@ export default function AnalyticsPage() {
 
       // Fetch page views
       const pageViewsRef = collection(db, "page_views");
-      let pageViewsQuery = query(pageViewsRef, orderBy("timestamp", "desc"));
+      const pageViewsQuery = query(pageViewsRef, orderBy("timestamp", "desc"));
 
       const pageViewsSnap = await getDocs(pageViewsQuery);
       incrementRead();
@@ -709,7 +712,7 @@ export default function AnalyticsPage() {
 
       // Fetch user interactions
       const interactionsRef = collection(db, "user_interactions");
-      let interactionsQuery = query(
+      const interactionsQuery = query(
         interactionsRef,
         orderBy("timestamp", "desc")
       );
