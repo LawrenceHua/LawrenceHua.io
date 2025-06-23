@@ -3140,104 +3140,147 @@ export default function AnalyticsPage() {
                 </div>
               </div>
 
-              {/* Simplified Scrollable Content */}
-              <div className="flex-1 overflow-auto p-6">
-                <div className="space-y-6">
-                  {sessions
-                    .filter((session) =>
-                      analyticsData?.foundKeywords
-                        .find((k) => k.keyword === selectedKeyword)
-                        ?.sessionIds.includes(session.sessionId)
-                    )
-                    .map((session, index) => (
-                      <div
-                        key={session.sessionId}
-                        className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl p-6 hover:from-gray-650 hover:to-gray-750 transition-all duration-200 border border-gray-600/50 hover:border-blue-500/30"
-                      >
-                        {/* Session Header */}
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                              {index + 1}
+              {/* Enhanced Scrollable Content with Proper Scroll Hierarchy */}
+              <div
+                className="flex-1 overflow-y-scroll overflow-x-hidden"
+                style={{
+                  scrollBehavior: "smooth",
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                <div className="p-6">
+                  <div className="space-y-6">
+                    {sessions
+                      .filter((session) =>
+                        analyticsData?.foundKeywords
+                          .find((k) => k.keyword === selectedKeyword)
+                          ?.sessionIds.includes(session.sessionId)
+                      )
+                      .map((session, index) => (
+                        <div
+                          key={session.sessionId}
+                          className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl p-6 hover:from-gray-650 hover:to-gray-750 transition-all duration-200 border border-gray-600/50 hover:border-blue-500/30"
+                        >
+                          {/* Session Header */}
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-lg text-blue-300">
+                                  Session {session.sessionId.slice(-8)}
+                                </h4>
+                                <p className="text-xs text-gray-400">
+                                  {formatTimestamp(session.startTime)} •{" "}
+                                  {session.messageCount} messages
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="font-semibold text-lg text-blue-300">
-                                Session {session.sessionId.slice(-8)}
-                              </h4>
-                              <p className="text-xs text-gray-400">
-                                {formatTimestamp(session.startTime)} •{" "}
-                                {session.messageCount} messages
-                              </p>
+                            <div className="text-xs text-gray-400 bg-gray-600/50 px-3 py-1 rounded-full">
+                              {getSessionDuration(
+                                session.startTime,
+                                session.endTime
+                              )}
                             </div>
                           </div>
-                          <div className="text-xs text-gray-400 bg-gray-600/50 px-3 py-1 rounded-full">
-                            {getSessionDuration(
-                              session.startTime,
-                              session.endTime
+
+                          {/* Enhanced Messages Gallery with Independent Scrolling */}
+                          <div className="relative">
+                            <div
+                              className="space-y-3 max-h-60 overflow-y-scroll overflow-x-hidden pr-2"
+                              style={{
+                                scrollBehavior: "smooth",
+                                WebkitOverflowScrolling: "touch",
+                              }}
+                              onWheel={(e) => {
+                                // Allow wheel events to bubble up to parent only if this scroll area is at limits
+                                const element = e.currentTarget;
+                                const atTop = element.scrollTop === 0;
+                                const atBottom =
+                                  element.scrollTop + element.clientHeight >=
+                                  element.scrollHeight - 1;
+
+                                if (
+                                  (e.deltaY < 0 && atTop) ||
+                                  (e.deltaY > 0 && atBottom)
+                                ) {
+                                  // Allow parent scrolling when at scroll limits
+                                  return;
+                                } else {
+                                  // Prevent parent scrolling when this area can still scroll
+                                  e.stopPropagation();
+                                }
+                              }}
+                            >
+                              {session.messages.map((message, msgIndex) => (
+                                <div
+                                  key={message.id}
+                                  className={`text-sm p-4 rounded-lg transition-all duration-200 ${
+                                    message.role === "user"
+                                      ? "bg-gradient-to-r from-blue-900/40 to-blue-800/30 border-l-4 border-blue-400 text-blue-100 hover:from-blue-800/50 hover:to-blue-700/40"
+                                      : "bg-gradient-to-r from-gray-600/40 to-gray-500/30 border-l-4 border-gray-400 text-gray-100 hover:from-gray-500/50 hover:to-gray-400/40"
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="font-bold text-xs flex items-center gap-2">
+                                      {message.role === "user" ? (
+                                        <>
+                                          <span className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[10px]">
+                                            👤
+                                          </span>
+                                          User
+                                        </>
+                                      ) : (
+                                        <>
+                                          <span className="w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center text-[10px]">
+                                            🤖
+                                          </span>
+                                          AI Assistant
+                                        </>
+                                      )}
+                                    </span>
+                                    <span className="text-xs opacity-60">
+                                      #{msgIndex + 1}
+                                    </span>
+                                  </div>
+                                  <p className="mt-2 leading-relaxed whitespace-pre-wrap break-words">
+                                    {message.message}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Scroll Indicator for Messages */}
+                            {session.messages.length > 2 && (
+                              <div className="absolute bottom-0 right-0 bg-blue-600/20 backdrop-blur-sm px-2 py-1 rounded-tl-lg text-[10px] text-blue-300 pointer-events-none">
+                                Scroll for more ↓
+                              </div>
                             )}
                           </div>
                         </div>
+                      ))}
 
-                        {/* Simplified Messages Gallery */}
-                        <div className="space-y-3 max-h-60 overflow-auto">
-                          {session.messages.map((message, msgIndex) => (
-                            <div
-                              key={message.id}
-                              className={`text-sm p-4 rounded-lg transition-all duration-200 ${
-                                message.role === "user"
-                                  ? "bg-gradient-to-r from-blue-900/40 to-blue-800/30 border-l-4 border-blue-400 text-blue-100 hover:from-blue-800/50 hover:to-blue-700/40"
-                                  : "bg-gradient-to-r from-gray-600/40 to-gray-500/30 border-l-4 border-gray-400 text-gray-100 hover:from-gray-500/50 hover:to-gray-400/40"
-                              }`}
-                            >
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="font-bold text-xs flex items-center gap-2">
-                                  {message.role === "user" ? (
-                                    <>
-                                      <span className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[10px]">
-                                        👤
-                                      </span>
-                                      User
-                                    </>
-                                  ) : (
-                                    <>
-                                      <span className="w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center text-[10px]">
-                                        🤖
-                                      </span>
-                                      AI Assistant
-                                    </>
-                                  )}
-                                </span>
-                                <span className="text-xs opacity-60">
-                                  #{msgIndex + 1}
-                                </span>
-                              </div>
-                              <p className="mt-2 leading-relaxed whitespace-pre-wrap">
-                                {message.message}
-                              </p>
-                            </div>
-                          ))}
+                    {/* No Sessions Found State */}
+                    {sessions.filter((session) =>
+                      analyticsData?.foundKeywords
+                        .find((k) => k.keyword === selectedKeyword)
+                        ?.sessionIds.includes(session.sessionId)
+                    ).length === 0 && (
+                      <div className="text-center py-16 text-gray-400">
+                        <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <FiMessageCircle className="h-8 w-8 opacity-50" />
                         </div>
+                        <h4 className="text-xl font-semibold mb-2">
+                          No Sessions Found
+                        </h4>
+                        <p className="text-sm">
+                          No chat sessions contain the keyword "
+                          {selectedKeyword}"
+                        </p>
                       </div>
-                    ))}
-
-                  {/* No Sessions Found State */}
-                  {sessions.filter((session) =>
-                    analyticsData?.foundKeywords
-                      .find((k) => k.keyword === selectedKeyword)
-                      ?.sessionIds.includes(session.sessionId)
-                  ).length === 0 && (
-                    <div className="text-center py-16 text-gray-400">
-                      <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <FiMessageCircle className="h-8 w-8 opacity-50" />
-                      </div>
-                      <h4 className="text-xl font-semibold mb-2">
-                        No Sessions Found
-                      </h4>
-                      <p className="text-sm">
-                        No chat sessions contain the keyword "{selectedKeyword}"
-                      </p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -3488,104 +3531,146 @@ export default function AnalyticsPage() {
                 </div>
               </div>
 
-              {/* Simplified Scrollable Content */}
-              <div className="flex-1 overflow-auto px-6 py-4">
-                <div className="space-y-4">
-                  {filteredSessions.length === 0 ? (
-                    <div className="text-center py-12 text-gray-400">
-                      <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-lg">No chat sessions found</p>
-                      <p className="text-sm">Try adjusting your filters</p>
-                    </div>
-                  ) : (
-                    <div className="grid gap-4">
-                      {filteredSessions.map((session) => (
-                        <div
-                          key={session.sessionId}
-                          className="bg-gray-800/60 rounded-lg p-4 border border-gray-700/50 hover:border-purple-500/50 hover:bg-gray-800/80 transition-all duration-200 shadow-lg hover:shadow-purple-500/10"
-                        >
-                          {/* Compact Session Header */}
-                          <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-700/50">
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                              <div>
-                                <h3 className="font-bold text-sm text-white">
-                                  Session {session.sessionId.slice(-8)}
-                                </h3>
-                                <p className="text-[10px] text-gray-400">
-                                  🕐 {formatTimestamp(session.startTime)}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-right bg-purple-900/30 px-2 py-1 rounded text-xs">
-                              <p className="text-purple-300 font-bold">
-                                {getSessionDuration(
-                                  session.startTime,
-                                  session.endTime
-                                )}
-                              </p>
-                              <p className="text-[10px] text-gray-400">
-                                {session.messageCount} msgs
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Simplified Messages Gallery */}
-                          <div className="space-y-2 max-h-48 overflow-auto">
-                            {session.messages.map((message, index) => (
-                              <div
-                                key={message.id}
-                                className={`p-2 rounded-lg transition-all duration-200 ${
-                                  message.role === "user"
-                                    ? "bg-gradient-to-r from-blue-900/40 to-blue-800/30 border-l-2 border-blue-500 ml-2"
-                                    : "bg-gradient-to-r from-gray-700/50 to-gray-600/40 border-l-2 border-gray-500 mr-2"
-                                }`}
-                              >
-                                {/* Compact Message Header */}
-                                <div className="flex items-center justify-between mb-1">
-                                  <span
-                                    className={`text-[10px] font-bold px-2 py-1 rounded ${
-                                      message.role === "user"
-                                        ? "bg-blue-600/50 text-blue-100"
-                                        : "bg-gray-600/50 text-gray-100"
-                                    }`}
-                                  >
-                                    {message.role === "user" ? "👤" : "🤖"} #
-                                    {index + 1}
-                                  </span>
-                                </div>
-
-                                {/* Compact Message Content */}
-                                <div
-                                  className={`text-xs leading-relaxed ${
-                                    message.role === "user"
-                                      ? "text-blue-100"
-                                      : "text-gray-100"
-                                  }`}
-                                >
-                                  <p className="whitespace-pre-wrap line-clamp-3">
-                                    {message.message}
+              {/* Enhanced Scrollable Content with Proper Hierarchy */}
+              <div
+                className="flex-1 overflow-y-scroll overflow-x-hidden"
+                style={{
+                  scrollBehavior: "smooth",
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                <div className="px-6 py-4">
+                  <div className="space-y-4">
+                    {filteredSessions.length === 0 ? (
+                      <div className="text-center py-12 text-gray-400">
+                        <FiMessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="text-lg">No chat sessions found</p>
+                        <p className="text-sm">Try adjusting your filters</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {filteredSessions.map((session) => (
+                          <div
+                            key={session.sessionId}
+                            className="bg-gray-800/60 rounded-lg p-4 border border-gray-700/50 hover:border-purple-500/50 hover:bg-gray-800/80 transition-all duration-200 shadow-lg hover:shadow-purple-500/10"
+                          >
+                            {/* Compact Session Header */}
+                            <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-700/50">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                                <div>
+                                  <h3 className="font-bold text-sm text-white">
+                                    Session {session.sessionId.slice(-8)}
+                                  </h3>
+                                  <p className="text-[10px] text-gray-400">
+                                    🕐 {formatTimestamp(session.startTime)}
                                   </p>
                                 </div>
                               </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                              <div className="text-right bg-purple-900/30 px-2 py-1 rounded text-xs">
+                                <p className="text-purple-300 font-bold">
+                                  {getSessionDuration(
+                                    session.startTime,
+                                    session.endTime
+                                  )}
+                                </p>
+                                <p className="text-[10px] text-gray-400">
+                                  {session.messageCount} msgs
+                                </p>
+                              </div>
+                            </div>
 
-                  {/* Load More Section */}
-                  {hasMore && (
-                    <div className="flex justify-center pt-6">
-                      <button
-                        onClick={loadMoreSessions}
-                        className="px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-purple-500/30 transform hover:scale-105"
-                      >
-                        Load More Sessions
-                      </button>
-                    </div>
-                  )}
+                            {/* Enhanced Messages Gallery with Independent Scrolling */}
+                            <div className="relative">
+                              <div
+                                className="space-y-2 max-h-48 overflow-y-scroll overflow-x-hidden pr-2"
+                                style={{
+                                  scrollBehavior: "smooth",
+                                  WebkitOverflowScrolling: "touch",
+                                }}
+                                onWheel={(e) => {
+                                  // Allow wheel events to bubble up to parent only if this scroll area is at limits
+                                  const element = e.currentTarget;
+                                  const atTop = element.scrollTop === 0;
+                                  const atBottom =
+                                    element.scrollTop + element.clientHeight >=
+                                    element.scrollHeight - 1;
+
+                                  if (
+                                    (e.deltaY < 0 && atTop) ||
+                                    (e.deltaY > 0 && atBottom)
+                                  ) {
+                                    // Allow parent scrolling when at scroll limits
+                                    return;
+                                  } else {
+                                    // Prevent parent scrolling when this area can still scroll
+                                    e.stopPropagation();
+                                  }
+                                }}
+                              >
+                                {session.messages.map((message, index) => (
+                                  <div
+                                    key={message.id}
+                                    className={`p-2 rounded-lg transition-all duration-200 ${
+                                      message.role === "user"
+                                        ? "bg-gradient-to-r from-blue-900/40 to-blue-800/30 border-l-2 border-blue-500 ml-2"
+                                        : "bg-gradient-to-r from-gray-700/50 to-gray-600/40 border-l-2 border-gray-500 mr-2"
+                                    }`}
+                                  >
+                                    {/* Compact Message Header */}
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span
+                                        className={`text-[10px] font-bold px-2 py-1 rounded ${
+                                          message.role === "user"
+                                            ? "bg-blue-600/50 text-blue-100"
+                                            : "bg-gray-600/50 text-gray-100"
+                                        }`}
+                                      >
+                                        {message.role === "user" ? "👤" : "🤖"}{" "}
+                                        #{index + 1}
+                                      </span>
+                                    </div>
+
+                                    {/* Compact Message Content */}
+                                    <div
+                                      className={`text-xs leading-relaxed ${
+                                        message.role === "user"
+                                          ? "text-blue-100"
+                                          : "text-gray-100"
+                                      }`}
+                                    >
+                                      <p className="whitespace-pre-wrap line-clamp-3 break-words">
+                                        {message.message}
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* Scroll Indicator for Messages */}
+                              {session.messages.length > 3 && (
+                                <div className="absolute bottom-0 right-0 bg-purple-600/20 backdrop-blur-sm px-2 py-1 rounded-tl-lg text-[10px] text-purple-300 pointer-events-none">
+                                  Scroll for more ↓
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Load More Section */}
+                    {hasMore && (
+                      <div className="flex justify-center pt-6 pb-4">
+                        <button
+                          onClick={loadMoreSessions}
+                          className="px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-purple-500/30 transform hover:scale-105"
+                        >
+                          Load More Sessions
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
