@@ -363,12 +363,11 @@ export default function ModernHome() {
     try {
       console.log("📊 Creating tour event object...");
       // Create base tour event (geolocation is optional)
-      const tourEvent = {
+      const tourEvent: any = {
         sessionId: getSessionId(),
         eventType,
         stepId,
         stepIndex,
-        ctaAction,
         timestamp: serverTimestamp(),
         userAgent: navigator.userAgent,
         referrer: document.referrer || "direct",
@@ -376,6 +375,11 @@ export default function ModernHome() {
         region: "Unknown",
         city: "Unknown",
       };
+
+      // Only add ctaAction if it has a value
+      if (ctaAction !== undefined) {
+        tourEvent.ctaAction = ctaAction;
+      }
 
       console.log("📊 Base tour event created:", {
         ...tourEvent,

@@ -476,8 +476,14 @@ export default function AnalyticsPage() {
       const target = e.target as HTMLElement;
 
       // Only track meaningful clicks (buttons, links, important elements)
-      const className = target.className?.toString() || "";
-      const id = target.id?.toString() || "";
+      const className =
+        (target.className && typeof target.className === "string"
+          ? target.className.toString()
+          : "") || "";
+      const id =
+        (target.id && typeof target.id === "string"
+          ? target.id.toString()
+          : "") || "";
 
       const isImportantClick =
         target.tagName.toLowerCase() === "button" ||
@@ -495,7 +501,9 @@ export default function AnalyticsPage() {
         element:
           target.tagName.toLowerCase() +
           (target.id ? `#${target.id}` : "") +
-          (target.className ? `.${target.className.split(" ")[0]}` : ""),
+          (target.className && typeof target.className === "string"
+            ? `.${target.className.split(" ")[0]}`
+            : ""),
         page: window.location.pathname,
         sessionId,
         timestamp: serverTimestamp(),
