@@ -1238,7 +1238,31 @@ export async function POST(request: NextRequest) {
           if (fileResult.type === "image") {
             isImageUpload = true;
             if (!openai) {
-              const imageResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\nI can see you've shared an image! This appears to be a job posting or role description. Based on Lawrence's background in Product Management, AI consulting, and full-stack development, he would likely be a strong fit for most product or technical roles.\n\n**Key Strengths:**\n• 4+ years Product Management experience\n• AI/ML expertise with proven results\n• Full-stack technical capabilities\n• Startup leadership & cross-functional collaboration\n\nCould you share more details about the specific position you'd like me to analyze?`;
+              const basicAnalysis = `I can see you've shared an image! This appears to be a job posting or role description. Based on Lawrence's background in Product Management, AI consulting, and full-stack development, he would likely be a strong fit for most product or technical roles.
+
+**Key Strengths:**
+• 4+ years Product Management experience
+• AI/ML expertise with proven results
+• Full-stack technical capabilities
+• Startup leadership & cross-functional collaboration
+
+Could you share more details about the specific position you'd like me to analyze?`;
+
+              // Add working links and call-to-action buttons
+              const workingLinks = `
+
+**🔗 Explore Lawrence's Work:**
+• **Expired Solutions**: AI platform for grocery automation with computer vision
+• **PM Happy Hour**: Community-driven product management platform
+• **Technical Projects**: Full-stack applications and ML implementations
+
+**📞 Next Steps:**
+Want to discuss this role further? Type \`/meeting\` to schedule a call or \`/message\` to send a quick note!
+
+**💼 View More:**
+You can also scroll down to see his full project portfolio and work experience on this site.`;
+
+              const imageResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\n${basicAnalysis}${workingLinks}`;
 
               // Silently send image to Lawrence via email (no mention to user)
               try {
@@ -1285,7 +1309,9 @@ If the image contains text that you can read, extract the key requirements and p
 3. Relevant project examples
 4. Overall recommendation
 
-If you cannot clearly read the image content, provide a general assessment of Lawrence's strengths for typical product/technical roles.`;
+If you cannot clearly read the image content, provide a general assessment of Lawrence's strengths for typical product/technical roles.
+
+IMPORTANT: Do not include any placeholder links or markdown links in your response. Focus only on the analysis content. Working links will be added automatically at the end.`;
 
               const completion = await openai.chat.completions.create({
                 model: "gpt-4o",
@@ -1318,7 +1344,21 @@ If you cannot clearly read the image content, provide a general assessment of La
                 completion.choices[0]?.message?.content ||
                 "I can see the image you've shared. Based on Lawrence's extensive background in Product Management, AI consulting, and technical development, he would be well-suited for most product and technical roles. Could you tell me more about what specific aspects of his background you'd like me to highlight?";
 
-              const imageResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\n${rawResponse}`;
+              // Add working links and call-to-action buttons
+              const workingLinks = `
+
+**🔗 Explore Lawrence's Work:**
+• **Expired Solutions**: AI platform for grocery automation with computer vision
+• **PM Happy Hour**: Community-driven product management platform
+• **Technical Projects**: Full-stack applications and ML implementations
+
+**📞 Next Steps:**
+Want to discuss this role further? Type \`/meeting\` to schedule a call or \`/message\` to send a quick note!
+
+**💼 View More:**
+You can also scroll down to see his full project portfolio and work experience on this site.`;
+
+              const imageResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\n${rawResponse}${workingLinks}`;
 
               // Silently send image to Lawrence via email (no mention to user)
               try {
@@ -1350,7 +1390,31 @@ If you cannot clearly read the image content, provide a general assessment of La
                 imageAnalyzed: true,
               });
             } catch (error) {
-              const fallbackResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\nI can see you've shared an image that appears to be a job posting or role description. Based on Lawrence's background:\n\n• **Product Management**: 4+ years experience across multiple companies\n• **AI/ML Expertise**: Built AI platforms, GPT integrations, computer vision systems\n• **Technical Skills**: Full-stack development, data analysis, enterprise software\n• **Leadership**: Founded Expired Solutions, led cross-functional teams\n• **Education**: Carnegie Mellon MISM, University of Florida CS\n\nHe would be an excellent fit for product, technical, or AI-focused roles. What specific aspects of the position would you like me to address?`;
+              const fallbackAnalysis = `I can see you've shared an image that appears to be a job posting or role description. Based on Lawrence's background:
+
+• **Product Management**: 4+ years experience across multiple companies
+• **AI/ML Expertise**: Built AI platforms, GPT integrations, computer vision systems
+• **Technical Skills**: Full-stack development, data analysis, enterprise software
+• **Leadership**: Founded Expired Solutions, led cross-functional teams
+• **Education**: Carnegie Mellon MISM, University of Florida CS
+
+He would be an excellent fit for product, technical, or AI-focused roles. What specific aspects of the position would you like me to address?`;
+
+              // Add working links and call-to-action buttons
+              const workingLinks = `
+
+**🔗 Explore Lawrence's Work:**
+• **Expired Solutions**: AI platform for grocery automation with computer vision
+• **PM Happy Hour**: Community-driven product management platform
+• **Technical Projects**: Full-stack applications and ML implementations
+
+**📞 Next Steps:**
+Want to discuss this role further? Type \`/meeting\` to schedule a call or \`/message\` to send a quick note!
+
+**💼 View More:**
+You can also scroll down to see his full project portfolio and work experience on this site.`;
+
+              const fallbackResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\n${fallbackAnalysis}${workingLinks}`;
 
               // Silently send image to Lawrence via email (no mention to user)
               try {

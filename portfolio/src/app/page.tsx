@@ -778,7 +778,7 @@ export default function ModernHome() {
                 <div className="text-center">
                   {/* Header with Icon */}
                   <div className="flex items-center justify-center gap-3 mb-4">
-                    <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white">
+                    <div className="p-3">
                       <span className="text-2xl">👋</span>
                     </div>
                     <h3 className="font-bold text-xl text-gray-900 dark:text-white">
