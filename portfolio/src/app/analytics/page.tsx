@@ -325,6 +325,16 @@ export default function AnalyticsPage() {
   const [showCostWarning, setShowCostWarning] = useState(false);
   const [refreshInProgress, setRefreshInProgress] = useState(false);
 
+  // Analytics Reset Functionality
+  const [resetDate, setResetDate] = useState<Date | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("analytics_reset_date");
+      return stored ? new Date(stored) : null;
+    }
+    return null;
+  });
+  const [showResetModal, setShowResetModal] = useState(false);
+
   // Track Firebase reads and writes for this session with state management
   const [firebaseReads, setFirebaseReads] = useState(() => {
     if (typeof window !== "undefined") {
@@ -611,171 +621,151 @@ export default function AnalyticsPage() {
   };
 
   const fetchAllData = async (append = false) => {
+    if (!db) return;
+
+    setLoading(true);
+    const startTime = Date.now();
+
     try {
-      setLoading(true);
-      if (!db) return;
+      // Create date filter for reset functionality
+      const dateFilter = resetDate ? resetDate : null;
 
-      // Calculate time filter
-      const now = new Date();
-      let startDate = new Date();
-      switch (timeRange) {
-        case "1d":
-          startDate.setHours(now.getHours() - 24);
-          break;
-        case "7d":
-          startDate.setDate(now.getDate() - 7);
-          break;
-        case "30d":
-          startDate.setDate(now.getDate() - 30);
-          break;
-        case "all":
-          startDate = new Date(0);
-          break;
-      }
-
-      // Fetch chat data
+      // Fetch chat messages with optional date filtering
       const messagesRef = collection(db, "chatbot_messages");
-      let messagesQuery = query(
-        messagesRef,
-        where("timestamp", ">=", startDate),
-        orderBy("timestamp", "desc"),
-        limit(PAGE_SIZE)
-      );
-      if (lastSessionTimestamp && append) {
+      let messagesQuery = query(messagesRef, orderBy("timestamp", "desc"));
+
+      if (dateFilter) {
         messagesQuery = query(
           messagesRef,
-          where("timestamp", ">=", startDate),
-          orderBy("timestamp", "desc"),
-          limit(PAGE_SIZE),
-          startAfter(lastSessionTimestamp)
+          where("timestamp", ">=", dateFilter),
+          orderBy("timestamp", "desc")
         );
       }
-      console.log("Fetching messages with start date:", startDate);
-      const messagesSnapshot = await getDocs(messagesQuery);
-      incrementRead();
-      console.log("Found messages:", messagesSnapshot.size);
 
-      // Group messages by sessionId to create chat sessions
-      const sessionsMap = new Map<string, ChatMessage[]>();
-      messagesSnapshot.forEach((doc) => {
-        const data = doc.data();
-        const sessionId = data.sessionId;
-        if (!sessionsMap.has(sessionId)) {
-          sessionsMap.set(sessionId, []);
+      if (append && lastSessionTimestamp) {
+        messagesQuery = query(
+          messagesRef,
+          where("timestamp", "<", lastSessionTimestamp),
+          orderBy("timestamp", "desc"),
+          limit(PAGE_SIZE)
+        );
+      }
+
+      const messagesSnap = await getDocs(messagesQuery);
+      incrementRead();
+
+      const chatMessages: ChatMessage[] = messagesSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as ChatMessage[];
+
+      // Group messages by session
+      const sessionMap = new Map<string, ChatMessage[]>();
+      chatMessages.forEach((msg) => {
+        if (!sessionMap.has(msg.sessionId)) {
+          sessionMap.set(msg.sessionId, []);
         }
-        sessionsMap.get(sessionId)!.push({
-          id: doc.id,
-          sessionId: data.sessionId,
-          message: data.message,
-          role: data.role,
-          timestamp: data.timestamp,
-        });
+        sessionMap.get(msg.sessionId)!.push(msg);
       });
 
-      const sessionsArray: ChatSession[] = [];
-      sessionsMap.forEach((messages, sessionId) => {
-        if (messages.length > 0) {
-          // Sort messages by timestamp
-          messages.sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate());
+      const chatSessions: ChatSession[] = Array.from(sessionMap.entries()).map(
+        ([sessionId, messages]) => {
+          const sortedMessages = messages.sort(
+            (a, b) =>
+              (a.timestamp?.toDate?.() || new Date(a.timestamp)).getTime() -
+              (b.timestamp?.toDate?.() || new Date(b.timestamp)).getTime()
+          );
+          const startTime =
+            sortedMessages[0]?.timestamp?.toDate?.() ||
+            new Date(sortedMessages[0]?.timestamp);
+          const endTime =
+            sortedMessages[sortedMessages.length - 1]?.timestamp?.toDate?.() ||
+            new Date(sortedMessages[sortedMessages.length - 1]?.timestamp);
 
-          const startTime = messages[0].timestamp.toDate();
-          const endTime = messages[messages.length - 1].timestamp.toDate();
-
-          sessionsArray.push({
+          return {
             sessionId,
-            messages,
+            messages: sortedMessages,
             startTime,
             endTime,
             messageCount: messages.length,
-          });
+          };
         }
-      });
+      );
 
-      // Sort sessions by startTime based on sortOrder
-      sessionsArray.sort((a, b) => {
-        if (sortOrder === "desc") {
-          return b.startTime.getTime() - a.startTime.getTime();
-        } else {
-          return a.startTime.getTime() - b.startTime.getTime();
-        }
-      });
-
-      console.log("Created sessions:", sessionsArray.length);
-
-      // Fetch page views
+      // Fetch page views with optional date filtering
       const pageViewsRef = collection(db, "page_views");
-      const pageViewsQuery = query(
-        pageViewsRef,
-        orderBy("timestamp", "desc"),
-        where("timestamp", ">=", startDate)
-      );
-      const pageViewsSnapshot = await getDocs(pageViewsQuery);
-      incrementRead();
+      let pageViewsQuery = query(pageViewsRef, orderBy("timestamp", "desc"));
 
-      const pageViewsArray: PageView[] = [];
-      pageViewsSnapshot.forEach((doc) => {
-        const data = doc.data();
-        pageViewsArray.push({
-          id: doc.id,
-          page: data.page,
-          timestamp: data.timestamp,
-          userAgent: data.userAgent,
-          referrer: data.referrer,
-          screenSize: data.screenSize,
-          timeOnPage: data.timeOnPage,
-          sessionId: data.sessionId,
-          country: data.country,
-          region: data.region,
-          city: data.city,
-          latitude: data.latitude,
-          longitude: data.longitude,
-          timezone: data.timezone,
-          ip: data.ip,
-        });
-      });
-
-      // Fetch user interactions
-      const interactionsRef = collection(db, "user_interactions");
-      const interactionsQuery = query(
-        interactionsRef,
-        orderBy("timestamp", "desc"),
-        where("timestamp", ">=", startDate)
-      );
-      const interactionsSnapshot = await getDocs(interactionsQuery);
-      incrementRead();
-
-      const interactionsArray: UserInteraction[] = [];
-      interactionsSnapshot.forEach((doc) => {
-        const data = doc.data();
-        interactionsArray.push({
-          id: doc.id,
-          type: data.type,
-          element: data.element,
-          timestamp: data.timestamp,
-          sessionId: data.sessionId,
-          page: data.page,
-        });
-      });
-
-      if (append) {
-        setSessions((prev) => [...prev, ...sessionsArray]);
-      } else {
-        setSessions(sessionsArray);
+      if (dateFilter) {
+        pageViewsQuery = query(
+          pageViewsRef,
+          where("timestamp", ">=", dateFilter),
+          orderBy("timestamp", "desc")
+        );
       }
-      setLastSessionTimestamp(
-        sessionsArray.length > 0
-          ? sessionsArray[sessionsArray.length - 1].startTime
-          : null
-      );
-      setHasMore(sessionsArray.length === PAGE_SIZE);
 
-      // Calculate analytics data
+      const pageViewsSnap = await getDocs(pageViewsQuery);
+      incrementRead();
+
+      const pageViewsData: PageView[] = pageViewsSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as PageView[];
+
+      // Fetch user interactions with optional date filtering
+      const interactionsRef = collection(db, "user_interactions");
+      let interactionsQuery = query(
+        interactionsRef,
+        orderBy("timestamp", "desc")
+      );
+
+      if (dateFilter) {
+        interactionsQuery = query(
+          interactionsRef,
+          where("timestamp", ">=", dateFilter),
+          orderBy("timestamp", "desc")
+        );
+      }
+
+      const interactionsSnap = await getDocs(interactionsQuery);
+      incrementRead();
+
+      const interactionsData: UserInteraction[] = interactionsSnap.docs.map(
+        (doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })
+      ) as UserInteraction[];
+
+      // Update state
+      setSessions((prev) =>
+        append ? [...prev, ...chatSessions] : chatSessions
+      );
+      setPageViews((prev) =>
+        append ? [...prev, ...pageViewsData] : pageViewsData
+      );
+      setInteractions((prev) =>
+        append ? [...prev, ...interactionsData] : interactionsData
+      );
+
+      // Calculate analytics
       const analytics = calculateAnalyticsData(
-        sessionsArray,
-        pageViewsArray,
-        interactionsArray
+        append ? [...sessions, ...chatSessions] : chatSessions,
+        append ? [...pageViews, ...pageViewsData] : pageViewsData,
+        append ? [...interactions, ...interactionsData] : interactionsData
       );
       setAnalyticsData(analytics);
+
+      // Update cost tracking
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      setRefreshCost({
+        reads: 3, // We made 3 read operations
+        writes: 0,
+      });
+      setLastRefreshTime(new Date());
+
+      console.log(`Data fetching completed in ${duration}ms`);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -1554,6 +1544,43 @@ export default function AnalyticsPage() {
     }
   };
 
+  // Function to reset analytics from today
+  const resetAnalyticsFromToday = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day
+    setResetDate(today);
+    localStorage.setItem("analytics_reset_date", today.toISOString());
+    setShowResetModal(false);
+
+    // Clear current data and refetch with new filter
+    setSessions([]);
+    setPageViews([]);
+    setInteractions([]);
+    setAnalyticsData(null);
+
+    // Trigger a refresh with the new reset date
+    if (db) {
+      performRefresh();
+    }
+  };
+
+  // Function to clear reset and show all historical data
+  const clearReset = () => {
+    setResetDate(null);
+    localStorage.removeItem("analytics_reset_date");
+
+    // Clear current data and refetch all data
+    setSessions([]);
+    setPageViews([]);
+    setInteractions([]);
+    setAnalyticsData(null);
+
+    // Trigger a refresh to show all data
+    if (db) {
+      performRefresh();
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-8">
@@ -1696,8 +1723,57 @@ export default function AnalyticsPage() {
                 )}
               </button>
             </Tooltip>
+
+            {/* Reset Analytics Button */}
+            <Tooltip content="Reset analytics metrics to start fresh from today. Historical data is preserved but hidden. You can undo this reset at any time.">
+              <button
+                onClick={() => setShowResetModal(true)}
+                disabled={loading || refreshInProgress}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                  loading || refreshInProgress
+                    ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                    : resetDate
+                      ? "bg-orange-600 hover:bg-orange-700 text-white shadow-lg hover:shadow-xl"
+                      : "bg-yellow-600 hover:bg-yellow-700 text-white shadow-lg hover:shadow-xl"
+                }`}
+              >
+                <span className="text-sm">🔄</span>
+                {resetDate ? "Reset Active" : "Reset Metrics"}
+                {resetDate && (
+                  <span className="text-xs bg-orange-700 px-2 py-1 rounded">
+                    Since {resetDate.toLocaleDateString()}
+                  </span>
+                )}
+              </button>
+            </Tooltip>
           </div>
         </div>
+
+        {/* Reset Active Banner */}
+        {resetDate && (
+          <div className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-xl p-4 mb-6 border border-orange-500/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🔄</span>
+                <div>
+                  <h3 className="text-white font-bold">
+                    Analytics Reset Active
+                  </h3>
+                  <p className="text-orange-100 text-sm">
+                    Showing metrics from {resetDate.toLocaleDateString()}{" "}
+                    onwards. Historical data is preserved but hidden.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={clearReset}
+                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Clear Reset
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Cost Warning Modal */}
         {showCostWarning && (
@@ -3445,6 +3521,71 @@ export default function AnalyticsPage() {
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reset Analytics Modal */}
+        {showResetModal && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 border border-yellow-500/20">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">🔄</span>
+                <h3 className="text-xl font-bold text-yellow-400">
+                  Reset Analytics Metrics
+                </h3>
+              </div>
+              <div className="space-y-3 mb-6">
+                <p className="text-gray-300">
+                  This will reset your analytics metrics to start fresh from
+                  today. All historical data is preserved but will be hidden
+                  from the dashboard.
+                </p>
+                <div className="bg-blue-900/30 p-3 rounded-lg border border-blue-500/20">
+                  <p className="text-xs text-blue-400 mb-2">
+                    ✅ Safe Reset Benefits:
+                  </p>
+                  <ul className="text-xs text-gray-300 space-y-1">
+                    <li>• Historical data is preserved</li>
+                    <li>• You can undo this reset anytime</li>
+                    <li>• No Firebase data is deleted</li>
+                    <li>• Fresh metrics start from today</li>
+                  </ul>
+                </div>
+                {resetDate && (
+                  <div className="bg-orange-900/30 p-3 rounded-lg border border-orange-500/20">
+                    <p className="text-xs text-orange-400 mb-1">
+                      Current reset active:
+                    </p>
+                    <p className="text-sm text-white">
+                      Since {resetDate.toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowResetModal(false)}
+                  className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                {resetDate ? (
+                  <button
+                    onClick={clearReset}
+                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+                  >
+                    Clear Reset
+                  </button>
+                ) : (
+                  <button
+                    onClick={resetAnalyticsFromToday}
+                    className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors font-medium"
+                  >
+                    Reset From Today
+                  </button>
+                )}
               </div>
             </div>
           </div>
