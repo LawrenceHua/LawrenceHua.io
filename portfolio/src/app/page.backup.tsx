@@ -1623,7 +1623,7 @@ export default function Home() {
 
     console.log("[DEBUG] handleSubmit contactMode:", contactMode);
 
-    let payload: any = { ...formData };
+    const payload: any = { ...formData };
 
     if (contactMode === "meeting") {
       // Validate meeting requirements
@@ -1634,7 +1634,7 @@ export default function Home() {
         return;
       }
 
-      let finalMeetingDate = new Date(meetingDate);
+      const finalMeetingDate = new Date(meetingDate);
 
       // Parse time and set it on the date
       try {

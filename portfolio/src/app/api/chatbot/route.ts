@@ -362,7 +362,7 @@ function extractContactInfo(
     if (!recruiterMessage) recruiterMessage = tellLawrenceMatch[1].trim();
     if (recruiterName.toLowerCase() === "hey") recruiterName = "";
   } else if (!recruiterMessage && email) {
-    let remainingMessage = message
+    const remainingMessage = message
       .replace(email, "")
       .replace(/my name is\s+[A-Za-z\s]+/i, "")
       .replace(/from\s+[A-Za-z\s]+/i, "")
@@ -387,11 +387,7 @@ function extractContactInfo(
   return { recruiterName, company, email, recruiterMessage, phone };
 }
 
-async function getFileContent(
-  file: File,
-  message: string,
-  history: Array<{ role: string; content: string }>
-): Promise<{
+async function getFileContent(file: File): Promise<{
   content: string | null;
   type: string;
   position?: string;
@@ -436,7 +432,6 @@ async function getFileContent(
       };
     } else {
       const text = await file.text();
-      const extractedEmail = extractEmailFromMessage(text);
 
       return {
         content: text,
@@ -587,10 +582,7 @@ async function sendMeetingRequest(data: {
 }
 
 // Function to generate or extract session ID
-function getOrCreateSessionId(
-  sessionIdFromRequest?: string,
-  history: Array<{ role: string; content: string }> = []
-): string {
+function getOrCreateSessionId(sessionIdFromRequest?: string): string {
   // Use session ID from request if provided
   if (sessionIdFromRequest && sessionIdFromRequest.trim()) {
     return sessionIdFromRequest;
@@ -679,7 +671,7 @@ function extractContactInfoFromHistory(
   message?: string;
   isContactRequest: boolean;
 } {
-  let extractedInfo = {
+  const extractedInfo = {
     name: undefined as string | undefined,
     email: undefined as string | undefined,
     company: undefined as string | undefined,
@@ -1064,7 +1056,7 @@ function generateContactResponse(
   history: Array<{ role: string; content: string }>,
   conversationState?: string
 ): string {
-  const { name, email, company, message: userMessage } = extractedInfo;
+  const { email, message: userMessage } = extractedInfo;
 
   // Check what information we have
   const hasEmail = email && email.length > 0;
@@ -1218,7 +1210,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate or use existing session ID for this conversation
-    const sessionId = getOrCreateSessionId(sessionIdFromRequest, history);
+    const sessionId = getOrCreateSessionId(sessionIdFromRequest);
 
     // Process files first to check for image uploads
     let isImageUpload = false;
@@ -1226,7 +1218,7 @@ export async function POST(request: NextRequest) {
     let hasFiles = false;
     let fileAnalysis = "";
     let detectedPosition: string | null = null;
-    let attachments: Array<{
+    const attachments: Array<{
       name: string;
       content: string;
       mimeType: string;
@@ -1236,7 +1228,7 @@ export async function POST(request: NextRequest) {
       hasFiles = true;
 
       for (const file of files) {
-        const fileResult = await getFileContent(file, message, history);
+        const fileResult = await getFileContent(file);
 
         if (fileResult.originalFile) {
           attachments.push(fileResult.originalFile);
