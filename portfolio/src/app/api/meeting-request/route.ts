@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     const emailDestination = process.env.EMAIL_NAME || "lawrencehua2@gmail.com";
     const { data: lawrenceData, error: lawrenceError } =
       await resend.emails.send({
-        from: "Lawrence Hua Portfolio <onboarding@resend.dev>",
+        from: `Lawrence Hua Portfolio <${process.env.FROM_EMAIL || "onboarding@resend.dev"}>`,
         to: [emailDestination],
         subject: `🤝 MEETING REQUEST: ${requesterName}${company ? ` from ${company}` : ""}${position ? ` - ${position}` : ""}${attachments?.length ? ` [${attachments.length} file(s) attached]` : ""}`,
         attachments: emailAttachments,
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
     if (requesterEmail) {
       try {
         const { data: userData, error: userError } = await resend.emails.send({
-          from: "Lawrence Hua Portfolio <onboarding@resend.dev>",
+          from: `Lawrence Hua Portfolio <${process.env.FROM_EMAIL || "onboarding@resend.dev"}>`,
           to: [requesterEmail],
           subject: `✅ Meeting Request Confirmation - Lawrence Hua`,
           html: `

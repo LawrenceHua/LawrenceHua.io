@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     // Send email with image attachment
     const { data, error } = await resend.emails.send({
-      from: "Lawrence Hua Portfolio <onboarding@resend.dev>",
+      from: `Lawrence Hua Portfolio <${process.env.FROM_EMAIL || "onboarding@resend.dev"}>`,
       to: [process.env.EMAIL_NAME || "lawrencehua2@gmail.com"],
       subject: `📸 Image Upload from Chatbot - ${userName}`,
       html: `
