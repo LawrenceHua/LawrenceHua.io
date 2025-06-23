@@ -16,16 +16,23 @@ export async function GET() {
       const gitCommand = "git log -1 --format=%ct";
       const lastCommitTimestamp = execSync(gitCommand, {
         encoding: "utf8",
+        cwd: process.cwd(),
       }).trim();
-      if (lastCommitTimestamp) {
+      if (lastCommitTimestamp && !isNaN(parseInt(lastCommitTimestamp))) {
         // Convert Unix timestamp to ISO string
         lastUpdated = new Date(
           parseInt(lastCommitTimestamp) * 1000
         ).toISOString();
+        console.log(`📅 Last commit timestamp: ${lastUpdated}`);
+      } else {
+        console.log("📅 Invalid git timestamp, using current time");
       }
     } catch (gitError) {
       // If Git is not available or there's an error, use current time
-      console.log("Git not available, using current time");
+      console.log(
+        "📅 Git not available, using current time:",
+        gitError instanceof Error ? gitError.message : String(gitError)
+      );
     }
 
     return NextResponse.json({

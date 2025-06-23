@@ -66,17 +66,35 @@ export function ContactSection({
   // Set isClient to true after component mounts to avoid hydration mismatch
   React.useEffect(() => {
     setIsClient(true);
-    // Fetch version from API
-    fetch("/api/version")
-      .then((res) => res.json())
-      .then((data) => {
+
+    const fetchVersion = async () => {
+      try {
+        const res = await fetch("/api/version", {
+          cache: "no-store", // Prevent caching to get fresh data
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        });
+        const data = await res.json();
+
         if (data.version) setVersion(data.version);
         if (data.lastUpdated) setLastUpdated(new Date(data.lastUpdated));
-      })
-      .catch(() => {
+
+        console.log("📦 Version API Response:", data);
+      } catch (error) {
+        console.error("❌ Version API Error:", error);
         // Fallback if API is not available
-        setVersion("1.0.39");
-      });
+        setVersion("1.0.41");
+        setLastUpdated(new Date());
+      }
+    };
+
+    fetchVersion();
+
+    // Refresh version data every 30 seconds to catch updates
+    const interval = setInterval(fetchVersion, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
