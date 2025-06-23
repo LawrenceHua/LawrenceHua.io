@@ -775,43 +775,42 @@ export default function ModernHome() {
                 </button>
 
                 {/* Content */}
-                <div className="flex items-start gap-3 mb-4">
-                  <motion.div
-                    animate={{
-                      rotate: [0, 10, -10, 0],
-                      scale: [1, 1.1, 1],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white flex-shrink-0"
-                  >
-                    <span className="text-2xl">👋</span>
-                  </motion.div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                <div className="text-center">
+                  {/* Header with Icon */}
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white">
+                      <span className="text-2xl">👋</span>
+                    </div>
+                    <h3 className="font-bold text-xl text-gray-900 dark:text-white">
                       Hey there!
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4">
-                      Let me tell you my story in{"\n"}
-                      <span className="font-semibold text-purple-600 dark:text-purple-400">
-                        1 minute!
-                      </span>
-                    </p>
-
-                    {/* CTA Button */}
-                    <motion.button
-                      onClick={handleTourInvitationAccept}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
-                    >
-                      <span className="text-lg">🎯</span>
-                      Take The Tour
-                    </motion.button>
                   </div>
+
+                  {/* Subtitle */}
+                  <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6">
+                    Let me tell you my story in{" "}
+                    <span className="font-semibold text-purple-600 dark:text-purple-400">
+                      1 minute!
+                    </span>
+                  </p>
+
+                  {/* CTA Button */}
+                  <motion.button
+                    onClick={handleTourInvitationAccept}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                  >
+                    <div className="space-y-1">
+                      <div className="text-sm opacity-90">Let me show you</div>
+                      <div className="text-lg font-bold text-yellow-300">
+                        4+ Years Of Achievements
+                      </div>
+                      <div className="inline-block bg-white/20 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/30">
+                        <span className="text-sm font-bold">In 1 Minute</span>
+                      </div>
+                    </div>
+                  </motion.button>
                 </div>
 
                 {/* Small dismiss option */}

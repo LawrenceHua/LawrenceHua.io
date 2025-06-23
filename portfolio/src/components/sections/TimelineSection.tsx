@@ -289,22 +289,61 @@ export function TimelineSection({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const filteredTimeline = React.useMemo(() => {
-    // Special filtering for tour step 4 - show specific experiences
+    // Special filtering for tour step 4 - show specific experiences in priority order
     if (tourActive && currentStep === 3) {
-      const filtered = timelineData.filter(
-        (item) =>
-          item.type === "experience" &&
-          ((item.title === "Embedded Android Engineer" &&
-            item.org.includes("Motorola")) ||
-            (item.title === "Student Consultant, Technical Lead" &&
-              item.org.includes("Kearney")) ||
-            (item.title === "AI Product Consultant & CS Instructor" &&
-              item.org.includes("Tutora")) ||
-            (item.title === "Product Manager" &&
-              item.org.includes("PM Happy Hour")))
+      const allExperiences = timelineData.filter(
+        (item) => item.type === "experience"
       );
 
-      return filtered;
+      // Define the priority 4 experiences in the requested order
+      const priorityExperiences: TimelineEvent[] = [];
+
+      // 1. PM Happy Hour · Internship (Product Manager) - Mar 2025 - Present
+      const pmHappyHour = allExperiences.find(
+        (item) =>
+          item.title === "Product Manager" && item.org.includes("PM Happy Hour")
+      );
+      if (pmHappyHour) priorityExperiences.push(pmHappyHour);
+
+      // 2. Tutora · Part-time (AI Product Consultant & CS Instructor) - Mar 2021 - Present
+      const tutora = allExperiences.find(
+        (item) =>
+          item.title === "AI Product Consultant & CS Instructor" &&
+          item.org.includes("Tutora")
+      );
+      if (tutora) priorityExperiences.push(tutora);
+
+      // 3. Kearney (Student Consultant, Technical Lead) - Sep 2024 - Dec 2024
+      const kearney = allExperiences.find(
+        (item) =>
+          item.title === "Student Consultant, Technical Lead" &&
+          item.org.includes("Kearney")
+      );
+      if (kearney) priorityExperiences.push(kearney);
+
+      // 4. Motorola Solutions · Full-time (Embedded Android Engineer) - Aug 2021 - Aug 2023
+      const motorola = allExperiences.find(
+        (item) =>
+          item.title === "Embedded Android Engineer" &&
+          item.org.includes("Motorola Solutions")
+      );
+      if (motorola) priorityExperiences.push(motorola);
+
+      // Get the rest of the experiences (excluding the priority 4)
+      const priorityTitlesAndOrgs = priorityExperiences.map((exp) => ({
+        title: exp.title,
+        org: exp.org,
+      }));
+
+      const remainingExperiences = allExperiences.filter((item) => {
+        return !priorityTitlesAndOrgs.some(
+          (priority) =>
+            priority.title === item.title && priority.org === item.org
+        );
+      });
+
+      // Return priority experiences first, then the rest
+      return [...priorityExperiences, ...remainingExperiences];
     }
 
     return timelineData.filter(

@@ -142,12 +142,6 @@ export function TestimonialsSection() {
       >
         {/* Enhanced Section Header */}
         <motion.div variants={itemVariants} className="mb-20 text-center">
-          <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-700/50 mb-8">
-            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-              ✨ Client Testimonials
-            </span>
-          </div>
-
           <h2 className="mb-6 text-4xl font-bold text-slate-900 dark:text-white sm:text-5xl lg:text-6xl leading-tight">
             What colleagues and mentors say about my{" "}
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent bg-size-200 animate-gradient">

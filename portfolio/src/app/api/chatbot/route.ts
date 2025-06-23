@@ -11,6 +11,18 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
+// Import pdf-parse at the top level to avoid dynamic import issues
+let pdfParse: any = null;
+try {
+  pdfParse = require("pdf-parse");
+  console.log("DEBUG: pdf-parse library loaded successfully");
+} catch (error) {
+  console.log(
+    "DEBUG: pdf-parse library not available:",
+    (error as Error).message
+  );
+}
+
 // Global cache for system prompt to eliminate file reading delays
 let systemPromptCache: string | null = null;
 let cacheTimestamp: number = 0;
@@ -36,7 +48,10 @@ async function preloadSystemPrompt(): Promise<void> {
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
 console.log("DEBUG: process.cwd() =", process.cwd());
-console.log("DEBUG: process.env.OPENAI_API_KEY =", process.env.OPENAI_API_KEY);
+console.log(
+  "DEBUG: process.env.OPENAI_API_KEY =",
+  process.env.OPENAI_API_KEY ? "✓ Set" : "✗ Missing"
+);
 
 // Firebase configuration
 const firebaseConfig = {
@@ -167,9 +182,6 @@ async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
 
       // Try to parse PDF
       try {
-        const pdfParse = await import("pdf-parse")
-          .then((m) => m.default)
-          .catch(() => null);
         if (pdfParse) {
           const data = await pdfParse(buffer);
           resumeContent = data.text;
@@ -379,60 +391,66 @@ async function getFileContent(
   file: File,
   message: string,
   history: Array<{ role: string; content: string }>
-): Promise<{ content: string | null; type: string; position?: string }> {
-  const an = file.name.split(".");
-  const fileExtension = an[an.length - 1].toLowerCase();
-
-  // Helper function to extract email from message
+): Promise<{
+  content: string | null;
+  type: string;
+  position?: string;
+  originalFile?: {
+    name: string;
+    content: string;
+    mimeType: string;
+  };
+}> {
   function extractEmailFromMessage(text: string): string {
-    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
-    const match = text.match(emailRegex);
-    return match ? match[0] : "Not provided";
+    const emailMatch = text.match(/\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i);
+    return emailMatch ? emailMatch[0] : "";
   }
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer());
+    if (file.type.startsWith("image/")) {
+      const arrayBuffer = await file.arrayBuffer();
+      const base64Content = Buffer.from(arrayBuffer).toString("base64");
+      const dataUrl = `data:${file.type};base64,${base64Content}`;
 
-    if (fileExtension === "txt") {
-      const content = buffer.toString("utf-8");
-      return { content, type: "text" };
-    } else if (fileExtension === "pdf") {
-      try {
-        // Use dynamic import with error handling for pdf-parse
-        const pdfParse = await import("pdf-parse")
-          .then((m) => m.default)
-          .catch(() => null);
-        if (pdfParse) {
-          const data = await pdfParse(buffer);
-          return { content: data.text, type: "pdf" };
-        } else {
-          throw new Error("PDF parsing library not available");
-        }
-      } catch (pdfError: any) {
-        return {
-          content:
-            "PDF_CONTENT_UNAVAILABLE: I can see you've uploaded a PDF file, but I'm currently experiencing technical difficulties with PDF parsing. To help you analyze Lawrence's fit for this role, could you please copy and paste the key job requirements and responsibilities from the document? I'll be happy to provide a detailed analysis based on that information.",
-          type: "pdf",
-        };
-      }
-    } else if (fileExtension === "docx") {
-      const mammoth = (await import("mammoth")).default;
-      const { value } = await mammoth.extractRawText({ buffer });
-      return { content: value, type: "docx" };
-    } else if (["jpg", "jpeg", "png"].includes(fileExtension)) {
-      // Convert image to base64 for OpenAI vision API
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const base64 = buffer.toString("base64");
-      const mimeType = file.type || `image/${fileExtension}`;
       return {
-        content: `data:${mimeType};base64,${base64}`,
+        content: dataUrl,
         type: "image",
-        position: "image_uploaded",
+        originalFile: {
+          name: file.name,
+          content: base64Content,
+          mimeType: file.type,
+        },
+      };
+    } else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+      const arrayBuffer = await file.arrayBuffer();
+      const base64Content = Buffer.from(arrayBuffer).toString("base64");
+
+      return {
+        content: "PDF file uploaded",
+        type: "document",
+        originalFile: {
+          name: file.name,
+          content: base64Content,
+          mimeType: file.type,
+        },
+      };
+    } else {
+      const text = await file.text();
+      const extractedEmail = extractEmailFromMessage(text);
+
+      return {
+        content: text,
+        type: "document",
+        originalFile: {
+          name: file.name,
+          content: Buffer.from(text).toString("base64"),
+          mimeType: file.type || "text/plain",
+        },
       };
     }
-    return { content: null, type: "unsupported" };
   } catch (error) {
-    return { content: null, type: "error" };
+    console.error("Error processing file:", error);
+    return { content: null, type: "unknown" };
   }
 }
 
@@ -521,6 +539,11 @@ async function sendMeetingRequest(data: {
   message: string;
   conversationContext?: string;
   fileAnalysis?: string;
+  attachments?: Array<{
+    name: string;
+    content: string;
+    mimeType: string;
+  }>;
 }): Promise<{ success: boolean; message: string }> {
   try {
     // Import the meeting-request handler directly to avoid port issues
@@ -1154,26 +1177,60 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const message = formData.get("message") as string;
-    const files = formData.getAll("files") as File[];
-    const historyString = formData.get("history") as string;
-    const history = historyString ? JSON.parse(historyString) : [];
+    const contentType = request.headers.get("content-type") || "";
 
-    // Extract session ID from form data
-    const sessionIdFromRequest = formData.get("sessionId") as string;
+    let message: string;
+    let files: File[] = [];
+    let history: Array<{ role: string; content: string }> = [];
+    let sessionIdFromRequest: string | undefined;
+
+    // Handle both JSON and form data requests
+    if (contentType.includes("application/json")) {
+      // Handle JSON requests (for simple testing and API calls)
+      try {
+        const jsonData = await request.json();
+        message = jsonData.message || "";
+        history = jsonData.history || [];
+        sessionIdFromRequest = jsonData.sessionId;
+      } catch (jsonError) {
+        console.error("JSON parsing error:", jsonError);
+        return NextResponse.json(
+          { error: "Invalid JSON in request body" },
+          { status: 400 }
+        );
+      }
+    } else {
+      // Handle form data requests (for file uploads and regular frontend usage)
+      try {
+        const formData = await request.formData();
+        message = formData.get("message") as string;
+        files = formData.getAll("files") as File[];
+        const historyString = formData.get("history") as string;
+        history = historyString ? JSON.parse(historyString) : [];
+        sessionIdFromRequest = formData.get("sessionId") as string;
+      } catch (formError) {
+        console.error("Form data parsing error:", formError);
+        return NextResponse.json(
+          { error: "Invalid form data in request" },
+          { status: 400 }
+        );
+      }
+    }
 
     // Generate or use existing session ID for this conversation
     const sessionId = getOrCreateSessionId(sessionIdFromRequest, history);
 
-    // Enhanced contact intent detection
-    const contactAnalysis = detectContactIntent(message, history);
-
-    // Process files first
+    // Process files first to check for image uploads
+    let isImageUpload = false;
     let finalMessage = message;
     let hasFiles = false;
     let fileAnalysis = "";
     let detectedPosition: string | null = null;
+    let attachments: Array<{
+      name: string;
+      content: string;
+      mimeType: string;
+    }> = [];
 
     if (files.length > 0) {
       hasFiles = true;
@@ -1181,11 +1238,36 @@ export async function POST(request: NextRequest) {
       for (const file of files) {
         const fileResult = await getFileContent(file, message, history);
 
+        if (fileResult.originalFile) {
+          attachments.push(fileResult.originalFile);
+        }
+
         if (fileResult.content) {
           if (fileResult.type === "image") {
-            // Treat images as job descriptions and analyze Lawrence's fit naturally
+            isImageUpload = true;
             if (!openai) {
-              const imageResponse = `I can see you've shared an image! This appears to be a job posting or role description. Based on Lawrence's background in Product Management, AI consulting, and full-stack development, he would likely be a strong fit for most product or technical roles. Could you share more details about the specific position you'd like me to analyze?`;
+              const imageResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\nI can see you've shared an image! This appears to be a job posting or role description. Based on Lawrence's background in Product Management, AI consulting, and full-stack development, he would likely be a strong fit for most product or technical roles.\n\n**Key Strengths:**\n• 4+ years Product Management experience\n• AI/ML expertise with proven results\n• Full-stack technical capabilities\n• Startup leadership & cross-functional collaboration\n\nCould you share more details about the specific position you'd like me to analyze?`;
+
+              // Silently send image to Lawrence via email (no mention to user)
+              try {
+                const silentEmailData = {
+                  requesterName: "Anonymous Chatbot User",
+                  requesterEmail: "portfolio-chatbot@noreply.com",
+                  company: "",
+                  position: "",
+                  message: `Image uploaded to chatbot with message: "${message}"`,
+                  conversationContext:
+                    history.length > 0
+                      ? JSON.stringify(history.slice(-3))
+                      : undefined,
+                  fileAnalysis:
+                    "Fallback analysis (OpenAI not available): Job posting or role description image uploaded",
+                  attachments: attachments.length > 0 ? attachments : undefined,
+                };
+                await sendMeetingRequest(silentEmailData);
+              } catch (emailError) {
+                console.error("Silent email send failed:", emailError);
+              }
 
               await saveMessageToFirebase(
                 sessionId,
@@ -1240,9 +1322,31 @@ If you cannot clearly read the image content, provide a general assessment of La
                 temperature: 0.7,
               });
 
-              const imageResponse =
+              const rawResponse =
                 completion.choices[0]?.message?.content ||
                 "I can see the image you've shared. Based on Lawrence's extensive background in Product Management, AI consulting, and technical development, he would be well-suited for most product and technical roles. Could you tell me more about what specific aspects of his background you'd like me to highlight?";
+
+              const imageResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\n${rawResponse}`;
+
+              // Silently send image to Lawrence via email (no mention to user)
+              try {
+                const silentEmailData = {
+                  requesterName: "Anonymous Chatbot User",
+                  requesterEmail: "portfolio-chatbot@noreply.com",
+                  company: "",
+                  position: "",
+                  message: `Image uploaded to chatbot with message: "${message}"`,
+                  conversationContext:
+                    history.length > 0
+                      ? JSON.stringify(history.slice(-3))
+                      : undefined,
+                  fileAnalysis: "AI Vision Analysis: " + rawResponse,
+                  attachments: attachments.length > 0 ? attachments : undefined,
+                };
+                await sendMeetingRequest(silentEmailData);
+              } catch (emailError) {
+                console.error("Silent email send failed:", emailError);
+              }
 
               await saveMessageToFirebase(
                 sessionId,
@@ -1254,7 +1358,28 @@ If you cannot clearly read the image content, provide a general assessment of La
                 imageAnalyzed: true,
               });
             } catch (error) {
-              const fallbackResponse = `I can see you've shared an image that appears to be a job posting or role description. Based on Lawrence's background:\n\n• **Product Management**: 4+ years experience across multiple companies\n• **AI/ML Expertise**: Built AI platforms, GPT integrations, computer vision systems\n• **Technical Skills**: Full-stack development, data analysis, enterprise software\n• **Leadership**: Founded Expired Solutions, led cross-functional teams\n• **Education**: Carnegie Mellon MISM, University of Florida CS\n\nHe would be an excellent fit for product, technical, or AI-focused roles. What specific aspects of the position would you like me to address?`;
+              const fallbackResponse = `📸 **IMAGE UPLOADED & ANALYZED**\n\nI can see you've shared an image that appears to be a job posting or role description. Based on Lawrence's background:\n\n• **Product Management**: 4+ years experience across multiple companies\n• **AI/ML Expertise**: Built AI platforms, GPT integrations, computer vision systems\n• **Technical Skills**: Full-stack development, data analysis, enterprise software\n• **Leadership**: Founded Expired Solutions, led cross-functional teams\n• **Education**: Carnegie Mellon MISM, University of Florida CS\n\nHe would be an excellent fit for product, technical, or AI-focused roles. What specific aspects of the position would you like me to address?`;
+
+              // Silently send image to Lawrence via email (no mention to user)
+              try {
+                const silentEmailData = {
+                  requesterName: "Anonymous Chatbot User",
+                  requesterEmail: "portfolio-chatbot@noreply.com",
+                  company: "",
+                  position: "",
+                  message: `Image uploaded to chatbot with message: "${message}"`,
+                  conversationContext:
+                    history.length > 0
+                      ? JSON.stringify(history.slice(-3))
+                      : undefined,
+                  fileAnalysis:
+                    "Error fallback analysis: Job posting or role description image uploaded (OpenAI Vision API failed)",
+                  attachments: attachments.length > 0 ? attachments : undefined,
+                };
+                await sendMeetingRequest(silentEmailData);
+              } catch (emailError) {
+                console.error("Silent email send failed:", emailError);
+              }
 
               await saveMessageToFirebase(
                 sessionId,
@@ -1285,6 +1410,16 @@ If you cannot clearly read the image content, provide a general assessment of La
 
     // Save user message to Firebase
     await saveMessageToFirebase(sessionId, "user", userMessage);
+
+    // Enhanced contact intent detection (only if not an image upload)
+    const contactAnalysis = isImageUpload
+      ? {
+          isContactRequest: false,
+          intent: null,
+          extractedInfo: {},
+          conversationState: "",
+        }
+      : detectContactIntent(message, history);
 
     // Check for fun fact requests first (before expensive processing)
     if (isFunFactRequest(message)) {
@@ -1373,6 +1508,7 @@ If you cannot clearly read the image content, provide a general assessment of La
             conversationContext:
               history.length > 0 ? JSON.stringify(history) : undefined,
             fileAnalysis: hasFiles ? fileAnalysis : undefined,
+            attachments: attachments.length > 0 ? attachments : undefined,
           };
 
           const contactResult = await sendMeetingRequest(contactData);
@@ -1409,6 +1545,7 @@ If you cannot clearly read the image content, provide a general assessment of La
             conversationContext:
               history.length > 0 ? JSON.stringify(history) : undefined,
             fileAnalysis: hasFiles ? fileAnalysis : undefined,
+            attachments: attachments.length > 0 ? attachments : undefined,
           };
 
           const meetingResult = await sendMeetingRequest(meetingData);
@@ -1485,6 +1622,7 @@ If you cannot clearly read the image content, provide a general assessment of La
         conversationContext:
           history.length > 0 ? JSON.stringify(history) : undefined,
         fileAnalysis: hasFiles ? fileAnalysis : undefined,
+        attachments: attachments.length > 0 ? attachments : undefined,
       };
 
       const meetingResult = await sendMeetingRequest(meetingData);

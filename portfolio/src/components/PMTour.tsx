@@ -87,7 +87,7 @@ const tourSteps: TourStep[] = [
     title: "🤖 AI Product Innovation",
     content:
       "Built CV + GPT platforms, automated workflows saving 15hrs/week, and created AI-driven decision tools reducing time by 26%.",
-    targetSection: "projects",
+    targetSection: "timeline",
     icon: <FiActivity className="w-5 h-5" />,
     color: "from-orange-600 to-red-600",
     duration: 8000, // +2 seconds
@@ -130,6 +130,7 @@ export default function PMTour({
   const [showFinalCTA, setShowFinalCTA] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   // New states for popup flow
   const [showTourHoverPopup, setShowTourHoverPopup] = useState(false);
@@ -227,6 +228,11 @@ export default function PMTour({
     setIsActive(false);
     setShowFinalCTA(false);
     setReadingProgress(0);
+    setIsPaused(false);
+  };
+
+  const togglePause = () => {
+    setIsPaused(!isPaused);
   };
 
   const handleTourHoverPopupExit = () => {
@@ -290,7 +296,7 @@ export default function PMTour({
 
   // Reading progress animation
   useEffect(() => {
-    if (isActive) {
+    if (isActive && !isPaused) {
       const interval = setInterval(() => {
         setReadingProgress((prev) => {
           if (prev >= 100) return 100;
@@ -300,7 +306,7 @@ export default function PMTour({
 
       return () => clearInterval(interval);
     }
-  }, [isActive, currentStep]);
+  }, [isActive, currentStep, isPaused]);
 
   // Highlight animation for key metrics
   useEffect(() => {
@@ -318,14 +324,14 @@ export default function PMTour({
 
   // Auto-advance steps based on dynamic duration
   useEffect(() => {
-    if (isActive) {
+    if (isActive && !isPaused) {
       const timer = setTimeout(() => {
         nextStep();
       }, tourSteps[currentStep].duration);
 
       return () => clearTimeout(timer);
     }
-  }, [isActive, currentStep]);
+  }, [isActive, currentStep, isPaused]);
 
   // Auto-close final CTA after 15 seconds
   useEffect(() => {
@@ -542,8 +548,12 @@ export default function PMTour({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -50 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed z-50 max-w-md"
-            style={getPopupPosition(tourSteps[currentStep].position)}
+            className="fixed z-50 max-w-md pointer-events-auto"
+            style={{
+              ...getPopupPosition(tourSteps[currentStep].position),
+              maxWidth:
+                window.innerWidth < 768 ? "calc(100vw - 2rem)" : "28rem",
+            }}
           >
             <div
               className={`bg-gradient-to-br ${tourSteps[currentStep].color} p-1 rounded-2xl shadow-2xl`}
@@ -555,6 +565,20 @@ export default function PMTour({
                 >
                   <FiX className="w-4 h-4 text-gray-500" />
                 </button>
+
+                {/* Pause/Resume Button */}
+                <motion.button
+                  onClick={togglePause}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`absolute top-3 right-12 px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+                    isPaused
+                      ? "bg-green-100 text-green-700 hover:bg-green-200"
+                      : "bg-orange-100 text-orange-700 hover:bg-orange-200"
+                  }`}
+                >
+                  {isPaused ? "▶️ Resume" : "⏸️ Tap to Pause"}
+                </motion.button>
 
                 {/* Back Button */}
                 <motion.button

@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
       message,
       conversationContext,
       fileAnalysis,
+      attachments,
     } = await request.json();
 
     console.log("[MEETING REQUEST] Received data:", {
@@ -50,11 +51,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const emailAttachments =
+      attachments?.map((attachment: any) => ({
+        filename: attachment.name,
+        content: attachment.content,
+        content_type: attachment.mimeType,
+      })) || [];
+
     // Send email using Resend
+    const emailDestination = process.env.EMAIL_NAME || "lawrencehua2@gmail.com";
     const { data, error } = await resend.emails.send({
       from: "Lawrence Hua Portfolio <onboarding@resend.dev>",
-      to: ["lawrencehua2@gmail.com"],
-      subject: `🤝 MEETING REQUEST: ${requesterName}${company ? ` from ${company}` : ""}${position ? ` - ${position}` : ""}`,
+      to: [emailDestination],
+      subject: `🤝 MEETING REQUEST: ${requesterName}${company ? ` from ${company}` : ""}${position ? ` - ${position}` : ""}${attachments?.length ? ` [${attachments.length} file(s) attached]` : ""}`,
+      attachments: emailAttachments,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto;">
           <h2 style="color: #2563eb;">🤝 New Meeting Request!</h2>
@@ -94,6 +104,23 @@ export async function POST(request: NextRequest) {
             <h4 style="margin-top: 0; color: #166534;">📄 File Analysis</h4>
             <div style="background: white; padding: 10px; border-radius: 4px; font-size: 14px; color: #374151;">
               ${fileAnalysis.replace(/\n/g, "<br>")}
+            </div>
+          </div>
+          `
+              : ""
+          }
+
+          ${
+            attachments?.length
+              ? `
+          <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="margin-top: 0; color: #1e40af;">📎 Attachments</h4>
+            <div style="background: white; padding: 10px; border-radius: 4px; font-size: 14px; color: #374151;">
+              <p><strong>${attachments.length} file(s) attached:</strong></p>
+              <ul style="margin: 5px 0; padding-left: 20px;">
+                ${attachments.map((att: any) => `<li>${att.name} (${att.mimeType})</li>`).join("")}
+              </ul>
+              <p style="font-style: italic; color: #64748b;">Files are attached to this email.</p>
             </div>
           </div>
           `
