@@ -112,7 +112,7 @@ export function AboutSection() {
                     {" "}
                     software engineering foundations
                   </span>{" "}
-                  to founding
+                  to founding{" "}
                   <span className="text-green-600 dark:text-green-400 font-medium">
                     AI-driven startups
                   </span>
@@ -140,7 +140,7 @@ export function AboutSection() {
                   require both{" "}
                   <span className="underline decoration-blue-400/50">
                     technical excellence
-                  </span>
+                  </span>{" "}
                   and{" "}
                   <span className="underline decoration-purple-400/50">
                     deep user empathy
