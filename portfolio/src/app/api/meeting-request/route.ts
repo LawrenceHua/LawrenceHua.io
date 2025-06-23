@@ -187,14 +187,14 @@ export async function POST(request: NextRequest) {
               <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <h3 style="margin-top: 0; color: #1e40af;">📞 What Happens Next?</h3>
                 <ul style="margin: 10px 0; padding-left: 20px;">
-                  <li>I'll send a personalized response within 24 hours</li>
+                  <li>I'll send a personalized response within 24-48 hours</li>
                   <li>In the meantime, feel free to explore more about my work at <a href="https://www.lawrencehua.com" style="color: #2563eb;">www.lawrencehua.com</a></li>
                 </ul>
                 
                 <p style="color: #334155; font-size: 16px;">Best regards,<br><strong>Lawrence Hua</strong></p>
                 
                 <p style="color: #64748b; font-size: 14px; line-height: 1.6; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                  📧 ${process.env.FROM_EMAIL || "noreply@lawrencehua.com"}<br>
+                  📧 ${process.env.EMAIL_NAME || "lawrencehua2@gmail.com"}<br>
                   🔗 <a href="https://www.lawrencehua.com" style="color: #2563eb;">www.lawrencehua.com</a><br>
                   🎯 AI Product Manager | Full-Stack Developer | Startup Founder<br><br>
                   <em>I'm passionate about leveraging AI and data to solve real-world problems. Visit <a href="https://www.lawrencehua.com" style="color: #2563eb;">my website</a> to find out more information about my background, projects, and experience.</em>
