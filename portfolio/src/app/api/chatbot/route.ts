@@ -860,25 +860,7 @@ function detectContactIntent(
   const isMeetingCommand =
     lowerMessage.startsWith("/meeting") || lowerMessage.startsWith("/meet");
 
-  // Check if this is a regular question about Lawrence (not a contact request)
-  const isRegularQuestion =
-    /^(what|how|when|where|why|who|tell me|so what|can you|could you|is lawrence|does lawrence|has lawrence)/.test(
-      lowerMessage
-    ) ||
-    lowerMessage.includes("about lawrence") ||
-    lowerMessage.includes("lawrence up to") ||
-    lowerMessage.includes("lawrence doing") ||
-    lowerMessage.includes("lawrence currently") ||
-    lowerMessage.includes("his experience") ||
-    lowerMessage.includes("his skills") ||
-    lowerMessage.includes("his projects");
-
-  let intent: "message" | "meeting" | "question" | null = null;
-  if (isMessageCommand) intent = "message";
-  else if (isMeetingCommand) intent = "meeting";
-  else if (message.includes("?") || isRegularQuestion) intent = "question";
-
-  // Check conversation state from history
+  // Check conversation state from history FIRST
   const lastAssistantMessage =
     history
       .slice()
@@ -887,7 +869,6 @@ function detectContactIntent(
   let conversationState = "";
 
   // Determine what state we're in based on last assistant message
-  // Only set conversation state if we're actively in a contact flow
   if (
     lastAssistantMessage.includes("What's your name") &&
     !lastAssistantMessage.includes("Message Sent Successfully") &&
@@ -927,6 +908,26 @@ function detectContactIntent(
   ) {
     conversationState = "awaiting_datetime";
   }
+
+  // Check if this is a regular question about Lawrence (not a contact request)
+  // BUT ONLY if we're not already in an active contact flow
+  const isRegularQuestion =
+    conversationState === "" && // Only treat as regular question if NOT in contact flow
+    (/^(what|how|when|where|why|who|tell me|so what|can you|could you|is lawrence|does lawrence|has lawrence)/.test(
+      lowerMessage
+    ) ||
+      lowerMessage.includes("about lawrence") ||
+      lowerMessage.includes("lawrence up to") ||
+      lowerMessage.includes("lawrence doing") ||
+      lowerMessage.includes("lawrence currently") ||
+      lowerMessage.includes("his experience") ||
+      lowerMessage.includes("his skills") ||
+      lowerMessage.includes("his projects"));
+
+  let intent: "message" | "meeting" | "question" | null = null;
+  if (isMessageCommand) intent = "message";
+  else if (isMeetingCommand) intent = "meeting";
+  else if (message.includes("?") || isRegularQuestion) intent = "question";
 
   // Reset conversation state if contact flow was completed
   if (
@@ -1022,12 +1023,27 @@ function detectContactIntent(
     extractedInfo.message = message.trim();
   }
 
+  const isContactRequest =
+    (isMessageCommand ||
+      isMeetingCommand ||
+      (conversationState !== "" && conversationState !== "completed")) &&
+    !isRegularQuestion;
+
+  // Debug logging
+  console.log("DEBUG: detectContactIntent result:", {
+    message,
+    lastAssistantMessage,
+    conversationState,
+    isMessageCommand,
+    isMeetingCommand,
+    isRegularQuestion,
+    isContactRequest,
+    intent,
+    extractedInfo,
+  });
+
   return {
-    isContactRequest:
-      (isMessageCommand ||
-        isMeetingCommand ||
-        (conversationState !== "" && conversationState !== "completed")) &&
-      !isRegularQuestion,
+    isContactRequest,
     intent,
     extractedInfo,
     conversationState,
