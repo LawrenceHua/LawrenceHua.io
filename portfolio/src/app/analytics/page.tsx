@@ -3109,10 +3109,21 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* Sessions for Keyword Modal - Fixed Scrolling */}
+        {/* Sessions for Keyword Modal - Enhanced Scrolling */}
         {selectedKeyword && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl border border-gray-600">
+          <div
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+            onClick={(e) => {
+              // Only close if clicking on the backdrop, not the modal content
+              if (e.target === e.currentTarget) {
+                setSelectedKeyword(null);
+              }
+            }}
+          >
+            <div
+              className="bg-gray-800 rounded-xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl border border-gray-600"
+              onClick={(e) => e.stopPropagation()} // Prevent backdrop clicks from closing modal
+            >
               {/* Fixed Header */}
               <div className="flex-shrink-0 p-6 border-b border-gray-700 bg-gray-800">
                 <div className="flex justify-between items-center">
@@ -3140,15 +3151,33 @@ export default function AnalyticsPage() {
                 </div>
               </div>
 
-              {/* Enhanced Scrollable Content with Proper Scroll Hierarchy */}
+              {/* Enhanced Scrollable Content - Force Scrollable */}
               <div
-                className="flex-1 overflow-y-scroll overflow-x-hidden"
+                className="flex-1 overflow-y-scroll overflow-x-hidden min-h-0"
                 style={{
                   scrollBehavior: "smooth",
                   WebkitOverflowScrolling: "touch",
+                  scrollbarWidth: "thin", // Firefox
+                  scrollbarColor: "#3B82F6 #374151", // Firefox
+                }}
+                onWheel={(e) => {
+                  // Always allow scrolling within this container
+                  e.stopPropagation();
                 }}
               >
-                <div className="p-6">
+                <div className="p-6 min-h-[200px]">
+                  {/* Scroll Indicator */}
+                  <div className="sticky top-0 z-10 bg-gray-800/95 backdrop-blur-sm p-2 rounded-lg mb-4 border border-blue-500/30">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-blue-300 font-medium">
+                        📜 Scrollable Sessions List
+                      </span>
+                      <span className="text-gray-400">
+                        Use mouse wheel or scroll bar to navigate
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="space-y-6">
                     {sessions
                       .filter((session) =>
@@ -3278,6 +3307,29 @@ export default function AnalyticsPage() {
                           No chat sessions contain the keyword "
                           {selectedKeyword}"
                         </p>
+                      </div>
+                    )}
+
+                    {/* Bottom Scroll Indicator */}
+                    {sessions.filter((session) =>
+                      analyticsData?.foundKeywords
+                        .find((k) => k.keyword === selectedKeyword)
+                        ?.sessionIds.includes(session.sessionId)
+                    ).length > 0 && (
+                      <div className="text-center py-8 border-t border-gray-700/50 mt-8">
+                        <div className="text-sm text-gray-400 bg-gray-700/30 px-4 py-2 rounded-lg inline-block">
+                          🎯 End of sessions for "{selectedKeyword}" -
+                          <span className="text-blue-300 ml-1">
+                            {
+                              sessions.filter((session) =>
+                                analyticsData?.foundKeywords
+                                  .find((k) => k.keyword === selectedKeyword)
+                                  ?.sessionIds.includes(session.sessionId)
+                              ).length
+                            }{" "}
+                            total sessions
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>
