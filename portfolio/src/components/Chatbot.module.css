@@ -17,8 +17,10 @@
   bottom: 32px;
   right: 32px;
   z-index: 1000;
-  /* Prevent body scroll when chatbot is focused */
+  /* Enhanced touch handling for mobile */
   touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 @keyframes slideIn {
@@ -47,6 +49,10 @@
   color: #22223b;
   border: 1px solid #e0e7ef;
   transition: background 0.2s;
+  /* Allow text selection in messages */
+  touch-action: manipulation;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .messageBubble.assistant {
@@ -172,6 +178,7 @@
     font-size: 16px !important; /* Prevents zoom on iOS */
     -webkit-user-select: text !important;
     user-select: text !important;
+    touch-action: manipulation !important;
   }
 
   /* Ensure action buttons are touch-friendly on mobile */
@@ -189,8 +196,15 @@
     max-height: calc(100% - 140px) !important;
     padding: 20px 16px 12px 16px !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    scroll-behavior: smooth !important;
     background: #ffffff !important;
+    /* Force hardware acceleration for smoother scrolling */
+    transform: translateZ(0) !important;
+    will-change: scroll-position !important;
   }
 
   /* Better mobile header */
@@ -498,6 +512,11 @@
   flex: 1 1 auto;
   overflow-y: auto;
   overflow-x: hidden;
+  /* Enhanced mobile scrolling support */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scroll-behavior: smooth;
   padding: 24px 16px 8px 16px;
   background: transparent;
   display: flex;
