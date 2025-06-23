@@ -166,11 +166,12 @@ export function FloatingChatbot({
                       e.stopPropagation();
                       dismissPopup();
                     }}
-                    className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 z-10"
+                    className="absolute top-1 right-1 sm:top-2 sm:right-2 p-2 sm:p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 z-10 bg-white/80 dark:bg-slate-800/80 rounded-full backdrop-blur-sm border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200"
+                    aria-label="Close popup"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3 w-3 sm:h-4 sm:w-4" />
                   </button>
-                  <div className="pr-5 sm:pr-6">
+                  <div className="pr-8 sm:pr-6">
                     <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-2">
                       💼 Open to AI PM/APM roles!
                     </p>

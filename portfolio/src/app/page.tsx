@@ -376,7 +376,20 @@ export default function ModernHome() {
           return;
         } else if (sectionId === "timeline" && currentStep === 3) {
           // Work experience step - scroll to show work experience section
-          const finalPosition = absoluteElementTop + 500;
+          // Find the work-experience-title element for more precise positioning
+          const workExperienceTitle = document.getElementById(
+            "work-experience-title"
+          );
+          if (workExperienceTitle) {
+            const workRect = workExperienceTitle.getBoundingClientRect();
+            const workAbsoluteTop = workRect.top + window.pageYOffset;
+            // Position the work experience title near the top of viewport on mobile
+            const finalPosition = workAbsoluteTop - 120;
+            window.scrollTo({ top: finalPosition, behavior: "smooth" });
+            return;
+          }
+          // Fallback if work-experience-title not found
+          const finalPosition = absoluteElementTop + 700;
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "projects") {

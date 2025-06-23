@@ -169,6 +169,20 @@ export default function PMTour({
   };
 
   const getPopupPosition = (position: string) => {
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+    // On mobile, position all popups consistently in the center-bottom area
+    // to ensure they're always visible and don't interfere with content
+    if (isMobile) {
+      return {
+        bottom: "120px", // Above the mobile navigation
+        left: "50%",
+        transform: "translateX(-50%)",
+        right: "auto",
+      };
+    }
+
+    // Desktop positioning (unchanged)
     switch (position) {
       case "top-left":
         return { top: "80px", left: "24px", right: "auto" };
@@ -558,12 +572,13 @@ export default function PMTour({
             <div
               className={`bg-gradient-to-br ${tourSteps[currentStep].color} p-1 rounded-2xl shadow-2xl`}
             >
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 relative">
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-4 sm:p-6 relative">
                 <button
                   onClick={closeTour}
-                  className="absolute top-3 right-3 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                  className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1 sm:p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50"
+                  aria-label="Close tour"
                 >
-                  <FiX className="w-4 h-4 text-gray-500" />
+                  <FiX className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500" />
                 </button>
 
                 {/* Pause/Resume Button */}
@@ -571,47 +586,47 @@ export default function PMTour({
                   onClick={togglePause}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`absolute top-3 right-12 px-3 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+                  className={`absolute top-2 right-10 sm:top-3 sm:right-12 px-2 py-1 sm:px-3 sm:py-1 text-xs font-medium rounded-full transition-all duration-200 ${
                     isPaused
                       ? "bg-green-100 text-green-700 hover:bg-green-200"
                       : "bg-orange-100 text-orange-700 hover:bg-orange-200"
                   }`}
                 >
-                  {isPaused ? "▶️ Resume" : "⏸️ Tap to Pause"}
+                  {isPaused ? "▶️ Resume" : "⏸️ Pause"}
                 </motion.button>
 
-                {/* Back Button */}
+                {/* Back Button - Responsive positioning */}
                 <motion.button
                   onClick={prevStep}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="absolute top-1/2 -left-4 -translate-y-1/2 p-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
+                  className="absolute top-1/2 -left-3 sm:-left-4 -translate-y-1/2 p-2 sm:p-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
                   title={currentStep === 0 ? "Restart tour" : "Previous step"}
                 >
-                  <FiChevronLeft className="w-4 h-4" />
+                  <FiChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                 </motion.button>
 
-                {/* Skip Button */}
+                {/* Skip Button - Responsive positioning */}
                 <motion.button
                   onClick={nextStep}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="absolute top-1/2 -right-4 -translate-y-1/2 p-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
+                  className="absolute top-1/2 -right-3 sm:-right-4 -translate-y-1/2 p-2 sm:p-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
                   title="Skip to next step"
                 >
-                  <FiChevronRight className="w-4 h-4" />
+                  <FiChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                 </motion.button>
 
                 <div className="flex items-start gap-3 mb-4">
                   <motion.div
                     animate={{ rotate: [0, 3, -3, 0] }} // Reduced rotation
                     transition={{ duration: 4, repeat: Infinity }} // Slower animation
-                    className={`p-3 bg-gradient-to-br ${tourSteps[currentStep].color} rounded-xl text-white`}
+                    className={`p-2 sm:p-3 bg-gradient-to-br ${tourSteps[currentStep].color} rounded-xl text-white flex-shrink-0`}
                   >
                     {tourSteps[currentStep].icon}
                   </motion.div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-2">
                       {tourSteps[currentStep].title}
                     </h3>
                     <motion.p
@@ -638,7 +653,7 @@ export default function PMTour({
                             opacity: highlightedIndex === index ? 1 : 0.7,
                           }}
                           transition={{ duration: 0.5 }} // Slower transition
-                          className={`px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white`}
+                          className={`px-2 sm:px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r ${tourSteps[currentStep].color} text-white`}
                         >
                           {highlight}
                         </motion.span>
@@ -660,7 +675,7 @@ export default function PMTour({
 
                 {/* Step indicator */}
                 <div className="flex items-center justify-between">
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 sm:gap-2">
                     {tourSteps.map((_, index) => (
                       <motion.div
                         key={index}
