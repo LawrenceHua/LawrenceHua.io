@@ -1130,14 +1130,14 @@ async function generateContactResponse(
         // Import the contact handler directly to avoid port issues
         const { POST: contactHandler } = await import("../contact/route");
 
-        // Create a mock request object
+        // Create a mock request object with the correct field names
         const mockRequest = {
           json: async () => ({
+            name: collectedInfo.name || "Anonymous",
+            email: collectedInfo.email || "",
+            subject: `Message from ${collectedInfo.name || "Website Visitor"}${collectedInfo.company && collectedInfo.company !== "none" ? ` (${collectedInfo.company})` : ""}`,
             message:
               collectedInfo.message || userMessage || "No message provided",
-            senderEmail: collectedInfo.email || "",
-            senderName: collectedInfo.name || "Anonymous",
-            company: collectedInfo.company || "Not specified",
           }),
         } as unknown as NextRequest;
 
@@ -1147,7 +1147,7 @@ async function generateContactResponse(
 
         console.log("DEBUG: Contact message result:", result);
 
-        if (response.status === 200 && result.success) {
+        if (response.status === 200 && result.message) {
           return "✅ **Message Sent Successfully!**\n\nI've forwarded your message to Lawrence. He'll get back to you soon! 📧";
         } else {
           console.error("DEBUG: Contact message failed:", result);
