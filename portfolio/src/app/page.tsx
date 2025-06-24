@@ -951,7 +951,48 @@ export default function ModernHome() {
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "projects") {
-          // Projects step - center on projects section with reduced offset
+          // Projects step - different handling for step 5 and 6
+          if (actualStep === 4) {
+            // Step 5: Expired Solutions project
+            debugLog(
+              "🎯 Mobile Step 5: Scrolling to Expired Solutions project"
+            );
+            const expiredSolutionsProject = document.getElementById(
+              "project-expired-solutions"
+            );
+            if (expiredSolutionsProject) {
+              const projectRect =
+                expiredSolutionsProject.getBoundingClientRect();
+              const projectAbsoluteTop = projectRect.top + window.pageYOffset;
+              const finalPosition = projectAbsoluteTop - 100;
+              debugLog("🎯 Mobile Step 5: Expired Solutions positioning", {
+                finalPosition,
+                projectAbsoluteTop,
+                offset: -100,
+              });
+              window.scrollTo({ top: finalPosition, behavior: "smooth" });
+              return;
+            }
+          } else if (actualStep === 5) {
+            // Step 6: BBW project
+            debugLog("🎯 Mobile Step 6: Scrolling to BBW project");
+            const bbwProject = document.getElementById("project-bbw");
+            if (bbwProject) {
+              const projectRect = bbwProject.getBoundingClientRect();
+              const projectAbsoluteTop = projectRect.top + window.pageYOffset;
+              const finalPosition = projectAbsoluteTop - 100;
+              debugLog("🎯 Mobile Step 6: BBW project positioning", {
+                finalPosition,
+                projectAbsoluteTop,
+                offset: -100,
+              });
+              window.scrollTo({ top: finalPosition, behavior: "smooth" });
+              return;
+            }
+          }
+
+          // Fallback: Projects step - center on projects section with reduced offset
+          debugLog("🎯 Mobile Projects: Using fallback positioning");
           const finalPosition = absoluteElementTop - 150;
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
