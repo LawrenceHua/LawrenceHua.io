@@ -10,15 +10,18 @@ import { FaLinkedin } from "react-icons/fa";
 interface HeroSectionProps {
   onStartTour?: () => void;
   tourActive?: boolean;
+  showCats?: boolean;
+  onCatsToggle?: (show: boolean) => void;
 }
 
 export function HeroSection({
   onStartTour,
   tourActive = false,
+  showCats = false,
+  onCatsToggle,
 }: HeroSectionProps = {}) {
   const prefersReducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
-  const [showCats, setShowCats] = useState(false);
 
   // Detect mobile device
   useEffect(() => {
@@ -225,7 +228,7 @@ export function HeroSection({
             variants={pulseVariants}
             animate="animate"
             className="relative h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-48 lg:w-48 overflow-hidden rounded-full border-4 border-blue-400/50 bg-white shadow-2xl shadow-blue-500/25 cursor-pointer group"
-            onClick={() => setShowCats(!showCats)}
+            onClick={() => onCatsToggle?.(!showCats)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -278,7 +281,7 @@ export function HeroSection({
         <motion.div variants={itemVariants} className="mb-4 sm:mb-6 relative">
           <h1
             className="mb-2 sm:mb-4 text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight cursor-pointer hover:scale-105 transition-transform duration-300"
-            onClick={() => setShowCats(!showCats)}
+            onClick={() => onCatsToggle?.(!showCats)}
           >
             Lawrence W.{" "}
             <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">

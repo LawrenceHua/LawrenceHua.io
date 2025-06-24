@@ -28,11 +28,49 @@ let systemPromptCache: string | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
+// Response cache for common queries
+const responseCache = new Map<
+  string,
+  { response: string; timestamp: number }
+>();
+const RESPONSE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Common responses for instant replies
+const commonResponses = {
+  greeting:
+    "👋 Hi! I'm Lawrence's AI assistant. I can help you learn about his experience, skills, and projects. What would you like to know?",
+  skills:
+    "Lawrence has expertise in Product Management, AI/ML, full-stack development, and startup leadership. He's built AI platforms, led cross-functional teams, and has 4+ years of PM experience.",
+  experience:
+    "Lawrence has 4+ years of product management experience across multiple companies including PM Happy Hour, PanPalz, Kearney, and his own startup Expired Solutions. He's also worked at Giant Eagle and Motorola.",
+};
+
 // Function to check if cache is valid
 function isCacheValid(): boolean {
   return (
     systemPromptCache !== null && Date.now() - cacheTimestamp < CACHE_DURATION
   );
+}
+
+// Response caching functions
+function getCachedResponse(messageHash: string): string | null {
+  const cached = responseCache.get(messageHash);
+  if (cached && Date.now() - cached.timestamp < RESPONSE_CACHE_DURATION) {
+    return cached.response;
+  }
+  return null;
+}
+
+function setCachedResponse(messageHash: string, response: string): void {
+  responseCache.set(messageHash, { response, timestamp: Date.now() });
+}
+
+function getMessageHash(message: string): string {
+  return message
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s]/g, "")
+    .slice(0, 100);
 }
 
 // Function to preload and cache system prompt
@@ -123,7 +161,7 @@ function truncateToTokenLimit(text: string, maxTokens: number): string {
 }
 
 // Read system prompt from experience.txt file with token management
-async function getSystemPrompt(maxTokens: number = 4000): Promise<string> {
+async function getSystemPrompt(maxTokens: number = 2000): Promise<string> {
   // Use cache if available and valid
   if (isCacheValid() && systemPromptCache) {
     console.log("DEBUG: Using cached system prompt");
@@ -465,7 +503,7 @@ ${content.substring(0, 2000)} // Limit to first 2000 chars for efficiency
 Return only the position title or "NO_POSITION_FOUND":`;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo", // Faster model for simple extraction
       messages: [{ role: "user", content: positionPrompt }],
       max_tokens: 100,
       temperature: 0.1,
@@ -642,7 +680,7 @@ Message: "${message}"
 Return only the JSON object:`;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo", // Faster model for simple extraction
       messages: [{ role: "user", content: extractionPrompt }],
       max_tokens: 200,
       temperature: 0.1,
@@ -1605,6 +1643,17 @@ You can also scroll down to see his full project portfolio and work experience o
         }
       : detectContactIntent(message, history);
 
+    // Check cache for common responses first (before expensive processing)
+    const messageHash = getMessageHash(message);
+    const cachedResponse = getCachedResponse(messageHash);
+    if (cachedResponse) {
+      await saveMessageToFirebase(sessionId, "assistant", cachedResponse);
+      return NextResponse.json({
+        response: cachedResponse,
+        cached: true,
+      });
+    }
+
     // Check for fun fact requests first (before expensive processing)
     if (isFunFactRequest(message)) {
       const funFactResponse = getRandomFunFact();
@@ -1756,6 +1805,9 @@ ${history.length > 0 ? `Previous conversation: ${JSON.stringify(history.slice(-5
     const response =
       completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response.";
+
+    // Cache the response for future use
+    setCachedResponse(messageHash, response);
 
     // Save assistant response to Firebase
     await saveMessageToFirebase(sessionId, "assistant", response);

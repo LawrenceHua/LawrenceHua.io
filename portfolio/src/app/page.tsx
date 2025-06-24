@@ -466,6 +466,9 @@ export default function ModernHome() {
   const [showTourInvitation, setShowTourInvitation] = useState(false);
   const [tourInvitationDismissed, setTourInvitationDismissed] = useState(false);
 
+  // Cat easter egg state
+  const [showCats, setShowCats] = useState(false);
+
   // Firebase state
   const [db, setDb] = useState<any>(null);
 
@@ -760,6 +763,10 @@ export default function ModernHome() {
     setContactFormType(formType);
   };
 
+  const handleCatsToggle = (show: boolean) => {
+    setShowCats(show);
+  };
+
   // Tour functions
   const startTour = () => {
     console.log("🚀 Starting tour...");
@@ -772,6 +779,9 @@ export default function ModernHome() {
     setCountdown(0);
     setCurrentCharacterIndex(-2); // Show full text initially
     setIsPaused(false);
+
+    // Turn on cats when tour starts! 🐱
+    setShowCats(true);
 
     // Track tour start
     console.log("📊 About to track tour_start event...");
@@ -1549,6 +1559,9 @@ export default function ModernHome() {
     setCurrentCharacterIndex(0);
     setIsPaused(false);
 
+    // Turn off cats when tour ends! 🐱
+    setShowCats(false);
+
     // Ensure scrolling is restored
     document.body.style.overflow = "unset";
     document.documentElement.style.overflow = "unset";
@@ -1572,7 +1585,7 @@ export default function ModernHome() {
     // Track CTA action
     trackTourEvent("tour_cta_action", "final_cta", tourSteps.length, action);
 
-    // Close tour
+    // Close tour (this will also turn off cats)
     closeTour();
 
     // Trigger the appropriate action immediately since we're already at testimonials
@@ -1739,6 +1752,8 @@ export default function ModernHome() {
     if (showFinalCTA) {
       const timer = setTimeout(() => {
         setShowFinalCTA(false);
+        // Turn off cats when final CTA auto-closes
+        setShowCats(false);
       }, 15000);
 
       return () => clearTimeout(timer);
@@ -1765,7 +1780,7 @@ export default function ModernHome() {
     console.log("🎯 Tour invitation accepted! Starting tour...");
     setShowTourInvitation(false);
     setTourInvitationDismissed(true);
-    startTour();
+    startTour(); // This will automatically turn on cats via startTour function
   };
 
   const handleTourInvitationDismiss = () => {
@@ -1779,7 +1794,12 @@ export default function ModernHome() {
       <ModernNavigation tourActive={isActive} />
 
       {/* Modern Hero Section */}
-      <HeroSection onStartTour={startTour} tourActive={isActive} />
+      <HeroSection
+        onStartTour={startTour}
+        tourActive={isActive}
+        showCats={showCats}
+        onCatsToggle={handleCatsToggle}
+      />
 
       {/* Modern About Section */}
       <AboutSection />
