@@ -672,7 +672,10 @@ export default function AnalyticsPage() {
   ) => {
     // Filter logs by time range
     const filteredLogs = firebaseUsageLogs.filter(
-      (log) => log.timestamp.toDate() >= startDate
+      (log) =>
+        log.timestamp &&
+        log.timestamp.toDate &&
+        log.timestamp.toDate() >= startDate
     );
 
     // Calculate totals
@@ -688,14 +691,16 @@ export default function AnalyticsPage() {
       { reads: number; writes: number; cost: number }
     >();
     filteredLogs.forEach((log) => {
-      const date = log.timestamp.toDate().toISOString().split("T")[0];
-      if (!dailyUsageMap.has(date)) {
-        dailyUsageMap.set(date, { reads: 0, writes: 0, cost: 0 });
+      if (log.timestamp && log.timestamp.toDate) {
+        const date = log.timestamp.toDate().toISOString().split("T")[0];
+        if (!dailyUsageMap.has(date)) {
+          dailyUsageMap.set(date, { reads: 0, writes: 0, cost: 0 });
+        }
+        const dayData = dailyUsageMap.get(date)!;
+        if (log.type === "read") dayData.reads++;
+        if (log.type === "write") dayData.writes++;
+        dayData.cost += log.cost;
       }
-      const dayData = dailyUsageMap.get(date)!;
-      if (log.type === "read") dayData.reads++;
-      if (log.type === "write") dayData.writes++;
-      dayData.cost += log.cost;
     });
 
     const dailyUsage = Array.from(dailyUsageMap.entries())
@@ -934,10 +939,16 @@ export default function AnalyticsPage() {
       (session) => session.startTime >= startDate
     );
     const filteredPageViews = pageViews.filter(
-      (pv) => pv.timestamp.toDate() >= startDate
+      (pv) =>
+        pv.timestamp &&
+        pv.timestamp.toDate &&
+        pv.timestamp.toDate() >= startDate
     );
     const filteredInteractions = interactions.filter(
-      (interaction) => interaction.timestamp.toDate() >= startDate
+      (interaction) =>
+        interaction.timestamp &&
+        interaction.timestamp.toDate &&
+        interaction.timestamp.toDate() >= startDate
     );
 
     // Use filtered data for calculations
@@ -995,8 +1006,10 @@ export default function AnalyticsPage() {
     // Hourly activity
     const hourlyCounts = new Map<number, number>();
     filteredPageViews.forEach((pv) => {
-      const hour = pv.timestamp.toDate().getHours();
-      hourlyCounts.set(hour, (hourlyCounts.get(hour) || 0) + 1);
+      if (pv.timestamp && pv.timestamp.toDate) {
+        const hour = pv.timestamp.toDate().getHours();
+        hourlyCounts.set(hour, (hourlyCounts.get(hour) || 0) + 1);
+      }
     });
     const hourlyActivity = Array.from({ length: 24 }, (_, i) => ({
       hour: i,
@@ -1020,9 +1033,11 @@ export default function AnalyticsPage() {
     }).reverse();
 
     filteredPageViews.forEach((pv) => {
-      const date = pv.timestamp.toDate().toISOString().split("T")[0];
-      if (recentDays.includes(date)) {
-        dailyCounts.set(date, (dailyCounts.get(date) || 0) + 1);
+      if (pv.timestamp && pv.timestamp.toDate) {
+        const date = pv.timestamp.toDate().toISOString().split("T")[0];
+        if (recentDays.includes(date)) {
+          dailyCounts.set(date, (dailyCounts.get(date) || 0) + 1);
+        }
       }
     });
 
@@ -1173,7 +1188,10 @@ export default function AnalyticsPage() {
 
     // Tour Analytics (using real tour events data)
     const filteredTourEvents = tourEvents.filter(
-      (event) => event.timestamp.toDate() >= startDate
+      (event) =>
+        event.timestamp &&
+        event.timestamp.toDate &&
+        event.timestamp.toDate() >= startDate
     );
 
     const tourStarts = filteredTourEvents.filter(
@@ -1332,9 +1350,18 @@ export default function AnalyticsPage() {
         filteredSessions.length > 0
           ? filteredSessions.reduce((sum, session) => {
               const firstInteraction = filteredInteractions
-                .filter((i) => i.sessionId === session.sessionId)
+                .filter(
+                  (i) =>
+                    i.sessionId === session.sessionId &&
+                    i.timestamp &&
+                    i.timestamp.toDate
+                )
                 .sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate())[0];
-              if (firstInteraction) {
+              if (
+                firstInteraction &&
+                firstInteraction.timestamp &&
+                firstInteraction.timestamp.toDate
+              ) {
                 return (
                   sum +
                   (firstInteraction.timestamp.toDate().getTime() -
