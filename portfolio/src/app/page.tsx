@@ -304,6 +304,24 @@ export default function ModernHome() {
   // Firebase state
   const [db, setDb] = useState<any>(null);
 
+  // Mobile debug logging function
+  const debugLog = async (message: string, data?: any) => {
+    console.log(message, data); // Keep console log for desktop
+    try {
+      await fetch("/api/debug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          data: data ? JSON.stringify(data) : undefined,
+          timestamp: Date.now(),
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to send debug log:", error);
+    }
+  };
+
   // Component mount debugging
   useEffect(() => {
     console.log("🏠 ModernHome component mounted");
@@ -608,6 +626,9 @@ export default function ModernHome() {
 
       // For mobile, center the content in the viewport for better visibility
       if (isMobile) {
+        debugLog(
+          `🎯 Mobile detected (width: ${window.innerWidth}), Step: ${currentStep + 1}, Section: ${sectionId}`
+        );
         const viewportHeight = window.innerHeight;
         const elementHeight = elementRect.height;
 
@@ -639,6 +660,8 @@ export default function ModernHome() {
           return;
         } else if (sectionId === "timeline" && currentStep === 3) {
           // Work experience step - position to show work experience section (reduced scroll distance)
+          debugLog("🎯 Mobile Step 4: Looking for work-experience-title");
+
           // Try to find the work experience title element
           const workExperienceTitle = document.getElementById(
             "work-experience-title"
@@ -648,10 +671,17 @@ export default function ModernHome() {
             const workTitleAbsoluteTop = workTitleRect.top + window.pageYOffset;
             // Position the work experience title with reduced offset for mobile (was -150, now -75)
             const finalPosition = workTitleAbsoluteTop - 75;
+            debugLog(
+              "🎯 Mobile Step 4: Found work-experience-title, scrolling to:",
+              { finalPosition, workTitleAbsoluteTop, offset: -75 }
+            );
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
 
+          debugLog(
+            "🎯 Mobile Step 4: work-experience-title not found, using timeline fallback"
+          );
           // Fallback: Look for any work experience elements in the timeline
           const timelineSection = document.getElementById("timeline");
           if (timelineSection) {
@@ -659,12 +689,22 @@ export default function ModernHome() {
             const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
             // Position with reduced scroll distance (was +300, now +150)
             const finalPosition = timelineAbsoluteTop + 150;
+            debugLog(
+              "🎯 Mobile Step 4: Using timeline fallback, scrolling to:",
+              { finalPosition, timelineAbsoluteTop, offset: 150 }
+            );
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
 
+          debugLog("🎯 Mobile Step 4: Using final fallback");
           // Final fallback - more conservative positioning (was +150, now +75)
           const finalPosition = absoluteElementTop + 75;
+          debugLog("🎯 Mobile Step 4: Final fallback, scrolling to:", {
+            finalPosition,
+            absoluteElementTop,
+            offset: 75,
+          });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "projects") {
