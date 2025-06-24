@@ -2150,9 +2150,9 @@ export default function AnalyticsPage() {
                     </div>
                     <div className="text-xs text-gray-300">
                       {session.messages.length > 0 && (
-                        <p className="truncate">
+                        <p className="break-words">
                           <span className="text-blue-400">User:</span>{" "}
-                          {session.messages[0].message?.slice(0, 80)}...
+                          {session.messages[0].message}
                         </p>
                       )}
                     </div>
@@ -3430,7 +3430,7 @@ export default function AnalyticsPage() {
                                       </span>
                                     </div>
 
-                                    {/* Compact Message Content */}
+                                    {/* Full Message Content */}
                                     <div
                                       className={`text-xs leading-relaxed ${
                                         message.role === "user"
@@ -3438,7 +3438,7 @@ export default function AnalyticsPage() {
                                           : "text-gray-100"
                                       }`}
                                     >
-                                      <p className="whitespace-pre-wrap line-clamp-3 break-words">
+                                      <p className="whitespace-pre-wrap break-words">
                                         {message.message}
                                       </p>
                                     </div>
