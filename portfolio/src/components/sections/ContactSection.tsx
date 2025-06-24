@@ -439,12 +439,39 @@ export function ContactSection({
                 transition={{ duration: 0.2 }}
                 className="text-center p-8"
               >
-                <h3 className="mb-4 text-2xl font-bold text-slate-900 dark:text-white">
-                  Choose Contact Method
-                </h3>
-                <p className="text-slate-600 dark:text-slate-300">
-                  Select a contact method from the left to get started
-                </p>
+                {tourActive ? (
+                  <>
+                    <motion.div
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6"
+                    >
+                      <span className="text-3xl">🎯</span>
+                    </motion.div>
+                    <h3 className="mb-4 text-2xl font-bold text-slate-900 dark:text-white">
+                      Finish the Tour to Contact Lawrence!
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-300 mb-6">
+                      Complete the PM experience to unlock full contact options
+                      and connect with Lawrence directly.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                      <div className="flex items-center gap-2 text-sm text-purple-600 dark:text-purple-400">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                        <span>Tour in progress...</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="mb-4 text-2xl font-bold text-slate-900 dark:text-white">
+                      Choose Contact Method
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      Select a contact method from the left to get started
+                    </p>
+                  </>
+                )}
               </motion.div>
             )}
 

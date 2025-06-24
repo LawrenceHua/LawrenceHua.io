@@ -1281,6 +1281,20 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check request size early to prevent memory issues
+    const contentLength = request.headers.get("content-length");
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+
+    if (contentLength && parseInt(contentLength) > maxSize) {
+      return NextResponse.json(
+        {
+          error: "Request too large. Please upload files smaller than 10MB.",
+          maxSize: "10MB",
+        },
+        { status: 413 }
+      );
+    }
+
     const contentType = request.headers.get("content-type") || "";
 
     let message: string;
@@ -1340,6 +1354,18 @@ export async function POST(request: NextRequest) {
       hasFiles = true;
 
       for (const file of files) {
+        // Check individual file size (5MB limit per file)
+        const maxFileSize = 5 * 1024 * 1024; // 5MB per file
+        if (file.size > maxFileSize) {
+          const errorResponse = `❌ **File Too Large**\n\nThe file "${file.name}" (${Math.round(file.size / 1024 / 1024)}MB) exceeds the 5MB limit per file.\n\nPlease compress the file or use a smaller version and try again.`;
+
+          await saveMessageToFirebase(sessionId, "assistant", errorResponse);
+          return NextResponse.json({
+            response: errorResponse,
+            error: "File too large",
+          });
+        }
+
         const fileResult = await getFileContent(file);
 
         if (fileResult.originalFile) {

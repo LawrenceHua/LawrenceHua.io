@@ -465,16 +465,51 @@ export default function PMTour({
     } else if (showFinalCTA) {
       // Lock screen for final CTA popup
       const scrollY = window.scrollY;
+      const documentElement = document.documentElement;
+
+      // More robust background locking
       body.style.position = "fixed";
       body.style.top = `-${scrollY}px`;
+      body.style.left = "0";
+      body.style.right = "0";
       body.style.width = "100%";
       body.style.overflow = "hidden";
+      body.style.touchAction = "none";
+
+      // Also lock document element
+      documentElement.style.overflow = "hidden";
+      documentElement.style.touchAction = "none";
+
+      // Prevent scroll events on window
+      const preventScroll = (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      };
+
+      window.addEventListener("wheel", preventScroll, { passive: false });
+      window.addEventListener("touchmove", preventScroll, { passive: false });
+      window.addEventListener("scroll", preventScroll, { passive: false });
 
       return () => {
+        // Restore styles
         body.style.position = "";
         body.style.top = "";
+        body.style.left = "";
+        body.style.right = "";
         body.style.width = "";
         body.style.overflow = "";
+        body.style.touchAction = "";
+
+        documentElement.style.overflow = "";
+        documentElement.style.touchAction = "";
+
+        // Remove scroll event listeners
+        window.removeEventListener("wheel", preventScroll);
+        window.removeEventListener("touchmove", preventScroll);
+        window.removeEventListener("scroll", preventScroll);
+
+        // Restore scroll position
         window.scrollTo(0, scrollY);
       };
     }

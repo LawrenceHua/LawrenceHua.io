@@ -1828,60 +1828,71 @@ export default function ModernHome() {
       <AnimatePresence>
         {showTourInvitation && !isActive && (
           <motion.div
-            initial={{ opacity: 0, x: 100, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 100, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed top-1/2 right-6 -translate-y-1/2 z-50 max-w-sm"
+            className="fixed inset-0 flex items-center justify-center z-50 p-4"
           >
-            <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-1 rounded-2xl shadow-2xl">
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 relative">
-                {/* Close button */}
-                <button
-                  onClick={handleTourInvitationDismiss}
-                  className="absolute top-3 right-3 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-400 hover:text-gray-600"
-                >
-                  <FiX className="w-4 h-4" />
-                </button>
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={handleTourInvitationDismiss}
+            />
 
-                {/* Content */}
-                <div className="text-center">
-                  {/* Header with Icon */}
-                  <div className="flex items-center justify-center gap-3 mb-4">
-                    <div className="p-3">
-                      <span className="text-2xl">👋</span>
+            {/* Popup Content */}
+            <div className="relative max-w-sm w-full">
+              <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-1 rounded-2xl shadow-2xl">
+                <div className="bg-white dark:bg-gray-900 rounded-xl p-6 relative">
+                  {/* Close button */}
+                  <button
+                    onClick={handleTourInvitationDismiss}
+                    className="absolute top-3 right-3 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-400 hover:text-gray-600"
+                  >
+                    <FiX className="w-4 h-4" />
+                  </button>
+
+                  {/* Content */}
+                  <div className="text-center">
+                    {/* Header with Icon */}
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <div className="p-3">
+                        <span className="text-2xl">👋</span>
+                      </div>
+                      <h3 className="font-bold text-xl text-gray-900 dark:text-white">
+                        Hey there!
+                      </h3>
                     </div>
-                    <h3 className="font-bold text-xl text-gray-900 dark:text-white">
-                      Hey there!
-                    </h3>
+
+                    {/* CTA Button */}
+                    <motion.button
+                      onClick={handleTourInvitationAccept}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    >
+                      <div className="space-y-1">
+                        <div className="text-sm opacity-90">
+                          Let me show you
+                        </div>
+                        <div className="text-lg font-bold text-yellow-300">
+                          4+ Years Of Achievements
+                        </div>
+                        <div className="inline-block bg-white/20 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/30">
+                          <span className="text-sm font-bold">In 1 Minute</span>
+                        </div>
+                      </div>
+                    </motion.button>
                   </div>
 
-                  {/* CTA Button */}
-                  <motion.button
-                    onClick={handleTourInvitationAccept}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-gradient-to-r from-purple-500 to-blue-600 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                  {/* Small dismiss option */}
+                  <button
+                    onClick={handleTourInvitationDismiss}
+                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors w-full text-center"
                   >
-                    <div className="space-y-1">
-                      <div className="text-sm opacity-90">Let me show you</div>
-                      <div className="text-lg font-bold text-yellow-300">
-                        4+ Years Of Achievements
-                      </div>
-                      <div className="inline-block bg-white/20 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/30">
-                        <span className="text-sm font-bold">In 1 Minute</span>
-                      </div>
-                    </div>
-                  </motion.button>
+                    Maybe later
+                  </button>
                 </div>
-
-                {/* Small dismiss option */}
-                <button
-                  onClick={handleTourInvitationDismiss}
-                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors w-full text-center"
-                >
-                  Maybe later
-                </button>
               </div>
             </div>
           </motion.div>
