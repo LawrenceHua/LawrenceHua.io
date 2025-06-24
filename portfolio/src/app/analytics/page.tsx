@@ -1025,7 +1025,9 @@ export default function AnalyticsPage() {
           ? 7
           : timeRange === "30d"
             ? 30
-            : 7;
+            : timeRange === "custom"
+              ? customDays
+              : 7;
     const recentDays = Array.from({ length: dayCount }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - i);
@@ -1529,6 +1531,11 @@ export default function AnalyticsPage() {
         case "30d":
           startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
           break;
+        case "custom":
+          startDate = new Date(
+            now.getTime() - customDays * 24 * 60 * 60 * 1000
+          );
+          break;
         default:
           startDate = new Date(0);
           break;
@@ -1555,7 +1562,7 @@ export default function AnalyticsPage() {
         : a.startTime.getTime() - b.startTime.getTime()
     );
     return filtered;
-  }, [sessions, roleFilter, searchTerm, sortOrder, timeRange]);
+  }, [sessions, roleFilter, searchTerm, sortOrder, timeRange, customDays]);
 
   const loadMoreSessions = async () => {
     if (
