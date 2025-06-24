@@ -1745,42 +1745,18 @@ export default function ModernHome() {
     }
   }, [showFinalCTA]);
 
-  // Tour invitation popup effect - show when reaching skills section or after 10 seconds
+  // Tour invitation popup effect - show after 5 seconds of landing
   useEffect(() => {
     if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
-      // Check if skills section is in viewport
-      const checkSkillsSection = () => {
-        const skillsSection = document.getElementById("skills");
-        if (skillsSection) {
-          const rect = skillsSection.getBoundingClientRect();
-          const isInViewport = rect.top >= 0 && rect.top <= window.innerHeight;
-
-          if (isInViewport && !showTourInvitation) {
-            setShowTourInvitation(true);
-          }
-        }
-      };
-
-      // Show after 10 seconds if tour isn't playing
+      // Simple 5 second timer after landing on the site
       const timer = setTimeout(() => {
         if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
           setShowTourInvitation(true);
         }
-      }, 10000); // Show after 10 seconds
-
-      // Add scroll listener to check for skills section
-      const scrollListener = () => {
-        checkSkillsSection();
-      };
-
-      window.addEventListener("scroll", scrollListener, { passive: true });
-
-      // Check immediately in case already at skills section
-      checkSkillsSection();
+      }, 5000); // Show after 5 seconds
 
       return () => {
         clearTimeout(timer);
-        window.removeEventListener("scroll", scrollListener);
       };
     }
   }, [isActive, tourInvitationDismissed, showFinalCTA, showTourInvitation]);

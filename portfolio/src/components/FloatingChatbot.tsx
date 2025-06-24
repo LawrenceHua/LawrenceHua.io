@@ -29,72 +29,53 @@ export function FloatingChatbot({
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const isMobile = window.innerWidth < 768;
-      const scrollThreshold = isMobile ? 400 : 200; // Higher threshold on mobile
+      // Check if skills section is in viewport
+      const skillsSection = document.getElementById("skills");
+      if (skillsSection && !hasBeenOpened && !permanentlyDismissed) {
+        const rect = skillsSection.getBoundingClientRect();
+        const isInViewport = rect.top >= 0 && rect.top <= window.innerHeight;
 
-      if (
-        scrollTop > scrollThreshold &&
-        !hasScrolled &&
-        !hasBeenOpened &&
-        !permanentlyDismissed
-      ) {
-        setHasScrolled(true);
-        setShowPopup(true);
+        if (isInViewport && !showPopup) {
+          setShowPopup(true);
+          setHasScrolled(true);
 
-        // Hide popup after shorter time on mobile
-        setTimeout(
-          () => {
+          // Hide popup after time
+          setTimeout(() => {
             setShowPopup(false);
-          },
-          isMobile ? 10000 : 20000
-        );
-      }
-
-      // Show popup again after more scrolling if dismissed fewer than 1 time (reduced from 2)
-      if (
-        scrollTop > (isMobile ? 1000 : 800) &&
-        dismissCount < 1 &&
-        !showPopup &&
-        hasScrolled &&
-        !hasBeenOpened &&
-        !permanentlyDismissed
-      ) {
-        setShowPopup(true);
-
-        // Hide popup after shorter time
-        setTimeout(
-          () => {
-            setShowPopup(false);
-          },
-          isMobile ? 8000 : 15000
-        );
+          }, 15000);
+        }
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [
-    hasScrolled,
-    dismissCount,
-    showPopup,
-    hasBeenOpened,
-    permanentlyDismissed,
-  ]);
+  }, [hasBeenOpened, permanentlyDismissed, showPopup]);
 
-  // Show popup again after 30 seconds of page time if not opened yet
+  // Show popup after 10 seconds if still on about/above sections
   useEffect(() => {
     if (dismissCount < 1 && !hasBeenOpened && !permanentlyDismissed) {
       const timer = setTimeout(() => {
         if (!isOpen && !showPopup) {
-          setShowPopup(true);
+          // Check if user is still in the upper sections (home/about)
+          const aboutSection = document.getElementById("about");
+          const skillsSection = document.getElementById("skills");
 
-          // Hide popup after 15 seconds
-          setTimeout(() => {
-            setShowPopup(false);
-          }, 15000);
+          if (aboutSection && skillsSection) {
+            const skillsRect = skillsSection.getBoundingClientRect();
+            // Only show popup if user is still above skills section
+            const isInUpperSections = skillsRect.top > 0;
+
+            if (isInUpperSections) {
+              setShowPopup(true);
+
+              // Hide popup after 15 seconds
+              setTimeout(() => {
+                setShowPopup(false);
+              }, 15000);
+            }
+          }
         }
-      }, 30000);
+      }, 10000); // Show after 10 seconds
 
       return () => clearTimeout(timer);
     }
