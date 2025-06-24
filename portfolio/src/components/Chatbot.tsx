@@ -592,7 +592,10 @@ What would you like to know?`,
     try {
       const formData = new FormData();
       formData.append("message", messageText);
-      formData.append("history", JSON.stringify(currentMessages.slice(0, -1))); // Exclude the last message we just added
+      formData.append(
+        "history",
+        JSON.stringify(currentMessages.slice(-250, -1))
+      ); // Only send last 250 messages, exclude the last message we just added
       formData.append("sessionId", getSessionId());
 
       const response = await fetch("/api/chatbot", {
@@ -881,7 +884,7 @@ What would you like to know?`,
     if (selectedFiles.length > 0) {
       const formData = new FormData();
       formData.append("message", input);
-      formData.append("history", JSON.stringify(messages));
+      formData.append("history", JSON.stringify(messages.slice(-250))); // Only send last 250 messages
       formData.append("sessionId", getSessionId());
       selectedFiles.forEach((file) => {
         formData.append("files", file);

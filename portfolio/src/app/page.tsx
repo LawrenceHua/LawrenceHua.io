@@ -1748,9 +1748,6 @@ export default function ModernHome() {
   // Tour invitation popup effect - show when reaching skills section or after 10 seconds
   useEffect(() => {
     if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
-      let timer: NodeJS.Timeout;
-      let scrollListener: () => void;
-
       // Check if skills section is in viewport
       const checkSkillsSection = () => {
         const skillsSection = document.getElementById("skills");
@@ -1765,14 +1762,14 @@ export default function ModernHome() {
       };
 
       // Show after 10 seconds if tour isn't playing
-      timer = setTimeout(() => {
+      const timer = setTimeout(() => {
         if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
           setShowTourInvitation(true);
         }
       }, 10000); // Show after 10 seconds
 
       // Add scroll listener to check for skills section
-      scrollListener = () => {
+      const scrollListener = () => {
         checkSkillsSection();
       };
 

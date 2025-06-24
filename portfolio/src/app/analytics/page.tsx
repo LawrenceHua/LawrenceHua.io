@@ -313,7 +313,7 @@ export default function AnalyticsPage() {
     docCount: number = 1
   ) {
     if (typeof window !== "undefined") {
-      const newReads = firebaseReads + 1;
+      const newReads = firebaseReads + docCount;
       setFirebaseReads(newReads);
       sessionStorage.setItem("firebaseReads", newReads.toString());
 
@@ -328,7 +328,7 @@ export default function AnalyticsPage() {
     docCount: number = 1
   ) {
     if (typeof window !== "undefined") {
-      const newWrites = firebaseWrites + 1;
+      const newWrites = firebaseWrites + docCount;
       setFirebaseWrites(newWrites);
       sessionStorage.setItem("firebaseWrites", newWrites.toString());
 
@@ -612,8 +612,10 @@ export default function AnalyticsPage() {
   // Estimate Firebase costs for a refresh
   const estimateRefreshCost = () => {
     // Firebase Firestore pricing: ~$0.36 per 100K reads, $1.08 per 100K writes
-    // We typically do 3 reads per refresh (messages, page_views, interactions)
-    const estimatedReads = 3;
+    // Estimate based on typical document counts: ~50-200 documents per collection
+    const estimatedDocsPerCollection = 100; // Conservative estimate
+    const collectionsToRead = 4; // messages, page_views, interactions, tour_events
+    const estimatedReads = estimatedDocsPerCollection * collectionsToRead;
     const estimatedWrites = 0; // Refresh only reads data
 
     return {
@@ -679,10 +681,12 @@ export default function AnalyticsPage() {
     );
 
     // Calculate totals
-    const totalReads = filteredLogs.filter((log) => log.type === "read").length;
-    const totalWrites = filteredLogs.filter(
-      (log) => log.type === "write"
-    ).length;
+    const totalReads = filteredLogs
+      .filter((log) => log.type === "read")
+      .reduce((sum, log) => sum + (log.documentCount || 1), 0);
+    const totalWrites = filteredLogs
+      .filter((log) => log.type === "write")
+      .reduce((sum, log) => sum + (log.documentCount || 1), 0);
     const totalCost = filteredLogs.reduce((sum, log) => sum + log.cost, 0);
 
     // Calculate daily usage
@@ -697,8 +701,9 @@ export default function AnalyticsPage() {
           dailyUsageMap.set(date, { reads: 0, writes: 0, cost: 0 });
         }
         const dayData = dailyUsageMap.get(date)!;
-        if (log.type === "read") dayData.reads++;
-        if (log.type === "write") dayData.writes++;
+        const docCount = log.documentCount || 1;
+        if (log.type === "read") dayData.reads += docCount;
+        if (log.type === "write") dayData.writes += docCount;
         dayData.cost += log.cost;
       }
     });
@@ -744,9 +749,13 @@ export default function AnalyticsPage() {
     const startTime = Date.now();
 
     try {
-      // Fetch chat messages
+      // Fetch chat messages (limit to last 250 for cost optimization)
       const messagesRef = collection(db, "chatbot_messages");
-      let messagesQuery = query(messagesRef, orderBy("timestamp", "desc"));
+      let messagesQuery = query(
+        messagesRef,
+        orderBy("timestamp", "desc"),
+        limit(250)
+      );
 
       if (append && lastSessionTimestamp) {
         messagesQuery = query(
@@ -886,8 +895,13 @@ export default function AnalyticsPage() {
       // Update cost tracking
       const endTime = Date.now();
       const duration = endTime - startTime;
+      const totalDocsRead =
+        messagesSnap.docs.length +
+        pageViewsSnap.docs.length +
+        interactionsSnap.docs.length +
+        tourEventsSnap.docs.length;
       setRefreshCost({
-        reads: 3, // We made 3 read operations
+        reads: totalDocsRead, // Actual documents read
         writes: 0,
       });
       setLastRefreshTime(new Date());

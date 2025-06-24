@@ -1705,7 +1705,7 @@ You can also scroll down to see his full project portfolio and work experience o
     const enhancedSystemPrompt = `${systemPrompt}
 
 **CONVERSATION CONTEXT:**
-${history.length > 0 ? `Previous conversation: ${JSON.stringify(history.slice(-3))}` : "This is the start of the conversation."}
+${history.length > 0 ? `Previous conversation: ${JSON.stringify(history.slice(-5))}` : "This is the start of the conversation."}
 
 **RESPONSE GUIDELINES:**
 - Be conversational and natural, not robotic
