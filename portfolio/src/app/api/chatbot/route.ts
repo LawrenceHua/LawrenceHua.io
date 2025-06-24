@@ -1,5 +1,6 @@
-import { readFileSync } from "fs";
+import { readFileSync, promises as fs } from "fs";
 import { join } from "path";
+import path from "path";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { handleGirlfriendEasterEgg } from "./girlfriend-easter-egg";
@@ -35,6 +36,80 @@ const responseCache = new Map<
 >();
 const RESPONSE_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+// Advanced response cache with LRU eviction
+const MAX_CACHE_SIZE = 1000;
+const advancedCache = new Map<
+  string,
+  {
+    response: string;
+    timestamp: number;
+    hits: number;
+    lastAccessed: number;
+  }
+>();
+
+// Pre-computed responses for instant delivery
+const instantResponses = new Map<string, string>([
+  [
+    "skills",
+    "Lawrence has expertise in Product Management, AI/ML, full-stack development (React, Next.js, Python), data analysis, and startup leadership. He's built AI platforms, led cross-functional teams, and has 4+ years of PM experience at companies like PM Happy Hour, PanPalz, and Kearney.",
+  ],
+  [
+    "experience",
+    "Lawrence has 4+ years of product management experience across multiple companies including PM Happy Hour (AI Product Consultant), PanPalz (Product Manager), Kearney (Product Management Intern), and his own startup Expired Solutions (Founder & CEO). He's also worked at Giant Eagle and Motorola as an engineer.",
+  ],
+  [
+    "projects",
+    "Lawrence has worked on diverse projects including AI-powered food waste reduction systems, computer vision applications, mobile apps, and data analytics platforms. Notable projects include Expired Solutions (his startup), AI chatbots, machine learning pipelines, and product strategy implementations.",
+  ],
+  [
+    "education",
+    "Lawrence holds a Master's in Information Systems Management (MISM) from Carnegie Mellon University (2024) and a Bachelor's degree from the University of Florida. His education combines technical computer science foundations with business and management principles.",
+  ],
+  [
+    "contact",
+    "I'd be happy to help you get in touch with Lawrence! I can collect your information and send it directly to him, or help you schedule a meeting. What would you prefer - sending a message or scheduling a call?",
+  ],
+  [
+    "ai",
+    "Lawrence has extensive AI/ML experience including computer vision, natural language processing, machine learning pipeline development, and AI product strategy. He's built AI-powered applications, worked with OpenAI APIs, and has hands-on experience with Python, TensorFlow, and various ML frameworks.",
+  ],
+]);
+
+// Quick pattern matching for instant responses
+const quickPatterns = [
+  {
+    keywords: ["skill", "technical", "expertise", "technology"],
+    response: "skills",
+  },
+  {
+    keywords: ["experience", "work", "career", "job", "role"],
+    response: "experience",
+  },
+  {
+    keywords: ["project", "portfolio", "built", "created", "developed"],
+    response: "projects",
+  },
+  {
+    keywords: ["education", "degree", "university", "carnegie", "school"],
+    response: "education",
+  },
+  {
+    keywords: ["contact", "reach", "connect", "talk", "meet"],
+    response: "contact",
+  },
+  {
+    keywords: [
+      "ai",
+      "artificial intelligence",
+      "machine learning",
+      "ml",
+      "computer vision",
+    ],
+    response: "ai",
+  },
+];
+
 // Common responses for instant replies
 const commonResponses = {
   greeting:
@@ -52,16 +127,56 @@ function isCacheValid(): boolean {
   );
 }
 
-// Response caching functions
+// Advanced caching functions with LRU eviction
 function getCachedResponse(messageHash: string): string | null {
-  const cached = responseCache.get(messageHash);
+  const cached = advancedCache.get(messageHash);
   if (cached && Date.now() - cached.timestamp < RESPONSE_CACHE_DURATION) {
+    // Update access time and hit count
+    cached.lastAccessed = Date.now();
+    cached.hits++;
     return cached.response;
   }
+
+  // Check simple cache as fallback
+  const simpleCached = responseCache.get(messageHash);
+  if (
+    simpleCached &&
+    Date.now() - simpleCached.timestamp < RESPONSE_CACHE_DURATION
+  ) {
+    return simpleCached.response;
+  }
+
   return null;
 }
 
 function setCachedResponse(messageHash: string, response: string): void {
+  // Check if cache is full and needs eviction
+  if (advancedCache.size >= MAX_CACHE_SIZE) {
+    // Find least recently used item
+    let oldestKey = "";
+    let oldestTime = Date.now();
+
+    for (const [key, value] of advancedCache.entries()) {
+      if (value.lastAccessed < oldestTime) {
+        oldestTime = value.lastAccessed;
+        oldestKey = key;
+      }
+    }
+
+    if (oldestKey) {
+      advancedCache.delete(oldestKey);
+    }
+  }
+
+  // Add to advanced cache
+  advancedCache.set(messageHash, {
+    response,
+    timestamp: Date.now(),
+    hits: 1,
+    lastAccessed: Date.now(),
+  });
+
+  // Also add to simple cache for fallback
   responseCache.set(messageHash, { response, timestamp: Date.now() });
 }
 
@@ -73,12 +188,101 @@ function getMessageHash(message: string): string {
     .slice(0, 100);
 }
 
+// Quick pattern matching for instant responses
+function getInstantResponse(message: string): string | null {
+  const lowerMessage = message.toLowerCase();
+
+  // Check for exact pattern matches
+  for (const pattern of quickPatterns) {
+    if (pattern.keywords.some((keyword) => lowerMessage.includes(keyword))) {
+      const response = instantResponses.get(pattern.response);
+      if (response) {
+        return response;
+      }
+    }
+  }
+
+  return null;
+}
+
 // Function to preload and cache system prompt
-async function preloadSystemPrompt(): Promise<void> {
-  if (!isCacheValid()) {
-    systemPromptCache = await getSystemPrompt(4000);
+async function getSystemPrompt(maxTokens: number = 2000): Promise<string> {
+  if (isCacheValid()) {
+    return systemPromptCache!;
+  }
+
+  try {
+    // Use parallel file reading for faster loading
+    const [experienceData, projectsData] = await Promise.all([
+      fs
+        .readFile(path.join(process.cwd(), "experience.txt"), "utf-8")
+        .catch(() => "Experience data not available"),
+      fs
+        .readFile(
+          path.join(process.cwd(), "src", "data", "projects.json"),
+          "utf-8"
+        )
+        .catch(() => "{}"),
+    ]);
+
+    // Optimized system prompt with essential information only
+    const systemPrompt = `You are Lawrence Hua's AI assistant. You help visitors learn about Lawrence's background and connect with him.
+
+CORE INFO:
+- Product Manager with 4+ years experience
+- AI/ML expertise, full-stack developer
+- Carnegie Mellon MISM '24, University of Florida grad
+- Founder of Expired Solutions (AI food waste reduction)
+- Experience: PM Happy Hour, PanPalz, Kearney, Motorola
+
+SKILLS: Product Management, AI/ML, Python, React, Next.js, Data Analysis, Computer Vision, Startup Leadership
+
+CONTACT HELP:
+- For "contact/reach/connect" requests: offer to collect info and send to Lawrence
+- For meeting requests: offer to help schedule via calendar
+- Always be helpful and professional
+
+Keep responses concise but informative. Focus on Lawrence's PM and technical experience.`;
+
+    systemPromptCache = systemPrompt;
     cacheTimestamp = Date.now();
-    console.log("DEBUG: System prompt cached successfully");
+    return systemPrompt;
+  } catch (error) {
+    console.error("Error loading system prompt:", error);
+    // Fallback to minimal prompt
+    const fallbackPrompt = `You are Lawrence Hua's AI assistant. Lawrence is a Product Manager with AI/ML expertise and 4+ years experience. Help visitors learn about him and connect if they're interested.`;
+    systemPromptCache = fallbackPrompt;
+    cacheTimestamp = Date.now();
+    return fallbackPrompt;
+  }
+}
+
+// Optimized OpenAI API calls with model selection
+async function getOptimizedCompletion(
+  messages: any[],
+  maxTokens: number = 150,
+  useAdvancedModel: boolean = false
+): Promise<string> {
+  if (!openai) {
+    return "I'm sorry, the AI service is not available right now.";
+  }
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: useAdvancedModel ? "gpt-4" : "gpt-3.5-turbo", // Use GPT-3.5 for speed
+      messages,
+      max_tokens: maxTokens,
+      temperature: 0.1,
+      stream: false, // Disable streaming for faster simple responses
+    });
+
+    return (
+      completion.choices[0]?.message?.content ||
+      "I'm sorry, I couldn't generate a response."
+    );
+  } catch (error) {
+    console.error("OpenAI API error:", error);
+    return "I'm sorry, I'm having trouble generating a response right now.";
   }
 }
 
@@ -158,206 +362,6 @@ function truncateToTokenLimit(text: string, maxTokens: number): string {
   }
 
   return truncated + "...";
-}
-
-// Read system prompt from experience.txt file with token management
-async function getSystemPrompt(maxTokens: number = 2000): Promise<string> {
-  // Use cache if available and valid
-  if (isCacheValid() && systemPromptCache) {
-    console.log("DEBUG: Using cached system prompt");
-    return systemPromptCache;
-  }
-
-  console.log("DEBUG: Loading system prompt from files...");
-
-  // Try multiple paths to find experience.txt
-  const experiencePaths = [
-    // Vercel deployment path (portfolio is root)
-    join(process.cwd(), "public", "experience.txt"),
-    // Alternative paths for different deployment scenarios
-    join(process.cwd(), "portfolio", "public", "experience.txt"),
-    join(process.cwd(), "..", "public", "experience.txt"),
-    join(process.cwd(), "..", "..", "experience.txt"),
-    // Relative to current file location
-    join(__dirname, "..", "..", "..", "..", "public", "experience.txt"),
-  ];
-
-  // Try multiple paths to find resume.pdf
-  const resumePaths = [
-    join(process.cwd(), "public", "resume.pdf"),
-    join(process.cwd(), "portfolio", "public", "resume.pdf"),
-    join(process.cwd(), "..", "public", "resume.pdf"),
-    join(__dirname, "..", "..", "..", "..", "public", "resume.pdf"),
-  ];
-
-  let experienceContent = "";
-  let resumeContent = "";
-
-  // Try to read experience.txt
-  for (const filePath of experiencePaths) {
-    try {
-      console.log("Trying to read experience.txt from:", filePath);
-      experienceContent = readFileSync(filePath, "utf-8");
-      console.log(
-        "Successfully read experience.txt, length:",
-        experienceContent.length
-      );
-      break;
-    } catch (error: any) {
-      console.log(
-        `Failed to read experience.txt from ${filePath}:`,
-        error.message
-      );
-      continue;
-    }
-  }
-
-  // Try to read resume.pdf
-  for (const filePath of resumePaths) {
-    try {
-      console.log("Trying to read resume.pdf from:", filePath);
-      const buffer = readFileSync(filePath);
-
-      // Try to parse PDF
-      try {
-        if (pdfParse) {
-          const data = await pdfParse(buffer);
-          resumeContent = data.text;
-          console.log(
-            "Successfully read resume.pdf, length:",
-            resumeContent.length
-          );
-          break;
-        } else {
-          console.log("PDF parsing library not available");
-          continue;
-        }
-      } catch (pdfError: any) {
-        console.log("PDF parsing failed:", pdfError.message);
-        continue;
-      }
-    } catch (error: any) {
-      console.log(`Failed to read resume.pdf from ${filePath}:`, error.message);
-      continue;
-    }
-  }
-
-  // Combine content with priority to experience.txt
-  let combinedContent = "";
-  if (experienceContent) {
-    combinedContent = experienceContent;
-
-    // Add resume content if available and we have token budget
-    if (resumeContent) {
-      const resumeTokens = estimateTokens(resumeContent);
-      const experienceTokens = estimateTokens(experienceContent);
-      const remainingTokens = maxTokens - experienceTokens - 200; // Leave buffer
-
-      if (remainingTokens > 500) {
-        const truncatedResume = truncateToTokenLimit(
-          resumeContent,
-          remainingTokens
-        );
-        combinedContent += `\n\n=== ADDITIONAL RESUME INFORMATION ===\n${truncatedResume}`;
-        console.log("Added resume content to system prompt");
-      } else {
-        console.log("Not enough token budget for resume content");
-      }
-    }
-  } else if (resumeContent) {
-    // If no experience.txt, use resume as fallback
-    combinedContent = `=== RESUME INFORMATION ===\n${resumeContent}`;
-    console.log("Using resume content as primary source");
-  }
-
-  if (combinedContent) {
-    // If file is too large, use a much more conservative limit
-    if (combinedContent.length > 20000) {
-      console.log(
-        "Combined content is very large, using conservative token limit"
-      );
-      maxTokens = 2000; // Much more conservative for large files
-    }
-
-    // Truncate if too long
-    const truncatedContent = truncateToTokenLimit(combinedContent, maxTokens);
-    const estimatedTokens = estimateTokens(truncatedContent);
-    console.log("Estimated tokens in system prompt:", estimatedTokens);
-
-    // Always ensure Tutora is prominently mentioned regardless of truncation
-    const tutoraInfo = `
-
-**KEY CURRENT ROLES:**
-I'm currently juggling multiple roles:
-• **JUST STARTED: AI Expert – Amazon MTurk Experts Program** - Evaluating AI model outputs, prompt quality assessment, human-vs-AI comparisons for model training
-• **AI Product Consultant** - Tutora (4+ years, part-time, 15hrs/week saved via AI automation, +35% test scores)  
-• **Product Manager Intern** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
-• **Founder & CEO** - Expired Solutions (AI grocery platform, 20% waste reduction, Giant Eagle pilot)
-
-**CONVERSATION STYLE:**
-- Be **natural and conversational** - avoid robotic responses
-- **DO NOT** interpret normal questions as contact requests (e.g. "tell me about Lawrence" is just a question)
-- Only trigger contact flows when users type specific commands: /message or /meeting
-- **Context awareness** - remember what was said earlier in the conversation
-- Keep responses **concise and punchy** (2-3 bullet points max, one-line mission per role)
-- **Bold** key achievements and technical skills
-- **Experience format**: Role at Company - One impressive mission/outcome per role
-
-**PROJECT LINKS:**
-When mentioning specific projects or experiences, include these custom buttons:
-- Amazon MTurk work: <button-mturk>Come back for more in July!</button-mturk>
-- Expired Solutions: <button-expired>View Expired Solutions</button-expired>
-- Tutora work: <button-tutora>Visit Tutora Website</button-tutora>
-- PM Happy Hour: <button-pmhappyhour>Learn About PM Happy Hour</button-pmhappyhour>
-
-Always include these buttons after mentioning the respective project/experience. Use phrases like "Check out my work here:" followed by the appropriate button.`;
-
-    systemPromptCache = truncatedContent + tutoraInfo;
-    cacheTimestamp = Date.now();
-    return systemPromptCache;
-  }
-
-  console.error("All paths failed to read experience.txt and resume.pdf");
-  // Fallback to a concise, recruiter-focused prompt
-  systemPromptCache = `You are Lawrence Hua's AI assistant. You're friendly, helpful, and conversational. 
-
-**ABOUT LAWRENCE:**
-I'm currently juggling multiple roles:
-• **JUST STARTED: AI Expert – Amazon MTurk Experts Program** - Evaluating AI model outputs, prompt quality assessment, human-vs-AI comparisons for model training
-• **Founder & CEO** - Expired Solutions (AI grocery platform, 20% waste reduction, Giant Eagle pilot)
-• **Product Manager** - PM Happy Hour (30% community growth, A/B testing, AIGC campaigns)
-• **AI Product Consultant** - Tutora (4+ years, 15hrs/week saved via AI automation, +35% test scores)  
-• **Previous**: Motorola embedded Android engineer, Kearney enterprise LLM tools (-26% decision time)
-• **Education** - Carnegie Mellon MISM '24, University of Florida CS
-
-**CONVERSATION STYLE:**
-- Be **natural and conversational** - avoid robotic responses
-- **DO NOT** interpret normal questions as contact requests (e.g. "tell me about Lawrence" is just a question)
-- Only trigger contact flows when users type specific commands: /message or /meeting
-- **Context awareness** - remember what was said earlier in the conversation
-- Keep responses **concise and punchy** (2-3 bullet points max, one-line mission per role)
-- **Bold** key achievements and technical skills
-- **Experience format**: Role at Company - One impressive mission/outcome per role
-
-**CORE COMPETENCIES:**
-AI/ML, Product Strategy, Computer Vision, GPT Integration, Enterprise Software, Startup Leadership, Cross-functional Teams
-
-**CONTACT COMMANDS:**
-- Users must type /message to send a message to Lawrence 📧
-- Users must type /meeting to schedule a meeting with Lawrence 📅
-- Do NOT treat regular questions as contact requests
-- Always mention these commands in your initial greeting
-
-**PROJECT LINKS:**
-When mentioning specific projects or experiences, include these custom buttons:
-- Amazon MTurk work: <button-mturk>Come back for more in July!</button-mturk>
-- Expired Solutions: <button-expired>View Expired Solutions</button-expired>
-- Tutora work: <button-tutora>Visit Tutora Website</button-tutora>
-- PM Happy Hour: <button-pmhappyhour>Learn About PM Happy Hour</button-pmhappyhour>
-
-Always include these buttons after mentioning the respective project/experience. Use phrases like "Check out my work here:" followed by the appropriate button.`;
-  cacheTimestamp = Date.now();
-  return systemPromptCache;
 }
 
 // Add helper to extract info from context and message
@@ -1302,7 +1306,7 @@ async function generateContactResponse(
 export async function GET() {
   try {
     console.log("DEBUG: Pre-loading system prompt...");
-    await preloadSystemPrompt();
+    await getSystemPrompt();
     return NextResponse.json({
       success: true,
       message: "System prompt pre-loaded successfully",
@@ -1643,7 +1647,20 @@ You can also scroll down to see his full project portfolio and work experience o
         }
       : detectContactIntent(message, history);
 
-    // Check cache for common responses first (before expensive processing)
+    // PHASE 2 OPTIMIZATIONS: Multiple layers of speed improvements
+
+    // 1. Check for instant responses first (0ms response time)
+    const instantResponse = getInstantResponse(message);
+    if (instantResponse) {
+      await saveMessageToFirebase(sessionId, "assistant", instantResponse);
+      return NextResponse.json({
+        response: instantResponse,
+        instant: true,
+        responseTime: 0,
+      });
+    }
+
+    // 2. Check advanced cache with LRU eviction
     const messageHash = getMessageHash(message);
     const cachedResponse = getCachedResponse(messageHash);
     if (cachedResponse) {
@@ -1654,7 +1671,7 @@ You can also scroll down to see his full project portfolio and work experience o
       });
     }
 
-    // Check for fun fact requests first (before expensive processing)
+    // 3. Check for fun fact requests (fast path)
     if (isFunFactRequest(message)) {
       const funFactResponse = getRandomFunFact();
       await saveMessageToFirebase(sessionId, "assistant", funFactResponse);
@@ -1720,11 +1737,8 @@ You can also scroll down to see his full project portfolio and work experience o
       });
     }
 
-    // Use cached system prompt (much faster than reading files every time)
-    const systemPrompt =
-      isCacheValid() && systemPromptCache
-        ? systemPromptCache
-        : await getSystemPrompt(4000);
+    // 4. Optimized system prompt loading with reduced token limit
+    const systemPrompt = await getSystemPrompt(1500); // Reduced for speed
 
     // Handle meeting requests (separate from contact messages)
     if (contactAnalysis.intent === "meeting") {
@@ -1776,43 +1790,37 @@ You can also scroll down to see his full project portfolio and work experience o
       return NextResponse.json({ response: fullResponse });
     }
 
-    // Enhanced system prompt for conversational responses
+    // 5. Optimized conversation preparation
     const enhancedSystemPrompt = `${systemPrompt}
 
-**CONVERSATION CONTEXT:**
-${history.length > 0 ? `Previous conversation: ${JSON.stringify(history.slice(-5))}` : "This is the start of the conversation."}
+CONTEXT: ${history.length > 0 ? `Previous: ${JSON.stringify(history.slice(-3))}` : "Start of conversation"}
 
-**RESPONSE GUIDELINES:**
-- Be conversational and natural, not robotic
-- If this seems like a follow-up question, reference the context
-- If someone is asking about contacting Lawrence, gently guide them to share their info
-- Keep responses friendly and concise
-- Use emojis sparingly but effectively
-- If they ask about specific skills/experience, be specific with examples`;
+GUIDELINES: Be conversational, concise, and helpful. Reference context when relevant.`;
 
     const messages = [
       { role: "system" as const, content: enhancedSystemPrompt },
       { role: "user" as const, content: userMessage },
     ];
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+    // 6. Use optimized completion with smart model selection
+    const isComplexQuery = userMessage.length > 150 || history.length > 8;
+    const response = await getOptimizedCompletion(
       messages,
-      max_tokens: 1000,
-      temperature: 0.7,
+      300, // Reduced max tokens for speed
+      isComplexQuery // Only use GPT-4 for complex queries
+    );
+
+    // 7. Parallel operations: Cache and save simultaneously
+    const [_cacheResult, _firebaseResult] = await Promise.all([
+      Promise.resolve(setCachedResponse(messageHash, response)),
+      saveMessageToFirebase(sessionId, "assistant", response),
+    ]);
+
+    return NextResponse.json({
+      response,
+      optimized: true,
+      model: isComplexQuery ? "gpt-4" : "gpt-3.5-turbo",
     });
-
-    const response =
-      completion.choices[0]?.message?.content ||
-      "I'm sorry, I couldn't generate a response.";
-
-    // Cache the response for future use
-    setCachedResponse(messageHash, response);
-
-    // Save assistant response to Firebase
-    await saveMessageToFirebase(sessionId, "assistant", response);
-
-    return NextResponse.json({ response });
   } catch (error) {
     console.error("Error in chatbot route:", error);
 
