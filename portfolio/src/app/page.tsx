@@ -669,13 +669,13 @@ export default function ModernHome() {
           if (skillsSection) {
             const skillsRect = skillsSection.getBoundingClientRect();
             const skillsAbsoluteTop = skillsRect.top + window.pageYOffset;
-            // Position at the bottom of the skills section + some extra to show before Professional Journey
-            const finalPosition = skillsAbsoluteTop + skillsRect.height - 200;
+            // Position at the bottom of the skills section + some extra to show before Professional Journey (reduced to scroll less)
+            const finalPosition = skillsAbsoluteTop + skillsRect.height - 400;
             debugLog("🛠️ Step 2: Skills section bottom positioning", {
               finalPosition,
               skillsAbsoluteTop,
               skillsHeight: skillsRect.height,
-              offset: -200,
+              offset: -400,
             });
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
@@ -686,23 +686,67 @@ export default function ModernHome() {
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "timeline" && actualStep === 2) {
-          // Education step - focus on bottom of education gallery
-          // Find the last education item to position at the bottom of education section
-          const educationItems = document.querySelectorAll(
+          // Step 3: Education step - focus on education section
+          debugLog("🎓 Step 3: Scrolling to education section");
+
+          // Try multiple selectors to find education items
+          let educationItems = document.querySelectorAll(
             '[id^="timeline-university"], [id^="timeline-carnegie"], [id^="timeline-spanish"]'
           );
+
+          // If first selector doesn't work, try broader selectors
+          if (educationItems.length === 0) {
+            educationItems = document.querySelectorAll(
+              '[id*="university"], [id*="carnegie"]'
+            );
+          }
+
+          debugLog("🎓 Step 3: Education items found", {
+            count: educationItems.length,
+            firstSelector:
+              '[id^="timeline-university"], [id^="timeline-carnegie"], [id^="timeline-spanish"]',
+          });
+
           if (educationItems.length > 0) {
             const lastEducationItem = educationItems[educationItems.length - 1];
             const lastItemRect = lastEducationItem.getBoundingClientRect();
             const lastItemAbsoluteTop = lastItemRect.top + window.pageYOffset;
-            // Position to show the bottom of the education section
+            // Position to show the education section
             const finalPosition =
-              lastItemAbsoluteTop + lastItemRect.height - 200;
+              lastItemAbsoluteTop + lastItemRect.height - 300;
+            debugLog("🎓 Step 3: Education positioning successful", {
+              finalPosition,
+              lastItemAbsoluteTop,
+              lastItemHeight: lastItemRect.height,
+              offset: -300,
+            });
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
-          // Fallback positioning
-          const finalPosition = absoluteElementTop - 150;
+
+          // Enhanced fallback - look for education section specifically
+          debugLog(
+            "🎓 Step 3: Education items not found, trying timeline section"
+          );
+          const timelineSection = document.getElementById("timeline");
+          if (timelineSection) {
+            const timelineRect = timelineSection.getBoundingClientRect();
+            const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
+            // Position at the top half of timeline (education section)
+            const finalPosition = timelineAbsoluteTop + 200;
+            debugLog("🎓 Step 3: Timeline education fallback", {
+              finalPosition,
+              timelineAbsoluteTop,
+              offset: 200,
+            });
+            window.scrollTo({ top: finalPosition, behavior: "smooth" });
+            return;
+          }
+
+          // Final fallback
+          debugLog("🎓 Step 3: Using final fallback positioning");
+          const finalPosition = absoluteElementTop + 200;
+          debugLog("🎓 Step 3: Final fallback", { finalPosition });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "timeline" && actualStep === 3) {
@@ -796,13 +840,32 @@ export default function ModernHome() {
         if (skillsSection) {
           const skillsRect = skillsSection.getBoundingClientRect();
           const skillsAbsoluteTop = skillsRect.top + window.pageYOffset;
-          // Position at the bottom of the skills section for desktop
-          const finalPosition = skillsAbsoluteTop + skillsRect.height - 300;
+          // Position at the bottom of the skills section for desktop (reduced to scroll less)
+          const finalPosition = skillsAbsoluteTop + skillsRect.height - 500;
           debugLog("🛠️ Step 2 Desktop: Skills positioning", {
             finalPosition,
             skillsAbsoluteTop,
             skillsHeight: skillsRect.height,
-            offset: -300,
+            offset: -500,
+          });
+          window.scrollTo({ top: finalPosition, behavior: "smooth" });
+          return;
+        }
+      }
+
+      // Special handling for Step 3 (education) targeting timeline - position to show education section
+      if (sectionId === "timeline" && isActive && actualStep === 2) {
+        debugLog("🎓 Step 3 Desktop: Scrolling to education section");
+        const timelineSection = document.getElementById("timeline");
+        if (timelineSection) {
+          const timelineRect = timelineSection.getBoundingClientRect();
+          const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
+          // Position at education section for desktop (top portion of timeline)
+          const finalPosition = timelineAbsoluteTop + 300;
+          debugLog("🎓 Step 3 Desktop: Education positioning", {
+            finalPosition,
+            timelineAbsoluteTop,
+            offset: 300,
           });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
