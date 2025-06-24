@@ -1053,11 +1053,11 @@ export default function ModernHome() {
           const firstEducationItem = educationItems[0];
           const firstItemRect = firstEducationItem.getBoundingClientRect();
           const firstItemAbsoluteTop = firstItemRect.top + window.pageYOffset;
-          const finalPosition = firstItemAbsoluteTop - 150;
+          const finalPosition = firstItemAbsoluteTop - 300; // Increased offset to stay higher
           debugLog("🎓 Step 3 Desktop: Education item positioning", {
             finalPosition,
             firstItemAbsoluteTop,
-            offset: -150,
+            offset: -300,
           });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
@@ -1068,11 +1068,11 @@ export default function ModernHome() {
         if (timelineSection) {
           const timelineRect = timelineSection.getBoundingClientRect();
           const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
-          const finalPosition = timelineAbsoluteTop - 50;
+          const finalPosition = timelineAbsoluteTop - 200; // Increased offset to stay higher
           debugLog("🎓 Step 3 Desktop: Timeline fallback positioning", {
             finalPosition,
             timelineAbsoluteTop,
-            offset: -50,
+            offset: -200,
           });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
@@ -1092,11 +1092,11 @@ export default function ModernHome() {
         if (workExperienceTitle) {
           const workRect = workExperienceTitle.getBoundingClientRect();
           const workAbsoluteTop = workRect.top + window.pageYOffset;
-          const finalPosition = workAbsoluteTop - 200; // Extra offset to show work experience clearly
+          const finalPosition = workAbsoluteTop - 350; // Increased offset to stay higher
           debugLog("💼 Step 4 Desktop: Work experience title positioning", {
             finalPosition,
             workAbsoluteTop,
-            offset: -200,
+            offset: -350,
           });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
@@ -1107,11 +1107,11 @@ export default function ModernHome() {
         if (timelineSection) {
           const timelineRect = timelineSection.getBoundingClientRect();
           const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
-          const finalPosition = timelineAbsoluteTop - 50;
+          const finalPosition = timelineAbsoluteTop - 200; // Increased offset to stay higher
           debugLog("💼 Step 4 Desktop: Timeline fallback positioning", {
             finalPosition,
             timelineAbsoluteTop,
-            offset: -50,
+            offset: -200,
           });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
