@@ -995,11 +995,8 @@ export function ContactSection({
                   <p className="font-medium text-gray-300">
                     &copy; 2025 Lawrence W. Hua. All rights reserved.
                   </p>
-                  <p className="mt-1 text-xs max-w-2xl mx-auto leading-relaxed">
-                    AI Product Manager and Full-Stack Developer specializing in
-                    data-driven product solutions, machine learning
-                    implementations, and scalable web applications. Passionate
-                    about leveraging technology to solve real-world problems.
+                  <p className="mt-1 text-sm font-medium text-gray-300">
+                    Building AI products that solve real problems.
                   </p>
                 </div>
 
