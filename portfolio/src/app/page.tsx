@@ -1004,7 +1004,7 @@ export default function ModernHome() {
         );
 
         // Try to find specific education items first for most accurate positioning
-        let educationItems = document.querySelectorAll(
+        const educationItems = document.querySelectorAll(
           '[id^="timeline-university"], [id^="timeline-carnegie"]'
         );
 
