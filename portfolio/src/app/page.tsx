@@ -638,7 +638,7 @@ export default function ModernHome() {
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "timeline" && currentStep === 3) {
-          // Work experience step - position to show work experience section
+          // Work experience step - position to show work experience section (reduced scroll distance)
           // Try to find the work experience title element
           const workExperienceTitle = document.getElementById(
             "work-experience-title"
@@ -646,8 +646,8 @@ export default function ModernHome() {
           if (workExperienceTitle) {
             const workTitleRect = workExperienceTitle.getBoundingClientRect();
             const workTitleAbsoluteTop = workTitleRect.top + window.pageYOffset;
-            // Position the work experience title with some offset for mobile
-            const finalPosition = workTitleAbsoluteTop - 150;
+            // Position the work experience title with reduced offset for mobile (was -150, now -75)
+            const finalPosition = workTitleAbsoluteTop - 75;
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
@@ -657,14 +657,14 @@ export default function ModernHome() {
           if (timelineSection) {
             const timelineRect = timelineSection.getBoundingClientRect();
             const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
-            // Position roughly in the middle of timeline for work experience
-            const finalPosition = timelineAbsoluteTop + 300;
+            // Position with reduced scroll distance (was +300, now +150)
+            const finalPosition = timelineAbsoluteTop + 150;
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
 
-          // Final fallback - conservative positioning
-          const finalPosition = absoluteElementTop + 150;
+          // Final fallback - more conservative positioning (was +150, now +75)
+          const finalPosition = absoluteElementTop + 75;
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "projects") {
