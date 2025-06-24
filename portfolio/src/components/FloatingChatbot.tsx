@@ -166,7 +166,7 @@ export function FloatingChatbot({
                       e.stopPropagation();
                       dismissPopup();
                     }}
-                    className="absolute top-1 right-1 sm:top-2 sm:right-2 p-2 sm:p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 z-10 bg-white/80 dark:bg-slate-800/80 rounded-full backdrop-blur-sm border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200"
+                    className="absolute top-1 right-1 sm:top-2 sm:right-2 p-2 sm:p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 z-10 bg-white/80 dark:bg-slate-800/80 rounded-full backdrop-blur-sm border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center justify-center"
                     aria-label="Close popup"
                   >
                     <X className="h-3 w-3 sm:h-4 sm:w-4" />
