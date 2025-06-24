@@ -618,6 +618,12 @@ export default function ModernHome() {
   };
 
   const scrollToSection = (sectionId: string) => {
+    debugLog(`🔧 scrollToSection called`, {
+      sectionId,
+      currentStep: currentStep + 1,
+      isMobile: window.innerWidth < 768,
+    });
+
     const element = document.getElementById(sectionId);
     if (element) {
       const isMobile = window.innerWidth < 768;
@@ -660,6 +666,7 @@ export default function ModernHome() {
           return;
         } else if (sectionId === "timeline" && currentStep === 3) {
           // Work experience step - position to show work experience section (reduced scroll distance)
+          debugLog("✅ STEP 4 CONDITION MET: timeline + currentStep === 3");
           debugLog("🎯 Mobile Step 4: Looking for work-experience-title");
 
           // Try to find the work experience title element
@@ -712,6 +719,12 @@ export default function ModernHome() {
           const finalPosition = absoluteElementTop - 100;
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
+        } else {
+          // Default mobile case
+          debugLog("🔄 Mobile default case", {
+            sectionId,
+            currentStep: currentStep + 1,
+          });
         }
 
         window.scrollTo({
@@ -719,6 +732,13 @@ export default function ModernHome() {
           behavior: "smooth",
         });
         return;
+      } else {
+        // Desktop/non-mobile case
+        debugLog("🖥️ Desktop detected", {
+          width: window.innerWidth,
+          currentStep: currentStep + 1,
+          sectionId,
+        });
       }
 
       // Desktop handling (unchanged)
