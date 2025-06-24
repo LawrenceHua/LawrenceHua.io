@@ -1253,15 +1253,15 @@ export default function ModernHome() {
 
   // Scroll lock effect
   useEffect(() => {
-    // Allow scrolling during step 4 (work experience) - currentStep === 3 (0-indexed)
-    const shouldLockScroll = isActive && !isPaused && currentStep !== 3;
+    // Lock scrolling only when tour is active AND not paused (applies to all steps)
+    const shouldLockScroll = isActive && !isPaused;
 
     if (shouldLockScroll) {
       // Lock scrolling
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
     } else {
-      // Allow scrolling
+      // Allow scrolling when tour is inactive, paused, or when user pauses any step
       document.body.style.overflow = "unset";
       document.documentElement.style.overflow = "unset";
     }
@@ -1271,7 +1271,7 @@ export default function ModernHome() {
       document.body.style.overflow = "unset";
       document.documentElement.style.overflow = "unset";
     };
-  }, [isActive, isPaused, currentStep]);
+  }, [isActive, isPaused]);
 
   useEffect(() => {
     if (isActive && tourSteps[currentStep].highlights && !isPaused) {
