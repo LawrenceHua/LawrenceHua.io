@@ -958,7 +958,8 @@ export default function ModernHome() {
     // Desktop positioning (unchanged)
     switch (position) {
       case "top-left":
-        return { top: "80px", left: "24px", right: "auto" };
+        // Step 2: Position at same level as skills buttons (much lower than original)
+        return { top: "400px", left: "24px", right: "auto" };
       case "top-right":
         return { top: "80px", right: "24px", left: "auto" };
       case "bottom-left":
@@ -997,8 +998,8 @@ export default function ModernHome() {
         // Position lower than normal bottom-right for step 5
         return { bottom: "20px", right: "24px", left: "auto" };
       case "education-below":
-        // Position below the education section (left side, middle-low)
-        return { top: "500px", left: "24px", right: "auto" };
+        // Step 4: Same x-axis as Step 3 (right side), positioned to cover UF education section
+        return { top: "450px", right: "24px", left: "auto" };
       default:
         return { top: "80px", right: "24px", left: "auto" };
     }
