@@ -51,7 +51,7 @@ export function FloatingChatbot({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [hasBeenOpened, permanentlyDismissed, showPopup]);
 
-  // Show popup after 10 seconds if still on about/above sections
+  // Show popup after 20 seconds if still on about/above sections
   useEffect(() => {
     if (dismissCount < 1 && !hasBeenOpened && !permanentlyDismissed) {
       const timer = setTimeout(() => {
@@ -75,7 +75,7 @@ export function FloatingChatbot({
             }
           }
         }
-      }, 10000); // Show after 10 seconds
+      }, 20000); // Show after 20 seconds
 
       return () => clearTimeout(timer);
     }
