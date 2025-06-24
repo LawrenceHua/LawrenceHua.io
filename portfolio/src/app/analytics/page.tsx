@@ -1058,14 +1058,26 @@ export default function AnalyticsPage() {
       .map(([type, count]) => ({ type, count }))
       .sort((a, b) => b.count - a.count);
 
-    // Average session duration
-    const totalDuration = filteredSessions.reduce((sum, session) => {
+    // Average session duration (improved to include page view times)
+    // 1. Calculate chat session durations
+    const chatSessionDuration = filteredSessions.reduce((sum, session) => {
       return sum + (session.endTime.getTime() - session.startTime.getTime());
     }, 0);
-    const avgSessionDuration =
-      filteredSessions.length > 0
-        ? totalDuration / filteredSessions.length / 1000 / 60
-        : 0; // in minutes
+
+    // 2. Calculate page view times (includes non-chat browsing)
+    const pageViewDuration = filteredPageViews.reduce((sum, pv) => {
+      return sum + (pv.timeOnPage || 0) * 1000; // Convert seconds to milliseconds
+    }, 0);
+
+    // 3. Combine both for total engagement time
+    const totalDuration = chatSessionDuration + pageViewDuration;
+    const totalSessions = Math.max(
+      filteredSessions.length,
+      filteredPageViews.length,
+      1
+    );
+
+    const avgSessionDuration = totalDuration / totalSessions / 1000 / 60; // in minutes
 
     // Visitor Locations
     const countryCounts = new Map<string, number>();

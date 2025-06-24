@@ -424,12 +424,15 @@ export default function ModernHome() {
     }
   };
 
-  // Page view tracking function
+  // Page view tracking function with time tracking
   const trackPageView = async (firestore: any) => {
     if (!firestore) {
       console.warn("❌ Firestore not initialized, cannot track page view");
       return;
     }
+
+    const startTime = Date.now();
+    let pageViewDocRef: any = null;
 
     try {
       console.log("📊 Tracking page view...");
@@ -464,15 +467,57 @@ export default function ModernHome() {
         ip: geoData?.ip || "Unknown",
       };
 
-      const docRef = await addDoc(
+      pageViewDocRef = await addDoc(
         collection(firestore, "page_views"),
         pageView
       );
       console.log("✅ Page view tracked successfully", {
-        docId: docRef.id,
+        docId: pageViewDocRef.id,
         userAgent: navigator.userAgent,
         isMobile: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent),
       });
+
+      // Track time spent on page
+      const updateTimeOnPage = async () => {
+        const timeSpent = Math.round((Date.now() - startTime) / 1000); // seconds
+        if (timeSpent > 5 && pageViewDocRef) {
+          // Only update if spent more than 5 seconds
+          try {
+            const { updateDoc } = await import("firebase/firestore");
+            await updateDoc(pageViewDocRef, { timeOnPage: timeSpent });
+            console.log(`⏱️ Updated time on page: ${timeSpent}s`);
+          } catch (error) {
+            console.error("❌ Error updating time on page:", error);
+          }
+        }
+      };
+
+      // Update time when user leaves page
+      const handleBeforeUnload = () => {
+        updateTimeOnPage();
+      };
+
+      // Update time when page becomes hidden (mobile app switching, etc.)
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          updateTimeOnPage();
+        }
+      };
+
+      // Update time periodically (every 30 seconds) for long sessions
+      const timeUpdateInterval = setInterval(updateTimeOnPage, 30000);
+
+      // Add event listeners
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
+      // Cleanup function (though this won't run on page unload)
+      setTimeout(
+        () => {
+          clearInterval(timeUpdateInterval);
+        },
+        30 * 60 * 1000
+      ); // Stop after 30 minutes max
     } catch (error) {
       console.error("❌ Error tracking page view:", error);
     }
