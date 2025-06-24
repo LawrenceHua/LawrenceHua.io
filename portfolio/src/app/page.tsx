@@ -2065,8 +2065,8 @@ export default function ModernHome() {
                     Step {currentStep + 1} of {tourSteps.length} •{" "}
                     <span className="hidden md:inline">
                       {isPaused
-                        ? "Click anywhere to resume tour"
-                        : "Click anywhere to pause & scroll freely"}
+                        ? "Tap card to resume tour"
+                        : "Tap card to pause & scroll freely"}
                     </span>
                     <span className="md:hidden">
                       {isPaused
