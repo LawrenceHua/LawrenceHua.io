@@ -821,6 +821,17 @@ export default function ModernHome() {
     const isMobile = window.innerWidth < 768;
 
     if (isMobile) {
+      // Special positioning for Step 4 (Work Experience) on mobile
+      if (position === "education-below" && isActive && currentStep === 3) {
+        // Position the popup near the "Work Experience" title that we just scrolled to
+        return {
+          top: "20vh", // Position in upper portion of viewport
+          left: "50vw",
+          transform: "translate(-50%, 0)",
+          right: "auto",
+        };
+      }
+
       // On mobile, position cards in the center of the visible viewport as overlay
       return {
         top: "50vh",
