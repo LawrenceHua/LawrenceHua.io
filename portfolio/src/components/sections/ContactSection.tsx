@@ -961,40 +961,72 @@ export function ContactSection({
                 </button>
               </div>
 
-              {/* Copyright */}
-              <div className="text-center text-gray-400 text-sm px-4">
-                <p>&copy; 2025 Lawrence W. Hua. All rights reserved.</p>
-                <p className="mt-1">
-                  Built with ❤️ using{" "}
-                  <span className="font-medium text-blue-400">Next.js 14</span>,{" "}
-                  <span className="font-medium text-blue-400">TypeScript</span>,{" "}
-                  <span className="font-medium text-blue-400">TailwindCSS</span>
-                  ,{" "}
-                  <span className="font-medium text-blue-400">
-                    Framer Motion
-                  </span>
-                  , <span className="font-medium text-blue-400">React 18</span>
-                </p>
-                <p className="mt-1 text-xs opacity-90">
-                  <span className="font-medium">Tech Stack:</span> OpenAI API •
-                  Resend • Firebase • Recharts • Lenis Smooth Scroll • React
-                  DatePicker
-                </p>
-                <p className="mt-2 text-xs">
-                  Last updated:{" "}
-                  {isClient &&
-                    lastUpdated.toLocaleString("en-US", {
-                      timeZone: "America/New_York",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                      hour12: false,
-                    })}{" "}
-                  EST • Version {isClient ? version : ""}
-                </p>
+              {/* Professional Footer */}
+              <div className="text-center text-gray-400 text-sm px-4 space-y-3">
+                {/* Copyright and Description */}
+                <div>
+                  <p className="font-medium text-gray-300">
+                    &copy; 2025 Lawrence W. Hua. All rights reserved.
+                  </p>
+                  <p className="mt-1 text-xs max-w-2xl mx-auto leading-relaxed">
+                    AI Product Manager and Full-Stack Developer specializing in
+                    data-driven product solutions, machine learning
+                    implementations, and scalable web applications. Passionate
+                    about leveraging technology to solve real-world problems.
+                  </p>
+                </div>
+
+                {/* Version and Update Info */}
+                <div className="text-xs">
+                  <p>
+                    Last updated:{" "}
+                    {isClient &&
+                      lastUpdated.toLocaleString("en-US", {
+                        timeZone: "America/New_York",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: false,
+                      })}{" "}
+                    EST • Version {isClient ? version : ""}
+                  </p>
+                </div>
+
+                {/* Tech Stack */}
+                <div className="pt-2 border-t border-gray-600/30">
+                  <p className="text-xs">
+                    <span className="font-medium text-gray-300">
+                      Built with:
+                    </span>{" "}
+                    <span className="font-medium text-blue-400">
+                      Next.js 14
+                    </span>{" "}
+                    •{" "}
+                    <span className="font-medium text-blue-400">React 18</span>{" "}
+                    •{" "}
+                    <span className="font-medium text-blue-400">
+                      TypeScript
+                    </span>{" "}
+                    •{" "}
+                    <span className="font-medium text-blue-400">
+                      TailwindCSS
+                    </span>{" "}
+                    •{" "}
+                    <span className="font-medium text-blue-400">
+                      Framer Motion
+                    </span>
+                  </p>
+                  <p className="mt-1 text-xs opacity-80">
+                    <span className="font-medium text-gray-300">
+                      Powered by:
+                    </span>{" "}
+                    OpenAI API • Firebase • Resend • Recharts • Lenis Smooth
+                    Scroll • React DatePicker
+                  </p>
+                </div>
               </div>
             </div>
           </div>
