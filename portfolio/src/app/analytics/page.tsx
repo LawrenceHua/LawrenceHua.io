@@ -142,6 +142,17 @@ interface EngagementHeatmap {
   bounceRate: number;
 }
 
+interface FirebaseUsageLog {
+  id: string;
+  type: "read" | "write";
+  operation: string; // e.g., "fetch_messages", "track_page_view", "refresh_data"
+  cost: number; // calculated cost in dollars
+  sessionId: string;
+  timestamp: any;
+  collection?: string; // which Firebase collection was accessed
+  documentCount?: number; // how many documents were read/written
+}
+
 interface AnalyticsData {
   totalPageViews: number;
   uniqueVisitors: number;
@@ -196,6 +207,17 @@ interface AnalyticsData {
     returnVisitorEngagement: number;
     deepEngagementSessions: number; // >5min + multiple interactions
   };
+
+  // REAL: Firebase Usage Analytics
+  firebaseUsage: {
+    totalReads: number;
+    totalWrites: number;
+    totalCost: number;
+    dailyUsage: { date: string; reads: number; writes: number; cost: number }[];
+    topOperations: { operation: string; count: number; totalCost: number }[];
+    sessionReads: number; // current session
+    sessionWrites: number; // current session
+  };
 }
 
 export default function AnalyticsPage() {
@@ -212,9 +234,13 @@ export default function AnalyticsPage() {
     "all"
   );
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
-  const [timeRange, setTimeRange] = useState<"1d" | "7d" | "30d" | "all">(
-    "30d"
-  );
+  const [timeRange, setTimeRange] = useState<
+    "1d" | "7d" | "30d" | "custom" | "all"
+  >("30d");
+  const [customDays, setCustomDays] = useState<number>(7); // For 1-30 day range
+  const [firebaseUsageLogs, setFirebaseUsageLogs] = useState<
+    FirebaseUsageLog[]
+  >([]);
   const [db, setDb] = useState<Firestore | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
@@ -249,18 +275,65 @@ export default function AnalyticsPage() {
     return 0;
   });
 
-  function incrementRead() {
+  // Enhanced Firebase tracking with database logging
+  const logFirebaseOperation = async (
+    type: "read" | "write",
+    operation: string,
+    collectionName?: string,
+    documentCount: number = 1
+  ) => {
+    if (!db) return;
+
+    const cost =
+      type === "read"
+        ? (documentCount * 0.36) / 100000
+        : (documentCount * 1.08) / 100000;
+
+    const logEntry: Omit<FirebaseUsageLog, "id"> = {
+      type,
+      operation,
+      cost,
+      sessionId: getSessionId(),
+      timestamp: serverTimestamp(),
+      collection: collectionName,
+      documentCount,
+    };
+
+    try {
+      // Don't increment for logging operations to avoid infinite loop
+      await addDoc(collection(db, "firebase_usage_logs"), logEntry);
+    } catch (error) {
+      console.error("Error logging Firebase operation:", error);
+    }
+  };
+
+  function incrementRead(
+    operation: string = "unknown",
+    collectionName?: string,
+    docCount: number = 1
+  ) {
     if (typeof window !== "undefined") {
       const newReads = firebaseReads + 1;
       setFirebaseReads(newReads);
       sessionStorage.setItem("firebaseReads", newReads.toString());
+
+      // Log to database (non-blocking)
+      logFirebaseOperation("read", operation, collectionName, docCount);
     }
   }
-  function incrementWrite() {
+
+  function incrementWrite(
+    operation: string = "unknown",
+    collectionName?: string,
+    docCount: number = 1
+  ) {
     if (typeof window !== "undefined") {
       const newWrites = firebaseWrites + 1;
       setFirebaseWrites(newWrites);
       sessionStorage.setItem("firebaseWrites", newWrites.toString());
+
+      // Log to database (non-blocking)
+      logFirebaseOperation("write", operation, collectionName, docCount);
     }
   }
 
@@ -308,23 +381,62 @@ export default function AnalyticsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, isAuthenticated]);
 
+  // Fetch Firebase usage logs
+  const fetchFirebaseUsageLogs = async () => {
+    if (!db) return;
+
+    try {
+      const usageLogsRef = collection(db, "firebase_usage_logs");
+      const usageLogsQuery = query(usageLogsRef, orderBy("timestamp", "desc"));
+      const usageLogsSnap = await getDocs(usageLogsQuery);
+      incrementRead(
+        "fetch_firebase_usage_logs",
+        "firebase_usage_logs",
+        usageLogsSnap.docs.length
+      );
+
+      const usageLogs: FirebaseUsageLog[] = usageLogsSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as FirebaseUsageLog[];
+
+      setFirebaseUsageLogs(usageLogs);
+    } catch (error) {
+      console.error("Error fetching Firebase usage logs:", error);
+    }
+  };
+
   // Recalculate analytics data when timeRange changes
   useEffect(() => {
     if (
       sessions.length > 0 ||
       pageViews.length > 0 ||
       interactions.length > 0 ||
-      tourEvents.length > 0
+      tourEvents.length > 0 ||
+      firebaseUsageLogs.length > 0
     ) {
       const recalculatedData = calculateAnalyticsData(
         sessions,
         pageViews,
         interactions,
-        tourEvents
+        tourEvents,
+        firebaseUsageLogs,
+        firebaseReads,
+        firebaseWrites
       );
       setAnalyticsData(recalculatedData);
     }
-  }, [timeRange, sessions, pageViews, interactions, tourEvents]);
+  }, [
+    timeRange,
+    customDays,
+    sessions,
+    pageViews,
+    interactions,
+    tourEvents,
+    firebaseUsageLogs,
+    firebaseReads,
+    firebaseWrites,
+  ]);
 
   const startDataCollection = () => {
     // Track page view
@@ -363,7 +475,7 @@ export default function AnalyticsPage() {
       };
 
       await addDoc(collection(db, "page_views"), pageView);
-      incrementWrite();
+      incrementWrite("track_page_view", "page_views", 1);
     } catch (error) {
       console.error("Error tracking page view:", error);
     }
@@ -419,7 +531,7 @@ export default function AnalyticsPage() {
       if (db) {
         try {
           await addDoc(collection(db, "user_interactions"), interaction);
-          incrementWrite();
+          incrementWrite("track_interaction", "user_interactions", 1);
         } catch (error) {
           console.error("Error tracking interaction:", error);
         }
@@ -451,7 +563,7 @@ export default function AnalyticsPage() {
           if (db) {
             try {
               await addDoc(collection(db, "user_interactions"), interaction);
-              incrementWrite();
+              incrementWrite("track_scroll", "user_interactions", 1);
             } catch (error) {
               console.error("Error tracking scroll:", error);
             }
@@ -481,7 +593,7 @@ export default function AnalyticsPage() {
 
     try {
       await addDoc(collection(db, "device_info"), deviceInfo);
-      incrementWrite();
+      incrementWrite("track_device_info", "device_info", 1);
     } catch (error) {
       console.error("Error tracking device info:", error);
     }
@@ -539,6 +651,7 @@ export default function AnalyticsPage() {
 
     try {
       await fetchAllData();
+      await fetchFirebaseUsageLogs();
       setLastRefreshTime(new Date());
 
       // Calculate actual cost of this refresh
@@ -550,6 +663,73 @@ export default function AnalyticsPage() {
     } finally {
       setRefreshInProgress(false);
     }
+  };
+
+  // Calculate Firebase usage analytics from logs
+  const calculateFirebaseUsage = (
+    firebaseUsageLogs: FirebaseUsageLog[],
+    startDate: Date
+  ) => {
+    // Filter logs by time range
+    const filteredLogs = firebaseUsageLogs.filter(
+      (log) => log.timestamp.toDate() >= startDate
+    );
+
+    // Calculate totals
+    const totalReads = filteredLogs.filter((log) => log.type === "read").length;
+    const totalWrites = filteredLogs.filter(
+      (log) => log.type === "write"
+    ).length;
+    const totalCost = filteredLogs.reduce((sum, log) => sum + log.cost, 0);
+
+    // Calculate daily usage
+    const dailyUsageMap = new Map<
+      string,
+      { reads: number; writes: number; cost: number }
+    >();
+    filteredLogs.forEach((log) => {
+      const date = log.timestamp.toDate().toISOString().split("T")[0];
+      if (!dailyUsageMap.has(date)) {
+        dailyUsageMap.set(date, { reads: 0, writes: 0, cost: 0 });
+      }
+      const dayData = dailyUsageMap.get(date)!;
+      if (log.type === "read") dayData.reads++;
+      if (log.type === "write") dayData.writes++;
+      dayData.cost += log.cost;
+    });
+
+    const dailyUsage = Array.from(dailyUsageMap.entries())
+      .map(([date, data]) => ({ date, ...data }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    // Calculate top operations
+    const operationMap = new Map<
+      string,
+      { count: number; totalCost: number }
+    >();
+    filteredLogs.forEach((log) => {
+      if (!operationMap.has(log.operation)) {
+        operationMap.set(log.operation, { count: 0, totalCost: 0 });
+      }
+      const opData = operationMap.get(log.operation)!;
+      opData.count++;
+      opData.totalCost += log.cost;
+    });
+
+    const topOperations = Array.from(operationMap.entries())
+      .map(([operation, data]) => ({ operation, ...data }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    return {
+      totalReads,
+      totalWrites,
+      totalCost,
+      dailyUsage,
+      topOperations,
+      sessionReads: 0, // Will be set from component state
+      sessionWrites: 0, // Will be set from component state
+    };
   };
 
   const fetchAllData = async (append = false) => {
@@ -573,7 +753,11 @@ export default function AnalyticsPage() {
       }
 
       const messagesSnap = await getDocs(messagesQuery);
-      incrementRead();
+      incrementRead(
+        "fetch_chatbot_messages",
+        "chatbot_messages",
+        messagesSnap.docs.length
+      );
 
       const chatMessages: ChatMessage[] = messagesSnap.docs.map((doc) => ({
         id: doc.id,
@@ -618,7 +802,11 @@ export default function AnalyticsPage() {
       const pageViewsQuery = query(pageViewsRef, orderBy("timestamp", "desc"));
 
       const pageViewsSnap = await getDocs(pageViewsQuery);
-      incrementRead();
+      incrementRead(
+        "fetch_page_views",
+        "page_views",
+        pageViewsSnap.docs.length
+      );
 
       const pageViewsData: PageView[] = pageViewsSnap.docs.map((doc) => ({
         id: doc.id,
@@ -633,7 +821,11 @@ export default function AnalyticsPage() {
       );
 
       const interactionsSnap = await getDocs(interactionsQuery);
-      incrementRead();
+      incrementRead(
+        "fetch_user_interactions",
+        "user_interactions",
+        interactionsSnap.docs.length
+      );
 
       const interactionsData: UserInteraction[] = interactionsSnap.docs.map(
         (doc) => ({
@@ -649,7 +841,11 @@ export default function AnalyticsPage() {
         orderBy("timestamp", "desc")
       );
       const tourEventsSnap = await getDocs(tourEventsQuery);
-      incrementRead();
+      incrementRead(
+        "fetch_tour_events",
+        "tour_events",
+        tourEventsSnap.docs.length
+      );
 
       const tourEventsData: TourEvent[] = tourEventsSnap.docs.map((doc) => ({
         id: doc.id,
@@ -675,7 +871,10 @@ export default function AnalyticsPage() {
         append ? [...sessions, ...chatSessions] : chatSessions,
         append ? [...pageViews, ...pageViewsData] : pageViewsData,
         append ? [...interactions, ...interactionsData] : interactionsData,
-        append ? [...tourEvents, ...tourEventsData] : tourEventsData
+        append ? [...tourEvents, ...tourEventsData] : tourEventsData,
+        firebaseUsageLogs,
+        firebaseReads,
+        firebaseWrites
       );
       setAnalyticsData(analytics);
 
@@ -700,7 +899,10 @@ export default function AnalyticsPage() {
     sessions: ChatSession[],
     pageViews: PageView[],
     interactions: UserInteraction[],
-    tourEvents: TourEvent[] = []
+    tourEvents: TourEvent[] = [],
+    firebaseUsageLogs: FirebaseUsageLog[] = [],
+    sessionReads: number = 0,
+    sessionWrites: number = 0
   ): AnalyticsData => {
     // Apply time range filtering to all data
     const now = new Date();
@@ -715,6 +917,9 @@ export default function AnalyticsPage() {
         break;
       case "30d":
         startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case "custom":
+        startDate = new Date(now.getTime() - customDays * 24 * 60 * 60 * 1000);
         break;
       case "all":
       default:
@@ -1259,6 +1464,11 @@ export default function AnalyticsPage() {
       tourAnalytics,
       timeIntelligence,
       engagementMetrics,
+      firebaseUsage: {
+        ...calculateFirebaseUsage(firebaseUsageLogs, startDate),
+        sessionReads,
+        sessionWrites,
+      },
     };
   };
 
