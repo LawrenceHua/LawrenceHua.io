@@ -134,40 +134,12 @@ interface TourEvent {
   city?: string;
 }
 
-interface SkillDemand {
-  skill: string;
-  searches: number;
-  trend: "up" | "down" | "stable";
-  relatedTerms: string[];
-}
-
-interface CompanyIntel {
-  domain: string;
-  company: string;
-  industry: string;
-  size: "startup" | "small" | "medium" | "enterprise" | "unknown";
-  visits: number;
-  engagementScore: number;
-}
-
 interface EngagementHeatmap {
   section: string;
   averageTimeSpent: number;
   scrollDepth: number;
   interactions: number;
   bounceRate: number;
-}
-
-interface ConversionEvent {
-  type:
-    | "resume_download"
-    | "linkedin_click"
-    | "contact_form"
-    | "meeting_scheduled"
-    | "email_sent";
-  count: number;
-  conversionRate: number;
-  sessionIds: string[];
 }
 
 interface AnalyticsData {
@@ -216,78 +188,13 @@ interface AnalyticsData {
     timeToEngage: number; // average minutes before first interaction
   };
 
-  // NEW: Industry & Company Intelligence
-  industryIntel: {
-    topIndustries: {
-      industry: string;
-      count: number;
-      engagementScore: number;
-    }[];
-    companySizes: { size: string; count: number; conversionRate: number }[];
-    identifiedCompanies: CompanyIntel[];
-    recruitingIntensity: number; // 1-10 scale
-  };
-
-  // NEW: Engagement Quality Metrics
+  // REAL: Engagement Quality Metrics
   engagementMetrics: {
     averageScrollDepth: number;
     sectionHeatmap: EngagementHeatmap[];
     multiVisitRate: number;
     returnVisitorEngagement: number;
     deepEngagementSessions: number; // >5min + multiple interactions
-  };
-
-  // NEW: Skill Gap Analysis
-  skillAnalysis: {
-    inDemandSkills: SkillDemand[];
-    missingKeywords: string[];
-    competitiveSkills: string[];
-    skillTrendScore: number;
-  };
-
-  // NEW: Conversion Tracking
-  conversions: {
-    totalConversions: number;
-    conversionRate: number;
-    conversionFunnel: ConversionEvent[];
-    highValueActions: { action: string; value: number; count: number }[];
-  };
-
-  // NEW: Geographic Intelligence
-  geoIntelligence: {
-    remoteFriendlyMarkets: {
-      location: string;
-      remoteJobs: number;
-      interest: number;
-    }[];
-    hiringHotspots: { city: string; country: string; hiringActivity: number }[];
-    visaSponsorship: {
-      country: string;
-      visaLikely: boolean;
-      interest: number;
-    }[];
-    marketPenetration: {
-      region: string;
-      penetration: number;
-      opportunity: number;
-    }[];
-  };
-
-  // NEW: Competitive Analysis
-  competitiveAnalysis: {
-    trafficSources: {
-      source: string;
-      quality: number;
-      recruiterRatio: number;
-    }[];
-    benchmarkMetrics: {
-      metric: string;
-      yourValue: number;
-      industry: number;
-      percentile: number;
-    }[];
-    opportunityAreas: string[];
-    strengthAreas: string[];
   };
 }
 
@@ -1235,120 +1142,6 @@ export default function AnalyticsPage() {
           : 0,
     };
 
-    // Industry Intelligence (use filtered data)
-    const domainIndustries = new Map<
-      string,
-      { industry: string; size: string }
-    >();
-    // Common tech company patterns
-    const techDomains = [
-      "google",
-      "microsoft",
-      "apple",
-      "amazon",
-      "meta",
-      "netflix",
-      "uber",
-      "airbnb",
-    ];
-    const consultingDomains = [
-      "mckinsey",
-      "bain",
-      "bcg",
-      "deloitte",
-      "pwc",
-      "kpmg",
-      "ey",
-    ];
-    const financeDomains = [
-      "jpmorgan",
-      "goldmansachs",
-      "morgenstanley",
-      "blackrock",
-      "citi",
-    ];
-
-    const industryEngagement = new Map<
-      string,
-      { count: number; totalEngagement: number }
-    >();
-    const companySizeData = new Map<
-      string,
-      { count: number; conversions: number }
-    >();
-
-    filteredPageViews.forEach((pv) => {
-      let industry = "Unknown";
-      let size = "unknown";
-
-      if (pv.referrer) {
-        const domain = pv.referrer.toLowerCase();
-        if (techDomains.some((tech) => domain.includes(tech))) {
-          industry = "Technology";
-          size =
-            domain.includes("google") || domain.includes("microsoft")
-              ? "enterprise"
-              : "large";
-        } else if (
-          consultingDomains.some((consulting) => domain.includes(consulting))
-        ) {
-          industry = "Consulting";
-          size = "enterprise";
-        } else if (financeDomains.some((finance) => domain.includes(finance))) {
-          industry = "Finance";
-          size = "enterprise";
-        } else if (domain.includes("linkedin")) {
-          industry = "Professional Networking";
-          size = "enterprise";
-        }
-      }
-
-      // Calculate engagement score based on time on page and interactions
-      const sessionInteractions = filteredInteractions.filter(
-        (i) => i.sessionId === pv.sessionId
-      ).length;
-      const engagementScore = (pv.timeOnPage || 0) + sessionInteractions * 30;
-
-      if (!industryEngagement.has(industry)) {
-        industryEngagement.set(industry, { count: 0, totalEngagement: 0 });
-      }
-      const industryData = industryEngagement.get(industry)!;
-      industryData.count++;
-      industryData.totalEngagement += engagementScore;
-
-      if (!companySizeData.has(size)) {
-        companySizeData.set(size, { count: 0, conversions: 0 });
-      }
-      companySizeData.get(size)!.count++;
-    });
-
-    const industryIntel = {
-      topIndustries: Array.from(industryEngagement.entries())
-        .map(([industry, data]) => ({
-          industry,
-          count: data.count,
-          engagementScore: data.totalEngagement / data.count,
-        }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10),
-      companySizes: Array.from(companySizeData.entries())
-        .map(([size, data]) => ({
-          size,
-          count: data.count,
-          conversionRate:
-            data.count > 0 ? (data.conversions / data.count) * 100 : 0,
-        }))
-        .sort((a, b) => b.count - a.count),
-      identifiedCompanies: [], // Will be populated when we have better domain tracking
-      recruitingIntensity: Math.min(
-        10,
-        Math.max(
-          1,
-          (potentialRecruiters / Math.max(1, uniqueSessions.size)) * 10
-        )
-      ),
-    };
-
     // Engagement Quality Metrics (use filtered data)
     const scrollDepths = filteredInteractions
       .filter((i) => i.type === "scroll")
@@ -1465,37 +1258,36 @@ export default function AnalyticsPage() {
       foundKeywords,
       tourAnalytics,
       timeIntelligence,
-      industryIntel,
       engagementMetrics,
-      skillAnalysis: {
-        inDemandSkills: [],
-        missingKeywords: [],
-        competitiveSkills: [],
-        skillTrendScore: 0,
-      },
-      conversions: {
-        totalConversions: 0,
-        conversionRate: 0,
-        conversionFunnel: [],
-        highValueActions: [],
-      },
-      geoIntelligence: {
-        remoteFriendlyMarkets: [],
-        hiringHotspots: [],
-        visaSponsorship: [],
-        marketPenetration: [],
-      },
-      competitiveAnalysis: {
-        trafficSources: [],
-        benchmarkMetrics: [],
-        opportunityAreas: [],
-        strengthAreas: [],
-      },
     };
   };
 
   const filteredSessions = useMemo(() => {
     let filtered = [...sessions];
+
+    // Apply time range filtering first
+    if (timeRange !== "all") {
+      const now = new Date();
+      let startDate: Date;
+
+      switch (timeRange) {
+        case "1d":
+          startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+          break;
+        case "7d":
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case "30d":
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          startDate = new Date(0);
+          break;
+      }
+
+      filtered = filtered.filter((session) => session.startTime >= startDate);
+    }
+
     if (roleFilter !== "all") {
       filtered = filtered.filter((session) =>
         session.messages.some((msg) => msg.role === roleFilter)
@@ -1514,7 +1306,7 @@ export default function AnalyticsPage() {
         : a.startTime.getTime() - b.startTime.getTime()
     );
     return filtered;
-  }, [sessions, roleFilter, searchTerm, sortOrder]);
+  }, [sessions, roleFilter, searchTerm, sortOrder, timeRange]);
 
   const loadMoreSessions = async () => {
     if (
@@ -2576,492 +2368,34 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            {/* Industry Intelligence */}
-            <div className="bg-gray-800 rounded-xl p-6 mb-6">
-              <Tooltip content="Advanced analytics about companies and industries visiting your portfolio. Identifies which sectors show most interest and helps target your job search strategy.">
-                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                  <FiBriefcase className="h-5 w-5" />
-                  Industry & Company Intelligence
-                </h2>
-              </Tooltip>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <Tooltip content="Industries with the highest number of visitors and engagement scores. Shows which sectors are most interested in your profile and skills.">
-                    <h4 className="text-lg font-semibold mb-3">
-                      Top Industries
-                    </h4>
-                  </Tooltip>
-                  <div className="space-y-3">
-                    {analyticsData.industryIntel.topIndustries
-                      .slice(0, 5)
-                      .map((industry, index) => (
-                        <div
-                          key={industry.industry}
-                          className="bg-gray-700 p-3 rounded-lg"
-                        >
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-medium">
-                              {industry.industry}
-                            </span>
-                            <span className="text-sm text-gray-400">
-                              {industry.count} visits
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-full bg-gray-600 rounded-full h-1">
-                              <div
-                                className="bg-purple-500 h-1 rounded-full"
-                                style={{
-                                  width: `${(industry.engagementScore / Math.max(...analyticsData.industryIntel.topIndustries.map((i) => i.engagementScore))) * 100}%`,
-                                }}
-                              ></div>
-                            </div>
-                            <span className="text-xs text-purple-400">
-                              {industry.engagementScore.toFixed(0)} engagement
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Tooltip content="Breakdown of visiting companies by size (startup, small, medium, enterprise). Shows which company types are most interested and their conversion rates.">
-                    <h4 className="text-lg font-semibold mb-3">
-                      Company Sizes
-                    </h4>
-                  </Tooltip>
-                  <div className="space-y-3">
-                    {analyticsData.industryIntel.companySizes.map((size) => (
-                      <div
-                        key={size.size}
-                        className="bg-gray-700 p-3 rounded-lg"
-                      >
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium capitalize">
-                            {size.size}
-                          </span>
-                          <span className="text-sm text-gray-400">
-                            {size.count}
-                          </span>
-                        </div>
-                        <p className="text-xs text-green-400">
-                          {size.conversionRate.toFixed(1)}% conversion rate
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Tooltip content="Overall recruiting activity level in your market on a scale of 1-10. Higher scores indicate more active hiring and better job market conditions.">
-                    <h4 className="text-lg font-semibold mb-3">
-                      Recruiting Intensity
-                    </h4>
-                  </Tooltip>
-                  <div className="bg-gray-700 p-4 rounded-lg text-center">
-                    <div className="text-4xl font-bold text-orange-400 mb-2">
-                      {analyticsData.industryIntel.recruitingIntensity.toFixed(
-                        1
-                      )}
-                      /10
-                    </div>
-                    <p className="text-sm text-gray-400">
-                      Market recruiting activity level
-                    </p>
-                    <div className="mt-3 w-full bg-gray-600 rounded-full h-2">
-                      <div
-                        className="bg-orange-500 h-2 rounded-full transition-all duration-500"
-                        style={{
-                          width: `${(analyticsData.industryIntel.recruitingIntensity / 10) * 100}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
+            {/* Notice about removed fake metrics */}
+            <div className="bg-gradient-to-br from-green-800 to-green-900 rounded-xl p-6 mb-6 border border-green-500/30">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">✅</span>
+                <h3 className="text-xl font-bold text-green-300">
+                  Honest Analytics Dashboard
+                </h3>
               </div>
-            </div>
-
-            {/* Engagement Quality & Conversion Analytics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <div className="bg-gray-800 p-6 rounded-xl">
-                <Tooltip content="Metrics measuring the quality and depth of visitor engagement with your portfolio. Higher quality engagement indicates stronger interest and better conversion potential.">
-                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <FiActivity className="h-5 w-5" />
-                    Engagement Quality
-                  </h3>
-                </Tooltip>
-                <div className="space-y-4">
-                  <Tooltip content="Percentage of page content that visitors scroll through on average. Higher values indicate visitors are consuming more of your content.">
-                    <div className="bg-gray-700 p-3 rounded-lg">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm">Average Scroll Depth</span>
-                        <span className="font-bold text-blue-400">
-                          {analyticsData.engagementMetrics.averageScrollDepth.toFixed(
-                            0
-                          )}
-                          %
-                        </span>
-                      </div>
-                    </div>
-                  </Tooltip>
-                  <Tooltip content="Percentage of visitors who return to your portfolio multiple times. High rates indicate memorable content and sustained interest.">
-                    <div className="bg-gray-700 p-3 rounded-lg">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm">Multi-Visit Rate</span>
-                        <span className="font-bold text-green-400">
-                          {analyticsData.engagementMetrics.multiVisitRate.toFixed(
-                            1
-                          )}
-                          %
-                        </span>
-                      </div>
-                    </div>
-                  </Tooltip>
-                  <Tooltip content="Number of sessions lasting more than 5 minutes with multiple interactions. These represent highly engaged visitors with strong interest in your profile.">
-                    <div className="bg-gray-700 p-3 rounded-lg">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm">
-                          Deep Engagement Sessions
-                        </span>
-                        <span className="font-bold text-purple-400">
-                          {
-                            analyticsData.engagementMetrics
-                              .deepEngagementSessions
-                          }
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-1">
-                        5+ minutes with multiple interactions
-                      </p>
-                    </div>
-                  </Tooltip>
-                </div>
-              </div>
-
-              <div className="bg-gray-800 p-6 rounded-xl">
-                <Tooltip content="Track conversion events like resume downloads, LinkedIn clicks, contact forms, and meeting requests. Shows how effectively your portfolio converts visitors into leads.">
-                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <FiBarChart className="h-5 w-5" />
-                    Conversion Funnel
-                  </h3>
-                </Tooltip>
-                <div className="space-y-3">
-                  {analyticsData.conversions.conversionFunnel.map((event) => (
-                    <div
-                      key={event.type}
-                      className="bg-gray-700 p-3 rounded-lg"
-                    >
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm capitalize">
-                          {event.type.replace("_", " ")}
-                        </span>
-                        <span className="font-bold text-teal-400">
-                          {event.count}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-full bg-gray-600 rounded-full h-1">
-                          <div
-                            className="bg-teal-500 h-1 rounded-full"
-                            style={{
-                              width: `${event.conversionRate * 5}%`, // Scale for visibility
-                            }}
-                          ></div>
-                        </div>
-                        <span className="text-xs text-teal-400">
-                          {event.conversionRate.toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-700">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-teal-400">
-                      {analyticsData.conversions.totalConversions}
-                    </div>
-                    <p className="text-sm text-gray-400">Total Conversions</p>
-                    <p className="text-xs text-teal-400">
-                      {analyticsData.conversions.conversionRate}% overall rate
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Skill Analysis & Competitive Insights */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <div className="bg-gray-800 p-6 rounded-xl">
-                <Tooltip content="Analysis of skill demand trends based on recruiter searches and market data. Helps identify which skills to highlight and which ones to develop.">
-                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <FiTrendingUp className="h-5 w-5" />
-                    Skill Demand Analysis
-                  </h3>
-                </Tooltip>
-                <div className="mb-4">
-                  <div className="text-center mb-4">
-                    <Tooltip content="Overall score (1-10) indicating how well your skills align with current market demand trends. Higher scores suggest better market positioning.">
-                      <div className="text-3xl font-bold text-yellow-400">
-                        {analyticsData.skillAnalysis.skillTrendScore}/10
-                      </div>
-                      <p className="text-sm text-gray-400">Skill Trend Score</p>
-                    </Tooltip>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div>
-                    <Tooltip content="Skills that are currently in high demand by recruiters and showing upward trends in the job market.">
-                      <h5 className="text-sm font-semibold text-green-400 mb-2">
-                        In-Demand Skills
-                      </h5>
-                    </Tooltip>
-                    {analyticsData.skillAnalysis.inDemandSkills
-                      .slice(0, 3)
-                      .map((skill) => (
-                        <div
-                          key={skill.skill}
-                          className="flex justify-between items-center bg-gray-700 p-2 rounded mb-1"
-                        >
-                          <span className="text-sm">{skill.skill}</span>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`text-xs px-2 py-1 rounded ${
-                                skill.trend === "up"
-                                  ? "bg-green-500/20 text-green-400"
-                                  : skill.trend === "down"
-                                    ? "bg-red-500/20 text-red-400"
-                                    : "bg-gray-500/20 text-gray-400"
-                              }`}
-                            >
-                              {skill.trend === "up"
-                                ? "↗"
-                                : skill.trend === "down"
-                                  ? "↘"
-                                  : "→"}{" "}
-                              {skill.trend}
-                            </span>
-                            <span className="text-sm font-bold">
-                              {skill.searches}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                  <div>
-                    <Tooltip content="Important keywords that are missing from your portfolio but are commonly searched by recruiters in your field.">
-                      <h5 className="text-sm font-semibold text-orange-400 mb-2">
-                        Missing Keywords
-                      </h5>
-                    </Tooltip>
-                    <div className="flex flex-wrap gap-1">
-                      {analyticsData.skillAnalysis.missingKeywords
-                        .slice(0, 4)
-                        .map((keyword) => (
-                          <span
-                            key={keyword}
-                            className="text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded"
-                          >
-                            {keyword}
-                          </span>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-800 p-6 rounded-xl">
-                <Tooltip content="Compare your portfolio performance against industry benchmarks. Shows where you excel and areas for improvement relative to other professionals.">
-                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <FiPieChart className="h-5 w-5" />
-                    Competitive Benchmarks
-                  </h3>
-                </Tooltip>
-                <div className="space-y-4">
-                  {analyticsData.competitiveAnalysis.benchmarkMetrics.map(
-                    (metric) => (
-                      <div
-                        key={metric.metric}
-                        className="bg-gray-700 p-3 rounded-lg"
-                      >
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm font-medium">
-                            {metric.metric}
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            {metric.percentile}th percentile
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-xs mb-1">
-                          <span>
-                            You:{" "}
-                            <span className="text-green-400 font-bold">
-                              {metric.yourValue}
-                            </span>
-                          </span>
-                          <span>
-                            Industry:{" "}
-                            <span className="text-gray-400">
-                              {metric.industry}
-                            </span>
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-600 rounded-full h-1">
-                          <div
-                            className="bg-green-500 h-1 rounded-full"
-                            style={{ width: `${metric.percentile}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    )
-                  )}
-                </div>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div>
-                    <h5 className="text-sm font-semibold text-green-400 mb-1">
-                      Strengths
-                    </h5>
-                    {analyticsData.competitiveAnalysis.strengthAreas
-                      .slice(0, 2)
-                      .map((area) => (
-                        <div
-                          key={area}
-                          className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded mb-1"
-                        >
-                          {area}
-                        </div>
-                      ))}
-                  </div>
-                  <div>
-                    <h5 className="text-sm font-semibold text-orange-400 mb-1">
-                      Opportunities
-                    </h5>
-                    {analyticsData.competitiveAnalysis.opportunityAreas
-                      .slice(0, 2)
-                      .map((area) => (
-                        <div
-                          key={area}
-                          className="text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded mb-1"
-                        >
-                          {area}
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Geographic Intelligence */}
-            <div className="bg-gray-800 rounded-xl p-6 mb-6">
-              <Tooltip content="Geographic analysis of your portfolio visitors and market intelligence. Identifies the best regions for job opportunities, remote work, and market penetration insights.">
-                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                  <FiGlobe className="h-5 w-5" />
-                  Geographic & Market Intelligence
-                </h2>
-              </Tooltip>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div>
-                  <Tooltip content="Geographic regions with high concentration of remote job opportunities and visitor interest in your profile. Great for targeting remote work applications.">
-                    <h4 className="text-lg font-semibold mb-3">
-                      Remote-Friendly Markets
-                    </h4>
-                  </Tooltip>
-                  <div className="space-y-3">
-                    {analyticsData.geoIntelligence.remoteFriendlyMarkets.map(
-                      (market) => (
-                        <div
-                          key={market.location}
-                          className="bg-gray-700 p-3 rounded-lg"
-                        >
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-medium text-sm">
-                              {market.location}
-                            </span>
-                            <span className="text-blue-400 font-bold">
-                              {market.interest}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-400">
-                            {market.remoteJobs} remote jobs
-                          </p>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <Tooltip content="Cities and regions with high hiring activity and recruiter presence. These are prime locations for in-person job opportunities and networking.">
-                    <h4 className="text-lg font-semibold mb-3">
-                      Hiring Hotspots
-                    </h4>
-                  </Tooltip>
-                  <div className="space-y-3">
-                    {analyticsData.geoIntelligence.hiringHotspots.map(
-                      (hotspot) => (
-                        <div
-                          key={`${hotspot.city}-${hotspot.country}`}
-                          className="bg-gray-700 p-3 rounded-lg"
-                        >
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium text-sm">
-                              {hotspot.city}, {hotspot.country}
-                            </span>
-                            <span className="text-red-400 font-bold">
-                              {hotspot.hiringActivity.toFixed(0)}
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-600 rounded-full h-1 mt-2">
-                            <div
-                              className="bg-red-500 h-1 rounded-full"
-                              style={{
-                                width: `${(hotspot.hiringActivity / Math.max(...analyticsData.geoIntelligence.hiringHotspots.map((h) => h.hiringActivity))) * 100}%`,
-                              }}
-                            ></div>
-                          </div>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <Tooltip content="Regional market analysis showing your current reach and untapped opportunities. Higher opportunity scores indicate markets with growth potential.">
-                    <h4 className="text-lg font-semibold mb-3">
-                      Market Penetration
-                    </h4>
-                  </Tooltip>
-                  <div className="space-y-3">
-                    {analyticsData.geoIntelligence.marketPenetration.map(
-                      (market) => (
-                        <div
-                          key={market.region}
-                          className="bg-gray-700 p-3 rounded-lg"
-                        >
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="font-medium text-sm">
-                              {market.region}
-                            </span>
-                            <span className="text-purple-400 font-bold">
-                              {market.penetration}%
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-gray-400">Opportunity:</span>
-                            <span className="text-green-400 font-semibold">
-                              {market.opportunity}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-600 rounded-full h-1 mt-2">
-                            <div
-                              className="bg-purple-500 h-1 rounded-full"
-                              style={{ width: `${market.penetration}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      )
-                    )}
-                  </div>
+              <div className="space-y-3">
+                <p className="text-green-100">
+                  This dashboard shows only{" "}
+                  <strong>real, verified metrics</strong> from your portfolio's
+                  actual usage.
+                </p>
+                <p className="text-green-200 text-sm">
+                  Previously displayed sections like "Skill Analysis",
+                  "Conversion Tracking", "Geographic Intelligence", and
+                  "Competitive Analysis" have been removed because they
+                  contained placeholder/fake data. Maintaining data integrity
+                  and trust is more important than impressive-looking metrics.
+                </p>
+                <div className="bg-green-700/30 p-3 rounded-lg mt-4">
+                  <p className="text-xs text-green-200">
+                    <strong>What you see here is real:</strong> Actual visitor
+                    data, genuine chatbot conversations, verified tour
+                    completion rates, and authentic user engagement patterns
+                    from Firebase.
+                  </p>
                 </div>
               </div>
             </div>
