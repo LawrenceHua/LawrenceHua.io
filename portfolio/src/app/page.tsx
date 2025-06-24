@@ -1704,16 +1704,48 @@ export default function ModernHome() {
     }
   }, [showFinalCTA]);
 
-  // Tour invitation popup effect
+  // Tour invitation popup effect - show when reaching skills section or after 10 seconds
   useEffect(() => {
     if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
-      const timer = setTimeout(() => {
-        setShowTourInvitation(true);
-      }, 5000); // Show after 5 seconds
+      let timer: NodeJS.Timeout;
+      let scrollListener: () => void;
 
-      return () => clearTimeout(timer);
+      // Check if skills section is in viewport
+      const checkSkillsSection = () => {
+        const skillsSection = document.getElementById("skills");
+        if (skillsSection) {
+          const rect = skillsSection.getBoundingClientRect();
+          const isInViewport = rect.top >= 0 && rect.top <= window.innerHeight;
+
+          if (isInViewport && !showTourInvitation) {
+            setShowTourInvitation(true);
+          }
+        }
+      };
+
+      // Show after 10 seconds if tour isn't playing
+      timer = setTimeout(() => {
+        if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
+          setShowTourInvitation(true);
+        }
+      }, 10000); // Show after 10 seconds
+
+      // Add scroll listener to check for skills section
+      scrollListener = () => {
+        checkSkillsSection();
+      };
+
+      window.addEventListener("scroll", scrollListener, { passive: true });
+
+      // Check immediately in case already at skills section
+      checkSkillsSection();
+
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener("scroll", scrollListener);
+      };
     }
-  }, [isActive, tourInvitationDismissed, showFinalCTA]);
+  }, [isActive, tourInvitationDismissed, showFinalCTA, showTourInvitation]);
 
   const handleTourInvitationAccept = () => {
     console.log("🎯 Tour invitation accepted! Starting tour...");
