@@ -643,6 +643,22 @@ export default function ModernHome() {
         const finalScrollPosition =
           absoluteElementTop - Math.max(centerOffset, 100);
 
+        // Debug step 4 condition before special handling
+        if (sectionId === "timeline" && currentStep === 3) {
+          debugLog("🔍 Checking Step 4 condition", {
+            sectionId,
+            currentStep,
+            condition: "timeline && currentStep === 3",
+            match: true,
+          });
+        } else if (sectionId === "timeline") {
+          debugLog("❌ Timeline but wrong step", {
+            sectionId,
+            currentStep,
+            expectedStep: 3,
+          });
+        }
+
         // Special handling for specific sections on mobile
         if (sectionId === "timeline" && currentStep === 2) {
           // Education step - focus on bottom of education gallery
