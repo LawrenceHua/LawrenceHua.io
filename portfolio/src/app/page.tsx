@@ -312,7 +312,7 @@ export default function ModernHome() {
     };
   }, []);
 
-  // Initialize Firebase
+  // Initialize Firebase and start tracking
   useEffect(() => {
     if (typeof window !== "undefined") {
       let app;
@@ -326,6 +326,9 @@ export default function ModernHome() {
       const firestore = getFirestore(app);
       setDb(firestore);
       console.log("🔥 Firestore database ready");
+
+      // Start page view tracking
+      trackPageView(firestore);
     }
   }, []);
 
@@ -418,6 +421,60 @@ export default function ModernHome() {
       });
     } catch (error) {
       console.error("❌ Error tracking tour event:", error);
+    }
+  };
+
+  // Page view tracking function
+  const trackPageView = async (firestore: any) => {
+    if (!firestore) {
+      console.warn("❌ Firestore not initialized, cannot track page view");
+      return;
+    }
+
+    try {
+      console.log("📊 Tracking page view...");
+
+      // Get geolocation data (optional)
+      let geoData = null;
+      try {
+        console.log("🌍 Fetching geolocation...");
+        const geoResponse = await fetch("/api/geolocation");
+        if (geoResponse.ok) {
+          geoData = await geoResponse.json();
+          console.log("🌍 Geolocation data obtained");
+        }
+      } catch (geoError) {
+        console.log("🌍 Geolocation fetch failed, using defaults:", geoError);
+      }
+
+      const pageView = {
+        page: window.location.pathname,
+        userAgent: navigator.userAgent,
+        referrer: document.referrer || "direct",
+        screenSize: `${window.screen.width}x${window.screen.height}`,
+        timeOnPage: 0,
+        sessionId: getSessionId(),
+        timestamp: serverTimestamp(),
+        country: geoData?.country_name || "Unknown",
+        region: geoData?.region || "Unknown",
+        city: geoData?.city || "Unknown",
+        latitude: geoData?.latitude || null,
+        longitude: geoData?.longitude || null,
+        timezone: geoData?.timezone || "Unknown",
+        ip: geoData?.ip || "Unknown",
+      };
+
+      const docRef = await addDoc(
+        collection(firestore, "page_views"),
+        pageView
+      );
+      console.log("✅ Page view tracked successfully", {
+        docId: docRef.id,
+        userAgent: navigator.userAgent,
+        isMobile: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent),
+      });
+    } catch (error) {
+      console.error("❌ Error tracking page view:", error);
     }
   };
 
