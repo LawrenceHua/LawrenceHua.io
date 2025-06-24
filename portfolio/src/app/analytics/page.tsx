@@ -1668,17 +1668,42 @@ export default function AnalyticsPage() {
                   <Tooltip content="Filter analytics data by time period. Affects all metrics and visualizations shown in the dashboard.">
                     <div className="flex items-center gap-2">
                       <span className="text-gray-400 text-sm">Time Range:</span>
-                      <select
-                        value={timeRange}
-                        onChange={(e) => setTimeRange(e.target.value as any)}
-                        className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 min-w-[140px] text-sm"
-                        disabled={loading || refreshInProgress}
-                      >
-                        <option value="1d">Last 24 hours</option>
-                        <option value="7d">Last 7 days</option>
-                        <option value="30d">Last 30 days</option>
-                        <option value="all">All time</option>
-                      </select>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={timeRange}
+                          onChange={(e) => setTimeRange(e.target.value as any)}
+                          className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 min-w-[140px] text-sm"
+                          disabled={loading || refreshInProgress}
+                        >
+                          <option value="1d">Last 24 hours</option>
+                          <option value="7d">Last 7 days</option>
+                          <option value="30d">Last 30 days</option>
+                          <option value="custom">Custom days</option>
+                          <option value="all">All time</option>
+                        </select>
+
+                        {timeRange === "custom" && (
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="number"
+                              min="1"
+                              max="30"
+                              value={customDays}
+                              onChange={(e) =>
+                                setCustomDays(
+                                  Math.max(
+                                    1,
+                                    Math.min(30, parseInt(e.target.value) || 1)
+                                  )
+                                )
+                              }
+                              className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-2 focus:outline-none focus:border-blue-500 w-16 text-sm text-center"
+                              disabled={loading || refreshInProgress}
+                            />
+                            <span className="text-gray-400 text-sm">days</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </Tooltip>
                 </div>
@@ -2918,88 +2943,186 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* System Performance & Firebase Usage */}
+        {/* Enhanced Firebase Usage Analytics */}
         <div className="bg-gray-800 rounded-xl p-6 mb-6">
-          <Tooltip content="Real-time monitoring of your analytics system performance and Firebase database usage costs. Helps optimize expenses and track system efficiency.">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <FiActivity className="h-5 w-5" />
-              System Performance & Firebase Usage
-            </h2>
-          </Tooltip>
+          <div className="flex items-center justify-between mb-6">
+            <Tooltip content="Comprehensive Firebase database usage analytics showing both session and total costs with time filtering capabilities.">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <FiActivity className="h-5 w-5" />
+                Firebase Usage Analytics
+              </h2>
+            </Tooltip>
+            <div className="text-xs text-gray-400 bg-gray-700/50 px-3 py-1 rounded-lg">
+              Time Range:{" "}
+              <span className="text-blue-300 font-medium">
+                {timeRange === "custom" ? `${customDays} days` : timeRange}
+              </span>
+            </div>
+          </div>
 
-          {/* Firebase Usage Overview */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
-            <Tooltip content="Number of Firebase database read operations performed in this analytics session. Reads cost $0.36 per 100,000 operations.">
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-xs mb-1">Session Reads</h3>
-                <p
-                  className={`text-2xl font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}
-                >
-                  {firebaseReads}
-                </p>
-                <p className="text-xs text-gray-500">
-                  ~${((firebaseReads * 0.36) / 100000).toFixed(6)}
-                </p>
+          {/* Session vs Total Usage Comparison */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Current Session Usage */}
+            <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-lg p-4">
+              <h3 className="text-lg font-semibold mb-4 text-blue-300 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                Current Session
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <Tooltip content="Firebase reads performed in this analytics session only. Resets when you refresh the page.">
+                  <div className="text-center">
+                    <p
+                      className={`text-3xl font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}
+                    >
+                      {firebaseReads}
+                    </p>
+                    <p className="text-xs text-gray-400">Session Reads</p>
+                    <p className="text-xs text-gray-500">
+                      ${((firebaseReads * 0.36) / 100000).toFixed(6)}
+                    </p>
+                  </div>
+                </Tooltip>
+                <Tooltip content="Firebase writes performed in this analytics session only. Includes all data tracking operations.">
+                  <div className="text-center">
+                    <p
+                      className={`text-3xl font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}
+                    >
+                      {firebaseWrites}
+                    </p>
+                    <p className="text-xs text-gray-400">Session Writes</p>
+                    <p className="text-xs text-gray-500">
+                      ${((firebaseWrites * 1.08) / 100000).toFixed(6)}
+                    </p>
+                  </div>
+                </Tooltip>
               </div>
-            </Tooltip>
-            <Tooltip content="Number of Firebase database write operations performed in this session. Writes cost $1.08 per 100,000 operations.">
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-xs mb-1">Session Writes</h3>
-                <p
-                  className={`text-2xl font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}
-                >
-                  {firebaseWrites}
-                </p>
-                <p className="text-xs text-gray-500">
-                  ~${((firebaseWrites * 1.08) / 100000).toFixed(6)}
-                </p>
-              </div>
-            </Tooltip>
-            <Tooltip content="Number of Firebase reads consumed by the last manual data refresh operation. Helps track refresh costs.">
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-xs mb-1">Last Refresh</h3>
-                <p className="text-lg font-bold">
-                  {refreshCost.reads > 0 ? refreshCost.reads : "-"}
-                </p>
-                <p className="text-xs text-gray-500">reads used</p>
-              </div>
-            </Tooltip>
-            <Tooltip content="Estimated total cost for Firebase operations in this session based on current pricing. Includes both read and write operations.">
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-xs mb-1">Estimated Cost</h3>
-                <p className="text-lg font-bold text-green-400">
-                  $
+              <div className="mt-4 pt-4 border-t border-blue-500/20 text-center">
+                <p className="text-sm text-blue-300 font-medium">
+                  Session Cost: $
                   {(
                     (firebaseReads * 0.36 + firebaseWrites * 1.08) /
                     100000
                   ).toFixed(6)}
                 </p>
-                <p className="text-xs text-gray-500">this session</p>
               </div>
-            </Tooltip>
-            <Tooltip content="Data quality and analytics accuracy score based on recent refresh and data completeness.">
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-xs mb-1">Data Quality</h3>
-                <p className="text-lg font-bold text-green-400">
-                  {analyticsData ? "98%" : "N/A"}
+            </div>
+
+            {/* Total Usage (Time-Filtered) */}
+            <div className="bg-gradient-to-br from-green-900/30 to-teal-900/30 border border-green-500/30 rounded-lg p-4">
+              <h3 className="text-lg font-semibold mb-4 text-green-300 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                Total Usage (
+                {timeRange === "custom" ? `${customDays} days` : timeRange})
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <Tooltip content="All Firebase read operations within your selected time range. This is the cumulative total across all sessions.">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-green-400">
+                      {analyticsData?.firebaseUsage?.totalReads || 0}
+                    </p>
+                    <p className="text-xs text-gray-400">Total Reads</p>
+                    <p className="text-xs text-gray-500">
+                      $
+                      {(
+                        ((analyticsData?.firebaseUsage?.totalReads || 0) *
+                          0.36) /
+                        100000
+                      ).toFixed(6)}
+                    </p>
+                  </div>
+                </Tooltip>
+                <Tooltip content="All Firebase write operations within your selected time range. Includes all data storage and tracking operations.">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-green-400">
+                      {analyticsData?.firebaseUsage?.totalWrites || 0}
+                    </p>
+                    <p className="text-xs text-gray-400">Total Writes</p>
+                    <p className="text-xs text-gray-500">
+                      $
+                      {(
+                        ((analyticsData?.firebaseUsage?.totalWrites || 0) *
+                          1.08) /
+                        100000
+                      ).toFixed(6)}
+                    </p>
+                  </div>
+                </Tooltip>
+              </div>
+              <div className="mt-4 pt-4 border-t border-green-500/20 text-center">
+                <p className="text-sm text-green-300 font-medium">
+                  Total Cost: $
+                  {(analyticsData?.firebaseUsage?.totalCost || 0).toFixed(6)}
                 </p>
-                <p className="text-xs text-gray-500">accuracy</p>
               </div>
-            </Tooltip>
-            <Tooltip content="Efficiency score based on Firebase usage and data processing performance.">
-              <div className="bg-gray-700 p-4 rounded-lg">
-                <h3 className="text-gray-400 text-xs mb-1">Efficiency</h3>
-                <p className="text-lg font-bold text-blue-400">
-                  {firebaseReads <= 20
-                    ? "High"
-                    : firebaseReads <= 50
-                      ? "Good"
-                      : "Fair"}
-                </p>
-                <p className="text-xs text-gray-500">performance</p>
-              </div>
-            </Tooltip>
+            </div>
           </div>
+
+          {/* Top Operations */}
+          {analyticsData?.firebaseUsage?.topOperations &&
+            analyticsData.firebaseUsage.topOperations.length > 0 && (
+              <div className="bg-gray-700/50 rounded-lg p-4 mb-6">
+                <h3 className="text-lg font-semibold mb-4 text-yellow-300">
+                  📊 Top Operations (
+                  {timeRange === "custom" ? `${customDays} days` : timeRange})
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {analyticsData.firebaseUsage.topOperations
+                    .slice(0, 6)
+                    .map((operation) => (
+                      <div
+                        key={operation.operation}
+                        className="bg-gray-600/50 p-3 rounded-lg"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-yellow-300">
+                            {operation.operation}
+                          </span>
+                          <span className="text-sm font-bold text-white">
+                            {operation.count}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Cost: ${operation.totalCost.toFixed(6)}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+          {/* Daily Usage Chart */}
+          {analyticsData?.firebaseUsage?.dailyUsage &&
+            analyticsData.firebaseUsage.dailyUsage.length > 0 && (
+              <div className="bg-gray-700/50 rounded-lg p-4 mb-6">
+                <h3 className="text-lg font-semibold mb-4 text-purple-300">
+                  📈 Daily Usage Trend (
+                  {timeRange === "custom" ? `${customDays} days` : timeRange})
+                </h3>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {analyticsData.firebaseUsage.dailyUsage
+                    .slice(-10)
+                    .map((day) => (
+                      <div
+                        key={day.date}
+                        className="flex items-center justify-between bg-gray-600/50 p-2 rounded"
+                      >
+                        <span className="text-sm text-gray-300">
+                          {day.date}
+                        </span>
+                        <div className="flex items-center gap-4 text-xs">
+                          <span className="text-blue-400">R: {day.reads}</span>
+                          <span className="text-orange-400">
+                            W: {day.writes}
+                          </span>
+                          <span className="text-green-400">
+                            ${day.cost.toFixed(6)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
 
           {/* Usage Guidelines */}
           <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-500/20 rounded-lg p-4">
@@ -3035,15 +3158,18 @@ export default function AnalyticsPage() {
           </div>
 
           {lastRefreshTime && (
-            <div className="mt-4 text-sm text-gray-400">
-              <p>
+            <div className="mt-4 text-sm text-gray-400 flex items-center justify-between">
+              <span>
                 Last refresh: {lastRefreshTime.toLocaleString()}
                 <span className="ml-2 text-green-400">
                   (
                   {Math.round((Date.now() - lastRefreshTime.getTime()) / 60000)}{" "}
-                  minutes ago)
+                  min ago)
                 </span>
-              </p>
+              </span>
+              <span className="text-xs bg-gray-700 px-2 py-1 rounded">
+                Refresh cost: {refreshCost.reads} reads
+              </span>
             </div>
           )}
         </div>
