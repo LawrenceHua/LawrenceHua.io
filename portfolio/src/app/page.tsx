@@ -660,7 +660,30 @@ export default function ModernHome() {
         }
 
         // Special handling for specific sections on mobile
-        if (sectionId === "timeline" && currentStep === 2) {
+        if (sectionId === "skills" && currentStep === 1) {
+          // Step 2: Skills - scroll to bottom of skills cards, positioning before "Professional Journey"
+          debugLog("🛠️ Step 2: Scrolling to bottom of skills section");
+          const skillsSection = document.getElementById("skills");
+          if (skillsSection) {
+            const skillsRect = skillsSection.getBoundingClientRect();
+            const skillsAbsoluteTop = skillsRect.top + window.pageYOffset;
+            // Position at the bottom of the skills section + some extra to show before Professional Journey
+            const finalPosition = skillsAbsoluteTop + skillsRect.height - 200;
+            debugLog("🛠️ Step 2: Skills section bottom positioning", {
+              finalPosition,
+              skillsAbsoluteTop,
+              skillsHeight: skillsRect.height,
+              offset: -200,
+            });
+            window.scrollTo({ top: finalPosition, behavior: "smooth" });
+            return;
+          }
+          // Fallback positioning - still scroll lower than default
+          const finalPosition = absoluteElementTop + 300;
+          debugLog("🛠️ Step 2: Skills fallback positioning", { finalPosition });
+          window.scrollTo({ top: finalPosition, behavior: "smooth" });
+          return;
+        } else if (sectionId === "timeline" && currentStep === 2) {
           // Education step - focus on bottom of education gallery
           // Find the last education item to position at the bottom of education section
           const educationItems = document.querySelectorAll(
@@ -764,6 +787,26 @@ export default function ModernHome() {
       }
 
       // Desktop handling (unchanged)
+      // Special handling for Step 2 (skills) - position to bottom of skills section
+      if (sectionId === "skills" && isActive && currentStep === 1) {
+        debugLog("🛠️ Step 2 Desktop: Scrolling to bottom of skills section");
+        const skillsSection = document.getElementById("skills");
+        if (skillsSection) {
+          const skillsRect = skillsSection.getBoundingClientRect();
+          const skillsAbsoluteTop = skillsRect.top + window.pageYOffset;
+          // Position at the bottom of the skills section for desktop
+          const finalPosition = skillsAbsoluteTop + skillsRect.height - 300;
+          debugLog("🛠️ Step 2 Desktop: Skills positioning", {
+            finalPosition,
+            skillsAbsoluteTop,
+            skillsHeight: skillsRect.height,
+            offset: -300,
+          });
+          window.scrollTo({ top: finalPosition, behavior: "smooth" });
+          return;
+        }
+      }
+
       // Special handling for step 4 (experience) targeting timeline - position to show work experience
       if (sectionId === "timeline" && isActive && currentStep === 3) {
         const offset = 750; // Desktop offset to show work experience section
