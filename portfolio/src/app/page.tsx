@@ -71,7 +71,12 @@ interface TourStep {
     | "work-experience-top"
     | "education-left"
     | "bottom-right-lower"
-    | "education-below";
+    | "education-below"
+    | "skills-title-left"
+    | "education-right-of-arrows"
+    | "work-experience-left-of-arrows"
+    | "project-next-to-arrows"
+    | "project-next-to-arrows-2";
 }
 
 const tourSteps: TourStep[] = [
@@ -100,7 +105,7 @@ const tourSteps: TourStep[] = [
       "Data Analysis",
       "Full-Stack Development",
     ],
-    position: "top-left",
+    position: "skills-title-left",
   },
   {
     id: "education",
@@ -112,7 +117,7 @@ const tourSteps: TourStep[] = [
     color: "from-green-600 to-teal-600",
     duration: 10000,
     highlights: ["Carnegie Mellon", "University of Florida"],
-    position: "work-experience-top",
+    position: "education-right-of-arrows",
   },
   {
     id: "experience",
@@ -124,7 +129,7 @@ const tourSteps: TourStep[] = [
     color: "from-orange-600 to-red-600",
     duration: 12000,
     highlights: ["Android Engineer", "AI Consultant", "Product Internships"],
-    position: "education-below",
+    position: "work-experience-left-of-arrows",
   },
   {
     id: "project-expired-solutions",
@@ -140,7 +145,7 @@ const tourSteps: TourStep[] = [
       "AI-Powered Platform",
       "20% Shrink Reduction",
     ],
-    position: "bottom-right-lower",
+    position: "project-next-to-arrows",
   },
   {
     id: "project-bbw",
@@ -152,7 +157,7 @@ const tourSteps: TourStep[] = [
     color: "from-pink-600 to-rose-600",
     duration: 10000,
     highlights: ["LLM Technology", "18hrs/week saved", "Enterprise Tool"],
-    position: "bottom-left",
+    position: "project-next-to-arrows-2",
   },
 ];
 
@@ -931,22 +936,68 @@ export default function ModernHome() {
     }
   };
 
+  // Helper function to find arrow target elements and calculate positions relative to them
+  const getArrowBasedPosition = (
+    currentStep: number,
+    side: "left" | "right"
+  ) => {
+    const stepTargets = {
+      1: [
+        "skill-product-strategy",
+        "skill-data-analysis",
+        "skill-stakeholder-management",
+      ], // Step 2: Skills
+      2: [
+        "timeline-carnegie-mellon-university",
+        "timeline-university-of-florida",
+      ], // Step 3: Education
+      3: ["work-experience-title"], // Step 4: Work Experience
+      4: ["project-expired-solutions"], // Step 5: Project 1
+      5: ["project-bbw"], // Step 6: Project 2
+    };
+
+    const targets = stepTargets[currentStep as keyof typeof stepTargets] || [];
+    if (targets.length === 0) return null;
+
+    // Use the first target as reference point
+    const targetElement = document.getElementById(targets[0]);
+    if (!targetElement) return null;
+
+    const rect = targetElement.getBoundingClientRect();
+    const popupWidth = 384; // max-w-md = 448px, but use 384 for safety
+    const arrowOffset = 100; // Distance from arrow
+
+    let left, top;
+
+    if (side === "right") {
+      // Position to the right of the target element
+      left = rect.right + arrowOffset;
+      // If too close to right edge, move left
+      if (left + popupWidth > window.innerWidth) {
+        left = window.innerWidth - popupWidth - 24;
+      }
+    } else {
+      // Position to the left of the target element
+      left = rect.left - popupWidth - arrowOffset;
+      // If too close to left edge, move right
+      if (left < 24) {
+        left = 24;
+      }
+    }
+
+    // Vertically center with target, but keep in viewport
+    top = rect.top + rect.height / 2 - 150; // Assume popup height ~300px
+    if (top < 24) top = 24;
+    if (top + 300 > window.innerHeight) top = window.innerHeight - 324;
+
+    return { top: `${top}px`, left: `${left}px`, right: "auto" };
+  };
+
   const getPopupPosition = (position: string) => {
     const isMobile = window.innerWidth < 768;
 
     if (isMobile) {
-      // Special positioning for Step 4 (Work Experience) on mobile
-      if (position === "education-below" && isActive && currentStep === 3) {
-        // Position the popup near the "Work Experience" title that we just scrolled to
-        return {
-          top: "20vh", // Position in upper portion of viewport
-          left: "50vw",
-          transform: "translate(-50%, 0)",
-          right: "auto",
-        };
-      }
-
-      // On mobile, position cards in the center of the visible viewport as overlay
+      // For mobile, keep the existing center positioning for simplicity
       return {
         top: "50vh",
         left: "50vw",
@@ -955,11 +1006,47 @@ export default function ModernHome() {
       };
     }
 
-    // Desktop positioning (unchanged)
+    // Desktop positioning with new dynamic arrow-based positions
     switch (position) {
-      case "top-left":
-        // Step 2: Position at same level as skills buttons (much lower than original)
+      // New dynamic positions based on arrow locations
+      case "skills-title-left":
+        // Step 2: Position near skills title on the left
+        const skillsSection = document.getElementById("skills");
+        if (skillsSection) {
+          const rect = skillsSection.getBoundingClientRect();
+          return {
+            top: `${rect.top + 150}px`,
+            left: "24px",
+            right: "auto",
+          };
+        }
         return { top: "400px", left: "24px", right: "auto" };
+
+      case "education-right-of-arrows":
+        // Step 3: Position to the right of education arrows
+        const educationPos = getArrowBasedPosition(2, "right");
+        return educationPos || { top: "400px", right: "24px", left: "auto" };
+
+      case "work-experience-left-of-arrows":
+        // Step 4: Position to the left of work experience arrows
+        const workExperiencePos = getArrowBasedPosition(3, "left");
+        return (
+          workExperiencePos || { top: "500px", left: "24px", right: "auto" }
+        );
+
+      case "project-next-to-arrows":
+        // Step 5: Position next to project arrows (right side for first project)
+        const project1Pos = getArrowBasedPosition(4, "right");
+        return project1Pos || { bottom: "200px", right: "24px", left: "auto" };
+
+      case "project-next-to-arrows-2":
+        // Step 6: Position next to project arrows (left side for second project)
+        const project2Pos = getArrowBasedPosition(5, "left");
+        return project2Pos || { bottom: "80px", left: "24px", right: "auto" };
+
+      // Keep existing static positions for backward compatibility
+      case "top-left":
+        return { top: "80px", left: "24px", right: "auto" };
       case "top-right":
         return { top: "80px", right: "24px", left: "auto" };
       case "bottom-left":
@@ -981,24 +1068,20 @@ export default function ModernHome() {
           right: "auto",
         };
       case "work-experience-top":
-        // Position on top of the work experience section
         return {
           top: "300px",
           right: "24px",
           left: "auto",
         };
       case "education-left":
-        // Position on the left side for education
         return {
           top: "400px",
           left: "24px",
           right: "auto",
         };
       case "bottom-right-lower":
-        // Position lower than normal bottom-right for step 5
         return { bottom: "20px", right: "24px", left: "auto" };
       case "education-below":
-        // Step 4: Same x-axis as Step 3 (right side), positioned to cover UF education section
         return { top: "450px", right: "24px", left: "auto" };
       default:
         return { top: "80px", right: "24px", left: "auto" };
