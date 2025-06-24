@@ -105,7 +105,7 @@ const tourSteps: TourStep[] = [
       "Data Analysis",
       "Full-Stack Development",
     ],
-    position: "skills-title-left",
+    position: "top-left",
   },
   {
     id: "education",
@@ -165,9 +165,11 @@ const tourSteps: TourStep[] = [
 const TourArrows = ({
   isActive,
   currentStep,
+  isPaused,
 }: {
   isActive: boolean;
   currentStep: number;
+  isPaused: boolean;
 }) => {
   if (!isActive) return null;
 
@@ -199,18 +201,21 @@ const TourArrows = ({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0 }}
           transition={{ delay: index * 0.2, duration: 0.4 }}
-          className={`${currentStep === 3 ? "absolute" : "fixed"} z-50 pointer-events-none`}
-          style={getArrowPosition(target, currentStep)}
+          className={`${isPaused ? "absolute" : "fixed"} z-50 pointer-events-none will-change-transform`}
+          style={{
+            ...getArrowPosition(target, currentStep, isPaused),
+            willChange: "transform, opacity",
+            backfaceVisibility: "hidden",
+          }}
         >
           <div className="relative">
-            {/* Animated Arrow - Responsive sizing */}
+            {/* Simplified Animated Arrow - Reduced animation for better performance */}
             <motion.div
               animate={{
-                y: [0, -8, 0], // Reduced animation distance for mobile
-                scale: [1, 1.15, 1], // Reduced scale animation
+                y: [0, -4, 0], // Reduced animation distance
               }}
               transition={{
-                duration: 1.5,
+                duration: 2, // Slower animation for better performance
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
@@ -219,20 +224,20 @@ const TourArrows = ({
               <FiArrowDown className="w-4 h-4 md:w-8 md:h-8" />
             </motion.div>
 
-            {/* Arrow tail/line - Responsive sizing */}
+            {/* Simplified Arrow tail/line */}
             <div
               className={`absolute top-6 md:top-12 left-1/2 transform -translate-x-1/2 w-0.5 md:w-1 bg-gradient-to-b ${tourSteps[currentStep].color} rounded-full`}
               style={{ height: window.innerWidth < 768 ? "30px" : "60px" }}
             />
 
-            {/* Pulse effect - Responsive sizing */}
+            {/* Simplified pulse effect with reduced animation */}
             <motion.div
               animate={{
-                scale: [1, 1.8, 1], // Reduced scale for mobile
-                opacity: [0.6, 0, 0.6], // Reduced opacity for mobile
+                scale: [1, 1.3, 1], // Reduced scale range
+                opacity: [0.4, 0, 0.4], // Reduced opacity range
               }}
               transition={{
-                duration: 1.5,
+                duration: 2.5, // Slower for better performance
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
@@ -245,8 +250,164 @@ const TourArrows = ({
   );
 };
 
+// Radar Arrow Component - shows direction to tour content when user scrolls away
+const RadarArrow = ({
+  isActive,
+  currentStep,
+  onScrollToSection,
+}: {
+  isActive: boolean;
+  currentStep: number;
+  onScrollToSection: (sectionId: string, stepIndex?: number) => void;
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [direction, setDirection] = useState<"up" | "down">("down");
+  const [distance, setDistance] = useState(0);
+
+  useEffect(() => {
+    if (!isActive) {
+      setIsVisible(false);
+      return;
+    }
+
+    // Radar should work even when paused - especially when paused and scrolled away
+
+    // Debounced scroll position check for better performance
+    let timeoutId: NodeJS.Timeout;
+    const checkScrollPosition = () => {
+      const currentStepData = tourSteps[currentStep];
+      const targetElement = document.getElementById(
+        currentStepData.targetSection
+      );
+
+      if (!targetElement) return;
+
+      const rect = targetElement.getBoundingClientRect();
+      const elementTop = rect.top;
+      const elementBottom = rect.bottom;
+      const viewportHeight = window.innerHeight;
+
+      // Calculate if the target element is visible in viewport
+      const isElementVisible = elementTop < viewportHeight && elementBottom > 0;
+
+      // Calculate distance and direction
+      let scrollDirection: "up" | "down" = "down";
+      let scrollDistance = 0;
+
+      if (elementTop > viewportHeight) {
+        // Element is below viewport
+        scrollDirection = "down";
+        scrollDistance = elementTop - viewportHeight;
+      } else if (elementBottom < 0) {
+        // Element is above viewport
+        scrollDirection = "up";
+        scrollDistance = Math.abs(elementBottom);
+      }
+
+      // Show radar if element is not visible and user has scrolled away significantly
+      const threshold = 300; // Increased threshold to reduce flickering
+      const shouldShow = !isElementVisible && scrollDistance > threshold;
+
+      setIsVisible(shouldShow);
+      setDirection(scrollDirection);
+      setDistance(scrollDistance);
+    };
+
+    // Debounced scroll handler for better performance
+    const debouncedScrollCheck = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(checkScrollPosition, 100); // 100ms debounce
+    };
+
+    // Check on scroll and resize with debouncing
+    checkScrollPosition();
+    window.addEventListener("scroll", debouncedScrollCheck, { passive: true });
+    window.addEventListener("resize", debouncedScrollCheck, { passive: true });
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("scroll", debouncedScrollCheck);
+      window.removeEventListener("resize", debouncedScrollCheck);
+    };
+  }, [isActive, currentStep]);
+
+  const scrollToTarget = () => {
+    const currentStepData = tourSteps[currentStep];
+    onScrollToSection(currentStepData.targetSection, currentStep);
+  };
+
+  if (!isVisible) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0 }}
+      className="fixed top-1/2 right-6 -translate-y-1/2 z-40 cursor-pointer"
+      onClick={scrollToTarget}
+    >
+      <div className="relative">
+        {/* Simplified Radar Background - reduced animation complexity */}
+        <motion.div
+          animate={{ rotate: [0, 360] }}
+          transition={{
+            duration: 4, // Slower rotation for better performance
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-dashed border-purple-400 dark:border-purple-300"
+        />
+
+        {/* Simplified Inner Ring */}
+        <div className="absolute inset-2 md:inset-3 rounded-full border border-purple-400 dark:border-purple-300 opacity-60" />
+
+        {/* Central Arrow - simplified animation */}
+        <div
+          className={`absolute inset-0 w-16 h-16 md:w-20 md:h-20 flex items-center justify-center bg-gradient-to-r ${tourSteps[currentStep].color} rounded-full shadow-lg hover:shadow-xl transition-shadow duration-300`}
+        >
+          <motion.div
+            animate={{
+              y: direction === "up" ? [-1, -3, -1] : [1, 3, 1],
+            }}
+            transition={{
+              duration: 2, // Slower animation
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            {direction === "up" ? (
+              <FiArrowUp className="w-6 h-6 md:w-8 md:h-8 text-white" />
+            ) : (
+              <FiArrowDown className="w-6 h-6 md:w-8 md:h-8 text-white" />
+            )}
+          </motion.div>
+        </div>
+
+        {/* Simplified Distance Indicator */}
+        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded-md whitespace-nowrap">
+          {direction === "up" ? "↑" : "↓"} {Math.round(distance / 100)}00px
+        </div>
+      </div>
+
+      {/* Simplified Help Text */}
+      <div className="absolute -left-32 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm px-3 py-2 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-90">
+        <div className="font-semibold">
+          Tour content {direction === "up" ? "above" : "below"}
+        </div>
+        <div className="text-xs text-gray-600 dark:text-gray-400">
+          Click to navigate
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 // Helper function to get arrow positions for different timeline elements
-const getArrowPosition = (targetId: string, currentStep: number) => {
+const getArrowPosition = (
+  targetId: string,
+  currentStep: number,
+  isPaused: boolean = false
+) => {
   if (typeof window === "undefined") {
     return { top: "50%", left: "50%", right: "auto" };
   }
@@ -262,8 +423,8 @@ const getArrowPosition = (targetId: string, currentStep: number) => {
     const arrowSize = isMobile ? 16 : 32; // Half of actual arrow size for centering
     const topOffset = isMobile ? 40 : 70; // Less spacing above target on mobile
 
-    // For step 4 (work experience), use absolute positioning since scroll is enabled
-    if (currentStep === 3) {
+    if (isPaused) {
+      // When paused, use absolute positioning relative to page (sticks to target element)
       const absoluteTop = rect.top + window.pageYOffset - topOffset;
       const absoluteLeft =
         rect.left + window.pageXOffset + rect.width / 2 - arrowSize;
@@ -273,14 +434,13 @@ const getArrowPosition = (targetId: string, currentStep: number) => {
         left: `${absoluteLeft}px`,
         right: "auto",
       };
+    } else {
+      // When active, use fixed positioning relative to viewport
+      const top = rect.top - topOffset;
+      const left = rect.left + rect.width / 2 - arrowSize;
+
+      return { top: `${top}px`, left: `${left}px`, right: "auto" };
     }
-
-    // For all other steps, anchor arrows to their target elements
-    // This ensures arrows are always attached to specific items, not screen positions
-    const top = rect.top - topOffset;
-    const left = rect.left + rect.width / 2 - arrowSize;
-
-    return { top: `${top}px`, left: `${left}px`, right: "auto" };
   }
 
   // Fallback if element not found (e.g., during transitions)
@@ -546,20 +706,23 @@ export default function ModernHome() {
     }
   };
 
-  // Helper function to render highlighted text
+  // Letter-by-letter highlighting function
   const renderHighlightedText = (text: string, highlightIndex: number) => {
     const characters = text.split("");
+
     return (
       <span className="text-gray-600 dark:text-gray-300 leading-relaxed">
         {characters.map((char, index) => (
           <span
             key={index}
-            className={`transition-all duration-300 ease-out ${
-              highlightIndex === -1
-                ? "text-gray-600 dark:text-gray-300" // All highlights cleared
-                : index <= highlightIndex
-                  ? "text-white dark:text-white drop-shadow-[0_0_8px_rgba(59,130,246,0.6)] dark:drop-shadow-[0_0_12px_rgba(96,165,250,0.8)]"
-                  : "text-gray-400 dark:text-gray-500 opacity-60"
+            className={`transition-colors duration-200 ease-out ${
+              highlightIndex === -2
+                ? "text-gray-600 dark:text-gray-300" // Show full text without highlighting
+                : highlightIndex === -1
+                  ? "text-gray-600 dark:text-gray-300" // All highlights cleared
+                  : index <= highlightIndex
+                    ? "text-white dark:text-white drop-shadow-[0_0_8px_rgba(59,130,246,0.6)] dark:drop-shadow-[0_0_12px_rgba(96,165,250,0.8)]"
+                    : "text-gray-400 dark:text-gray-500 opacity-60"
             }`}
           >
             {char}
@@ -607,7 +770,7 @@ export default function ModernHome() {
     setShowFinalCTA(false);
     setHighlightedIndex(0);
     setCountdown(0);
-    setCurrentCharacterIndex(0);
+    setCurrentCharacterIndex(-2); // Show full text initially
     setIsPaused(false);
 
     // Track tour start
@@ -668,25 +831,24 @@ export default function ModernHome() {
 
         // Special handling for specific sections on mobile
         if (sectionId === "skills" && actualStep === 1) {
-          // Step 2: Skills - scroll to bottom of skills cards, positioning before "Professional Journey"
-          debugLog("🛠️ Step 2: Scrolling to bottom of skills section");
+          // Step 2: Skills - scroll to TOP of skills section for proper framing
+          debugLog("🛠️ Step 2: Scrolling to top of skills section");
           const skillsSection = document.getElementById("skills");
           if (skillsSection) {
             const skillsRect = skillsSection.getBoundingClientRect();
             const skillsAbsoluteTop = skillsRect.top + window.pageYOffset;
-            // Position at the bottom of the skills section + some extra to show before Professional Journey (reduced to scroll less)
-            const finalPosition = skillsAbsoluteTop + skillsRect.height - 400;
-            debugLog("🛠️ Step 2: Skills section bottom positioning", {
+            // Position at the top of skills section with minimal offset
+            const finalPosition = skillsAbsoluteTop - 100;
+            debugLog("🛠️ Step 2: Skills section top positioning", {
               finalPosition,
               skillsAbsoluteTop,
-              skillsHeight: skillsRect.height,
-              offset: -400,
+              offset: -100,
             });
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
-          // Fallback positioning - still scroll lower than default
-          const finalPosition = absoluteElementTop + 300;
+          // Fallback positioning - minimal offset
+          const finalPosition = absoluteElementTop - 50;
           debugLog("🛠️ Step 2: Skills fallback positioning", { finalPosition });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
@@ -713,17 +875,15 @@ export default function ModernHome() {
           });
 
           if (educationItems.length > 0) {
-            const lastEducationItem = educationItems[educationItems.length - 1];
-            const lastItemRect = lastEducationItem.getBoundingClientRect();
-            const lastItemAbsoluteTop = lastItemRect.top + window.pageYOffset;
-            // Position to show the education section
-            const finalPosition =
-              lastItemAbsoluteTop + lastItemRect.height - 300;
+            const firstEducationItem = educationItems[0];
+            const firstItemRect = firstEducationItem.getBoundingClientRect();
+            const firstItemAbsoluteTop = firstItemRect.top + window.pageYOffset;
+            // Position to show the education section with reduced offset
+            const finalPosition = firstItemAbsoluteTop - 150;
             debugLog("🎓 Step 3: Education positioning successful", {
               finalPosition,
-              lastItemAbsoluteTop,
-              lastItemHeight: lastItemRect.height,
-              offset: -300,
+              firstItemAbsoluteTop,
+              offset: -150,
             });
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
@@ -737,12 +897,12 @@ export default function ModernHome() {
           if (timelineSection) {
             const timelineRect = timelineSection.getBoundingClientRect();
             const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
-            // Position at the top half of timeline (education section)
-            const finalPosition = timelineAbsoluteTop + 200;
+            // Position at the top of timeline (education section) with reduced offset
+            const finalPosition = timelineAbsoluteTop - 50;
             debugLog("🎓 Step 3: Timeline education fallback", {
               finalPosition,
               timelineAbsoluteTop,
-              offset: 200,
+              offset: -50,
             });
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
@@ -750,69 +910,49 @@ export default function ModernHome() {
 
           // Final fallback
           debugLog("🎓 Step 3: Using final fallback positioning");
-          const finalPosition = absoluteElementTop + 200;
+          const finalPosition = absoluteElementTop - 100;
           debugLog("🎓 Step 3: Final fallback", { finalPosition });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "timeline" && actualStep === 3) {
-          // Work experience step - position to show work experience section (reduced scroll distance)
+          // Work experience step - use same positioning as education for consistency
           debugLog("✅ STEP 4 CONDITION MET: timeline + actualStep === 3");
-          debugLog("🎯 Mobile Step 4: Looking for work-experience-title");
-          debugLog("🎯 Mobile Step 4: Current step details", {
-            currentStep: actualStep,
-            stepId: tourSteps[actualStep]?.id,
-            stepTitle: tourSteps[actualStep]?.title,
-            targetSection: sectionId,
-          });
-
-          // Try to find the work experience title element
-          const workExperienceTitle = document.getElementById(
-            "work-experience-title"
-          );
-          if (workExperienceTitle) {
-            const workTitleRect = workExperienceTitle.getBoundingClientRect();
-            const workTitleAbsoluteTop = workTitleRect.top + window.pageYOffset;
-            // Position the work experience title with reduced offset for mobile (was -150, now -75)
-            const finalPosition = workTitleAbsoluteTop - 75;
-            debugLog(
-              "🎯 Mobile Step 4: Found work-experience-title, scrolling to:",
-              { finalPosition, workTitleAbsoluteTop, offset: -75 }
-            );
-            window.scrollTo({ top: finalPosition, behavior: "smooth" });
-            return;
-          }
-
           debugLog(
-            "🎯 Mobile Step 4: work-experience-title not found, using timeline fallback"
+            "🎯 Mobile Step 4: Using same positioning as Step 3 (education)"
           );
-          // Fallback: Look for any work experience elements in the timeline
+
+          // Use same approach as Step 3 education for consistent view
           const timelineSection = document.getElementById("timeline");
           if (timelineSection) {
             const timelineRect = timelineSection.getBoundingClientRect();
             const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
-            // Position with reduced scroll distance (was +300, now +150)
-            const finalPosition = timelineAbsoluteTop + 150;
+            // Position at the top of timeline (same as education) with reduced offset
+            const finalPosition = timelineAbsoluteTop - 50;
             debugLog(
-              "🎯 Mobile Step 4: Using timeline fallback, scrolling to:",
-              { finalPosition, timelineAbsoluteTop, offset: 150 }
+              "🎯 Mobile Step 4: Timeline positioning (same as education)",
+              {
+                finalPosition,
+                timelineAbsoluteTop,
+                offset: -50,
+              }
             );
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
 
           debugLog("🎯 Mobile Step 4: Using final fallback");
-          // Final fallback - more conservative positioning (was +150, now +75)
-          const finalPosition = absoluteElementTop + 75;
+          // Final fallback
+          const finalPosition = absoluteElementTop - 100;
           debugLog("🎯 Mobile Step 4: Final fallback, scrolling to:", {
             finalPosition,
             absoluteElementTop,
-            offset: 75,
+            offset: -100,
           });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "projects") {
-          // Projects step - center on projects section
-          const finalPosition = absoluteElementTop - 100;
+          // Projects step - center on projects section with reduced offset
+          const finalPosition = absoluteElementTop - 150;
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else {
@@ -838,55 +978,127 @@ export default function ModernHome() {
       }
 
       // Desktop handling (unchanged)
-      // Special handling for Step 2 (skills) - position to bottom of skills section
+      // Special handling for Step 2 (skills) - position to TOP of skills section
       if (sectionId === "skills" && isActive && actualStep === 1) {
-        debugLog("🛠️ Step 2 Desktop: Scrolling to bottom of skills section");
+        debugLog("🛠️ Step 2 Desktop: Scrolling to top of skills section");
         const skillsSection = document.getElementById("skills");
         if (skillsSection) {
           const skillsRect = skillsSection.getBoundingClientRect();
           const skillsAbsoluteTop = skillsRect.top + window.pageYOffset;
-          // Position at the bottom of the skills section for desktop (reduced to scroll less)
-          const finalPosition = skillsAbsoluteTop + skillsRect.height - 500;
+          // Position at the TOP of the skills section for desktop
+          const finalPosition = skillsAbsoluteTop - 150;
           debugLog("🛠️ Step 2 Desktop: Skills positioning", {
             finalPosition,
             skillsAbsoluteTop,
-            skillsHeight: skillsRect.height,
-            offset: -500,
+            offset: -150,
           });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         }
       }
 
-      // Special handling for Step 3 (education) targeting timeline - position to show education section
+      // Special handling for Step 3 (education) targeting timeline - go directly to final position
       if (sectionId === "timeline" && isActive && actualStep === 2) {
-        debugLog("🎓 Step 3 Desktop: Scrolling to education section");
+        debugLog(
+          "🎓 Step 3 Desktop: Scrolling directly to education final position"
+        );
+
+        // Try to find specific education items first for most accurate positioning
+        let educationItems = document.querySelectorAll(
+          '[id^="timeline-university"], [id^="timeline-carnegie"]'
+        );
+
+        if (educationItems.length > 0) {
+          const firstEducationItem = educationItems[0];
+          const firstItemRect = firstEducationItem.getBoundingClientRect();
+          const firstItemAbsoluteTop = firstItemRect.top + window.pageYOffset;
+          const finalPosition = firstItemAbsoluteTop - 150;
+          debugLog("🎓 Step 3 Desktop: Education item positioning", {
+            finalPosition,
+            firstItemAbsoluteTop,
+            offset: -150,
+          });
+          window.scrollTo({ top: finalPosition, behavior: "smooth" });
+          return;
+        }
+
+        // Fallback to timeline section
         const timelineSection = document.getElementById("timeline");
         if (timelineSection) {
           const timelineRect = timelineSection.getBoundingClientRect();
           const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
-          // Position at education section for desktop (top portion of timeline)
-          const finalPosition = timelineAbsoluteTop + 300;
-          debugLog("🎓 Step 3 Desktop: Education positioning", {
+          const finalPosition = timelineAbsoluteTop - 50;
+          debugLog("🎓 Step 3 Desktop: Timeline fallback positioning", {
             finalPosition,
             timelineAbsoluteTop,
-            offset: 300,
+            offset: -50,
           });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         }
       }
 
-      // Special handling for step 4 (experience) targeting timeline - position to show work experience
+      // Special handling for step 4 (experience) targeting timeline - go directly to final position
       if (sectionId === "timeline" && isActive && actualStep === 3) {
-        const offset = 750; // Desktop offset to show work experience section
-        const finalScrollPosition = absoluteElementTop + offset;
+        debugLog(
+          "💼 Step 4 Desktop: Scrolling directly to work experience final position"
+        );
 
-        window.scrollTo({
-          top: finalScrollPosition,
-          behavior: "smooth",
-        });
-        return;
+        // Use same approach as Step 3 for consistency but target work experience area
+        const workExperienceTitle = document.getElementById(
+          "work-experience-title"
+        );
+        if (workExperienceTitle) {
+          const workRect = workExperienceTitle.getBoundingClientRect();
+          const workAbsoluteTop = workRect.top + window.pageYOffset;
+          const finalPosition = workAbsoluteTop - 200; // Extra offset to show work experience clearly
+          debugLog("💼 Step 4 Desktop: Work experience title positioning", {
+            finalPosition,
+            workAbsoluteTop,
+            offset: -200,
+          });
+          window.scrollTo({ top: finalPosition, behavior: "smooth" });
+          return;
+        }
+
+        // Fallback to same position as education
+        const timelineSection = document.getElementById("timeline");
+        if (timelineSection) {
+          const timelineRect = timelineSection.getBoundingClientRect();
+          const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
+          const finalPosition = timelineAbsoluteTop - 50;
+          debugLog("💼 Step 4 Desktop: Timeline fallback positioning", {
+            finalPosition,
+            timelineAbsoluteTop,
+            offset: -50,
+          });
+          window.scrollTo({ top: finalPosition, behavior: "smooth" });
+          return;
+        }
+      }
+
+      // Special handling for projects (steps 5 and 6) - go directly to final position
+      if (
+        sectionId === "projects" &&
+        isActive &&
+        (actualStep === 4 || actualStep === 5)
+      ) {
+        debugLog(
+          `🎯 Step ${actualStep + 1} Desktop: Scrolling directly to projects final position`
+        );
+        const projectsSection = document.getElementById("projects");
+        if (projectsSection) {
+          const projectsRect = projectsSection.getBoundingClientRect();
+          const projectsAbsoluteTop = projectsRect.top + window.pageYOffset;
+          const finalPosition = projectsAbsoluteTop - 100; // Good offset to show projects clearly
+          debugLog(`🎯 Step ${actualStep + 1} Desktop: Projects positioning`, {
+            finalPosition,
+            projectsAbsoluteTop,
+            offset: -100,
+          });
+          window.scrollTo({ top: finalPosition, behavior: "smooth" });
+          return;
+        }
       }
 
       // Special handling for work-experience-bottom to show all work items
@@ -902,7 +1114,7 @@ export default function ModernHome() {
       }
 
       // Default desktop positioning
-      const offset = 100;
+      const offset = 50; // Reduced for better framing
       const finalScrollPosition = absoluteElementTop - offset;
 
       window.scrollTo({
@@ -921,12 +1133,11 @@ export default function ModernHome() {
 
       if (isMobile) {
         // On mobile, position the specific element in the upper portion of the viewport
-        // so it's clearly visible above the tour popup
-        const finalPosition = absoluteElementTop - 150;
+        const finalPosition = absoluteElementTop - 100; // Reduced offset
         window.scrollTo({ top: finalPosition, behavior: "smooth" });
       } else {
-        // Desktop handling
-        const offset = 100;
+        // Desktop handling with reduced offset
+        const offset = 50; // Reduced for better framing
         const finalScrollPosition = absoluteElementTop - offset;
         window.scrollTo({
           top: finalScrollPosition,
@@ -993,20 +1204,65 @@ export default function ModernHome() {
     return { top: `${top}px`, left: `${left}px`, right: "auto" };
   };
 
-  const getPopupPosition = (position: string) => {
+  const getPopupPosition = (position: string, isPaused: boolean = false) => {
     const isMobile = window.innerWidth < 768;
 
     if (isMobile) {
-      // For mobile, keep the existing center positioning for simplicity
-      return {
-        top: "50vh",
-        left: "50vw",
-        transform: "translate(-50%, -50%)",
-        right: "auto",
+      // For mobile, adjust positioning based on paused state
+      if (isPaused) {
+        // When paused on mobile, use fixed positioning (stays with screen)
+        return {
+          top: "50vh",
+          left: "50vw",
+          transform: "translate(-50%, -50%)",
+          right: "auto",
+        };
+      } else {
+        // When active on mobile, use fixed positioning
+        return {
+          top: "50vh",
+          left: "50vw",
+          transform: "translate(-50%, -50%)",
+          right: "auto",
+        };
+      }
+    }
+
+    // Desktop positioning - when paused, calculations include page scroll to stick to content
+    if (isPaused) {
+      // When paused, calculate absolute positions that stick to page content
+      const scrollTop = window.pageYOffset;
+      const scrollLeft = window.pageXOffset;
+
+      // Add scroll offset to make positions stick to page content, not screen
+      const adjustPosition = (pos: any) => {
+        if (pos.top && typeof pos.top === "string" && pos.top.includes("px")) {
+          const topValue = parseInt(pos.top);
+          pos.top = `${topValue + scrollTop}px`;
+        }
+        if (
+          pos.left &&
+          typeof pos.left === "string" &&
+          pos.left.includes("px")
+        ) {
+          const leftValue = parseInt(pos.left);
+          pos.left = `${leftValue + scrollLeft}px`;
+        }
+        if (
+          pos.right &&
+          typeof pos.right === "string" &&
+          pos.right.includes("px")
+        ) {
+          const rightValue = parseInt(pos.right);
+          pos.right = `${rightValue + scrollLeft}px`;
+        }
+        return pos;
       };
     }
 
     // Desktop positioning with new dynamic arrow-based positions
+    let basePosition;
+
     switch (position) {
       // New dynamic positions based on arrow locations
       case "skills-title-left":
@@ -1014,78 +1270,162 @@ export default function ModernHome() {
         const skillsSection = document.getElementById("skills");
         if (skillsSection) {
           const rect = skillsSection.getBoundingClientRect();
-          return {
+          basePosition = {
             top: `${rect.top + 150}px`,
             left: "24px",
             right: "auto",
           };
+        } else {
+          basePosition = { top: "400px", left: "24px", right: "auto" };
         }
-        return { top: "400px", left: "24px", right: "auto" };
+        break;
 
       case "education-right-of-arrows":
         // Step 3: Position to the right of education arrows
         const educationPos = getArrowBasedPosition(2, "right");
-        return educationPos || { top: "400px", right: "24px", left: "auto" };
+        basePosition = educationPos || {
+          top: "400px",
+          right: "24px",
+          left: "auto",
+        };
+        break;
 
       case "work-experience-left-of-arrows":
         // Step 4: Position to the left of work experience arrows
         const workExperiencePos = getArrowBasedPosition(3, "left");
-        return (
-          workExperiencePos || { top: "500px", left: "24px", right: "auto" }
-        );
+        basePosition = workExperiencePos || {
+          top: "500px",
+          left: "24px",
+          right: "auto",
+        };
+        break;
 
       case "project-next-to-arrows":
         // Step 5: Position next to project arrows (right side for first project)
         const project1Pos = getArrowBasedPosition(4, "right");
-        return project1Pos || { bottom: "200px", right: "24px", left: "auto" };
+        basePosition = project1Pos || {
+          bottom: "200px",
+          right: "24px",
+          left: "auto",
+        };
+        break;
 
       case "project-next-to-arrows-2":
         // Step 6: Position next to project arrows (left side for second project)
         const project2Pos = getArrowBasedPosition(5, "left");
-        return project2Pos || { bottom: "80px", left: "24px", right: "auto" };
+        basePosition = project2Pos || {
+          bottom: "80px",
+          left: "24px",
+          right: "auto",
+        };
+        break;
 
       // Keep existing static positions for backward compatibility
       case "top-left":
-        return { top: "80px", left: "24px", right: "auto" };
+        // For Step 2 (Skills), position at very top-left of skills section without covering content
+        if (currentStep === 1) {
+          const skillsSection = document.getElementById("skills");
+          if (skillsSection) {
+            const rect = skillsSection.getBoundingClientRect();
+            // Position above the skills content, not overlapping with "Product Strategy"
+            basePosition = {
+              top: `${rect.top - 20}px`, // Position above the skills section
+              left: "24px",
+              right: "auto",
+            };
+          } else {
+            basePosition = { top: "80px", left: "24px", right: "auto" };
+          }
+        } else {
+          basePosition = { top: "80px", left: "24px", right: "auto" };
+        }
+        break;
       case "top-right":
-        return { top: "80px", right: "24px", left: "auto" };
+        basePosition = { top: "80px", right: "24px", left: "auto" };
+        break;
       case "bottom-left":
-        return { bottom: "80px", left: "24px", right: "auto" };
+        basePosition = { bottom: "80px", left: "24px", right: "auto" };
+        break;
       case "bottom-right":
-        return { bottom: "80px", right: "24px", left: "auto" };
+        basePosition = { bottom: "80px", right: "24px", left: "auto" };
+        break;
       case "bottom-center":
-        return {
+        basePosition = {
           bottom: "80px",
           left: "50%",
           transform: "translateX(-50%)",
           right: "auto",
         };
+        break;
       case "center":
-        return {
+        basePosition = {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
           right: "auto",
         };
+        break;
       case "work-experience-top":
-        return {
+        basePosition = {
           top: "300px",
           right: "24px",
           left: "auto",
         };
+        break;
       case "education-left":
-        return {
+        basePosition = {
           top: "400px",
           left: "24px",
           right: "auto",
         };
+        break;
       case "bottom-right-lower":
-        return { bottom: "20px", right: "24px", left: "auto" };
+        basePosition = { bottom: "20px", right: "24px", left: "auto" };
+        break;
       case "education-below":
-        return { top: "450px", right: "24px", left: "auto" };
+        basePosition = { top: "450px", right: "24px", left: "auto" };
+        break;
       default:
-        return { top: "80px", right: "24px", left: "auto" };
+        basePosition = { top: "80px", right: "24px", left: "auto" };
+        break;
     }
+
+    // Apply scroll offset adjustment when paused (makes popup stick to page content)
+    if (isPaused && basePosition) {
+      const scrollTop = window.pageYOffset;
+      const scrollLeft = window.pageXOffset;
+
+      const adjustedPosition = { ...basePosition } as any;
+
+      if (
+        adjustedPosition.top &&
+        typeof adjustedPosition.top === "string" &&
+        adjustedPosition.top.includes("px")
+      ) {
+        const topValue = parseInt(adjustedPosition.top);
+        adjustedPosition.top = `${topValue + scrollTop}px`;
+      }
+      if (
+        adjustedPosition.left &&
+        typeof adjustedPosition.left === "string" &&
+        adjustedPosition.left.includes("px")
+      ) {
+        const leftValue = parseInt(adjustedPosition.left);
+        adjustedPosition.left = `${leftValue + scrollLeft}px`;
+      }
+      if (
+        adjustedPosition.right &&
+        typeof adjustedPosition.right === "string" &&
+        adjustedPosition.right.includes("px")
+      ) {
+        const rightValue = parseInt(adjustedPosition.right);
+        adjustedPosition.right = `${rightValue + scrollLeft}px`;
+      }
+
+      return adjustedPosition;
+    }
+
+    return basePosition;
   };
 
   const nextStep = () => {
@@ -1106,21 +1446,11 @@ export default function ModernHome() {
         targetSection: tourSteps[nextStepIndex].targetSection,
       });
 
-      // Special handling for project steps to scroll to specific project cards
-      if (nextStepIndex === 4) {
-        // Step 5: Expired Solutions project
-        debugLog("🚀 Step 5: Scrolling to Expired Solutions project");
-        scrollToSpecificElement("project-expired-solutions");
-      } else if (nextStepIndex === 5) {
-        // Step 6: BBW project - scroll to BBW card specifically
-        debugLog("🚀 Step 6: Scrolling to BBW project");
-        scrollToSpecificElement("project-bbw");
-      } else {
-        debugLog(
-          `🚀 Step ${nextStepIndex + 1}: Scrolling to ${tourSteps[nextStepIndex].targetSection}`
-        );
-        scrollToSection(tourSteps[nextStepIndex].targetSection, nextStepIndex);
-      }
+      // All steps now use consistent scrollToSection logic (no special cases here)
+      debugLog(
+        `🚀 Step ${nextStepIndex + 1}: Scrolling to ${tourSteps[nextStepIndex].targetSection}`
+      );
+      scrollToSection(tourSteps[nextStepIndex].targetSection, nextStepIndex);
     } else {
       // Tour complete, scroll to testimonials first then show final CTA
       const testimonialsSection = document.getElementById("testimonials");
@@ -1156,16 +1486,8 @@ export default function ModernHome() {
       setCurrentCharacterIndex(0);
       setIsPaused(false);
 
-      // Special handling for project steps to scroll to specific project cards
-      if (prevStepIndex === 4) {
-        // Step 5: Expired Solutions project
-        scrollToSpecificElement("project-expired-solutions");
-      } else if (prevStepIndex === 5) {
-        // Step 6: BBW project - scroll to BBW card specifically
-        scrollToSpecificElement("project-bbw");
-      } else {
-        scrollToSection(tourSteps[prevStepIndex].targetSection, prevStepIndex);
-      }
+      // All steps use consistent scrollToSection logic
+      scrollToSection(tourSteps[prevStepIndex].targetSection, prevStepIndex);
     }
   };
 
@@ -1187,7 +1509,17 @@ export default function ModernHome() {
   };
 
   const togglePause = () => {
+    const wasPaused = isPaused;
     setIsPaused(!isPaused);
+
+    // When resuming from pause, scroll back to the current step's target section
+    if (wasPaused && isActive) {
+      setTimeout(() => {
+        const currentStepData = tourSteps[currentStep];
+        // All steps use consistent scrollToSection logic
+        scrollToSection(currentStepData.targetSection, currentStep);
+      }, 100); // Small delay to ensure state has updated
+    }
   };
 
   const handleFinalCTAAction = (action: "message" | "meeting") => {
@@ -1212,67 +1544,138 @@ export default function ModernHome() {
     });
   };
 
-  // Tour effects
+  // Show card immediately when step changes, start highlighting after delay
+  useEffect(() => {
+    if (isActive) {
+      // Always show full text immediately when step changes (even if paused)
+      setCurrentCharacterIndex(-2); // -2 means show full text, -1 means show no text
+    }
+  }, [isActive, currentStep]);
+
+  // Separate effect for highlighting animation (only when not paused)
   useEffect(() => {
     if (isActive && !isPaused) {
-      const currentStepData = tourSteps[currentStep];
-      const characters = currentStepData.content.split("");
-      const totalCharacters = characters.length;
-      const highlightDuration = currentStepData.duration - 3000; // Reserve 3 seconds for pause
-      const intervalTime = 50; // 50ms per character for smooth highlighting
-      const totalIntervals = highlightDuration / intervalTime;
-      const charactersPerInterval = totalCharacters / totalIntervals;
+      let interval: NodeJS.Timeout | null = null;
 
-      let currentCharacterCount = 0;
+      // Wait 1 second before starting the highlighting animation
+      const initialDelay = setTimeout(() => {
+        const currentStepData = tourSteps[currentStep];
+        const characters = currentStepData.content.split("");
+        const totalCharacters = characters.length;
+        const highlightDuration = currentStepData.duration - 4000; // Reserve 4 seconds (1s initial + 3s pause)
+        const intervalTime = 50; // 50ms per character for smooth letter-by-letter highlighting
+        const totalIntervals = highlightDuration / intervalTime;
+        const charactersPerInterval = totalCharacters / totalIntervals;
 
-      const interval = setInterval(() => {
-        currentCharacterCount += charactersPerInterval;
-        setCurrentCharacterIndex(Math.floor(currentCharacterCount));
+        let currentCharacterCount = 0;
 
-        if (currentCharacterCount >= totalCharacters) {
-          clearInterval(interval);
-          // Skip auto-advance for Step 4 (Work Experience) - let user manually control
-          if (currentStep === 3) {
-            debugLog("🎯 Step 4 auto-advance disabled - manual control only");
-            setCurrentCharacterIndex(-1); // Clear highlights but don't advance
-            return;
+        interval = setInterval(() => {
+          currentCharacterCount += charactersPerInterval;
+          const newIndex = Math.floor(currentCharacterCount);
+
+          // Only update if the index actually changed to reduce re-renders
+          setCurrentCharacterIndex((prev) =>
+            prev !== newIndex ? newIndex : prev
+          );
+
+          if (currentCharacterCount >= totalCharacters) {
+            if (interval) clearInterval(interval);
+            // After highlighting is complete, wait 1 second then move to next step
+            setTimeout(() => {
+              setCurrentCharacterIndex(-2); // Show full text without highlighting
+              nextStep();
+            }, 1000); // 1 second pause after completion
           }
-          // After highlighting is complete, immediately move to next step
-          setTimeout(() => {
-            setCurrentCharacterIndex(-1); // Clear all highlights
-            nextStep();
-          }, 100);
-        }
-      }, intervalTime);
+        }, intervalTime);
+      }, 1000); // 1-second delay before starting
 
       return () => {
-        clearInterval(interval);
+        clearTimeout(initialDelay);
+        if (interval) clearInterval(interval);
       };
     }
   }, [isActive, currentStep, isPaused]);
 
-  // Scroll lock effect
+  // Enhanced scroll lock effect - blocks user scrolling but allows tour navigation
   useEffect(() => {
     // Lock scrolling only when tour is active AND not paused (applies to all steps)
     const shouldLockScroll = isActive && !isPaused;
 
+    const preventUserScroll = (e: WheelEvent | TouchEvent) => {
+      // Only prevent user-initiated scroll events, not programmatic ones
+      if (e.isTrusted) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+
+    const preventKeyboardScroll = (e: KeyboardEvent) => {
+      const scrollKeys = [
+        "ArrowUp",
+        "ArrowDown",
+        "ArrowLeft",
+        "ArrowRight",
+        "PageUp",
+        "PageDown",
+        "Home",
+        "End",
+        "Space",
+      ];
+      if (scrollKeys.includes(e.key) && e.isTrusted) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+
     if (shouldLockScroll) {
-      // Lock scrolling
+      // CSS overflow prevention for visual effect
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
+
+      // Event listener prevention for user scroll only (not programmatic)
+      document.addEventListener("wheel", preventUserScroll, { passive: false });
+      document.addEventListener("touchmove", preventUserScroll, {
+        passive: false,
+      });
+      document.addEventListener("keydown", preventKeyboardScroll, {
+        passive: false,
+      });
+
+      // Prevent scrolling on window
+      window.addEventListener("wheel", preventUserScroll, { passive: false });
+      window.addEventListener("touchmove", preventUserScroll, {
+        passive: false,
+      });
     } else {
       // Allow scrolling when tour is inactive, paused, or when user pauses any step
       document.body.style.overflow = "unset";
       document.documentElement.style.overflow = "unset";
+
+      // Remove event listeners
+      document.removeEventListener("wheel", preventUserScroll);
+      document.removeEventListener("touchmove", preventUserScroll);
+      document.removeEventListener("keydown", preventKeyboardScroll);
+      window.removeEventListener("wheel", preventUserScroll);
+      window.removeEventListener("touchmove", preventUserScroll);
     }
 
     // Cleanup function to ensure scrolling is restored
     return () => {
       document.body.style.overflow = "unset";
       document.documentElement.style.overflow = "unset";
+
+      // Remove all event listeners
+      document.removeEventListener("wheel", preventUserScroll);
+      document.removeEventListener("touchmove", preventUserScroll);
+      document.removeEventListener("keydown", preventKeyboardScroll);
+      window.removeEventListener("wheel", preventUserScroll);
+      window.removeEventListener("touchmove", preventUserScroll);
     };
   }, [isActive, isPaused]);
 
+  // Optimized highlight cycling with reduced frequency
   useEffect(() => {
     if (isActive && tourSteps[currentStep].highlights && !isPaused) {
       const interval = setInterval(() => {
@@ -1280,7 +1683,7 @@ export default function ModernHome() {
           (prev) =>
             (prev + 1) % (tourSteps[currentStep].highlights?.length || 1)
         );
-      }, 2000);
+      }, 3000); // Increased to 3 seconds for better performance
 
       return () => clearInterval(interval);
     }
@@ -1301,7 +1704,7 @@ export default function ModernHome() {
     if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
       const timer = setTimeout(() => {
         setShowTourInvitation(true);
-      }, 2000); // Show after 2 seconds
+      }, 5000); // Show after 5 seconds
 
       return () => clearTimeout(timer);
     }
@@ -1357,7 +1760,18 @@ export default function ModernHome() {
       />
 
       {/* Tour Arrows */}
-      <TourArrows isActive={isActive} currentStep={currentStep} />
+      <TourArrows
+        isActive={isActive}
+        currentStep={currentStep}
+        isPaused={isPaused}
+      />
+
+      {/* Radar Arrow - shows direction to tour content when scrolled away */}
+      <RadarArrow
+        isActive={isActive}
+        currentStep={currentStep}
+        onScrollToSection={scrollToSection}
+      />
 
       {/* Tour Invitation Popup */}
       <AnimatePresence>
@@ -1432,14 +1846,21 @@ export default function ModernHome() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -50 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed z-50 max-w-xs md:max-w-md"
-            style={getPopupPosition(tourSteps[currentStep].position)}
+            className={`${isPaused ? "absolute" : "fixed"} z-50 max-w-xs md:max-w-md will-change-transform`}
+            style={{
+              ...getPopupPosition(tourSteps[currentStep].position, isPaused),
+              willChange: "transform, opacity",
+              backfaceVisibility: "hidden",
+              perspective: "1000px",
+            }}
             onClick={togglePause}
           >
             <div
-              className={`bg-gradient-to-br ${tourSteps[currentStep].color} p-1 rounded-2xl shadow-2xl cursor-pointer`}
+              className={`bg-gradient-to-br ${tourSteps[currentStep].color} p-1 rounded-2xl shadow-2xl cursor-pointer ${isPaused ? "backdrop-blur-sm" : ""}`}
             >
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-3 md:p-6 relative">
+              <div
+                className={`bg-white dark:bg-gray-900 rounded-xl p-3 md:p-6 relative transition-all duration-300 ${isPaused ? "backdrop-blur-md bg-white/90 dark:bg-gray-900/90" : ""}`}
+              >
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -1450,7 +1871,7 @@ export default function ModernHome() {
                   STOP
                 </button>
 
-                {/* Pause Indicator */}
+                {/* Pause Indicator - only show when paused */}
                 {isPaused && (
                   <div className="absolute top-1.5 left-1.5 md:top-3 md:left-3 flex items-center gap-1 md:gap-2 text-blue-600 dark:text-blue-400">
                     <FiPause className="w-3 h-3 md:w-4 md:h-4" />
@@ -1579,12 +2000,16 @@ export default function ModernHome() {
                     ))}
                   </div>
                   <span className="text-xs text-gray-500">
-                    Step {currentStep + 1} of {tourSteps.length} • Click to{" "}
+                    Step {currentStep + 1} of {tourSteps.length} •{" "}
                     <span className="hidden md:inline">
-                      {isPaused ? "resume" : "pause & scroll"}
+                      {isPaused
+                        ? "Click anywhere to resume tour"
+                        : "Click anywhere to pause & scroll freely"}
                     </span>
                     <span className="md:hidden">
-                      {isPaused ? "resume" : "pause"}
+                      {isPaused
+                        ? "Tap anywhere to resume"
+                        : "Tap to pause & scroll"}
                     </span>
                   </span>
                 </div>

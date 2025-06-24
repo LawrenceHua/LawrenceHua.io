@@ -46,11 +46,11 @@ const tourSteps: TourStep[] = [
     id: "overview",
     title: "🚀 My PM Journey",
     content:
-      "3 concurrent PM roles, driving measurable impact through AI-powered solutions, community growth, and operational excellence.",
+      "Juggling 3 PM roles simultaneously. AI-first products, data-driven growth, measurable impact at every turn.",
     targetSection: "hero",
     icon: <FiBriefcase className="w-5 h-5" />,
     color: "from-purple-600 to-pink-600",
-    duration: 7000, // +2 seconds
+    duration: 7000,
     highlights: [
       "3 Concurrent Roles",
       "AI Product Consultant",
@@ -62,11 +62,11 @@ const tourSteps: TourStep[] = [
     id: "metrics",
     title: "📊 Data-Driven Results",
     content:
-      "Every decision backed by metrics: 30% community growth, 50% engagement lift, 20% waste reduction, 35% test score improvement.",
+      "Numbers don't lie. 30% growth, 50% engagement boost, 20% waste reduction. Every metric tells our success story.",
     targetSection: "timeline",
     icon: <FiTrendingUp className="w-5 h-5" />,
     color: "from-blue-600 to-cyan-600",
-    duration: 8000, // +2 seconds
+    duration: 8000,
     highlights: ["30% Growth", "50% Engagement", "20% Waste Reduction"],
     position: "top-right",
   },
@@ -74,11 +74,11 @@ const tourSteps: TourStep[] = [
     id: "leadership",
     title: "👥 Cross-Functional Leadership",
     content:
-      "Led teams across engineering, design, and business. From Motorola's embedded systems to startup founder managing full product lifecycle.",
+      "From Motorola engineer to startup CEO. Cross-functional leadership across the entire product journey, from embedded systems to market launch.",
     targetSection: "timeline",
     icon: <FiUsers className="w-5 h-5" />,
     color: "from-green-600 to-teal-600",
-    duration: 8500, // +3 seconds
+    duration: 8500,
     highlights: ["Team Leadership", "Stakeholder Management", "GTM Strategy"],
     position: "bottom-right",
   },
@@ -86,11 +86,11 @@ const tourSteps: TourStep[] = [
     id: "ai-innovation",
     title: "🤖 AI Product Innovation",
     content:
-      "Built CV + GPT platforms, automated workflows saving 15hrs/week, and created AI-driven decision tools reducing time by 26%.",
+      "Computer Vision meets GPT magic. 15hrs/week saved through smart automation, 26% faster decisions via AI-powered tools.",
     targetSection: "timeline",
     icon: <FiActivity className="w-5 h-5" />,
     color: "from-orange-600 to-red-600",
-    duration: 8000, // +2 seconds
+    duration: 8000,
     highlights: ["Computer Vision", "GPT Integration", "15hrs/week Saved"],
     position: "bottom-left",
   },
@@ -98,11 +98,11 @@ const tourSteps: TourStep[] = [
     id: "customer-focus",
     title: "🎯 Customer-Centric Approach",
     content:
-      "250+ shopper surveys, 15 executive interviews, 95% customer satisfaction. I obsess over user needs and translate them into features.",
+      "250+ user interviews, 95% satisfaction rate. I turn customer pain points into breakthrough product features that users actually love.",
     targetSection: "projects",
     icon: <FiTarget className="w-5 h-5" />,
     color: "from-indigo-600 to-purple-600",
-    duration: 8500, // +3 seconds
+    duration: 8500,
     highlights: ["250+ Surveys", "User Research", "95% CSAT"],
     position: "top-left",
   },
@@ -110,11 +110,11 @@ const tourSteps: TourStep[] = [
     id: "execution",
     title: "⚡ Rapid Execution",
     content:
-      "From ideation to launch: Built MVP in 3 months, secured pilot opportunities, won venture competitions. I ship fast and iterate faster.",
+      "Idea to MVP in 3 months. Competition winner, pilot secured, users delighted. Ship fast, iterate faster, scale smarter.",
     targetSection: "projects",
     icon: <FiStar className="w-5 h-5" />,
     color: "from-pink-600 to-rose-600",
-    duration: 7000, // +2 seconds
+    duration: 7000,
     highlights: ["3-Month MVP", "McGinnis Finalist", "Giant Eagle Pilot"],
     position: "bottom-center",
   },
@@ -131,11 +131,15 @@ export default function PMTour({
   const [readingProgress, setReadingProgress] = useState(0);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [typedText, setTypedText] = useState("");
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
 
   // New states for popup flow
   const [showTourHoverPopup, setShowTourHoverPopup] = useState(false);
   const [popupsDisabled, setPopupsDisabled] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [hasShownAutoPopup, setHasShownAutoPopup] = useState(false);
+  const [isAutoPopup, setIsAutoPopup] = useState(false);
 
   // Calculate total tour duration
   const totalDuration = tourSteps.reduce((sum, step) => sum + step.duration, 0);
@@ -147,7 +151,10 @@ export default function PMTour({
     setShowFinalCTA(false);
     setReadingProgress(0);
     setHighlightedIndex(0);
+    setTypedText("");
+    setIsTypingComplete(false);
     setShowTourHoverPopup(false);
+    setHasShownAutoPopup(true);
     // Scroll to top first
     window.scrollTo({ top: 0, behavior: "smooth" });
     // Start with first step after a delay
@@ -217,6 +224,8 @@ export default function PMTour({
       setCurrentStep(nextStepIndex);
       setReadingProgress(0);
       setHighlightedIndex(0);
+      setTypedText("");
+      setIsTypingComplete(false);
       scrollToSection(tourSteps[nextStepIndex].targetSection);
     } else {
       // Tour complete, show final CTA
@@ -234,6 +243,8 @@ export default function PMTour({
       setCurrentStep(prevStepIndex);
       setReadingProgress(0);
       setHighlightedIndex(0);
+      setTypedText("");
+      setIsTypingComplete(false);
       scrollToSection(tourSteps[prevStepIndex].targetSection);
     }
   };
@@ -243,23 +254,38 @@ export default function PMTour({
     setShowFinalCTA(false);
     setReadingProgress(0);
     setIsPaused(false);
+    setHighlightedIndex(0);
+    setCurrentStep(0);
+    setTypedText("");
+    setIsTypingComplete(false);
   };
 
   const togglePause = () => {
+    const wasPaused = isPaused;
     setIsPaused(!isPaused);
+
+    // If resuming from pause, scroll back to current step position
+    if (wasPaused && isActive) {
+      setTimeout(() => {
+        scrollToSection(tourSteps[currentStep].targetSection);
+      }, 100);
+    }
   };
 
   const handleTourHoverPopupExit = () => {
     setShowTourHoverPopup(false);
     setPopupsDisabled(true);
+    setHasShownAutoPopup(true);
   };
 
   const handleIconHover = () => {
-    if (!popupsDisabled && !isActive && !showFinalCTA) {
+    // Don't allow hover popup until auto-popup has been shown or timer expired
+    if (!popupsDisabled && !isActive && !showFinalCTA && hasShownAutoPopup) {
       setIsHovering(true);
       setTimeout(() => {
         if (isHovering) {
           setShowTourHoverPopup(true);
+          setIsAutoPopup(false);
         }
       }, 500); // Small delay before showing popup
     }
@@ -275,37 +301,40 @@ export default function PMTour({
   };
 
   const handleFinalCTAAction = (action: "message" | "meeting") => {
-    // Scroll to contact section
-    const contactSection = document.getElementById("contact");
-    if (contactSection) {
-      const elementPosition = contactSection.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - 120;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
-
-    // Close tour
+    // Close tour first to unlock screen
     closeTour();
 
-    // Toggle the appropriate contact form
-    if (onContactFormToggle) {
-      if (action === "message") {
-        onContactFormToggle("message");
-      } else {
-        onContactFormToggle("calendar");
-      }
-    }
-
-    // Trigger the appropriate action after a delay for scroll
+    // Small delay to ensure screen is unlocked before scrolling
     setTimeout(() => {
-      if (action === "message") {
-        onSendMessage();
-      } else {
-        onScheduleMeeting();
+      // Scroll to contact section
+      const contactSection = document.getElementById("contact");
+      if (contactSection) {
+        const elementPosition = contactSection.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - 120;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
       }
-    }, 1000);
+
+      // Toggle the appropriate contact form
+      if (onContactFormToggle) {
+        if (action === "message") {
+          onContactFormToggle("message");
+        } else {
+          onContactFormToggle("calendar");
+        }
+      }
+
+      // Trigger the appropriate action after a delay for scroll
+      setTimeout(() => {
+        if (action === "message") {
+          onSendMessage();
+        } else {
+          onScheduleMeeting();
+        }
+      }, 800);
+    }, 100);
   };
 
   // Reading progress animation
@@ -358,6 +387,127 @@ export default function PMTour({
     }
   }, [showFinalCTA]);
 
+  // Typing animation with punctuation pauses
+  useEffect(() => {
+    if (isActive && !isPaused) {
+      const content = tourSteps[currentStep].content;
+      let charIndex = 0;
+      setTypedText("");
+      setIsTypingComplete(false);
+
+      const typeCharacter = () => {
+        if (charIndex < content.length) {
+          const currentChar = content[charIndex];
+          setTypedText((prev) => prev + currentChar);
+          charIndex++;
+
+          let delay = 50; // Base typing speed
+
+          // Add punctuation pauses
+          if (currentChar === ".") {
+            delay = 500; // 0.5 seconds for periods
+          } else if (currentChar === ",") {
+            delay = 250; // 0.25 seconds for commas
+          }
+
+          setTimeout(typeCharacter, delay);
+        } else {
+          setIsTypingComplete(true);
+        }
+      };
+
+      // Start typing after a small delay
+      const startTyping = setTimeout(typeCharacter, 500);
+
+      return () => {
+        clearTimeout(startTyping);
+      };
+    }
+  }, [isActive, currentStep, isPaused]);
+
+  // Screen locking functionality - lock to current step position
+  useEffect(() => {
+    const body = document.body;
+
+    if (isActive && !isPaused) {
+      // Lock scroll to current step position
+      const preventDefault = (e: Event) => {
+        e.preventDefault();
+      };
+
+      // Prevent all scroll events
+      window.addEventListener("scroll", preventDefault, { passive: false });
+      window.addEventListener("wheel", preventDefault, { passive: false });
+      window.addEventListener("touchmove", preventDefault, { passive: false });
+      document.addEventListener("keydown", (e) => {
+        // Prevent arrow keys, page up/down, space, home, end
+        if (
+          [
+            "ArrowUp",
+            "ArrowDown",
+            "PageUp",
+            "PageDown",
+            "Space",
+            "Home",
+            "End",
+          ].includes(e.code)
+        ) {
+          e.preventDefault();
+        }
+      });
+
+      return () => {
+        window.removeEventListener("scroll", preventDefault);
+        window.removeEventListener("wheel", preventDefault);
+        window.removeEventListener("touchmove", preventDefault);
+        document.removeEventListener("keydown", preventDefault);
+      };
+    } else if (showFinalCTA) {
+      // Lock screen for final CTA popup
+      const scrollY = window.scrollY;
+      body.style.position = "fixed";
+      body.style.top = `-${scrollY}px`;
+      body.style.width = "100%";
+      body.style.overflow = "hidden";
+
+      return () => {
+        body.style.position = "";
+        body.style.top = "";
+        body.style.width = "";
+        body.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isActive, isPaused, showFinalCTA]);
+
+  // Auto-show tour popup after 10 seconds
+  useEffect(() => {
+    if (!hasShownAutoPopup && !isActive && !showFinalCTA && !popupsDisabled) {
+      console.log("🎯 Auto-popup timer started - 10 seconds countdown...");
+
+      const autoPopupTimer = setTimeout(() => {
+        console.log("🎯 Auto-popup triggered!");
+        setShowTourHoverPopup(true);
+        setHasShownAutoPopup(true);
+        setIsAutoPopup(true);
+      }, 5000); // 10 seconds delay
+
+      // Also set hasShownAutoPopup after the timer period even if conditions change
+      const fallbackTimer = setTimeout(() => {
+        console.log(
+          "🎯 Auto-popup period ended - manual interactions now enabled"
+        );
+        setHasShownAutoPopup(true);
+      }, 5000);
+
+      return () => {
+        console.log("🎯 Auto-popup timer cleared");
+        clearTimeout(autoPopupTimer);
+        clearTimeout(fallbackTimer);
+      };
+    }
+  }, [hasShownAutoPopup, isActive, showFinalCTA, popupsDisabled]);
+
   return (
     <>
       {/* Single Elegant Icon */}
@@ -366,15 +516,29 @@ export default function PMTour({
           <motion.div
             onMouseEnter={handleIconHover}
             onMouseLeave={handleIconLeave}
-            onClick={() => setShowTourHoverPopup(true)}
+            onClick={() => {
+              // Only allow manual click after auto-popup period
+              if (hasShownAutoPopup) {
+                setShowTourHoverPopup(true);
+                setIsAutoPopup(false);
+              }
+            }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{
               opacity: 1,
-              scale: popupsDisabled ? 1 : [1, 1.05, 1], // Reduced animation
-              rotate: popupsDisabled ? 0 : [0, 5, -5, 0], // Reduced rotation
+              scale: popupsDisabled
+                ? 1
+                : hasShownAutoPopup
+                  ? [1, 1.05, 1]
+                  : [1, 1.02, 1], // Subtle animation during wait
+              rotate: popupsDisabled
+                ? 0
+                : hasShownAutoPopup
+                  ? [0, 5, -5, 0]
+                  : [0, 2, -2, 0], // Reduced rotation during wait
             }}
             transition={{
-              duration: popupsDisabled ? 0.3 : 3, // Slower animation
+              duration: popupsDisabled ? 0.3 : hasShownAutoPopup ? 3 : 4, // Slower during wait
               repeat: popupsDisabled ? 0 : Infinity,
               ease: "easeInOut",
             }}
@@ -388,10 +552,23 @@ export default function PMTour({
             {showTourHoverPopup && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
+                animate={{
+                  opacity: 1,
+                  scale: isAutoPopup ? [1, 1.02, 1] : 1,
+                  y: 0,
+                }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                transition={{ type: "spring", damping: 25, stiffness: 400 }}
-                className="absolute bottom-16 right-0 w-80 sm:w-96 md:w-[420px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/50 z-50 overflow-hidden max-w-[calc(100vw-2rem)] sm:max-w-none"
+                transition={{
+                  type: "spring",
+                  damping: 25,
+                  stiffness: 400,
+                  scale: isAutoPopup ? { duration: 2, repeat: 2 } : {},
+                }}
+                className={`absolute bottom-16 right-0 w-80 sm:w-96 md:w-[420px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/50 z-50 overflow-hidden max-w-[calc(100vw-2rem)] sm:max-w-none ${
+                  isAutoPopup
+                    ? "ring-2 ring-purple-400/50 ring-offset-2 ring-offset-white/20"
+                    : ""
+                }`}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={handleIconLeave}
               >
@@ -420,21 +597,22 @@ export default function PMTour({
                       </motion.div>
                       <div>
                         <h3 className="text-xl font-bold text-white mb-1">
-                          Explore & Connect
+                          {hasShownAutoPopup
+                            ? "Explore & Connect"
+                            : "👋 Welcome!"}
                         </h3>
                         <p className="text-blue-100 text-sm font-medium">
-                          Choose your journey with Lawrence
+                          {hasShownAutoPopup
+                            ? "Choose your journey with Lawrence"
+                            : "Ready to explore Lawrence's PM expertise?"}
                         </p>
                       </div>
                     </div>
 
                     <p className="text-blue-50 text-sm leading-relaxed">
-                      Take a guided{" "}
-                      <span className="font-semibold text-white">
-                        {totalSeconds}s
-                      </span>{" "}
-                      PM showcase, chat with my AI assistant, or connect
-                      directly!
+                      {hasShownAutoPopup
+                        ? `Take a guided ${totalSeconds}s PM showcase, chat with my AI assistant, or connect directly!`
+                        : `Discover how I approach product challenges! Take a ${totalSeconds}s interactive tour or ask my AI assistant anything.`}
                     </p>
                   </div>
                 </div>
@@ -562,17 +740,28 @@ export default function PMTour({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -50 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed z-50 max-w-md pointer-events-auto"
+            className={`fixed z-50 max-w-md pointer-events-auto ${
+              isPaused ? "backdrop-blur-sm" : ""
+            }`}
             style={{
               ...getPopupPosition(tourSteps[currentStep].position),
               maxWidth:
                 window.innerWidth < 768 ? "calc(100vw - 2rem)" : "28rem",
+              position: "fixed", // Always fixed positioning
             }}
           >
             <div
-              className={`bg-gradient-to-br ${tourSteps[currentStep].color} p-1 rounded-2xl shadow-2xl`}
+              className={`bg-gradient-to-br ${tourSteps[currentStep].color} p-1 rounded-2xl shadow-2xl ${
+                isPaused ? "backdrop-blur-sm" : ""
+              }`}
             >
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-4 sm:p-6 relative">
+              <div
+                className={`bg-white dark:bg-gray-900 rounded-xl p-4 sm:p-6 relative transition-all duration-300 ${
+                  isPaused
+                    ? "backdrop-blur-md bg-white/95 dark:bg-gray-900/95"
+                    : ""
+                }`}
+              >
                 <button
                   onClick={closeTour}
                   className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1 sm:p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50"
@@ -586,33 +775,39 @@ export default function PMTour({
                   onClick={togglePause}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`absolute top-2 right-10 sm:top-3 sm:right-12 px-2 py-1 sm:px-3 sm:py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+                  className={`absolute top-2 right-10 sm:top-3 sm:right-12 px-2 py-1 sm:px-3 sm:py-1 text-xs font-medium rounded-full transition-all duration-200 shadow-sm border ${
                     isPaused
-                      ? "bg-green-100 text-green-700 hover:bg-green-200"
-                      : "bg-orange-100 text-orange-700 hover:bg-orange-200"
+                      ? "bg-green-100 text-green-700 hover:bg-green-200 border-green-300 animate-pulse"
+                      : "bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-300"
                   }`}
                 >
                   {isPaused ? "▶️ Resume" : "⏸️ Pause"}
                 </motion.button>
 
-                {/* Back Button - Responsive positioning */}
+                {/* Back Button - Fixed positioning relative to card */}
                 <motion.button
                   onClick={prevStep}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="absolute top-1/2 -left-3 sm:-left-4 -translate-y-1/2 p-2 sm:p-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
+                  className={`absolute top-1/2 -left-3 sm:-left-4 -translate-y-1/2 p-2 sm:p-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10 ${
+                    isPaused ? "opacity-90" : ""
+                  }`}
                   title={currentStep === 0 ? "Restart tour" : "Previous step"}
+                  style={{ position: "absolute" }}
                 >
                   <FiChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                 </motion.button>
 
-                {/* Skip Button - Responsive positioning */}
+                {/* Skip Button - Fixed positioning relative to card */}
                 <motion.button
                   onClick={nextStep}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="absolute top-1/2 -right-3 sm:-right-4 -translate-y-1/2 p-2 sm:p-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10"
+                  className={`absolute top-1/2 -right-3 sm:-right-4 -translate-y-1/2 p-2 sm:p-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-10 ${
+                    isPaused ? "opacity-90" : ""
+                  }`}
                   title="Skip to next step"
+                  style={{ position: "absolute" }}
                 >
                   <FiChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                 </motion.button>
@@ -632,10 +827,21 @@ export default function PMTour({
                     <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ duration: 0.8 }} // Slower fade-in
+                      transition={{ duration: 0.8 }}
                       className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed"
                     >
-                      {tourSteps[currentStep].content}
+                      {typedText}
+                      {!isTypingComplete && (
+                        <motion.span
+                          animate={{ opacity: [1, 0] }}
+                          transition={{
+                            duration: 0.8,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                          className="inline-block w-0.5 h-4 bg-blue-500 ml-0.5"
+                        />
+                      )}
                     </motion.p>
                   </div>
                 </div>
@@ -704,6 +910,23 @@ export default function PMTour({
         )}
       </AnimatePresence>
 
+      {/* Paused State Indicator */}
+      <AnimatePresence>
+        {isActive && isPaused && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-4 right-4 z-40 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded-xl shadow-lg border border-green-300 dark:border-green-700 animate-pulse"
+          >
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <span>🟢</span>
+              <span>Tour paused - You can scroll freely!</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Final CTA */}
       <AnimatePresence>
         {showFinalCTA && (
@@ -713,7 +936,12 @@ export default function PMTour({
             exit={{ opacity: 0, scale: 0.8, y: -50 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-            onClick={closeTour}
+            onClick={(e) => {
+              // Only close if clicking the backdrop, not the modal content
+              if (e.target === e.currentTarget) {
+                closeTour();
+              }
+            }}
           >
             <motion.div
               onClick={(e) => e.stopPropagation()}
