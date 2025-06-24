@@ -1210,15 +1210,20 @@ export default function ModernHome() {
     if (isMobile) {
       // For mobile, adjust positioning based on paused state
       if (isPaused) {
-        // When paused on mobile, use fixed positioning (stays with screen)
+        // When paused on mobile, calculate absolute position to stay in current viewport
+        const scrollTop = window.pageYOffset;
+        const scrollLeft = window.pageXOffset;
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+
         return {
-          top: "50vh",
-          left: "50vw",
+          top: `${scrollTop + viewportHeight / 2}px`,
+          left: `${scrollLeft + viewportWidth / 2}px`,
           transform: "translate(-50%, -50%)",
           right: "auto",
         };
       } else {
-        // When active on mobile, use fixed positioning
+        // When active on mobile, use fixed positioning (relative to viewport)
         return {
           top: "50vh",
           left: "50vw",
