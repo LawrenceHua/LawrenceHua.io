@@ -80,8 +80,10 @@ export default function RootLayout({
         />
         <meta name="theme-color" content="#3b82f6" />
         <meta name="msapplication-TileColor" content="#3b82f6" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/favicon.ico" />
+        <link rel="icon" href="/og-image.png" />
+        <link rel="apple-touch-icon" href="/og-image.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/og-image.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/og-image.png" />
       </head>
       <body className={inter.className}>
         <ThemeProvider>
