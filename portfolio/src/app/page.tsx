@@ -536,32 +536,33 @@ export default function ModernHome() {
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "timeline" && currentStep === 3) {
-          // Work experience step - position at bottom of Professional Journey section
-          // First try to position at the very top of Projects section
-          const projectsSection = document.getElementById("projects");
-          if (projectsSection) {
-            const projectsRect = projectsSection.getBoundingClientRect();
-            const projectsAbsoluteTop = projectsRect.top + window.pageYOffset;
-            // Position just above the Projects section (at the bottom of Professional Journey)
-            const finalPosition = projectsAbsoluteTop - 100;
+          // Work experience step - position to show work experience section
+          // Try to find the work experience title element
+          const workExperienceTitle = document.getElementById(
+            "work-experience-title"
+          );
+          if (workExperienceTitle) {
+            const workTitleRect = workExperienceTitle.getBoundingClientRect();
+            const workTitleAbsoluteTop = workTitleRect.top + window.pageYOffset;
+            // Position the work experience title with some offset for mobile
+            const finalPosition = workTitleAbsoluteTop - 150;
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
 
-          // Fallback: Position at bottom of timeline section with moderate offset
+          // Fallback: Look for any work experience elements in the timeline
           const timelineSection = document.getElementById("timeline");
           if (timelineSection) {
             const timelineRect = timelineSection.getBoundingClientRect();
-            const timelineAbsoluteBottom =
-              timelineRect.bottom + window.pageYOffset;
-            // Position near the bottom of the timeline section
-            const finalPosition = timelineAbsoluteBottom - 200;
+            const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
+            // Position roughly in the middle of timeline for work experience
+            const finalPosition = timelineAbsoluteTop + 300;
             window.scrollTo({ top: finalPosition, behavior: "smooth" });
             return;
           }
 
-          // Final fallback
-          const finalPosition = absoluteElementTop + 200; // Much smaller offset
+          // Final fallback - conservative positioning
+          const finalPosition = absoluteElementTop + 150;
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "projects") {
