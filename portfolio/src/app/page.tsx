@@ -684,6 +684,12 @@ export default function ModernHome() {
           // Work experience step - position to show work experience section (reduced scroll distance)
           debugLog("✅ STEP 4 CONDITION MET: timeline + currentStep === 3");
           debugLog("🎯 Mobile Step 4: Looking for work-experience-title");
+          debugLog("🎯 Mobile Step 4: Current step details", {
+            currentStep,
+            stepId: tourSteps[currentStep]?.id,
+            stepTitle: tourSteps[currentStep]?.title,
+            targetSection: sectionId,
+          });
 
           // Try to find the work experience title element
           const workExperienceTitle = document.getElementById(
@@ -902,14 +908,25 @@ export default function ModernHome() {
       // Track tour step progression
       trackTourEvent("tour_step", tourSteps[nextStepIndex].id, nextStepIndex);
 
+      // Debug logging for step advancement
+      debugLog(`🔄 Advancing to Step ${nextStepIndex + 1}`, {
+        stepId: tourSteps[nextStepIndex].id,
+        targetSection: tourSteps[nextStepIndex].targetSection,
+      });
+
       // Special handling for project steps to scroll to specific project cards
       if (nextStepIndex === 4) {
         // Step 5: Expired Solutions project
+        debugLog("🚀 Step 5: Scrolling to Expired Solutions project");
         scrollToSpecificElement("project-expired-solutions");
       } else if (nextStepIndex === 5) {
         // Step 6: BBW project - scroll to BBW card specifically
+        debugLog("🚀 Step 6: Scrolling to BBW project");
         scrollToSpecificElement("project-bbw");
       } else {
+        debugLog(
+          `🚀 Step ${nextStepIndex + 1}: Scrolling to ${tourSteps[nextStepIndex].targetSection}`
+        );
         scrollToSection(tourSteps[nextStepIndex].targetSection);
       }
     } else {
@@ -1022,6 +1039,12 @@ export default function ModernHome() {
 
         if (currentCharacterCount >= totalCharacters) {
           clearInterval(interval);
+          // Skip auto-advance for Step 4 (Work Experience) - let user manually control
+          if (currentStep === 3) {
+            debugLog("🎯 Step 4 auto-advance disabled - manual control only");
+            setCurrentCharacterIndex(-1); // Clear highlights but don't advance
+            return;
+          }
           // After highlighting is complete, immediately move to next step
           setTimeout(() => {
             setCurrentCharacterIndex(-1); // Clear all highlights
