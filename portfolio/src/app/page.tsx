@@ -613,14 +613,16 @@ export default function ModernHome() {
     window.scrollTo({ top: 0, behavior: "smooth" });
     // Start with first step after a delay
     setTimeout(() => {
-      scrollToSection(tourSteps[0].targetSection);
+      scrollToSection(tourSteps[0].targetSection, 0);
     }, 1000);
   };
 
-  const scrollToSection = (sectionId: string) => {
+  const scrollToSection = (sectionId: string, stepIndex?: number) => {
+    const actualStep = stepIndex !== undefined ? stepIndex : currentStep;
     debugLog(`🔧 scrollToSection called`, {
       sectionId,
-      currentStep: currentStep + 1,
+      currentStep: actualStep + 1,
+      stepIndex,
       isMobile: window.innerWidth < 768,
     });
 
@@ -633,7 +635,7 @@ export default function ModernHome() {
       // For mobile, center the content in the viewport for better visibility
       if (isMobile) {
         debugLog(
-          `🎯 Mobile detected (width: ${window.innerWidth}), Step: ${currentStep + 1}, Section: ${sectionId}`
+          `🎯 Mobile detected (width: ${window.innerWidth}), Step: ${actualStep + 1}, Section: ${sectionId}`
         );
         const viewportHeight = window.innerHeight;
         const elementHeight = elementRect.height;
@@ -644,23 +646,23 @@ export default function ModernHome() {
           absoluteElementTop - Math.max(centerOffset, 100);
 
         // Debug step 4 condition before special handling
-        if (sectionId === "timeline" && currentStep === 3) {
+        if (sectionId === "timeline" && actualStep === 3) {
           debugLog("🔍 Checking Step 4 condition", {
             sectionId,
-            currentStep,
+            currentStep: actualStep,
             condition: "timeline && currentStep === 3",
             match: true,
           });
         } else if (sectionId === "timeline") {
           debugLog("❌ Timeline but wrong step", {
             sectionId,
-            currentStep,
+            currentStep: actualStep,
             expectedStep: 3,
           });
         }
 
         // Special handling for specific sections on mobile
-        if (sectionId === "skills" && currentStep === 1) {
+        if (sectionId === "skills" && actualStep === 1) {
           // Step 2: Skills - scroll to bottom of skills cards, positioning before "Professional Journey"
           debugLog("🛠️ Step 2: Scrolling to bottom of skills section");
           const skillsSection = document.getElementById("skills");
@@ -683,7 +685,7 @@ export default function ModernHome() {
           debugLog("🛠️ Step 2: Skills fallback positioning", { finalPosition });
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
-        } else if (sectionId === "timeline" && currentStep === 2) {
+        } else if (sectionId === "timeline" && actualStep === 2) {
           // Education step - focus on bottom of education gallery
           // Find the last education item to position at the bottom of education section
           const educationItems = document.querySelectorAll(
@@ -703,14 +705,14 @@ export default function ModernHome() {
           const finalPosition = absoluteElementTop - 150;
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
-        } else if (sectionId === "timeline" && currentStep === 3) {
+        } else if (sectionId === "timeline" && actualStep === 3) {
           // Work experience step - position to show work experience section (reduced scroll distance)
-          debugLog("✅ STEP 4 CONDITION MET: timeline + currentStep === 3");
+          debugLog("✅ STEP 4 CONDITION MET: timeline + actualStep === 3");
           debugLog("🎯 Mobile Step 4: Looking for work-experience-title");
           debugLog("🎯 Mobile Step 4: Current step details", {
-            currentStep,
-            stepId: tourSteps[currentStep]?.id,
-            stepTitle: tourSteps[currentStep]?.title,
+            currentStep: actualStep,
+            stepId: tourSteps[actualStep]?.id,
+            stepTitle: tourSteps[actualStep]?.title,
             targetSection: sectionId,
           });
 
@@ -768,7 +770,7 @@ export default function ModernHome() {
           // Default mobile case
           debugLog("🔄 Mobile default case", {
             sectionId,
-            currentStep: currentStep + 1,
+            currentStep: actualStep + 1,
           });
         }
 
@@ -781,14 +783,14 @@ export default function ModernHome() {
         // Desktop/non-mobile case
         debugLog("🖥️ Desktop detected", {
           width: window.innerWidth,
-          currentStep: currentStep + 1,
+          currentStep: actualStep + 1,
           sectionId,
         });
       }
 
       // Desktop handling (unchanged)
       // Special handling for Step 2 (skills) - position to bottom of skills section
-      if (sectionId === "skills" && isActive && currentStep === 1) {
+      if (sectionId === "skills" && isActive && actualStep === 1) {
         debugLog("🛠️ Step 2 Desktop: Scrolling to bottom of skills section");
         const skillsSection = document.getElementById("skills");
         if (skillsSection) {
@@ -808,7 +810,7 @@ export default function ModernHome() {
       }
 
       // Special handling for step 4 (experience) targeting timeline - position to show work experience
-      if (sectionId === "timeline" && isActive && currentStep === 3) {
+      if (sectionId === "timeline" && isActive && actualStep === 3) {
         const offset = 750; // Desktop offset to show work experience section
         const finalScrollPosition = absoluteElementTop + offset;
 
@@ -970,7 +972,7 @@ export default function ModernHome() {
         debugLog(
           `🚀 Step ${nextStepIndex + 1}: Scrolling to ${tourSteps[nextStepIndex].targetSection}`
         );
-        scrollToSection(tourSteps[nextStepIndex].targetSection);
+        scrollToSection(tourSteps[nextStepIndex].targetSection, nextStepIndex);
       }
     } else {
       // Tour complete, scroll to testimonials first then show final CTA
@@ -1015,7 +1017,7 @@ export default function ModernHome() {
         // Step 6: BBW project - scroll to BBW card specifically
         scrollToSpecificElement("project-bbw");
       } else {
-        scrollToSection(tourSteps[prevStepIndex].targetSection);
+        scrollToSection(tourSteps[prevStepIndex].targetSection, prevStepIndex);
       }
     }
   };
