@@ -231,7 +231,7 @@ export function FloatingChatbot({
     <>
       {/* Floating Button */}
       <motion.div
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60]"
         initial={tourActive ? false : { scale: 0, opacity: 0 }}
         animate={tourActive ? false : { scale: 1, opacity: 1 }}
         transition={tourActive ? {} : { delay: 1, duration: 0.3 }}

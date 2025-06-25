@@ -49,28 +49,28 @@ export default function AnalyticsPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <div className="max-w-7xl mx-auto">
+    return (
+      <div className="min-h-screen bg-gray-900 text-white p-8">
+        <div className="max-w-7xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
-          >
-            <FiArrowLeft className="h-5 w-5" />
-            Back to Portfolio
-          </Link>
+              <Link
+                href="/"
+                className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <FiArrowLeft className="h-5 w-5" />
+                Back to Portfolio
+              </Link>
           <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-        </div>
-        
+          </div>
+
         <div className="bg-gray-800 rounded-xl p-8 text-center">
           <h2 className="text-2xl font-bold mb-4">Analytics Dashboard</h2>
-          <p className="text-gray-400 mb-6">
+              <p className="text-gray-400 mb-6">
             The analytics dashboard is currently being rebuilt. Please check back soon.
           </p>
           <div className="animate-pulse bg-gray-700 h-32 rounded-lg mb-4"></div>
           <div className="animate-pulse bg-gray-700 h-32 rounded-lg"></div>
-        </div>
+            </div>
       </div>
     </div>
   );
