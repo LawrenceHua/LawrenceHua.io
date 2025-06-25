@@ -21,13 +21,6 @@ const nextConfig = {
       },
     ];
   },
-  // API configuration to handle larger request bodies for chatbot file uploads
-  api: {
-    bodyParser: {
-      sizeLimit: "10mb", // Reasonable limit for resume/job posting uploads
-    },
-    responseLimit: false,
-  },
   // For App Router API routes (which we're using)
   experimental: {
     serverComponentsExternalPackages: ["pdf-parse"],
