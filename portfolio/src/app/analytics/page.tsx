@@ -2243,7 +2243,7 @@ export default function AnalyticsPage() {
                           <div
                             className="bg-purple-500 h-2 rounded-full"
                             style={{
-                              width: `${(button.count / analyticsData.chatbotAnalytics.mostPopularButtons[0].count) * 100}%`,
+                              width: `${(button.count / (analyticsData.chatbotAnalytics?.mostPopularButtons[0]?.count || 1)) * 100}%`,
                             }}
                           ></div>
                         </div>
@@ -3815,14 +3815,16 @@ export default function AnalyticsPage() {
         )}
 
         {/* Analytics Assistant Floating Button */}
-        <button
-          onClick={() => setShowAnalyticsAssistant(true)}
-          className="fixed bottom-6 left-6 z-40 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-3 rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 text-sm font-medium"
-          title="Open Analytics Assistant"
-        >
-          <FiBarChart className="h-5 w-5" />
-          Ask Data Assistant
-        </button>
+        {!showAnalyticsAssistant && (
+          <button
+            onClick={() => setShowAnalyticsAssistant(true)}
+            className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-3 rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 text-sm font-medium"
+            title="Open Analytics Assistant Side Panel"
+          >
+            <FiBarChart className="h-5 w-5" />
+            Open Analytics Assistant
+          </button>
+        )}
 
         {/* Reset modal removed - time range selector provides all needed functionality */}
       </div>

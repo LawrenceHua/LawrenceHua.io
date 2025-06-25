@@ -250,44 +250,65 @@ I'm your personal data analyst! I can help you understand your portfolio analyti
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.9 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 20, scale: 0.9 }}
-      className={`fixed bottom-6 right-6 z-50 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl ${
-        isMinimized ? "w-80 h-14" : "w-96 h-[600px]"
-      } transition-all duration-300`}
+      initial={{ x: "100%", opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: "100%", opacity: 0 }}
+      className={`fixed top-0 right-0 z-50 bg-gray-900 border-l border-gray-700 shadow-2xl h-full ${
+        isMinimized ? "w-16" : "w-96"
+      } transition-all duration-300 flex flex-col`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-700">
-        <div className="flex items-center gap-2">
-          <FiBarChart className="h-5 w-5 text-blue-400" />
-          <span className="font-semibold text-white">Analytics Assistant</span>
-          <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
-            {timeRange === "1d" ? "24h" : timeRange === "7d" ? "7d" : timeRange === "30d" ? "30d" : "Custom"}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsMinimized(!isMinimized)}
-            className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded transition-colors"
-            title={isMinimized ? "Expand" : "Minimize"}
-          >
-            {isMinimized ? <FiMaximize2 className="h-4 w-4" /> : <FiMinimize2 className="h-4 w-4" />}
-          </button>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded transition-colors"
-            title="Close"
-          >
-            <FiX className="h-4 w-4" />
-          </button>
-        </div>
+      <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-700">
+        {!isMinimized ? (
+          <>
+            <div className="flex items-center gap-2">
+              <FiBarChart className="h-5 w-5 text-blue-400" />
+              <span className="font-semibold text-white">Analytics Assistant</span>
+              <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
+                {timeRange === "1d" ? "24h" : timeRange === "7d" ? "7d" : timeRange === "30d" ? "30d" : "Custom"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsMinimized(true)}
+                className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded transition-colors"
+                title="Minimize"
+              >
+                <FiMinimize2 className="h-4 w-4" />
+              </button>
+              <button
+                onClick={onClose}
+                className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded transition-colors"
+                title="Close"
+              >
+                <FiX className="h-4 w-4" />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center w-full">
+            <button
+              onClick={() => setIsMinimized(false)}
+              className="p-2 text-blue-400 hover:text-blue-300 hover:bg-gray-800 rounded transition-colors w-full"
+              title="Expand Analytics Assistant"
+            >
+              <FiBarChart className="h-5 w-5 mx-auto" />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded transition-colors w-full mt-2"
+              title="Close"
+            >
+              <FiX className="h-4 w-4 mx-auto" />
+            </button>
+          </div>
+        )}
       </div>
 
       {!isMinimized && (
         <>
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 h-[480px]">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -331,32 +352,34 @@ I'm your personal data analyst! I can help you understand your portfolio analyti
           </div>
 
           {/* Input */}
-          <form onSubmit={handleSubmit} className="p-4 border-t border-gray-700">
-            <div className="flex gap-2">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about your analytics data..."
-                className="flex-1 bg-gray-800 text-white border border-gray-600 rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                rows={2}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
-                disabled={isLoading}
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || isLoading}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center justify-center"
-              >
-                <FiSend className="h-4 w-4" />
-              </button>
-            </div>
-          </form>
+          <div className="flex-shrink-0 p-4 border-t border-gray-700">
+            <form onSubmit={handleSubmit}>
+              <div className="flex gap-2">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask about your analytics data..."
+                  className="flex-1 bg-gray-800 text-white border border-gray-600 rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={2}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center justify-center"
+                >
+                  <FiSend className="h-4 w-4" />
+                </button>
+              </div>
+            </form>
+          </div>
         </>
       )}
     </motion.div>
