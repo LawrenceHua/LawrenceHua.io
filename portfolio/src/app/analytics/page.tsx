@@ -38,6 +38,7 @@ import {
 } from "react-icons/fi";
 import Link from "next/link";
 import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
+import AnalyticsAssistant from "@/components/analytics/AnalyticsAssistant";
 
 // Tooltip Component for Analytics Explanations
 const Tooltip = ({
@@ -218,6 +219,40 @@ interface AnalyticsData {
     sessionReads: number; // current session
     sessionWrites: number; // current session
   };
+
+  // NEW: Enhanced Chatbot Analytics
+  chatbotAnalytics?: {
+    totalSessions: number;
+    totalButtonClicks: number;
+    totalMessagesExchanged: number;
+    totalFileUploads: number;
+    totalMeetingSchedules: number;
+    avgMessagesPerSession: number;
+    avgSessionDuration: number;
+    mostPopularButtons: { buttonType: string; count: number }[];
+    conversationStarters: { source: string; count: number }[];
+    sessionLengthDistribution: { range: string; count: number }[];
+    fileUploadStats: {
+      totalUploads: number;
+      fileTypes: { type: string; count: number }[];
+      avgFileSize: number;
+    };
+    timeMetrics: {
+      peakHours: { hour: number; count: number }[];
+      dailyActivity: { date: string; count: number }[];
+    };
+    userEngagement: {
+      bounceRate: number;
+      deepEngagementSessions: number;
+      averageWordsPerMessage: number;
+    };
+    conversionMetrics: {
+      popupToChat: number;
+      chatToMessage: number;
+      chatToMeeting: number;
+      chatToFileUpload: number;
+    };
+  };
 }
 
 export default function AnalyticsPage() {
@@ -252,6 +287,9 @@ export default function AnalyticsPage() {
   const [hasMore, setHasMore] = useState(true);
   const PAGE_SIZE = 100;
   const [showChatbotFullScreen, setShowChatbotFullScreen] = useState(false);
+  const [chatbotAnalytics, setChatbotAnalytics] = useState<any>(null);
+  const [chatbotAnalyticsLoading, setChatbotAnalyticsLoading] = useState(false);
+  const [showAnalyticsAssistant, setShowAnalyticsAssistant] = useState(false);
 
   // New states for Firebase optimization
   const [refreshCost, setRefreshCost] = useState({ reads: 0, writes: 0 });
@@ -406,6 +444,25 @@ export default function AnalyticsPage() {
     }
   };
 
+  // Fetch chatbot analytics
+  const fetchChatbotAnalytics = async () => {
+    setChatbotAnalyticsLoading(true);
+    try {
+      const response = await fetch(`/api/chatbot-analytics?timeRange=${timeRange}&customDays=${customDays}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setChatbotAnalytics(data.data);
+      } else {
+        console.error("Failed to fetch chatbot analytics:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching chatbot analytics:", error);
+    } finally {
+      setChatbotAnalyticsLoading(false);
+    }
+  };
+
   // Recalculate analytics data when timeRange changes
   useEffect(() => {
     if (
@@ -424,6 +481,10 @@ export default function AnalyticsPage() {
         firebaseReads,
         firebaseWrites
       );
+      // Add chatbot analytics to the data
+      if (chatbotAnalytics) {
+        recalculatedData.chatbotAnalytics = chatbotAnalytics;
+      }
       setAnalyticsData(recalculatedData);
     }
   }, [
@@ -436,7 +497,15 @@ export default function AnalyticsPage() {
     firebaseUsageLogs,
     firebaseReads,
     firebaseWrites,
+    chatbotAnalytics,
   ]);
+
+  // Fetch chatbot analytics when time range changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchChatbotAnalytics();
+    }
+  }, [timeRange, customDays, isAuthenticated]);
 
   const startDataCollection = () => {
     // Track page view
@@ -652,8 +721,11 @@ export default function AnalyticsPage() {
     const startWrites = firebaseWrites;
 
     try {
-      await fetchAllData();
-      await fetchFirebaseUsageLogs();
+      await Promise.all([
+        fetchAllData(),
+        fetchFirebaseUsageLogs(),
+        fetchChatbotAnalytics(),
+      ]);
       setLastRefreshTime(new Date());
 
       // Calculate actual cost of this refresh
@@ -2059,7 +2131,231 @@ export default function AnalyticsPage() {
           </>
         )}
 
-        {/* Chatbot Analytics - PROMINENT POSITION */}
+        {/* Enhanced Chatbot Analytics Dashboard */}
+        {analyticsData?.chatbotAnalytics && (
+          <div className="bg-gradient-to-br from-purple-900 to-indigo-900 rounded-xl p-6 mb-6 border border-purple-500/30">
+            <div className="flex items-center justify-between mb-6">
+              <Tooltip content="Comprehensive chatbot analytics showing user interactions, engagement patterns, conversion metrics, and behavioral insights from your AI assistant.">
+                <h2 className="text-3xl font-bold flex items-center gap-3 text-purple-100">
+                  <FiMessageCircle className="h-8 w-8" />
+                  🤖 Chatbot Intelligence Dashboard
+                </h2>
+              </Tooltip>
+              <div className="flex items-center gap-2">
+                {chatbotAnalyticsLoading && (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-300"></div>
+                )}
+                <button
+                  onClick={() => setShowChatbotFullScreen(true)}
+                  className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  View Raw Data
+                </button>
+              </div>
+            </div>
+
+            {/* Overview Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+              <Tooltip content="Total number of unique chatbot conversations initiated by visitors.">
+                <div className="bg-gradient-to-br from-purple-700 to-purple-800 p-4 rounded-lg border border-purple-400/20">
+                  <h3 className="text-purple-200 text-xs font-medium">💬 Chat Sessions</h3>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.chatbotAnalytics.totalSessions}
+                  </p>
+                  <p className="text-purple-300 text-xs mt-1">
+                    {analyticsData.chatbotAnalytics.avgSessionDuration}min avg
+                  </p>
+                </div>
+              </Tooltip>
+
+              <Tooltip content="Total messages exchanged between users and your AI chatbot.">
+                <div className="bg-gradient-to-br from-blue-700 to-blue-800 p-4 rounded-lg border border-blue-400/20">
+                  <h3 className="text-blue-200 text-xs font-medium">💬 Messages</h3>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.chatbotAnalytics.totalMessagesExchanged}
+                  </p>
+                  <p className="text-blue-300 text-xs mt-1">
+                    {analyticsData.chatbotAnalytics.avgMessagesPerSession} per session
+                  </p>
+                </div>
+              </Tooltip>
+
+              <Tooltip content="Number of times users clicked quick action buttons in the chatbot.">
+                <div className="bg-gradient-to-br from-green-700 to-green-800 p-4 rounded-lg border border-green-400/20">
+                  <h3 className="text-green-200 text-xs font-medium">🎯 Button Clicks</h3>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.chatbotAnalytics.totalButtonClicks}
+                  </p>
+                  <p className="text-green-300 text-xs mt-1">Quick actions</p>
+                </div>
+              </Tooltip>
+
+              <Tooltip content="Total number of files uploaded by users for analysis.">
+                <div className="bg-gradient-to-br from-orange-700 to-orange-800 p-4 rounded-lg border border-orange-400/20">
+                  <h3 className="text-orange-200 text-xs font-medium">📎 File Uploads</h3>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.chatbotAnalytics.totalFileUploads}
+                  </p>
+                  <p className="text-orange-300 text-xs mt-1">
+                    {analyticsData.chatbotAnalytics.fileUploadStats.avgFileSize}KB avg
+                  </p>
+                </div>
+              </Tooltip>
+
+              <Tooltip content="Number of meetings successfully scheduled through the chatbot.">
+                <div className="bg-gradient-to-br from-pink-700 to-pink-800 p-4 rounded-lg border border-pink-400/20">
+                  <h3 className="text-pink-200 text-xs font-medium">📅 Meetings</h3>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.chatbotAnalytics.totalMeetingSchedules}
+                  </p>
+                  <p className="text-pink-300 text-xs mt-1">Scheduled</p>
+                </div>
+              </Tooltip>
+
+              <Tooltip content="Sessions with deep engagement (5+ messages exchanged).">
+                <div className="bg-gradient-to-br from-indigo-700 to-indigo-800 p-4 rounded-lg border border-indigo-400/20">
+                  <h3 className="text-indigo-200 text-xs font-medium">🔥 Deep Engagement</h3>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.chatbotAnalytics.userEngagement.deepEngagementSessions}
+                  </p>
+                  <p className="text-indigo-300 text-xs mt-1">
+                    {analyticsData.chatbotAnalytics.userEngagement.bounceRate}% bounce rate
+                  </p>
+                </div>
+              </Tooltip>
+            </div>
+
+            {/* Detailed Analytics Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              
+              {/* Most Popular Buttons */}
+              <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-600/50">
+                <h3 className="text-lg font-semibold mb-4 text-purple-300">🎯 Most Popular Actions</h3>
+                <div className="space-y-3">
+                  {analyticsData.chatbotAnalytics.mostPopularButtons.slice(0, 5).map((button, index) => (
+                    <div key={button.buttonType} className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-gray-400 w-4">{index + 1}</span>
+                        <span className="capitalize text-white">{button.buttonType}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 bg-gray-700 rounded-full h-2">
+                          <div
+                            className="bg-purple-500 h-2 rounded-full"
+                            style={{
+                              width: `${(button.count / analyticsData.chatbotAnalytics.mostPopularButtons[0].count) * 100}%`,
+                            }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-bold text-purple-400">{button.count}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Conversation Starters */}
+              <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-600/50">
+                <h3 className="text-lg font-semibold mb-4 text-blue-300">🚀 How Users Start Chats</h3>
+                <div className="space-y-3">
+                  {analyticsData.chatbotAnalytics.conversationStarters.map((starter, index) => (
+                    <div key={starter.source} className="flex justify-between items-center">
+                      <span className="capitalize text-white">{starter.source.replace('_', ' ')}</span>
+                      <span className="text-sm font-bold text-blue-400">{starter.count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Session Length Distribution */}
+              <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-600/50">
+                <h3 className="text-lg font-semibold mb-4 text-green-300">📊 Conversation Lengths</h3>
+                <div className="space-y-3">
+                  {analyticsData.chatbotAnalytics.sessionLengthDistribution.map((dist) => (
+                    <div key={dist.range} className="flex justify-between items-center">
+                      <span className="text-white">{dist.range}</span>
+                      <span className="text-sm font-bold text-green-400">{dist.count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Conversion Metrics */}
+              <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-600/50">
+                <h3 className="text-lg font-semibold mb-4 text-yellow-300">🎯 Conversion Funnels</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white">Popup → Chat</span>
+                    <span className="text-sm font-bold text-yellow-400">
+                      {analyticsData.chatbotAnalytics.conversionMetrics.popupToChat}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white">Chat → Message</span>
+                    <span className="text-sm font-bold text-yellow-400">
+                      {analyticsData.chatbotAnalytics.conversionMetrics.chatToMessage}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white">Chat → Meeting</span>
+                    <span className="text-sm font-bold text-yellow-400">
+                      {analyticsData.chatbotAnalytics.conversionMetrics.chatToMeeting}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white">Chat → Upload</span>
+                    <span className="text-sm font-bold text-yellow-400">
+                      {analyticsData.chatbotAnalytics.conversionMetrics.chatToFileUpload}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* File Upload Stats */}
+              {analyticsData.chatbotAnalytics.fileUploadStats.totalUploads > 0 && (
+                <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-600/50">
+                  <h3 className="text-lg font-semibold mb-4 text-orange-300">📎 File Upload Patterns</h3>
+                  <div className="space-y-3">
+                    {analyticsData.chatbotAnalytics.fileUploadStats.fileTypes.map((fileType) => (
+                      <div key={fileType.type} className="flex justify-between items-center">
+                        <span className="text-white">{fileType.type || 'Unknown'}</span>
+                        <span className="text-sm font-bold text-orange-400">{fileType.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* User Engagement Quality */}
+              <div className="bg-gray-800/50 p-5 rounded-lg border border-gray-600/50">
+                <h3 className="text-lg font-semibold mb-4 text-pink-300">💬 Engagement Quality</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white">Avg Words/Message</span>
+                    <span className="text-sm font-bold text-pink-400">
+                      {analyticsData.chatbotAnalytics.userEngagement.averageWordsPerMessage}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white">Deep Conversations</span>
+                    <span className="text-sm font-bold text-pink-400">
+                      {analyticsData.chatbotAnalytics.userEngagement.deepEngagementSessions}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white">Bounce Rate</span>
+                    <span className="text-sm font-bold text-pink-400">
+                      {analyticsData.chatbotAnalytics.userEngagement.bounceRate}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Legacy Chatbot Analytics - FALLBACK */}
+        {!analyticsData?.chatbotAnalytics && (
         <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 mb-6 border border-purple-500/20">
           <div className="flex items-center justify-between mb-4">
             <Tooltip content="Real-time analytics for your AI chatbot showing conversation patterns, user engagement, and message statistics. Monitor how visitors interact with your AI assistant.">
@@ -3508,6 +3804,25 @@ export default function AnalyticsPage() {
             </div>
           </div>
         )}
+
+        {/* Analytics Assistant Component */}
+        {showAnalyticsAssistant && (
+          <AnalyticsAssistant
+            timeRange={timeRange}
+            customDays={customDays}
+            onClose={() => setShowAnalyticsAssistant(false)}
+          />
+        )}
+
+        {/* Analytics Assistant Floating Button */}
+        <button
+          onClick={() => setShowAnalyticsAssistant(true)}
+          className="fixed bottom-6 left-6 z-40 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-3 rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 text-sm font-medium"
+          title="Open Analytics Assistant"
+        >
+          <FiBarChart className="h-5 w-5" />
+          Ask Data Assistant
+        </button>
 
         {/* Reset modal removed - time range selector provides all needed functionality */}
       </div>

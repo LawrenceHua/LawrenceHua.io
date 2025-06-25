@@ -29,6 +29,10 @@ let systemPromptCache: string | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
+// Clear cache immediately to force reload of new system prompt
+systemPromptCache = null;
+cacheTimestamp = 0;
+
 // Response cache for common queries
 const responseCache = new Map<
   string,
@@ -65,10 +69,16 @@ const instantResponses = new Map<string, string>([
 
 **Current Active Roles:**
 • **Founder & CEO - Expired Solutions** (AI Grocery Platform) <button-expired>View Expired Solutions</button-expired>
-• **Product Manager - AIGC - Intern - PM Happy Hour** (Community Growth) <button-pmhappyhour>Visit the site</button-pmhappyhour>
+• **Product Manager - AIGC - Intern - PM Happy Hour** (Community Growth) <button-pmhappyhour>Visit the site</button-pmhappyhour> <button-pmhappyhour-work>View AI Generated Content</button-pmhappyhour-work>
 • **AI Product Consultant - Tutora** (EdTech Automation) <button-tutora>Visit Tutora Website</button-tutora>
 
-**Other Experience:** Amazon MTurk, Giant Eagle, Motorola Solutions, University of Florida`,
+**Other Experience:** Amazon MTurk, Giant Eagle, Motorola Solutions, University of Florida
+
+**Want to Learn More?**
+<button-experience>🚀 Full Experience</button-experience> <button-projects>💻 View Projects</button-projects> <button-message>📧 Get in Touch</button-message>
+
+**Have Questions?**
+<button-funfact>🎲 Fun Fact</button-funfact> <button-generate-question>💡 Generate Question</button-generate-question>`,
   ],
   [
     "experience",
@@ -85,8 +95,7 @@ const instantResponses = new Map<string, string>([
 📈 **Product Manager - AIGC - Intern - PM Happy Hour** (Mar 2025-Present)
 - Scaled community 30% with AIGC campaigns, MBTI×PM event ↑ engagement 50%
 - Drove A/B testing program → 20% lift in feature adoption
-<button-pmhappyhour>Visit the site</button-pmhappyhour>
-- [View my work](https://drive.google.com/drive/folders/1FtSQeY0fkwUsOa2SeMbfyk4ivYcj9AUs?usp=sharing)
+<button-pmhappyhour>Visit the site</button-pmhappyhour> <button-pmhappyhour-work>View my work</button-pmhappyhour-work>
 
 📱 **Embedded Android Engineer - Motorola Solutions** (Aug 2021-Aug 2023)
 - Shipped GPS, NFC, auth, UI features for 15k+ APX NEXT radios
@@ -102,40 +111,45 @@ const instantResponses = new Map<string, string>([
 🤖 **Amazon MTurk** - External Expert, AI Model Evaluation (Jun 2025-Present)
 🏢 **Giant Eagle** - Produce Team Lead (Cut shrink 1% in 30 days)
 💻 **University of Florida** - System Admin (95%+ CSAT, led 20-person team)
-🎓 **Education**: Carnegie Mellon MISM '24, University of Florida CS Cum Laude`,
+🎓 **Education**: Carnegie Mellon MISM '24, University of Florida CS Cum Laude
+
+**Explore More:**
+<button-skills>🛠️ Technical Skills</button-skills> <button-projects>💻 View Projects</button-projects> <button-message>📧 Contact Lawrence</button-message>
+
+**Quick Actions:**
+<button-meeting>📅 Schedule Call</button-meeting> <button-upload>📎 Send Resume</button-upload> <button-funfact>🎲 Fun Fact</button-funfact>`,
   ],
   [
     "projects",
     `**Lawrence's Key Projects:**
 
 🥑 **Expired Solutions** (AI Food Waste Platform)
-- Computer vision for expiration date detection
-- 20% reduction in grocery waste
-- Giant Eagle pilot program
-- Full-stack AI application with React/Python
+• Computer vision for expiration date detection
+• 20% reduction in grocery waste
+• Giant Eagle pilot program
+• Full-stack AI application with React/Python
 <button-expired>View Expired Solutions</button-expired>
 
 🎓 **Tutora AI Enhancement** (EdTech Platform)
-- AI-powered tutoring optimization
-- 35% improvement in student outcomes
-- Automated content generation and assessment
+• AI-powered tutoring optimization
+• 35% improvement in student outcomes
+• Automated content generation and assessment
 <button-tutora>Visit Tutora Website</button-tutora>
 
 🤝 **PM Happy Hour Growth** (Community Platform)
-- Product strategy for 30% growth
-- A/B testing framework implementation  
-- AI-generated content campaigns (videos helped grow community by 25 users per post, 5%)
-<button-pmhappyhour>Learn About PM Happy Hour</button-pmhappyhour>
-- [View AI Generated Content](https://drive.google.com/drive/folders/1FtSQeY0fkwUsOa2SeMbfyk4ivYcj9AUs?usp=sharing)
+• Product strategy for 30% growth
+• A/B testing framework implementation  
+• AI-generated content campaigns (videos helped grow community by 25 users per post, 5%)
+<button-pmhappyhour>Visit the site</button-pmhappyhour> <button-pmhappyhour-work>View AI Generated Content</button-pmhappyhour-work>
 
 🎬 **Netflix Clone with KNN Model** (Machine Learning)
-- Developed KNN model analyzing 10M+ reviews  
-- Implemented A/B testing and Grafana visualization
-- [View Project](https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0)
+• Developed KNN model analyzing 10M+ reviews  
+• Implemented A/B testing and Grafana visualization
+• [View Project](https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0)
 
 📱 **Motorola NFC Prototype** (1st Place Hackathon Winner)
-- NFC-based feature prototype for APX NEXT radios
-- Won 1st place at Motorola Product Hackathon
+• NFC-based feature prototype for APX NEXT radios
+• Won 1st place at Motorola Product Hackathon
 
 <button-projects>💻 **View Full Project Portfolio**</button-projects>
 
@@ -146,25 +160,31 @@ const instantResponses = new Map<string, string>([
     `**Lawrence's Educational Background:**
 
 🎓 **Master's in Information Systems Management (MISM)**
-- Carnegie Mellon University (2024)
-- Focus: AI/ML, Product Strategy, Data Analytics
-- Capstone: AI-powered business optimization
+• Carnegie Mellon University (2024)
+• Focus: AI/ML, Product Strategy, Data Analytics
+• Capstone: AI-powered business optimization
 
 🐊 **Bachelor's Degree**
-- University of Florida
-- Computer Science foundations
-- Business and technical coursework
+• University of Florida
+• Computer Science foundations
+• Business and technical coursework
 
 **Continuous Learning:**
-- AI/ML certifications and courses
-- Product management best practices
-- Startup accelerator programs
-- Industry conferences and workshops
+• AI/ML certifications and courses
+• Product management best practices
+• Startup accelerator programs
+• Industry conferences and workshops
 
 **Academic Projects:**
-- AI research and development
-- Product case studies and analysis
-- Cross-functional team leadership`,
+• AI research and development
+• Product case studies and analysis
+• Cross-functional team leadership
+
+**See His Work:**
+<button-projects>💻 View Portfolio</button-projects> <button-expired>🚀 Startup Project</button-expired> <button-skills>🛠️ Technical Skills</button-skills>
+
+**Get Connected:**
+<button-message>📧 Send Message</button-message> <button-meeting>📅 Book Call</button-meeting> <button-funfact>🎲 Fun Fact</button-funfact>`,
   ],
   [
     "contact",
@@ -179,12 +199,18 @@ I'd be happy to help you get in touch! Lawrence is currently **open to AI PM/APM
 💡 Speaking engagements and industry panels
 
 **Current Availability:**
-- Open to immediate opportunities
-- Can start discussions right away
-- Flexible on location (remote/hybrid/onsite)
+• Open to immediate opportunities
+• Can start discussions right away
+• Flexible on location (remote/hybrid/onsite)
 
 **Quick Contact Options:**
 <button-message>📧 Send a Message</button-message> <button-meeting>📅 Book a Call</button-meeting> <button-upload>📎 Upload Job Description</button-upload>
+
+**While You're Here:**
+<button-projects>💻 View Projects</button-projects> <button-experience>🚀 See Experience</button-experience> <button-skills>🛠️ Technical Skills</button-skills>
+
+**Keep Exploring:**
+<button-funfact>🎲 Fun Fact</button-funfact> <button-generate-question>💡 Generate Question</button-generate-question>
 
 Click the buttons above for instant assistance, or tell me what you'd like to discuss!`,
   ],
@@ -193,29 +219,37 @@ Click the buttons above for instant assistance, or tell me what you'd like to di
     `**Lawrence's AI/ML Expertise:**
 
 🧠 **Core AI Technologies:**
-- **Computer Vision** - Expiration date detection, image processing
-- **Natural Language Processing** - Chatbots, content generation
-- **Machine Learning** - Model training, optimization, deployment
-- **GPT Integration** - API usage, prompt engineering, fine-tuning
+• **Computer Vision** - Expiration date detection, image processing
+• **Natural Language Processing** - Chatbots, content generation
+• **Machine Learning** - Model training, optimization, deployment
+• **GPT Integration** - API usage, prompt engineering, fine-tuning
 
 🛠 **Technical Stack:**
-- **Languages**: Python, JavaScript, TypeScript
-- **ML Frameworks**: TensorFlow, PyTorch, scikit-learn
-- **AI Tools**: OpenAI APIs, Hugging Face, LangChain
-- **Cloud**: Firebase, AWS, Google Cloud AI services
+• **Languages**: Python, JavaScript, TypeScript
+• **ML Frameworks**: TensorFlow, PyTorch, scikit-learn
+• **AI Tools**: OpenAI APIs, Hugging Face, LangChain
+• **Cloud**: Firebase, AWS, Google Cloud AI services
 
 🚀 **Real-World AI Applications:**
-- **Expired Solutions**: Computer vision for food waste reduction <button-expired>View Expired Solutions</button-expired>
-- **Tutora**: AI tutoring optimization (+35% outcomes) <button-tutora>Visit Tutora Website</button-tutora>
-- **Amazon MTurk**: AI model evaluation and training <button-mturk>Come back for more in July!</button-mturk>
-- **PM Happy Hour**: AI content generation campaigns (videos helped grow community by 25 users per post, 5%) <button-pmhappyhour>Visit the site</button-pmhappyhour>
-  - [View my work](https://drive.google.com/drive/folders/1FtSQeY0fkwUsOa2SeMbfyk4ivYcj9AUs?usp=sharing)
+• **Expired Solutions**: Computer vision for food waste reduction <button-expired>View Expired Solutions</button-expired>
+• **Tutora**: AI tutoring optimization (+35% outcomes) <button-tutora>Visit Tutora Website</button-tutora>
+• **Amazon MTurk**: AI model evaluation and training <button-mturk>Come back for more in July!</button-mturk>
+• **PM Happy Hour**: AI content generation campaigns (videos helped grow community by 25 users per post, 5%) <button-pmhappyhour>Visit the site</button-pmhappyhour> <button-pmhappyhour-work>View my work</button-pmhappyhour-work>
 
 💡 **AI Product Strategy:**
-- Model selection and evaluation
-- User experience design for AI features
-- Performance optimization and scaling
-- Ethical AI implementation and bias mitigation`,
+• Model selection and evaluation
+• User experience design for AI features
+• Performance optimization and scaling
+• Ethical AI implementation and bias mitigation
+
+**Explore Lawrence's AI Work:**
+<button-expired>🥑 Food Waste AI</button-expired> <button-tutora>🎓 EdTech AI</button-tutora> <button-pmhappyhour-work>📊 AI Content Generation</button-pmhappyhour-work>
+
+**Next Steps:**
+<button-message>📧 Discuss AI Projects</button-message> <button-meeting>📅 Schedule AI Chat</button-meeting> <button-projects>💻 View All Projects</button-projects>
+
+**Learn More:**
+<button-experience>🚀 Full Background</button-experience> <button-funfact>🎲 Fun AI Fact</button-funfact>`,
   ],
 ]);
 
@@ -331,11 +365,11 @@ function getMessageHash(message: string): string {
     .slice(0, 100);
 }
 
-// Quick pattern matching for instant responses - VERY RESTRICTIVE
+// Quick pattern matching for instant responses - More flexible for common phrases
 function getInstantResponse(message: string): string | null {
   const lowerMessage = message.toLowerCase().trim();
 
-  // Only match if the message is exactly one of these terms (button-like behavior)
+  // Check for exact matches first (button-like behavior)
   for (const pattern of quickPatterns) {
     if (pattern.exactMatches.includes(lowerMessage)) {
       const response = instantResponses.get(pattern.response);
@@ -343,6 +377,24 @@ function getInstantResponse(message: string): string | null {
         return response;
       }
     }
+  }
+
+  // Check for common project-related phrases
+  if (lowerMessage.includes("project") && (lowerMessage.includes("show") || lowerMessage.includes("impressive") || lowerMessage.includes("key") || lowerMessage.includes("main"))) {
+    const response = instantResponses.get("projects");
+    if (response) return response;
+  }
+
+  // Check for common skills-related phrases
+  if ((lowerMessage.includes("skill") || lowerMessage.includes("technical") || lowerMessage.includes("ability")) && (lowerMessage.includes("key") || lowerMessage.includes("main") || lowerMessage.includes("what"))) {
+    const response = instantResponses.get("skills");
+    if (response) return response;
+  }
+
+  // Check for common experience-related phrases
+  if ((lowerMessage.includes("experience") || lowerMessage.includes("background")) && (lowerMessage.includes("tell") || lowerMessage.includes("about") || lowerMessage.includes("show"))) {
+    const response = instantResponses.get("experience");
+    if (response) return response;
   }
 
   return null;
@@ -431,6 +483,43 @@ RESPONSE GUIDELINES:
 - For contact requests: offer to collect info and send to Lawrence
 - For meeting requests: offer to help schedule via calendar
 - Always be helpful, enthusiastic, and professional
+- Use bullet points (•) instead of dashes (-) for better formatting
+
+MAXIMUM BUTTON USAGE - Include relevant buttons in EVERY response:
+**Project Buttons:**
+• <button-expired>View Expired Solutions</button-expired>
+• <button-tutora>Visit Tutora Website</button-tutora>
+• <button-pmhappyhour>Visit the site</button-pmhappyhour> <button-pmhappyhour-work>View AI Generated Content</button-pmhappyhour-work>
+• <button-projects>💻 View Full Project Portfolio</button-projects>
+
+**Quick Action Buttons:**
+• <button-message>📧 Send Message</button-message> <button-meeting>📅 Book Call</button-meeting> <button-upload>📎 Upload Job</button-upload>
+
+**Topic Exploration Buttons:**
+• <button-experience>🚀 Experience</button-experience> <button-skills>🛠️ Skills</button-skills> <button-funfact>🎲 Fun Fact</button-funfact>
+• <button-generate-question>💡 Generate Question</button-generate-question>
+
+**Profile & Social Buttons:**
+• <button-linkedin>💼 LinkedIn Profile</button-linkedin> <button-resume>📄 Download Resume</button-resume>
+• <button-testimonials>💬 Testimonials</button-testimonials> <button-about>👤 About Lawrence</button-about>
+
+**Interactive Elements:**
+• End responses with 2-3 relevant buttons based on topic
+• Always include contact buttons when discussing career/opportunities
+• Add exploration buttons to encourage deeper conversation
+• Use project buttons when mentioning specific work
+• Include fun/engaging elements to keep conversation lively
+
+ALWAYS make responses interactive and actionable - never end without giving the user clear next steps through buttons!
+
+**Example Response Templates:**
+For project questions: End with <button-expired>View Solution</button-expired> <button-projects>See All Projects</button-projects> <button-message>Discuss Projects</button-message>
+
+For experience questions: End with <button-linkedin>LinkedIn Profile</button-linkedin> <button-resume>Download Resume</button-resume> <button-meeting>Schedule Call</button-meeting>
+
+For skill questions: End with <button-projects>See Examples</button-projects> <button-testimonials>Read Reviews</button-testimonials> <button-message>Ask Questions</button-message>
+
+For general questions: End with <button-funfact>Fun Fact</button-funfact> <button-generate-question>Ask More</button-generate-question> <button-meeting>Get in Touch</button-meeting>
 
 Give thoughtful, personalized responses that showcase Lawrence's unique background and personality.`;
 

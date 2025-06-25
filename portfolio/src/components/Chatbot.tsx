@@ -21,6 +21,70 @@ import {
 } from "react-icons/fi";
 import styles from "./Chatbot.module.css";
 
+// Add Firebase imports for analytics tracking
+import { initializeApp, getApps } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+};
+
+// Initialize Firebase
+let db: any = null;
+if (typeof window !== "undefined") {
+  try {
+    const app = !getApps().length
+      ? initializeApp(firebaseConfig)
+      : getApps()[0];
+    db = getFirestore(app);
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+  }
+}
+
+// Generate session ID for analytics tracking
+function getChatSessionId(): string {
+  if (typeof window === "undefined") return "server";
+  
+  let sessionId = sessionStorage.getItem("analytics_session_id");
+  if (!sessionId) {
+    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem("analytics_session_id", sessionId);
+  }
+  return sessionId;
+}
+
+// Track chatbot events
+async function trackChatbotEvent(eventType: string, data: any = {}) {
+  if (!db) return;
+
+  try {
+    await addDoc(collection(db, "chatbot_analytics"), {
+      eventType,
+      sessionId: getChatSessionId(),
+      timestamp: serverTimestamp(),
+      userAgent: navigator.userAgent,
+      page: window.location.pathname,
+      ...data,
+    });
+    console.log(`Tracked chatbot event: ${eventType}`);
+  } catch (error) {
+    console.error("Error tracking chatbot event:", error);
+  }
+}
+
 interface FilePreview {
   url: string;
   type: string;
@@ -133,6 +197,14 @@ function formatMessage(
       "<button onclick=\"window.open('https://www.notion.so/pmhappyhour/PM-Happy-Hour-37b20a5dc2ea481e8e3437a95811e54b', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
     )
     .replace(
+      /<button-pmhappyhour-work>(.*?)<\/button-pmhappyhour-work>/g,
+      "<button onclick=\"window.open('https://drive.google.com/drive/folders/1FtSQeY0fkwUsOa2SeMbfyk4ivYcj9AUs?usp=drive_link', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+    )
+    .replace(
+      /<button-pmhh-projects>(.*?)<\/button-pmhh-projects>/g,
+      "<button onclick=\"window.open('https://drive.google.com/drive/folders/1FtSQeY0fkwUsOa2SeMbfyk4ivYcj9AUs?usp=sharing', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+    )
+    .replace(
       /<button-mturk>(.*?)<\/button-mturk>/g,
       "<button onclick=\"window.open('https://www.mturk.com/', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
     )
@@ -143,6 +215,22 @@ function formatMessage(
     .replace(
       /<button-generate-question>(.*?)<\/button-generate-question>/g,
       '<button onclick="window.chatbotButtonClick(\'generate-question\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
+    )
+    .replace(
+      /<button-linkedin>(.*?)<\/button-linkedin>/g,
+      "<button onclick=\"window.open('https://www.linkedin.com/in/lawrencehua/', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+    )
+    .replace(
+      /<button-resume>(.*?)<\/button-resume>/g,
+      "<button onclick=\"window.open('/Lawrence_Hua_Resume_June_2025.pdf', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+    )
+    .replace(
+      /<button-testimonials>(.*?)<\/button-testimonials>/g,
+      "<button onclick=\"(() => { const testimonialsSection = document.getElementById('testimonials'); if (testimonialsSection) { testimonialsSection.scrollIntoView({ behavior: 'smooth' }); alert('Check out what people say about working with Lawrence!'); } else { alert('Testimonials section not found. Please scroll down to see testimonials.'); } })()\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+    )
+    .replace(
+      /<button-about>(.*?)<\/button-about>/g,
+      "<button onclick=\"(() => { const aboutSection = document.getElementById('about'); if (aboutSection) { aboutSection.scrollIntoView({ behavior: 'smooth' }); alert('Learn more about Lawrence\\'s background and journey!'); } else { alert('About section not found. Please scroll down to learn more about Lawrence.'); } })()\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
     );
 
   // Special styling for typed commands - make them more visible and attractive
@@ -479,6 +567,16 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
       timestamp: new Date(),
     },
   ]);
+
+  // Track conversation start when chatbot opens
+  useEffect(() => {
+    if (isOpen) {
+      trackChatbotEvent("conversation_started", {
+        timestamp: new Date().toISOString(),
+        initialMessageLength: messages[0]?.content.length || 0,
+      });
+    }
+  }, [isOpen]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -715,6 +813,13 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
   const handleButtonClick = (type: string) => {
     let message = "";
 
+    // Track button click event
+    trackChatbotEvent("button_clicked", {
+      buttonType: type,
+      messageCount: messages.length,
+      sessionLength: messages.length,
+    });
+
     switch (type) {
       case "experience":
         message = "Tell me about Lawrence's experience and background";
@@ -752,6 +857,10 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
         message = "/meeting";
         break;
       case "upload":
+        // Track file upload button click
+        trackChatbotEvent("upload_button_clicked", {
+          messageCount: messages.length,
+        });
         // Trigger file input - let mobile handle the options naturally
         if (fileInputRef.current) {
           fileInputRef.current.click();
@@ -874,6 +983,12 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
   const handleDateTimeSelect = async (dateTime: string) => {
     setShowCalendar(false);
 
+    // Track calendar date/time selection
+    trackChatbotEvent("calendar_datetime_selected", {
+      selectedDateTime: dateTime,
+      messageCount: messages.length,
+    });
+
     // Add user message with selected date/time
     const userMessage: Message = {
       role: "user",
@@ -890,6 +1005,11 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
   // Handle calendar cancellation
   const handleCalendarCancel = () => {
     setShowCalendar(false);
+    
+    // Track calendar cancellation
+    trackChatbotEvent("calendar_cancelled", {
+      messageCount: messages.length,
+    });
   };
 
   // Show calendar when appropriate
@@ -902,6 +1022,16 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!input.trim() && selectedFiles.length === 0) || isLoading) return;
+
+    // Track message send event
+    trackChatbotEvent("message_sent", {
+      messageLength: input.length,
+      hasFiles: selectedFiles.length > 0,
+      fileCount: selectedFiles.length,
+      messageCount: messages.length,
+      sessionLength: messages.length,
+      fileTypes: selectedFiles.map(f => f.type),
+    });
 
     const userMessage: Message = {
       role: "user",
@@ -984,9 +1114,24 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFileError("");
     const files = Array.from(e.target.files || []);
+    
+    // Track file selection
+    if (files.length > 0) {
+      trackChatbotEvent("files_selected", {
+        fileCount: files.length,
+        fileSizes: files.map(f => f.size),
+        fileTypes: files.map(f => f.type),
+        messageCount: messages.length,
+      });
+    }
+    
     // Limit file size to 10MB
     const tooLarge = files.some((file) => file.size > 10 * 1024 * 1024);
     if (tooLarge) {
+      trackChatbotEvent("file_error", {
+        errorType: "size_limit",
+        fileCount: files.length,
+      });
       setFileError(
         "File size exceeds the 10MB limit. Please select a smaller file."
       );

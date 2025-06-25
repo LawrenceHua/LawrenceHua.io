@@ -5,6 +5,70 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X } from "lucide-react";
 import Chatbot from "./Chatbot";
 
+// Add Firebase imports for analytics tracking
+import { initializeApp, getApps } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+};
+
+// Initialize Firebase
+let db: any = null;
+if (typeof window !== "undefined") {
+  try {
+    const app = !getApps().length
+      ? initializeApp(firebaseConfig)
+      : getApps()[0];
+    db = getFirestore(app);
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+  }
+}
+
+// Generate session ID for analytics tracking
+function getSessionId(): string {
+  if (typeof window === "undefined") return "server";
+  
+  let sessionId = sessionStorage.getItem("analytics_session_id");
+  if (!sessionId) {
+    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem("analytics_session_id", sessionId);
+  }
+  return sessionId;
+}
+
+// Track chatbot events
+async function trackChatbotEvent(eventType: string, data: any = {}) {
+  if (!db) return;
+
+  try {
+    await addDoc(collection(db, "chatbot_analytics"), {
+      eventType,
+      sessionId: getSessionId(),
+      timestamp: serverTimestamp(),
+      userAgent: navigator.userAgent,
+      page: window.location.pathname,
+      ...data,
+    });
+    console.log(`Tracked chatbot event: ${eventType}`);
+  } catch (error) {
+    console.error("Error tracking chatbot event:", error);
+  }
+}
+
 interface FloatingChatbotProps {
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -27,6 +91,16 @@ export function FloatingChatbot({
   const [hasBeenOpened, setHasBeenOpened] = useState(false);
   const [permanentlyDismissed, setPermanentlyDismissed] = useState(false);
 
+  // Track when chatbot button becomes visible
+  useEffect(() => {
+    if (!tourActive) {
+      trackChatbotEvent("chatbot_button_loaded", {
+        tourActive,
+        page: window.location.pathname,
+      });
+    }
+  }, [tourActive]);
+
   useEffect(() => {
     const handleScroll = () => {
       // Check if skills section is in viewport
@@ -38,6 +112,12 @@ export function FloatingChatbot({
         if (isInViewport && !showPopup) {
           setShowPopup(true);
           setHasScrolled(true);
+
+          // Track popup show event
+          trackChatbotEvent("popup_shown", {
+            trigger: "scroll_to_skills",
+            scrollPosition: window.scrollY,
+          });
 
           // Hide popup after time
           setTimeout(() => {
@@ -68,6 +148,12 @@ export function FloatingChatbot({
             if (isInUpperSections) {
               setShowPopup(true);
 
+              // Track popup show event
+              trackChatbotEvent("popup_shown", {
+                trigger: "timer_20s",
+                timeOnPage: 20000,
+              });
+
               // Hide popup after 15 seconds
               setTimeout(() => {
                 setShowPopup(false);
@@ -85,17 +171,33 @@ export function FloatingChatbot({
     setShowPopup(false);
     setDismissCount((prev) => prev + 1);
     setPermanentlyDismissed(true); // Never show popups again after first dismissal
+
+    // Track popup dismissal
+    trackChatbotEvent("popup_dismissed", {
+      dismissCount: dismissCount + 1,
+      timeVisible: 15000, // Approximate time visible
+    });
   };
 
   const openChatbot = () => {
     // Prevent opening chatbot when tour is active
     if (tourActive) {
+      trackChatbotEvent("chatbot_open_blocked", {
+        reason: "tour_active",
+      });
       return;
     }
 
     setIsOpen(true);
     setShowPopup(false);
     setHasBeenOpened(true);
+
+    // Track chatbot open event
+    trackChatbotEvent("chatbot_opened", {
+      source: showPopup ? "popup_click" : "button_click",
+      hasBeenOpenedBefore: hasBeenOpened,
+      dismissCount,
+    });
 
     // Pre-load system prompt in the background for faster responses
     fetch("/api/chatbot", { method: "GET" })
@@ -110,6 +212,12 @@ export function FloatingChatbot({
 
   const closeChatbot = () => {
     setIsOpen(false);
+    
+    // Track chatbot close event
+    trackChatbotEvent("chatbot_closed", {
+      hasBeenOpened: hasBeenOpened,
+    });
+
     // Don't reset permanentlyDismissed - once dismissed, stay dismissed
     // Only reset if user opened the chatbot (which shows they're engaged)
     if (!permanentlyDismissed) {
