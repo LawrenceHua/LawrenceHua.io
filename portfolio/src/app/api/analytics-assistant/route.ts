@@ -171,8 +171,16 @@ ${JSON.stringify(insights, null, 2)}
 
 TIME PERIOD: ${timeRange === "1d" ? "Last 24 hours" : timeRange === "7d" ? "Last 7 days" : timeRange === "30d" ? "Last 30 days" : "Custom period"}
 
+IMPORTANT DATA CLARIFICATIONS:
+- hoverButtonEvents = chatbot button loads (when button becomes visible)
+- popupViews = chatbot popup displays (marketing prompts that appear)  
+- chatOpens = actual chatbot conversations started
+- If conversations > 0 but hoverButtonEvents = 0, users may be accessing via direct URL or other entry points
+- Always cross-reference multiple metrics to avoid data inconsistencies
+
 AVAILABLE METRICS:
-- Chatbot Analytics: Sessions, messages, button clicks, file uploads, meeting schedules
+- Chatbot Analytics: Sessions, messages, button clicks, file uploads, meeting schedules, hover events, popup interactions
+- Conversation Data: Total messages, user vs assistant messages, sessions, average messages per session
 - Website Traffic: Page views, unique visitors, referrer sources, device types
 - User Engagement: Bounce rates, session durations, scroll depth, interactions
 - Geographic Data: Visitor locations, countries, cities
@@ -246,6 +254,8 @@ function processAnalyticsInsights(data: any, timeRange: string) {
       chatOpens: chatOpened.length,
       fileUploads: fileUploads.length,
       meetingSchedules: meetingSchedules.length,
+      hoverButtonEvents: events.filter((e: any) => e.eventType === 'chatbot_button_loaded').length,
+      popupDismissals: events.filter((e: any) => e.eventType === 'popup_dismissed').length,
       conversionRate: popupShown.length > 0 ? ((chatOpened.length / popupShown.length) * 100).toFixed(1) : "0.0",
       mostPopularButtons: getMostPopularButtons(buttonClicks),
     };

@@ -1213,6 +1213,7 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
               borderRadius: isFullscreen || isMobile ? 0 : "1rem",
               position: "fixed",
               zIndex: 1000,
+              backgroundColor: "white",
               boxShadow:
                 "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1)",
             }}
