@@ -113,6 +113,14 @@ function formatMessage(
       '<button onclick="window.chatbotButtonClick(\'upload\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
     )
     .replace(
+      /<button-message>(.*?)<\/button-message>/g,
+      '<button onclick="window.chatbotButtonClick(\'message\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
+    )
+    .replace(
+      /<button-meeting>(.*?)<\/button-meeting>/g,
+      '<button onclick="window.chatbotButtonClick(\'meeting\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
+    )
+    .replace(
       /<button-expired>(.*?)<\/button-expired>/g,
       "<button onclick=\"window.open('https://expiredsolutions.com', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
     )
@@ -126,7 +134,15 @@ function formatMessage(
     )
     .replace(
       /<button-mturk>(.*?)<\/button-mturk>/g,
-      "<button onclick=\"window.open('https://www.linkedin.com/in/lawrencehua', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+      "<button onclick=\"window.open('https://www.mturk.com/', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+    )
+    .replace(
+      /<button-projects>(.*?)<\/button-projects>/g,
+      "<button onclick=\"(() => { const projectsSection = document.getElementById('projects'); if (projectsSection) { projectsSection.scrollIntoView({ behavior: 'smooth' }); alert('You can now close this chat and explore the full project portfolio below!'); } else { alert('Projects section not found. Please scroll down to see the featured projects.'); } })()\" class=\"inline-flex items-center px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg font-medium text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-0.5 my-1 cursor-pointer\">$1</button>"
+    )
+    .replace(
+      /<button-generate-question>(.*?)<\/button-generate-question>/g,
+      '<button onclick="window.chatbotButtonClick(\'generate-question\')" class="inline-flex items-center px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer">$1</button>'
     );
 
   // Special styling for typed commands - make them more visible and attractive
@@ -447,16 +463,19 @@ export default function Chatbot({ isOpen, onClose }: ChatbotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: `Hi! I'm Lawrence's AI! 🤖
+      content: `👋 Hey there! I'm Lawrence's AI assistant!
 
-**Quick Clicks:**
-<button-experience>Experience</button-experience> <button-skills>Skills</button-skills> <button-projects>Projects</button-projects>
+I can help you discover what makes Lawrence tick as a **Product Manager** and **AI builder**.
 
-<button-funfact>Fun Fact</button-funfact>
+**Popular Topics:**
+<button-experience>🚀 Experience</button-experience> <button-skills>🛠️ Skills</button-skills> <button-projects>💻 Projects</button-projects>
 
-<button-message>/message</button-message> <button-meeting>/meeting</button-meeting> <button-upload>📎 Upload Job</button-upload>
+**Quick Actions:**
+<button-message>📧 Send Message</button-message> <button-meeting>📅 Book Call</button-meeting> <button-upload>📎 Upload Job</button-upload>
 
-What would you like to know?`,
+<button-funfact>🎲 Surprise Me!</button-funfact> <button-generate-question>💡 Generate Question</button-generate-question>
+
+Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"How does he approach problem-solving?"* 🚀`,
       timestamp: new Date(),
     },
   ]);
@@ -708,6 +727,23 @@ What would you like to know?`,
         break;
       case "funfact":
         message = "Tell me a fun fact about Lawrence";
+        break;
+      case "generate-question":
+        const questions = [
+          "What's Lawrence's biggest accomplishment?",
+          "How does Lawrence approach problem-solving?",
+          "What makes Lawrence a great teammate?", 
+          "What's Lawrence's leadership style?",
+          "How does Lawrence handle setbacks or failure?",
+          "What drives Lawrence in his work and life?",
+          "What would colleagues say about working with Lawrence?",
+          "How does Lawrence bridge technical and non-technical stakeholders?",
+          "What's Lawrence's approach to customer empathy?",
+          "What's a story that best illustrates Lawrence's impact?",
+          "How does Lawrence stay current with technology trends?",
+          "What are Lawrence's values when building products?"
+        ];
+        message = questions[Math.floor(Math.random() * questions.length)];
         break;
       case "message":
         message = "/message";
@@ -1105,6 +1141,15 @@ What would you like to know?`,
                   className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
                 >
                   🎯 Fun Fact
+                </button>
+                <button
+                  onClick={() => {
+                    handleButtonClick("generate-question");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  💡 Generate Question
                 </button>
                 <hr className="my-2 border-gray-200 dark:border-gray-600" />
                 <button

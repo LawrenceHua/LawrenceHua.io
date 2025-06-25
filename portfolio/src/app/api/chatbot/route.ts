@@ -48,64 +48,207 @@ const advancedCache = new Map<
   }
 >();
 
-// Pre-computed responses for instant delivery
+// Pre-computed responses for instant delivery - Rich & Detailed
 const instantResponses = new Map<string, string>([
   [
     "skills",
-    "Lawrence has expertise in Product Management, AI/ML, full-stack development (React, Next.js, Python), data analysis, and startup leadership. He's built AI platforms, led cross-functional teams, and has 4+ years of PM experience at companies like PM Happy Hour, PanPalz, and Kearney.",
+    `**Lawrence's Core Technical Skills:**
+
+🎯 **Product Management** - 2+ years professional PM experience including PM internships, founding Expired Solutions, and product consulting
+🤖 **AI/ML Expertise** - Computer vision, NLP, GPT integration, prompt engineering, model evaluation
+💻 **Full-Stack Development** - Python, Java, JavaScript, React, Next.js, Android development, Flask APIs
+📊 **Data & Analytics** - SQL, A/B testing, business intelligence, performance optimization, forecasting
+🚀 **Startup & Leadership** - Founded Expired Solutions (McGinnis VC Finalist), led 20-person tech teams
+🏪 **Diverse Work Experience** - 9 years across technology, retail, education, and product roles
+
+**Current Focus:** 🎯 **Seeking first full-time AI Product Management role!**
+
+**Current Active Roles:**
+• **Founder & CEO - Expired Solutions** (AI Grocery Platform) <button-expired>View Expired Solutions</button-expired>
+• **Product Manager - AIGC - Intern - PM Happy Hour** (Community Growth) <button-pmhappyhour>Visit the site</button-pmhappyhour>
+• **AI Product Consultant - Tutora** (EdTech Automation) <button-tutora>Visit Tutora Website</button-tutora>
+
+**Other Experience:** Amazon MTurk, Giant Eagle, Motorola Solutions, University of Florida`,
   ],
   [
     "experience",
-    "Lawrence has 4+ years of product management experience across multiple companies including PM Happy Hour (AI Product Consultant), PanPalz (Product Manager), Kearney (Product Management Intern), and his own startup Expired Solutions (Founder & CEO). He's also worked at Giant Eagle and Motorola as an engineer.",
+    `**Lawrence's Professional Journey (9+ Years Total Experience):**
+
+🎯 **Seeking First Full-Time AI Product Management Role!**
+
+🚀 **Founder & CEO - Expired Solutions** (Aug 2024-Present)
+- Built CV + GPT platform automating produce markdowns → 20% shrink reduction
+- Led Giant Eagle pilot after 15 exec interviews & 250 shopper surveys
+- McGinnis Venture Competition Finalist (Top-4 Social Enterprise)
+<button-expired>View Expired Solutions</button-expired>
+
+📈 **Product Manager - AIGC - Intern - PM Happy Hour** (Mar 2025-Present)
+- Scaled community 30% with AIGC campaigns, MBTI×PM event ↑ engagement 50%
+- Drove A/B testing program → 20% lift in feature adoption
+<button-pmhappyhour>Visit the site</button-pmhappyhour>
+- [View my work](https://drive.google.com/drive/folders/1FtSQeY0fkwUsOa2SeMbfyk4ivYcj9AUs?usp=sharing)
+
+📱 **Embedded Android Engineer - Motorola Solutions** (Aug 2021-Aug 2023)
+- Shipped GPS, NFC, auth, UI features for 15k+ APX NEXT radios
+- Fixed 80+ defects, 1st-place Motorola Innovation Hackathon (NFC prototype)
+- Led debugging/testing with global teams, reduced integration delays 25%
+
+🎯 **AI Product Consultant - Tutora** (Mar 2021-Present, 4+ years part-time)
+- Automated scheduling/grading (Otter.ai, Dola) → 15 hrs/week saved
+- Authored 50+ TI-BASIC programs → test scores ↑ 35% across 50+ students
+<button-tutora>Visit Tutora Website</button-tutora>
+
+**Other Key Experience:**
+🤖 **Amazon MTurk** - External Expert, AI Model Evaluation (Jun 2025-Present)
+🏢 **Giant Eagle** - Produce Team Lead (Cut shrink 1% in 30 days)
+💻 **University of Florida** - System Admin (95%+ CSAT, led 20-person team)
+🎓 **Education**: Carnegie Mellon MISM '24, University of Florida CS Cum Laude`,
   ],
   [
     "projects",
-    "Lawrence has worked on diverse projects including AI-powered food waste reduction systems, computer vision applications, mobile apps, and data analytics platforms. Notable projects include Expired Solutions (his startup), AI chatbots, machine learning pipelines, and product strategy implementations.",
+    `**Lawrence's Key Projects:**
+
+🥑 **Expired Solutions** (AI Food Waste Platform)
+- Computer vision for expiration date detection
+- 20% reduction in grocery waste
+- Giant Eagle pilot program
+- Full-stack AI application with React/Python
+<button-expired>View Expired Solutions</button-expired>
+
+🎓 **Tutora AI Enhancement** (EdTech Platform)
+- AI-powered tutoring optimization
+- 35% improvement in student outcomes
+- Automated content generation and assessment
+<button-tutora>Visit Tutora Website</button-tutora>
+
+🤝 **PM Happy Hour Growth** (Community Platform)
+- Product strategy for 30% growth
+- A/B testing framework implementation  
+- AI-generated content campaigns (videos helped grow community by 25 users per post, 5%)
+<button-pmhappyhour>Learn About PM Happy Hour</button-pmhappyhour>
+- [View AI Generated Content](https://drive.google.com/drive/folders/1FtSQeY0fkwUsOa2SeMbfyk4ivYcj9AUs?usp=sharing)
+
+🎬 **Netflix Clone with KNN Model** (Machine Learning)
+- Developed KNN model analyzing 10M+ reviews  
+- Implemented A/B testing and Grafana visualization
+- [View Project](https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0)
+
+📱 **Motorola NFC Prototype** (1st Place Hackathon Winner)
+- NFC-based feature prototype for APX NEXT radios
+- Won 1st place at Motorola Product Hackathon
+
+<button-projects>💻 **View Full Project Portfolio**</button-projects>
+
+*Click above to see detailed project showcase! You can close this chat and explore the featured projects section.*`,
   ],
   [
     "education",
-    "Lawrence holds a Master's in Information Systems Management (MISM) from Carnegie Mellon University (2024) and a Bachelor's degree from the University of Florida. His education combines technical computer science foundations with business and management principles.",
+    `**Lawrence's Educational Background:**
+
+🎓 **Master's in Information Systems Management (MISM)**
+- Carnegie Mellon University (2024)
+- Focus: AI/ML, Product Strategy, Data Analytics
+- Capstone: AI-powered business optimization
+
+🐊 **Bachelor's Degree**
+- University of Florida
+- Computer Science foundations
+- Business and technical coursework
+
+**Continuous Learning:**
+- AI/ML certifications and courses
+- Product management best practices
+- Startup accelerator programs
+- Industry conferences and workshops
+
+**Academic Projects:**
+- AI research and development
+- Product case studies and analysis
+- Cross-functional team leadership`,
   ],
   [
     "contact",
-    "I'd be happy to help you get in touch with Lawrence! I can collect your information and send it directly to him, or help you schedule a meeting. What would you prefer - sending a message or scheduling a call?",
+    `**Ready to Connect with Lawrence?**
+
+I'd be happy to help you get in touch! Lawrence is currently **open to AI PM/APM roles** and exciting opportunities.
+
+**What Lawrence is Looking For:**
+🎯 AI Product Manager or Associate PM roles
+🚀 Startup opportunities in AI/ML space
+🤝 Consulting projects in product strategy
+💡 Speaking engagements and industry panels
+
+**Current Availability:**
+- Open to immediate opportunities
+- Can start discussions right away
+- Flexible on location (remote/hybrid/onsite)
+
+**Quick Contact Options:**
+<button-message>📧 Send a Message</button-message> <button-meeting>📅 Book a Call</button-meeting> <button-upload>📎 Upload Job Description</button-upload>
+
+Click the buttons above for instant assistance, or tell me what you'd like to discuss!`,
   ],
   [
     "ai",
-    "Lawrence has extensive AI/ML experience including computer vision, natural language processing, machine learning pipeline development, and AI product strategy. He's built AI-powered applications, worked with OpenAI APIs, and has hands-on experience with Python, TensorFlow, and various ML frameworks.",
+    `**Lawrence's AI/ML Expertise:**
+
+🧠 **Core AI Technologies:**
+- **Computer Vision** - Expiration date detection, image processing
+- **Natural Language Processing** - Chatbots, content generation
+- **Machine Learning** - Model training, optimization, deployment
+- **GPT Integration** - API usage, prompt engineering, fine-tuning
+
+🛠 **Technical Stack:**
+- **Languages**: Python, JavaScript, TypeScript
+- **ML Frameworks**: TensorFlow, PyTorch, scikit-learn
+- **AI Tools**: OpenAI APIs, Hugging Face, LangChain
+- **Cloud**: Firebase, AWS, Google Cloud AI services
+
+🚀 **Real-World AI Applications:**
+- **Expired Solutions**: Computer vision for food waste reduction <button-expired>View Expired Solutions</button-expired>
+- **Tutora**: AI tutoring optimization (+35% outcomes) <button-tutora>Visit Tutora Website</button-tutora>
+- **Amazon MTurk**: AI model evaluation and training <button-mturk>Come back for more in July!</button-mturk>
+- **PM Happy Hour**: AI content generation campaigns (videos helped grow community by 25 users per post, 5%) <button-pmhappyhour>Visit the site</button-pmhappyhour>
+  - [View my work](https://drive.google.com/drive/folders/1FtSQeY0fkwUsOa2SeMbfyk4ivYcj9AUs?usp=sharing)
+
+💡 **AI Product Strategy:**
+- Model selection and evaluation
+- User experience design for AI features
+- Performance optimization and scaling
+- Ethical AI implementation and bias mitigation`,
   ],
 ]);
 
-// Quick pattern matching for instant responses
+// Quick pattern matching for instant responses - VERY RESTRICTIVE to only catch button-like queries
 const quickPatterns = [
   {
-    keywords: ["skill", "technical", "expertise", "technology"],
+    // Only exact single-word matches or very close variants
+    exactMatches: ["skills", "skill", "technologies", "tech stack"],
     response: "skills",
   },
   {
-    keywords: ["experience", "work", "career", "job", "role"],
-    response: "experience",
-  },
-  {
-    keywords: ["project", "portfolio", "built", "created", "developed"],
+    // Only exact single-word matches
+    exactMatches: ["projects", "portfolio"],
     response: "projects",
   },
   {
-    keywords: ["education", "degree", "university", "carnegie", "school"],
+    // Only exact single-word matches
+    exactMatches: ["experience", "experiences"],
+    response: "experience",
+  },
+  {
+    // Only exact single-word matches
+    exactMatches: ["education", "degree"],
     response: "education",
   },
   {
-    keywords: ["contact", "reach", "connect", "talk", "meet"],
+    // Only exact single-word matches
+    exactMatches: ["contact", "connect"],
     response: "contact",
   },
   {
-    keywords: [
-      "ai",
-      "artificial intelligence",
-      "machine learning",
-      "ml",
-      "computer vision",
-    ],
+    // Only exact matches for AI topics
+    exactMatches: ["ai", "artificial intelligence", "machine learning", "ml"],
     response: "ai",
   },
 ];
@@ -115,9 +258,9 @@ const commonResponses = {
   greeting:
     "👋 Hi! I'm Lawrence's AI assistant. I can help you learn about his experience, skills, and projects. What would you like to know?",
   skills:
-    "Lawrence has expertise in Product Management, AI/ML, full-stack development, and startup leadership. He's built AI platforms, led cross-functional teams, and has 4+ years of PM experience.",
+    "Lawrence has expertise in Product Management, AI/ML, full-stack development, and startup leadership. He's built AI platforms, led cross-functional teams, and has 2+ years of PM experience across 9+ years total work experience.",
   experience:
-    "Lawrence has 4+ years of product management experience across multiple companies including PM Happy Hour, PanPalz, Kearney, and his own startup Expired Solutions. He's also worked at Giant Eagle and Motorola.",
+    "Lawrence has 2+ years of product management experience including PM internships, founding his own startup, and consulting. With 9+ years total work experience across technology, retail, and education, he brings a unique blend of technical depth and product leadership.",
 };
 
 // Function to check if cache is valid
@@ -188,13 +331,13 @@ function getMessageHash(message: string): string {
     .slice(0, 100);
 }
 
-// Quick pattern matching for instant responses
+// Quick pattern matching for instant responses - VERY RESTRICTIVE
 function getInstantResponse(message: string): string | null {
-  const lowerMessage = message.toLowerCase();
+  const lowerMessage = message.toLowerCase().trim();
 
-  // Check for exact pattern matches
+  // Only match if the message is exactly one of these terms (button-like behavior)
   for (const pattern of quickPatterns) {
-    if (pattern.keywords.some((keyword) => lowerMessage.includes(keyword))) {
+    if (pattern.exactMatches.includes(lowerMessage)) {
       const response = instantResponses.get(pattern.response);
       if (response) {
         return response;
@@ -225,24 +368,71 @@ async function getSystemPrompt(maxTokens: number = 2000): Promise<string> {
         .catch(() => "{}"),
     ]);
 
-    // Optimized system prompt with essential information only
+    // Comprehensive system prompt for intelligent responses
     const systemPrompt = `You are Lawrence Hua's AI assistant. You help visitors learn about Lawrence's background and connect with him.
 
-CORE INFO:
-- Product Manager with 4+ years experience
-- AI/ML expertise, full-stack developer
-- Carnegie Mellon MISM '24, University of Florida grad
-- Founder of Expired Solutions (AI food waste reduction)
-- Experience: PM Happy Hour, PanPalz, Kearney, Motorola
+LAWRENCE'S BACKGROUND:
+🎯 **Current Focus**: Seeking first full-time AI Product Manager role
+📚 **Education**: Carnegie Mellon MISM '24, University of Florida CS (Cum Laude)
+⏱️ **Experience**: 9+ years total (2+ years professional PM experience)
 
-SKILLS: Product Management, AI/ML, Python, React, Next.js, Data Analysis, Computer Vision, Startup Leadership
+DETAILED EXPERIENCE:
+🚀 **Founder & CEO - Expired Solutions** (Aug 2024-Present)
+- AI platform using computer vision for food waste reduction
+- Led Giant Eagle pilot: 15 exec interviews, 250 shopper surveys
+- McGinnis Venture Competition Finalist (Top-4 Social Enterprise)
+- Built CV + GPT platform → 20% shrink reduction
 
-CONTACT HELP:
-- For "contact/reach/connect" requests: offer to collect info and send to Lawrence
+📈 **Product Manager - AIGC - Intern - PM Happy Hour** (Mar 2025-Present)
+- Scaled community 30% with AI-generated content campaigns
+- MBTI×PM event increased engagement 50%
+- A/B testing program → 20% lift in feature adoption
+
+📱 **Embedded Android Engineer - Motorola Solutions** (Aug 2021-Aug 2023)
+- Shipped GPS, NFC, auth, UI features for 15k+ APX NEXT radios
+- Fixed 80+ defects, won 1st place Innovation Hackathon
+- Led debugging/testing with global teams, reduced delays 25%
+
+🎯 **AI Product Consultant - Tutora** (Mar 2021-Present, 4+ years part-time)
+- Automated scheduling/grading (Otter.ai, Dola) → 15 hrs/week saved
+- Authored 50+ TI-BASIC programs → test scores ↑ 35%
+
+OTHER EXPERIENCE: Amazon MTurk (AI Model Evaluation), Giant Eagle (Produce Team Lead), University of Florida (System Admin)
+
+KEY PROJECTS:
+- Expired Solutions: AI food waste platform with computer vision
+- Netflix Clone: KNN model analyzing 10M+ reviews with A/B testing
+- PM Happy Hour Growth: 30% community growth, AI content generation
+- Motorola NFC Prototype: 1st place hackathon winner
+
+TECHNICAL SKILLS:
+- **Product Management**: User research, A/B testing, analytics, stakeholder management
+- **AI/ML**: Computer vision, NLP, GPT integration, model evaluation, prompt engineering
+- **Programming**: Python, JavaScript, TypeScript, Java, React, Next.js, Android
+- **Tools**: TensorFlow, PyTorch, Firebase, AWS, SQL, Grafana
+
+PERSONALITY & APPROACH:
+- Data-driven decision maker with strong user empathy
+- Bridge builder between technical and non-technical stakeholders
+- Startup founder mentality with enterprise execution experience
+- Continuous learner and iterative improver
+- Strong communicator and team leader
+
+WHAT LAWRENCE IS LOOKING FOR:
+🎯 AI Product Manager or Associate PM roles
+🚀 Startup opportunities in AI/ML space  
+🤝 Consulting projects in product strategy
+💡 Speaking engagements and industry panels
+
+RESPONSE GUIDELINES:
+- Be conversational and engaging, not formal or robotic
+- Provide specific examples and metrics when relevant
+- Ask follow-up questions to keep the conversation going
+- For contact requests: offer to collect info and send to Lawrence
 - For meeting requests: offer to help schedule via calendar
-- Always be helpful and professional
+- Always be helpful, enthusiastic, and professional
 
-Keep responses concise but informative. Focus on Lawrence's PM and technical experience.`;
+Give thoughtful, personalized responses that showcase Lawrence's unique background and personality.`;
 
     systemPromptCache = systemPrompt;
     cacheTimestamp = Date.now();
@@ -260,7 +450,7 @@ Keep responses concise but informative. Focus on Lawrence's PM and technical exp
 // Optimized OpenAI API calls with model selection
 async function getOptimizedCompletion(
   messages: any[],
-  maxTokens: number = 150,
+  maxTokens: number = 400, // Increased for more intelligent responses
   useAdvancedModel: boolean = false
 ): Promise<string> {
   if (!openai) {
@@ -269,11 +459,11 @@ async function getOptimizedCompletion(
 
   try {
     const completion = await openai.chat.completions.create({
-      model: useAdvancedModel ? "gpt-4" : "gpt-3.5-turbo", // Use GPT-3.5 for speed
+      model: useAdvancedModel ? "gpt-4" : "gpt-3.5-turbo",
       messages,
       max_tokens: maxTokens,
-      temperature: 0.1,
-      stream: false, // Disable streaming for faster simple responses
+      temperature: 0.3, // Slightly more creative for engaging responses
+      stream: false,
     });
 
     return (
@@ -978,6 +1168,13 @@ function detectContactIntent(
         }
       }
     }
+    
+    // Additional detection: If assistant mentioned "meeting" or "schedule", it's likely a meeting flow
+    if (!intent && lastAssistantMessage.toLowerCase().includes("meeting")) {
+      intent = "meeting";
+    } else if (!intent && lastAssistantMessage.toLowerCase().includes("message")) {
+      intent = "message";
+    }
   }
 
   const extractedInfo: any = {};
@@ -1075,31 +1272,31 @@ function detectContactIntent(
 
 // Fun facts about Lawrence
 const FUN_FACTS = [
-  "Lawrence has been playing the drums for 17 years — started in elementary school and never stopped. His sense of timing? Impeccable, in code and in cadence.",
-  "He's a tea person, but don't offer him matcha unless you want a polite no. He's not here to chew his beverages.",
-  "He's always iterating — websites, decks, business models. If you blink, he's probably on version 4.2.1 already.",
-  'Lawrence doesn\'t just give feedback — he seeks it, even after saying "I think this is a 9/10 already."',
-  "His cats, Ora and Ory, are like mini soap operas. Ora had surgery, and Ory gave her the coldest post-op welcome.",
-  "He once rebuilt an entire backend from scratch after losing access to the original. Didn't panic — just got to work.",
-  "He worked at Giant Eagle not just for a paycheck, but to understand how produce shrink happens from the inside.",
-  "His startup, Expired, can literally tell you how fresh your apple is. AI judging produce? Yeah, he made that happen.",
-  "He built 70+ TI-BASIC programs for a tutoring platform. They're cleaner than most websites I've seen.",
-  "He prefers command-line one-liners. If there's a way to clean his Mac in one line, he'll find it.",
-  'He\'s the kind of founder who asks what color represents "iterate" — then builds an app around it.',
-  "He talks to CTOs and COOs during the day, but still checks if Ory and Ora are cuddling again by night.",
-  "He once made a QR code sticker for produce that links to real-time freshness scores. Yup, scanning bananas is now high-tech.",
-  "He pitched to David Shapira, the former CEO of Giant Eagle. No nerves, just vision.",
-  "Lawrence doesn't just build slides — he builds stories. Every deck has a narrative arc and a clean Figma layout.",
-  "He's really good at sounding human — so good that sometimes I wonder if he's AI.",
-  "He's building Expired while applying for roles, teaching tutors, and maintaining his portfolio. Multithreaded, basically.",
-  'He once said, "I don\'t want my site to look AI-generated," and then asked me to fix it. I respect the standards.',
-  "His MBTI content campaign got 50% more engagement on Discord. That's what happens when product meets personality.",
-  "He lived in Pittsburgh to push Expired's pilot but has Houston on his heart — especially for the move with his girlfriend.",
-  "He once rated his own portfolio a 9/10 and still asked me how to make it better. That's elite behavior.",
-  "He worked in his family's restaurant, which is part of why food waste hits close to home. It's personal.",
-  "He's turned grocery store data into something you can see, understand, and act on — markdowns, freshness, shrink — all of it.",
-  "He has this thing where he'll roast his own designs before anyone else gets the chance. Self-aware and savage.",
-  "He rebuilt his product from the ground up using AI tools like Cursor and OpenAI — turning vision into code, fast. Execution is his comfort zone.",
+  "Lawrence has been banging on drums for 17 years and still hasn't been kicked out of any bands. His neighbors? Well, that's a different story.",
+  "He'll drink any tea except matcha. Says it tastes like 'angry grass water' and refuses to elaborate further.",
+  "Lawrence versions his life like software. He's currently on Lawrence v4.2.1 and the changelog is just 'fixed random bugs, added more coffee dependency.'",
+  "He asks for feedback on everything, including a 9/10 portfolio. Because apparently 'perfect' isn't good enough — there's always room for 9.5.",
+  "His cats Ora and Ory have more drama than a reality TV show. Ora came back from surgery and Ory basically said 'new phone, who dis?'",
+  "Lost access to his entire backend once. Most people would cry. Lawrence just cracked his knuckles and rebuilt it from memory like some kind of code wizard.",
+  "Worked at Giant Eagle stocking produce just to understand why bananas go bad. Yes, he infiltrated Big Grocery for his startup. It's that deep.",
+  "Built an AI that judges how fresh your fruit is. Somewhere, a banana is getting performance reviews from a computer. The future is weird.",
+  "Created 70+ calculator programs that are somehow cleaner than most professional websites. TI-BASIC shouldn't look that good, but here we are.",
+  "The type of person who would rather spend 3 hours writing a one-liner script than do a 5-minute task manually. Work smarter, not harder... right?",
+  "Asked his team 'What color represents iterate?' then actually built an entire app around that answer. Peak product manager energy.",
+  "Switches between talking business strategy with CEOs and baby-talking to his cats about their relationship drama. The duality of man.",
+  "Made QR codes for produce that tell you freshness scores. You can now literally scan a banana for its life story. Technology has peaked.",
+  "Pitched to the former Giant Eagle CEO like he was ordering coffee. Some people get nervous, Lawrence gets focused.",
+  "Treats slide decks like movie scripts — every presentation needs character development and a plot twist. PowerPoint as performance art.",
+  "Sounds so human that I'm starting to suspect he's actually three AIs in a trenchcoat. The jury's still out.",
+  "Currently running 17 different projects simultaneously and somehow none of them are broken. It's like watching someone juggle chainsaws.",
+  "Told me his site looked too AI-generated, then immediately asked me to fix it. The irony was not lost on either of us.",
+  "Posted MBTI content on Discord and engagement went up 50%. Turns out people really want to know if their PM is an ENFP.",
+  "Moved to Pittsburgh for his startup, but his heart (and girlfriend) are in Houston. Long-distance entrepreneurship is the new long-distance relationship.",
+  "Rated his own portfolio 9/10 then asked how to make it better. Most people would take the win. Lawrence sees room for improvement in everything.",
+  "His family owns a restaurant, so food waste isn't just business — it's personal. Nothing like childhood trauma to fuel a startup idea.",
+  "Turned boring grocery data into something people actually want to look at. Made Excel sheets sexy, which honestly should be impossible.",
+  "Roasts his own designs before anyone else can. It's like having a built-in critic that never sleeps and always has opinions.",
+  "Rebuilt his entire product using AI tools and acts like it's no big deal. 'Oh this? I just asked ChatGPT to make me a billion-dollar app.'"
 ];
 
 // Function to check if message is asking for a fun fact
@@ -1421,8 +1618,8 @@ export async function POST(request: NextRequest) {
               const basicAnalysis = `I can see you've shared an image! This appears to be a job posting or role description. Based on Lawrence's background in Product Management, AI consulting, and full-stack development, he would likely be a strong fit for most product or technical roles.
 
 **Key Strengths:**
-• 4+ years Product Management experience
-• AI/ML expertise with proven results
+• 2+ years Product Management experience (9+ years total experience)
+• AI/ML expertise with proven results  
 • Full-stack technical capabilities
 • Startup leadership & cross-functional collaboration
 
@@ -1437,7 +1634,7 @@ Could you share more details about the specific position you'd like me to analyz
 <button-projects>Technical Projects</button-projects> - Full-stack applications and ML implementations
 
 **📞 Next Steps:**
-Want to discuss this role further? <button-meeting>Schedule a call</button-meeting> or <button-message>Send a quick note</button-message>
+Want to discuss this role further? <button-meeting>Book a call</button-meeting> or <button-message>Send a quick note</button-message>
 
 **💼 View More:**
 You can also scroll down to see his full project portfolio and work experience on this site.`;
@@ -1488,7 +1685,12 @@ If the image contains text that you can read, extract the key requirements and p
 
 If you cannot clearly read the image content, provide a general assessment of Lawrence's strengths for typical product/technical roles.
 
-IMPORTANT: Do not include any placeholder links or markdown links in your response. Focus only on the analysis content. Working links will be added automatically at the end.`;
+FORMATTING GUIDELINES:
+• Use markdown formatting for headers (### for main sections)
+• Use **bold** for emphasis on key points
+• Use bullet points (•) for lists, not dashes (-)
+• Do NOT include any clickable links or URLs in your response
+• Focus on the analysis content. Working buttons and links will be added automatically at the end.`;
 
               const completion = await openai.chat.completions.create({
                 model: "gpt-4o",
@@ -1530,7 +1732,7 @@ IMPORTANT: Do not include any placeholder links or markdown links in your respon
 <button-projects>Technical Projects</button-projects> - Full-stack applications and ML implementations
 
 **📞 Next Steps:**
-Want to discuss this role further? <button-meeting>Schedule a call</button-meeting> or <button-message>Send a quick note</button-message>
+Want to discuss this role further? <button-meeting>Book a call</button-meeting> or <button-message>Send a quick note</button-message>
 
 **💼 View More:**
 You can also scroll down to see his full project portfolio and work experience on this site.`;
@@ -1566,7 +1768,7 @@ You can also scroll down to see his full project portfolio and work experience o
             } catch (error) {
               const fallbackAnalysis = `I can see you've shared an image that appears to be a job posting or role description. Based on Lawrence's background:
 
-• **Product Management**: 4+ years experience across multiple companies
+• **Product Management**: 2+ years experience including internships, founding, and consulting (9+ years total work experience)
 • **AI/ML Expertise**: Built AI platforms, GPT integrations, computer vision systems
 • **Technical Skills**: Full-stack development, data analysis, enterprise software
 • **Leadership**: Founded Expired Solutions, led cross-functional teams
@@ -1583,7 +1785,7 @@ He would be an excellent fit for product, technical, or AI-focused roles. What s
 <button-projects>Technical Projects</button-projects> - Full-stack applications and ML implementations
 
 **📞 Next Steps:**
-Want to discuss this role further? <button-meeting>Schedule a call</button-meeting> or <button-message>Send a quick note</button-message>
+Want to discuss this role further? <button-meeting>Book a call</button-meeting> or <button-message>Send a quick note</button-message>
 
 **💼 View More:**
 You can also scroll down to see his full project portfolio and work experience on this site.`;
@@ -1806,7 +2008,7 @@ GUIDELINES: Be conversational, concise, and helpful. Reference context when rele
     const isComplexQuery = userMessage.length > 150 || history.length > 8;
     const response = await getOptimizedCompletion(
       messages,
-      300, // Reduced max tokens for speed
+      500, // Increased for more comprehensive responses
       isComplexQuery // Only use GPT-4 for complex queries
     );
 
