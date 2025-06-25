@@ -91,7 +91,16 @@ export async function POST(request: NextRequest) {
           <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <h4 style="margin-top: 0; color: #92400e;">🤖 AI Conversation Context</h4>
             <div style="background: white; padding: 10px; border-radius: 4px; font-size: 14px; color: #374151;">
-              ${conversationContext.replace(/\n/g, "<br>")}
+              ${(() => {
+                try {
+                  const parsedContext = JSON.parse(conversationContext);
+                  return parsedContext.map((msg: any) => 
+                    `<p><strong>${msg.role === "user" ? "Visitor" : "AI Assistant"}:</strong> ${msg.content.replace(/\n/g, "<br>")}</p>`
+                  ).join("");
+                } catch {
+                  return conversationContext.replace(/\n/g, "<br>");
+                }
+              })()}
             </div>
           </div>
           `

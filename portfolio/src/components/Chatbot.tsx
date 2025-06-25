@@ -144,6 +144,7 @@ function formatMessage(
   let formatted = content
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/### (.*?)(?:\n|$)/g, "<strong>$1</strong><br>")  // Handle ### headers as bold
     .replace(/\n/g, "<br>");
 
   // Replace custom button tags with actual clickable buttons (smaller size)

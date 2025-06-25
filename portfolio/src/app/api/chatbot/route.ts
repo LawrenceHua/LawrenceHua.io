@@ -1002,137 +1002,45 @@ function extractContactInfoFromHistory(
     email: undefined as string | undefined,
     company: undefined as string | undefined,
     message: undefined as string | undefined,
-    isContactRequest: false,
+    isContactRequest: true, // If this function is called, it's a contact request
   };
 
-  // Create an ordered list of all conversation entries
-  const conversation = [...history, { role: "user", content: currentMessage }];
-
-  // Find the most recent /message or /meeting command to isolate this flow
-  let mostRecentCommandIndex = -1;
-  for (let i = conversation.length - 1; i >= 0; i--) {
-    const entry = conversation[i];
-    if (entry.role === "user") {
-      const content = entry.content.toLowerCase();
-      if (content.startsWith("/message") || content.startsWith("/meeting")) {
-        mostRecentCommandIndex = i;
-        break;
+  // Simple extraction: look through the conversation for user responses
+  for (let i = 0; i < history.length - 1; i++) {
+    const current = history[i];
+    const next = history[i + 1];
+    
+    if (current.role === "assistant" && next?.role === "user") {
+      const assistantMessage = current.content.toLowerCase();
+      const userResponse = next.content.trim();
+      
+      // Extract name
+      if (assistantMessage.includes("what's your name") && !extractedInfo.name) {
+        extractedInfo.name = userResponse;
       }
-    }
-  }
-
-  // If no command found, return empty
-  if (mostRecentCommandIndex === -1) {
-    return extractedInfo;
-  }
-
-  // Only process conversation from the most recent command onwards
-  const relevantConversation = conversation.slice(mostRecentCommandIndex);
-
-  // Track the conversation flow state machine
-  let foundMessageCommand = false;
-  let foundMeetingCommand = false;
-  let askedForName = false;
-  let askedForCompany = false;
-  let askedForEmail = false;
-  let askedForMessage = false;
-  let askedForDateTime = false;
-
-  // Process only the relevant conversation in order
-  for (let i = 0; i < relevantConversation.length; i++) {
-    const entry = relevantConversation[i];
-    const content = entry.content.toLowerCase();
-
-    // Detect command initiation
-    if (
-      entry.role === "user" &&
-      (content.startsWith("/message") || content.startsWith("/meeting"))
-    ) {
-      foundMessageCommand = content.startsWith("/message");
-      foundMeetingCommand = content.startsWith("/meeting");
-      continue;
-    }
-
-    // Track assistant prompts
-    if (entry.role === "assistant") {
-      if (
-        content.includes("what's your name") ||
-        content.includes("what is your name")
-      ) {
-        askedForName = true;
-        askedForCompany = false;
-        askedForEmail = false;
-        askedForMessage = false;
-        askedForDateTime = false;
-      } else if (content.includes("what company are you with")) {
-        askedForCompany = true;
-        askedForName = false;
-        askedForEmail = false;
-        askedForMessage = false;
-        askedForDateTime = false;
-      } else if (content.includes("email address")) {
-        askedForEmail = true;
-        askedForName = false;
-        askedForCompany = false;
-        askedForMessage = false;
-        askedForDateTime = false;
-      } else if (
-        content.includes("what's your message") ||
-        content.includes("what is your message") ||
-        content.includes("what would you like to discuss")
-      ) {
-        askedForMessage = true;
-        askedForName = false;
-        askedForCompany = false;
-        askedForEmail = false;
-        askedForDateTime = false;
-      } else if (
-        content.includes("when would you like to schedule") ||
-        content.includes("preferred date and time")
-      ) {
-        askedForDateTime = true;
-        askedForName = false;
-        askedForCompany = false;
-        askedForEmail = false;
-        askedForMessage = false;
+      
+      // Extract company 
+      if (assistantMessage.includes("what company are you with") && !extractedInfo.company) {
+        extractedInfo.company = userResponse;
       }
-    }
-
-    // Extract user responses based on what was asked
-    if (entry.role === "user" && i > 0) {
-      const userContent = entry.content.trim();
-
-      if (askedForName && !extractedInfo.name) {
-        // This is the name response - take it as-is unless it's a common non-name
-        if (
-          !["none", "no", "yes", "ok", "okay"].includes(
-            userContent.toLowerCase()
-          )
-        ) {
-          extractedInfo.name = userContent;
-        }
-      } else if (askedForCompany && !extractedInfo.company) {
-        // This is the company response
-        extractedInfo.company = userContent;
-      } else if (askedForEmail && !extractedInfo.email) {
-        // Extract email from response
-        const emailMatch = userContent.match(
-          /\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i
-        );
+      
+      // Extract email
+      if (assistantMessage.includes("email address") && !extractedInfo.email) {
+        const emailMatch = userResponse.match(/\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b/i);
         if (emailMatch) {
           extractedInfo.email = emailMatch[0];
         }
-      } else if (askedForMessage && !extractedInfo.message) {
-        // This is the message/topic
-        extractedInfo.message = userContent;
-      } else if (askedForDateTime && extractedInfo.message) {
-        // If we already have a message and now getting datetime, keep the message as is
-        // The datetime will be handled separately
+      }
+      
+      // Extract meeting topic
+      if (assistantMessage.includes("what would you like to discuss") && !extractedInfo.message) {
+        extractedInfo.message = userResponse;
       }
     }
   }
 
-  extractedInfo.isContactRequest = foundMessageCommand || foundMeetingCommand;
+  // Debug logging
+  console.log("DEBUG: extractContactInfoFromHistory result:", extractedInfo);
 
   return extractedInfo;
 }
@@ -1555,7 +1463,14 @@ async function generateContactResponse(
     if (conversationState === "awaiting_datetime") {
       try {
         // Extract all collected information from conversation history
-        const collectedInfo = extractContactInfoFromHistory(history, message);
+        // Don't include the datetime message in parsing as it's not part of the Q&A flow
+        console.log("DEBUG: About to call extractContactInfoFromHistory in datetime step");
+        console.log("DEBUG: History length:", history.length);
+        console.log("DEBUG: History:", JSON.stringify(history, null, 2));
+        
+        const collectedInfo = extractContactInfoFromHistory(history, "");
+        
+        console.log("DEBUG: Collected info in datetime step:", collectedInfo);
 
         // Prepare meeting data with all collected information
         const meetingData = {

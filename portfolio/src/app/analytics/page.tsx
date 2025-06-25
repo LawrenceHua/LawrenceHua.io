@@ -110,9 +110,16 @@ export default function AnalyticsPage() {
   const [showSessionModal, setShowSessionModal] = useState(false);
   const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
   const [showKeywordModal, setShowKeywordModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'sessions' | 'recruiters' | 'locations'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sessions' | 'recruiters' | 'locations' | 'tours'>('overview');
   const [timeRange, setTimeRange] = useState<"1d" | "7d" | "30d" | "all">("30d");
   const [customDays, setCustomDays] = useState(7);
+  
+  // New filtering and sorting states
+  const [sessionSearch, setSessionSearch] = useState("");
+  const [sessionSortBy, setSessionSortBy] = useState<'date' | 'score' | 'duration' | 'messages'>('date');
+  const [sessionSortOrder, setSessionSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sessionFilterBy, setSessionFilterBy] = useState<'all' | 'recruiters' | 'high-engagement' | 'recent'>('all');
+  const [sessionDeviceFilter, setSessionDeviceFilter] = useState<'all' | 'mobile' | 'desktop' | 'tablet'>('all');
 
   // Firebase usage tracking
   const [firebaseReads, setFirebaseReads] = useState(() => {
@@ -164,17 +171,17 @@ export default function AnalyticsPage() {
     }
   }, [db, isAuthenticated]);
 
-  // Data fetching
+  // Data fetching - Fixed to get exactly 100 latest sessions
   const fetchAllData = async () => {
     if (!db) return;
     setLoading(true);
-    
+
     try {
-      // Fetch chat messages
+      // Fetch ALL chat messages first to properly group into sessions
       const messagesRef = collection(db, "chatbot_messages");
-      const messagesQuery = query(messagesRef, orderBy("timestamp", "desc"), limit(250));
+      const messagesQuery = query(messagesRef, orderBy("timestamp", "desc"));
       const messagesSnap = await getDocs(messagesQuery);
-      
+
       const chatMessages: ChatMessage[] = messagesSnap.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -189,11 +196,21 @@ export default function AnalyticsPage() {
         sessionMap.get(msg.sessionId)!.push(msg);
       });
 
-      const processedSessions: ChatSession[] = Array.from(sessionMap.entries()).map(([sessionId, messages]) => {
+      // Get latest 100 sessions by sorting by latest message timestamp
+      const sessionEntries = Array.from(sessionMap.entries()).map(([sessionId, messages]) => {
+        const latestMessage = messages.reduce((latest, msg) => {
+          const msgTime = msg.timestamp?.toDate?.() || new Date(msg.timestamp);
+          const latestTime = latest.timestamp?.toDate?.() || new Date(latest.timestamp);
+          return msgTime > latestTime ? msg : latest;
+        });
+        return { sessionId, messages, latestTimestamp: latestMessage.timestamp?.toDate?.() || new Date(latestMessage.timestamp) };
+      }).sort((a, b) => b.latestTimestamp.getTime() - a.latestTimestamp.getTime()).slice(0, 100);
+
+      const processedSessions: ChatSession[] = sessionEntries.map(({ sessionId, messages }) => {
         const sortedMessages = messages.sort((a, b) => 
-          (a.timestamp?.toDate?.() || new Date(a.timestamp)).getTime() - 
-          (b.timestamp?.toDate?.() || new Date(b.timestamp)).getTime()
-        );
+              (a.timestamp?.toDate?.() || new Date(a.timestamp)).getTime() -
+              (b.timestamp?.toDate?.() || new Date(b.timestamp)).getTime()
+          );
         
         const startTime = sortedMessages[0]?.timestamp?.toDate?.() || new Date();
         const endTime = sortedMessages[sortedMessages.length - 1]?.timestamp?.toDate?.() || new Date();
@@ -220,34 +237,55 @@ export default function AnalyticsPage() {
         if (sessionDurationMinutes > 10 && messages.length > 8) engagementLevel = 'high';
         else if (sessionDurationMinutes > 5 && messages.length > 4) engagementLevel = 'medium';
 
-        return {
-          sessionId,
-          messages: sortedMessages,
-          startTime,
-          endTime,
-          messageCount: messages.length,
+          return {
+            sessionId,
+            messages: sortedMessages,
+            startTime,
+            endTime,
+            messageCount: messages.length,
           recruiterScore,
           isRecruiterSession: recruiterScore >= 5,
           deviceType: "Unknown",
           engagementLevel,
           totalDuration: sessionDurationMinutes,
-        };
+          };
       });
 
       // Fetch page views
       const pageViewsRef = collection(db, "page_views");
       const pageViewsQuery = query(pageViewsRef, orderBy("timestamp", "desc"));
       const pageViewsSnap = await getDocs(pageViewsQuery);
-      
+
       const pageViewsData: PageView[] = pageViewsSnap.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as PageView[];
 
-      // Enhance sessions with location data
+      // Fetch tour events for tour analytics
+      let tourEventsData: any[] = [];
+      try {
+      const tourEventsRef = collection(db, "tour_events");
+        const tourEventsQuery = query(tourEventsRef, orderBy("timestamp", "desc"));
+      const tourEventsSnap = await getDocs(tourEventsQuery);
+
+        tourEventsData = tourEventsSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        }));
+        
+        console.log(`Fetched ${tourEventsData.length} tour events`);
+    } catch (error) {
+        console.log("Tour events collection not found or empty:", error);
+      }
+
+      // Enhance sessions with location data and better debugging
       const enhancedSessions = processedSessions.map(session => {
         const sessionPageViews = pageViewsData.filter(pv => pv.sessionId === session.sessionId);
-        const latestPageView = sessionPageViews[0];
+        const latestPageView = sessionPageViews.sort((a, b) => {
+          const timeA = a.timestamp?.toDate?.() || new Date(a.timestamp);
+          const timeB = b.timestamp?.toDate?.() || new Date(b.timestamp);
+          return timeB.getTime() - timeA.getTime();
+        })[0];
         
         let deviceType = "Unknown";
         if (latestPageView?.userAgent) {
@@ -261,12 +299,17 @@ export default function AnalyticsPage() {
           }
         }
 
+        // Debug location data
+        if (latestPageView) {
+          console.log(`Session ${session.sessionId.slice(-8)}: Country=${latestPageView.country}, City=${latestPageView.city}, Region=${latestPageView.region}`);
+        }
+
         return {
           ...session,
           deviceType,
-          location: latestPageView ? {
+          location: latestPageView && (latestPageView.country || latestPageView.city) ? {
             country: latestPageView.country || "Unknown",
-            region: latestPageView.region || "Unknown",
+            region: latestPageView.region || "Unknown", 
             city: latestPageView.city || "Unknown",
           } : undefined,
         };
@@ -274,7 +317,15 @@ export default function AnalyticsPage() {
 
       setSessions(enhancedSessions);
       setPageViews(pageViewsData);
-      setFirebaseReads(prev => prev + messagesSnap.docs.length + pageViewsSnap.docs.length);
+      
+      // Store tour events in state (add to interfaces if needed)
+      if (typeof window !== 'undefined') {
+        (window as any).tourEvents = tourEventsData;
+      }
+      
+      setFirebaseReads(prev => prev + messagesSnap.docs.length + pageViewsSnap.docs.length + tourEventsData.length);
+      
+      console.log(`Loaded ${enhancedSessions.length} sessions, ${pageViewsData.length} page views, ${tourEventsData.length} tour events`);
 
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -444,15 +495,15 @@ export default function AnalyticsPage() {
               <label htmlFor="password" className="block text-sm font-medium mb-2">
                 Password
               </label>
-              <input
-                type="password"
+            <input
+              type="password"
                 id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
                 placeholder="Enter analytics password"
                 required
-              />
+            />
             </div>
             <button
               type="submit"
@@ -484,52 +535,52 @@ export default function AnalyticsPage() {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/" className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
-            <FiArrowLeft className="h-5 w-5" />
-            Back to Portfolio
-          </Link>
-          <h1 className="text-2xl md:text-3xl font-bold">
+                <FiArrowLeft className="h-5 w-5" />
+                Back to Portfolio
+              </Link>
+                <h1 className="text-2xl md:text-3xl font-bold">
             Comprehensive Analytics Dashboard
-          </h1>
-        </div>
+                </h1>
+          </div>
 
         {/* Controls */}
         <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 mb-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
               <span className="text-gray-400 text-sm font-medium">Firebase Reads:</span>
               <span className="font-bold text-blue-400">{firebaseReads}</span>
-            </div>
+                      </div>
             
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400 text-sm">Time Range:</span>
-              <select
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value as any)}
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400 text-sm">Time Range:</span>
+                        <select
+                          value={timeRange}
+                          onChange={(e) => setTimeRange(e.target.value as any)}
                 className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
-              >
-                <option value="1d">Last 24 hours</option>
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="all">All time</option>
-              </select>
-            </div>
-            
-            <button
+                        >
+                          <option value="1d">Last 24 hours</option>
+                          <option value="7d">Last 7 days</option>
+                          <option value="30d">Last 30 days</option>
+                          <option value="all">All time</option>
+                        </select>
+              </div>
+
+                  <button
               onClick={fetchAllData}
               disabled={loading}
               className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
             >
-              <FiActivity className="h-4 w-4" />
-              Refresh Data
-            </button>
+                        <FiActivity className="h-4 w-4" />
+                        Refresh Data
+                  </button>
           </div>
         </div>
 
         {/* Tab Navigation */}
         <div className="bg-gray-800 rounded-xl p-2 border border-gray-700 mb-6">
           <div className="flex flex-wrap gap-2">
-            {(['overview', 'sessions', 'recruiters', 'locations'] as const).map((tab) => (
-              <button
+            {(['overview', 'sessions', 'recruiters', 'locations', 'tours'] as const).map((tab) => (
+                <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors capitalize ${
@@ -539,10 +590,10 @@ export default function AnalyticsPage() {
                 }`}
               >
                 {tab}
-              </button>
+                </button>
             ))}
-          </div>
-        </div>
+              </div>
+            </div>
 
         {/* Analytics Content */}
         {!analyticsData ? (
@@ -569,45 +620,45 @@ export default function AnalyticsPage() {
                 {/* Key Metrics */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-xl">
-                    <div className="flex items-center justify-between">
-                      <div>
+                  <div className="flex items-center justify-between">
+                    <div>
                         <p className="text-blue-200 text-xs font-medium">Page Views</p>
                         <p className="text-2xl font-bold">{analyticsData.totalPageViews}</p>
-                      </div>
+                    </div>
                       <FiEye className="h-6 w-6 text-blue-200" />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-green-200 text-xs font-medium">Unique Visitors</p>
-                        <p className="text-2xl font-bold">{analyticsData.uniqueVisitors}</p>
-                      </div>
-                      <FiUsers className="h-6 w-6 text-green-200" />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-xl">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-purple-200 text-xs font-medium">Chat Sessions</p>
-                        <p className="text-2xl font-bold">{analyticsData.totalChatSessions}</p>
-                      </div>
-                      <FiMessageCircle className="h-6 w-6 text-purple-200" />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 rounded-xl">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-orange-200 text-xs font-medium">Recruiter Sessions</p>
-                        <p className="text-2xl font-bold">{analyticsData.recruiterSessions.length}</p>
-                      </div>
-                      <FiUserCheck className="h-6 w-6 text-orange-200" />
-                    </div>
                   </div>
                 </div>
+
+                  <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-green-200 text-xs font-medium">Unique Visitors</p>
+                        <p className="text-2xl font-bold">{analyticsData.uniqueVisitors}</p>
+                    </div>
+                      <FiUsers className="h-6 w-6 text-green-200" />
+                  </div>
+                </div>
+
+                  <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-purple-200 text-xs font-medium">Chat Sessions</p>
+                        <p className="text-2xl font-bold">{analyticsData.totalChatSessions}</p>
+                    </div>
+                      <FiMessageCircle className="h-6 w-6 text-purple-200" />
+                  </div>
+                </div>
+
+                  <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-orange-200 text-xs font-medium">Recruiter Sessions</p>
+                        <p className="text-2xl font-bold">{analyticsData.recruiterSessions.length}</p>
+                    </div>
+                      <FiUserCheck className="h-6 w-6 text-orange-200" />
+                  </div>
+                </div>
+            </div>
 
                 {/* Performance Score */}
                 <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
@@ -618,13 +669,13 @@ export default function AnalyticsPage() {
                         className="bg-gradient-to-r from-blue-500 to-green-500 h-4 rounded-full transition-all duration-300"
                         style={{ width: `${analyticsData.performanceScore}%` }}
                       ></div>
-                    </div>
-                    <span className="text-2xl font-bold">{analyticsData.performanceScore}/100</span>
                   </div>
+                    <span className="text-2xl font-bold">{analyticsData.performanceScore}/100</span>
+                </div>
                   <p className="text-gray-400 text-sm mt-2">
                     Based on visitor engagement, recruiter interest, and content effectiveness
-                  </p>
-                </div>
+                    </p>
+                  </div>
 
                 {/* Quick Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -638,9 +689,9 @@ export default function AnalyticsPage() {
                         <div key={keyword.keyword} className="flex justify-between items-center">
                           <span className="text-sm">{keyword.keyword}</span>
                           <span className="text-sm font-bold text-blue-400">{keyword.count}</span>
-                        </div>
+                  </div>
                       ))}
-                    </div>
+                </div>
                   </div>
 
                   <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
@@ -652,16 +703,16 @@ export default function AnalyticsPage() {
                       {analyticsData.locationAnalytics.slice(0, 5).map((location, index) => (
                         <div key={`${location.country}-${location.city}`} className="flex justify-between items-center">
                           <span className="text-sm">{location.city}, {location.country}</span>
-                          <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                             <span className="text-sm font-bold">{location.count}</span>
                             {location.recruiterSessions > 0 && (
                               <span className="text-xs bg-orange-500 px-1 rounded">R</span>
                             )}
-                          </div>
-                        </div>
+              </div>
+            </div>
                       ))}
-                    </div>
-                  </div>
+                </div>
+                </div>
 
                   <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -675,63 +726,197 @@ export default function AnalyticsPage() {
                           <div className="text-right">
                             <div className="text-sm font-bold">{device.count}</div>
                             <div className="text-xs text-gray-400">{device.avgDuration.toFixed(1)}m avg</div>
-                          </div>
-                        </div>
-                      ))}
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
+              </div>
+                    </div>
               </>
             )}
 
             {/* Sessions Tab */}
             {activeTab === 'sessions' && (
-              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <h3 className="text-xl font-bold mb-4">Chatbot Sessions</h3>
-                <div className="space-y-4">
-                  {analyticsData.recruiterSessions.slice(0, 10).map((session) => (
-                    <div 
-                      key={session.sessionId}
-                      className="bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600 transition-colors"
-                      onClick={() => {
-                        setSelectedSession(session);
-                        setShowSessionModal(true);
-                      }}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">Session {session.sessionId.slice(-8)}</span>
-                            <span className={`px-2 py-1 rounded text-xs ${
-                              session.engagementLevel === 'high' ? 'bg-green-500' :
-                              session.engagementLevel === 'medium' ? 'bg-yellow-500' : 'bg-gray-500'
-                            }`}>
-                              {session.engagementLevel}
-                            </span>
-                            {session.isRecruiterSession && (
-                              <span className="px-2 py-1 rounded text-xs bg-orange-500">
-                                Recruiter (Score: {session.recruiterScore})
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-400">
-                            {session.startTime.toLocaleString()} • {session.messageCount} messages • {session.totalDuration.toFixed(1)}m
-                          </p>
-                        </div>
-                        <div className="text-right text-sm text-gray-400">
-                          {session.location && `${session.location.city}, ${session.location.country}`}
-                          <br />
-                          {session.deviceType}
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-300">
-                        {session.messages[0]?.message?.substring(0, 100)}...
-                      </p>
-                    </div>
-                  ))}
-                </div>
+              <div className="bg-gray-800 rounded-xl border border-gray-700">
+                {/* Sessions Filter Controls */}
+                <div className="p-6 border-b border-gray-700">
+                  <h3 className="text-xl font-bold mb-4">Chatbot Sessions ({sessions.length} total)</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    {/* Search */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Search Messages</label>
+                      <input
+                        type="text"
+                        value={sessionSearch}
+                        onChange={(e) => setSessionSearch(e.target.value)}
+                        placeholder="Search in messages..."
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-sm"
+                      />
               </div>
-            )}
+
+                    {/* Filter */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Filter By</label>
+                      <select
+                        value={sessionFilterBy}
+                        onChange={(e) => setSessionFilterBy(e.target.value as any)}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-sm"
+                      >
+                        <option value="all">All Sessions</option>
+                        <option value="recruiters">Recruiter Sessions Only</option>
+                        <option value="high-engagement">High Engagement</option>
+                        <option value="recent">Last 24 Hours</option>
+                      </select>
+                      </div>
+                    
+                    {/* Device Filter */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Device</label>
+                      <select
+                        value={sessionDeviceFilter}
+                        onChange={(e) => setSessionDeviceFilter(e.target.value as any)}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-sm"
+                      >
+                        <option value="all">All Devices</option>
+                        <option value="mobile">Mobile</option>
+                        <option value="desktop">Desktop</option>
+                        <option value="tablet">Tablet</option>
+                      </select>
+                  </div>
+                    
+                    {/* Sort */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Sort By</label>
+                      <div className="flex gap-2">
+                        <select
+                          value={sessionSortBy}
+                          onChange={(e) => setSessionSortBy(e.target.value as any)}
+                          className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-sm"
+                        >
+                          <option value="date">Date</option>
+                          <option value="score">Recruiter Score</option>
+                          <option value="duration">Duration</option>
+                          <option value="messages">Message Count</option>
+                        </select>
+            <button
+                          onClick={() => setSessionSortOrder(sessionSortOrder === 'desc' ? 'asc' : 'desc')}
+                          className="px-3 py-2 bg-gray-700 border border-gray-600 rounded hover:bg-gray-600 transition-colors"
+                          title={`Sort ${sessionSortOrder === 'desc' ? 'Ascending' : 'Descending'}`}
+            >
+                          {sessionSortOrder === 'desc' ? '↓' : '↑'}
+            </button>
+          </div>
+                </div>
+                </div>
+                </div>
+                
+                {/* Scrollable Sessions List */}
+                <div className="h-96 overflow-y-auto p-6">
+                  <div className="space-y-4">
+                    {(() => {
+                      // Apply filtering and sorting
+                      let filteredSessions = [...sessions];
+                      
+                      // Search filter
+                      if (sessionSearch) {
+                        filteredSessions = filteredSessions.filter(session =>
+                          session.messages.some(msg => 
+                            msg.message?.toLowerCase().includes(sessionSearch.toLowerCase())
+                          )
+                        );
+                      }
+                      
+                      // Category filter
+                      switch (sessionFilterBy) {
+                        case 'recruiters':
+                          filteredSessions = filteredSessions.filter(s => s.isRecruiterSession);
+                          break;
+                        case 'high-engagement':
+                          filteredSessions = filteredSessions.filter(s => s.engagementLevel === 'high');
+                          break;
+                        case 'recent':
+                          const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                          filteredSessions = filteredSessions.filter(s => s.startTime >= dayAgo);
+                          break;
+                      }
+                      
+                      // Device filter
+                      if (sessionDeviceFilter !== 'all') {
+                        filteredSessions = filteredSessions.filter(s => 
+                          s.deviceType.toLowerCase() === sessionDeviceFilter
+                        );
+                      }
+                      
+                      // Sort
+                      filteredSessions.sort((a, b) => {
+                        let comparison = 0;
+                        switch (sessionSortBy) {
+                          case 'date':
+                            comparison = a.startTime.getTime() - b.startTime.getTime();
+                            break;
+                          case 'score':
+                            comparison = a.recruiterScore - b.recruiterScore;
+                            break;
+                          case 'duration':
+                            comparison = a.totalDuration - b.totalDuration;
+                            break;
+                          case 'messages':
+                            comparison = a.messageCount - b.messageCount;
+                            break;
+                        }
+                        return sessionSortOrder === 'desc' ? -comparison : comparison;
+                      });
+                      
+                                             return filteredSessions.length > 0 ? filteredSessions.map((session) => (
+                         <div 
+                           key={session.sessionId}
+                           className="bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600 transition-colors"
+                           onClick={() => {
+                             setSelectedSession(session);
+                             setShowSessionModal(true);
+                           }}
+                         >
+                           <div className="flex justify-between items-start mb-2">
+                      <div>
+                               <div className="flex items-center gap-2">
+                                 <span className="font-medium">Session {session.sessionId.slice(-8)}</span>
+                                 <span className={`px-2 py-1 rounded text-xs ${
+                                   session.engagementLevel === 'high' ? 'bg-green-500' :
+                                   session.engagementLevel === 'medium' ? 'bg-yellow-500' : 'bg-gray-500'
+                                 }`}>
+                                   {session.engagementLevel}
+                                 </span>
+                                 {session.isRecruiterSession && (
+                                   <span className="px-2 py-1 rounded text-xs bg-orange-500">
+                                     Recruiter (Score: {session.recruiterScore})
+                                   </span>
+                                 )}
+                      </div>
+                               <p className="text-sm text-gray-400">
+                                 {session.startTime.toLocaleString()} • {session.messageCount} messages • {session.totalDuration.toFixed(1)}m
+                               </p>
+                    </div>
+                             <div className="text-right text-sm text-gray-400">
+                               {session.location && `${session.location.city}, ${session.location.country}`}
+                               <br />
+                               {session.deviceType}
+                  </div>
+            </div>
+                           <p className="text-sm text-gray-300">
+                             {session.messages[0]?.message?.substring(0, 100)}...
+                           </p>
+          </div>
+                       )) : (
+                         <div className="text-center py-8 text-gray-400">
+                           <p>No sessions match your current filters.</p>
+        </div>
+                       );
+                     })()}
+                    </div>
+                      </div>
+                    </div>
+             )}
 
             {/* Recruiters Tab */}
             {activeTab === 'recruiters' && (
@@ -755,14 +940,14 @@ export default function AnalyticsPage() {
                           ? (analyticsData.recruiterSessions.reduce((sum, s) => sum + s.totalDuration, 0) / analyticsData.recruiterSessions.length).toFixed(1)
                           : 0
                         }m
-                      </div>
+                  </div>
                       <div className="text-sm opacity-90">Avg Recruiter Session</div>
                     </div>
                     <div className="bg-gradient-to-r from-yellow-500 to-orange-500 p-4 rounded-lg">
                       <div className="text-2xl font-bold">{analyticsData.topKeywords.length}</div>
                       <div className="text-sm opacity-90">Unique Keywords Found</div>
-                    </div>
-                  </div>
+              </div>
+            </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
@@ -778,16 +963,16 @@ export default function AnalyticsPage() {
                             }}
                           >
                             <span className="font-medium">{keyword.keyword}</span>
-                            <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                               <span className="text-blue-400 font-bold">{keyword.count}</span>
                               <span className="text-xs text-gray-400">
                                 {keyword.sessions.length} sessions
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      </span>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
                     <div>
                       <h4 className="text-lg font-semibold mb-4">High-Value Recruiter Sessions</h4>
@@ -808,19 +993,19 @@ export default function AnalyticsPage() {
                                 <span className="font-medium">Session {session.sessionId.slice(-8)}</span>
                                 <span className="bg-orange-500 px-2 py-1 rounded text-xs">
                                   Score: {session.recruiterScore}
-                                </span>
-                              </div>
+                      </span>
+                    </div>
                               <p className="text-sm text-gray-400">
                                 {session.messageCount} messages • {session.totalDuration.toFixed(1)}m
                               </p>
-                            </div>
+                    </div>
                           ))
                         }
-                      </div>
-                    </div>
+                  </div>
+                  </div>
                   </div>
                 </div>
-              </div>
+            </div>
             )}
 
             {/* Locations Tab */}
@@ -828,31 +1013,36 @@ export default function AnalyticsPage() {
               <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
                 <h3 className="text-xl font-bold mb-4">Geographic Analytics</h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div>
+                <div>
                     <h4 className="text-lg font-semibold mb-4">Visitor Locations</h4>
-                    <div className="space-y-3">
-                      {analyticsData.locationAnalytics.map((location, index) => (
+                    <div className="max-h-96 overflow-y-auto space-y-3">
+                      {analyticsData.locationAnalytics.length > 0 ? analyticsData.locationAnalytics.map((location, index) => (
                         <div key={`${location.country}-${location.city}`} className="flex justify-between items-center p-3 bg-gray-700 rounded">
-                          <div>
+                <div>
                             <div className="font-medium">{location.city}</div>
                             <div className="text-sm text-gray-400">{location.country}</div>
-                          </div>
+                        </div>
                           <div className="text-right">
                             <div className="font-bold">{location.count} visitors</div>
                             {location.recruiterSessions > 0 && (
                               <div className="text-sm text-orange-400">
                                 {location.recruiterSessions} recruiter sessions
-                              </div>
-                            )}
                           </div>
+                            )}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                      )) : (
+                        <div className="text-center py-8 text-gray-400">
+                          <p>No location data available. Geolocation may not be working.</p>
+                          <p className="text-sm mt-2">Check Firebase page_views collection for country/city fields.</p>
+          </div>
+        )}
                   </div>
+              </div>
 
                   <div>
                     <h4 className="text-lg font-semibold mb-4">Traffic Sources</h4>
-                    <div className="space-y-3">
+                    <div className="max-h-96 overflow-y-auto space-y-3">
                       {analyticsData.trafficSources.slice(0, 10).map((source) => (
                         <div key={source.source} className="flex justify-between items-center p-3 bg-gray-700 rounded">
                           <div className="font-medium truncate">{source.source}</div>
@@ -861,15 +1051,133 @@ export default function AnalyticsPage() {
                             {source.recruiterTraffic > 0 && (
                               <div className="text-sm text-orange-400">
                                 {source.recruiterTraffic} recruiter
-                              </div>
-                            )}
                           </div>
-                        </div>
+                      )}
+                    </div>
+                  </div>
                       ))}
+                          </div>
                     </div>
                   </div>
                 </div>
+              )}
+
+            {/* Tours Tab */}
+            {activeTab === 'tours' && (
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold mb-4">Tour Analytics</h3>
+                
+                {(() => {
+                  const tourEvents = (typeof window !== 'undefined' && (window as any).tourEvents) || [];
+                  
+                  if (tourEvents.length === 0) {
+                    return (
+                      <div className="text-center py-16">
+                        <div className="text-6xl mb-4">🎯</div>
+                        <h4 className="text-xl font-bold mb-2">No Tour Data Available</h4>
+                        <p className="text-gray-400 mb-4">
+                          Tour events are not being tracked or the tour_events collection is empty.
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Tours are guided walkthroughs of your portfolio. When visitors interact with tour elements, data is stored in Firebase.
+                  </p>
+                </div>
+                    );
+                  }
+
+                  // Process tour events
+                  const tourStarts = tourEvents.filter((e: any) => e.eventType === 'tour_start');
+                  const tourCompletions = tourEvents.filter((e: any) => e.eventType === 'tour_complete');
+                  const tourAbandons = tourEvents.filter((e: any) => e.eventType === 'tour_abandon');
+                  const tourSteps = tourEvents.filter((e: any) => e.eventType === 'tour_step');
+                  const tourCTAs = tourEvents.filter((e: any) => e.eventType === 'tour_cta_action');
+
+                  const completionRate = tourStarts.length > 0 ? ((tourCompletions.length / tourStarts.length) * 100) : 0;
+                  
+                  // Step analysis
+                  const stepCounts = new Map();
+                  tourSteps.forEach((step: any) => {
+                    const stepId = step.stepId || `Step ${step.stepIndex || 'Unknown'}`;
+                    stepCounts.set(stepId, (stepCounts.get(stepId) || 0) + 1);
+                  });
+
+                  return (
+                  <div className="space-y-6">
+                      {/* Tour Overview Stats */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-gradient-to-r from-purple-500 to-blue-500 p-4 rounded-lg">
+                          <div className="text-2xl font-bold">{tourStarts.length}</div>
+                          <div className="text-sm opacity-90">Tour Starts</div>
+                              </div>
+                        <div className="bg-gradient-to-r from-green-500 to-teal-500 p-4 rounded-lg">
+                          <div className="text-2xl font-bold">{tourCompletions.length}</div>
+                          <div className="text-sm opacity-90">Completions</div>
+                              </div>
+                        <div className="bg-gradient-to-r from-red-500 to-pink-500 p-4 rounded-lg">
+                          <div className="text-2xl font-bold">{completionRate.toFixed(1)}%</div>
+                          <div className="text-sm opacity-90">Completion Rate</div>
+                            </div>
+                        <div className="bg-gradient-to-r from-yellow-500 to-orange-500 p-4 rounded-lg">
+                          <div className="text-2xl font-bold">{tourCTAs.length}</div>
+                          <div className="text-sm opacity-90">CTA Actions</div>
+                            </div>
+                          </div>
+
+                      {/* Tour Details */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="text-lg font-semibold mb-4">Most Popular Steps</h4>
+                          <div className="space-y-3 max-h-64 overflow-y-auto">
+                            {Array.from(stepCounts.entries())
+                              .sort(([,a], [,b]) => b - a)
+                              .map(([stepId, count]) => (
+                                <div key={stepId} className="flex justify-between items-center p-3 bg-gray-700 rounded">
+                                  <span className="font-medium">{stepId}</span>
+                                  <span className="font-bold text-blue-400">{count} views</span>
+                                </div>
+                              ))
+                            }
+                                  </div>
+                            </div>
+
+                        <div>
+                          <h4 className="text-lg font-semibold mb-4">Recent Tour Events</h4>
+                          <div className="space-y-3 max-h-64 overflow-y-auto">
+                            {tourEvents
+                              .slice(0, 10)
+                              .map((event: any, index: number) => (
+                                <div key={index} className="p-3 bg-gray-700 rounded">
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <span className={`px-2 py-1 rounded text-xs ${
+                                        event.eventType === 'tour_complete' ? 'bg-green-500' :
+                                        event.eventType === 'tour_abandon' ? 'bg-red-500' :
+                                        event.eventType === 'tour_cta_action' ? 'bg-orange-500' :
+                                        'bg-blue-500'
+                                      }`}>
+                                        {event.eventType.replace('_', ' ')}
+                                      </span>
+                                      {event.stepId && <span className="ml-2 text-sm text-gray-400">{event.stepId}</span>}
+                              </div>
+                                    <span className="text-xs text-gray-400">
+                                      {event.timestamp?.toDate?.()?.toLocaleDateString() || 'No date'}
+                          </span>
+                        </div>
+                                  {event.ctaAction && (
+                                    <div className="mt-1 text-sm text-gray-300">
+                                      Action: {event.ctaAction}
+                      </div>
+                    )}
+                  </div>
+                              ))
+                            }
+                </div>
               </div>
+                </div>
+              </div>
+                  );
+                })()}
+            </div>
             )}
           </div>
         )}
@@ -883,16 +1191,16 @@ export default function AnalyticsPage() {
                   <h3 className="text-xl font-bold">Session Details</h3>
                   <p className="text-sm text-gray-400">
                     {selectedSession.startTime.toLocaleString()} • Score: {selectedSession.recruiterScore}
-                  </p>
-                </div>
+                    </p>
+                  </div>
                 <button
                   onClick={() => setShowSessionModal(false)}
                   className="p-2 hover:bg-gray-700 rounded transition-colors"
                 >
                   <FiX className="h-5 w-5" />
                 </button>
-              </div>
-              
+            </div>
+
               <div className="p-6 overflow-y-auto max-h-[60vh]">
                 <div className="space-y-4">
                   {selectedSession.messages.map((message, index) => (
@@ -905,35 +1213,35 @@ export default function AnalyticsPage() {
                         <div className="text-sm">{message.message}</div>
                         <div className="text-xs opacity-70 mt-1">
                           {(message.timestamp?.toDate?.() || new Date(message.timestamp)).toLocaleTimeString()}
-                        </div>
+                  </div>
+                  </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+                </div>
+              </div>
+            )}
 
         {/* Keyword Modal */}
         {showKeywordModal && selectedKeyword && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
             <div className="bg-gray-800 rounded-xl w-full max-w-2xl max-h-[80vh] overflow-hidden border border-gray-700">
               <div className="flex items-center justify-between p-6 border-b border-gray-700">
-                <div>
+              <div>
                   <h3 className="text-xl font-bold">Keyword: "{selectedKeyword}"</h3>
                   <p className="text-sm text-gray-400">
                     Sessions containing this keyword
-                  </p>
-                </div>
+                </p>
+              </div>
                 <button
                   onClick={() => setShowKeywordModal(false)}
                   className="p-2 hover:bg-gray-700 rounded transition-colors"
                 >
                   <FiX className="h-5 w-5" />
                 </button>
-              </div>
-              
+                  </div>
+
               <div className="p-6 overflow-y-auto max-h-[60vh]">
                 <div className="space-y-3">
                   {analyticsData?.topKeywords
@@ -956,20 +1264,20 @@ export default function AnalyticsPage() {
                             <span className="font-medium">Session {sessionId.slice(-8)}</span>
                             <span className="text-sm text-gray-400">
                               Score: {session.recruiterScore}
-                            </span>
-                          </div>
+                      </span>
+                    </div>
                           <p className="text-sm text-gray-300">
                             {session.messages.find(m => m.message?.toLowerCase().includes(selectedKeyword.toLowerCase()))?.message?.substring(0, 150)}...
-                          </p>
-                        </div>
+                                  </p>
+                                </div>
                       );
                     })
                   }
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+                                    </div>
+                                    </div>
+                                  </div>
+                      </div>
+                    )}
 
         {/* Analytics Assistant */}
         {showAnalyticsAssistant && (
@@ -982,16 +1290,16 @@ export default function AnalyticsPage() {
 
         {/* Analytics Assistant Floating Button */}
         {!showAnalyticsAssistant && (
-          <button
-            onClick={() => setShowAnalyticsAssistant(true)}
+        <button
+          onClick={() => setShowAnalyticsAssistant(true)}
             className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-3 rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 text-sm font-medium"
-            title="Open Analytics Assistant"
-          >
-            <FiBarChart className="h-5 w-5" />
+          title="Open Analytics Assistant"
+        >
+          <FiBarChart className="h-5 w-5" />
             Analytics Assistant
-          </button>
+        </button>
         )}
       </div>
     </div>
   );
-} 
+}
