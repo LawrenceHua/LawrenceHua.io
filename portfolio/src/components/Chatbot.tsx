@@ -210,7 +210,7 @@ function formatMessage(
     )
     .replace(
       /<button-projects>(.*?)<\/button-projects>/g,
-      "<button onclick=\"(() => { const projectsSection = document.getElementById('projects'); if (projectsSection) { projectsSection.scrollIntoView({ behavior: 'smooth' }); alert('You can now close this chat and explore the full project portfolio below!'); } else { alert('Projects section not found. Please scroll down to see the featured projects.'); } })()\" class=\"inline-flex items-center px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg font-medium text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-0.5 my-1 cursor-pointer\">$1</button>"
+      "<button onclick=\"window.scrollToProjectsAndClose && window.scrollToProjectsAndClose()\" class=\"inline-flex items-center px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg font-medium text-sm shadow-lg hover:shadow-xl transition-all duration-200 mx-0.5 my-1 cursor-pointer\">$1</button>"
     )
     .replace(
       /<button-generate-question>(.*?)<\/button-generate-question>/g,
@@ -886,11 +886,26 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
   // Set up global function for button clicks
   useEffect(() => {
     (window as any).chatbotButtonClick = handleButtonClick;
+    
+    // Set up global function for projects scroll with chatbot close
+    (window as any).scrollToProjectsAndClose = () => {
+      const projectsSection = document.getElementById('projects');
+      if (projectsSection) {
+        projectsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Close chatbot after a delay to allow scroll
+        setTimeout(() => {
+          onClose();
+        }, 500);
+      } else {
+        alert('Projects section not found. Please scroll down to see the featured projects.');
+      }
+    };
 
     return () => {
       delete (window as any).chatbotButtonClick;
+      delete (window as any).scrollToProjectsAndClose;
     };
-  }, [messages]);
+  }, [messages, onClose]);
 
   // Listen for tour triggers
   useEffect(() => {
