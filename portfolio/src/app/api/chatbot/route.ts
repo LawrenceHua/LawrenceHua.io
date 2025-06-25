@@ -145,7 +145,7 @@ const instantResponses = new Map<string, string>([
 🎬 **Netflix Clone with KNN Model** (Machine Learning)
 • Developed KNN model analyzing 10M+ reviews  
 • Implemented A/B testing and Grafana visualization
-• [View Project](https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0)
+<button-netflix>View Netflix Project</button-netflix>
 
 📱 **Motorola NFC Prototype** (1st Place Hackathon Winner)
 • NFC-based feature prototype for APX NEXT radios
@@ -490,6 +490,7 @@ MAXIMUM BUTTON USAGE - Include relevant buttons in EVERY response:
 • <button-expired>View Expired Solutions</button-expired>
 • <button-tutora>Visit Tutora Website</button-tutora>
 • <button-pmhappyhour>Visit the site</button-pmhappyhour> <button-pmhappyhour-work>View AI Generated Content</button-pmhappyhour-work>
+• <button-netflix>View Netflix Project</button-netflix>
 • <button-projects>💻 View Full Project Portfolio</button-projects>
 
 **Quick Action Buttons:**

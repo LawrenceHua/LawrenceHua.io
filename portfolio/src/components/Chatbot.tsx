@@ -231,6 +231,10 @@ function formatMessage(
     .replace(
       /<button-about>(.*?)<\/button-about>/g,
       "<button onclick=\"(() => { const aboutSection = document.getElementById('about'); if (aboutSection) { aboutSection.scrollIntoView({ behavior: 'smooth' }); alert('Learn more about Lawrence\\'s background and journey!'); } else { alert('About section not found. Please scroll down to learn more about Lawrence.'); } })()\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
+    )
+    .replace(
+      /<button-netflix>(.*?)<\/button-netflix>/g,
+      "<button onclick=\"window.open('https://docs.google.com/presentation/d/1G8CHLYjhbST7aTZ-ghWIaQ38CgRdV86MnioyHiZanTM/edit?slide=id.g31d10e42dea_0_0#slide=id.g31d10e42dea_0_0', '_blank')\" class=\"inline-flex items-center px-2 py-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded font-medium text-xs shadow hover:shadow-md transition-all duration-200 mx-0.5 my-0.5 cursor-pointer\">$1</button>"
     );
 
   // Special styling for typed commands - make them more visible and attractive
