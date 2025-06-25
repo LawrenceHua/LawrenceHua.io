@@ -7,67 +7,29 @@ import {
   FiLock, 
   FiMessageCircle, 
   FiUsers, 
-  FiTrendingUp, 
-  FiBarChart, 
-  FiClock, 
-  FiGlobe, 
-  FiSmartphone, 
-  FiMonitor, 
-  FiTarget,
-  FiCalendar,
-  FiMail,
-  FiFileText,
-  FiRefreshCw,
-  FiDownload,
   FiEye,
-  FiMousePointer,
-  FiMapPin,
+  FiBarChart, 
   FiActivity,
-  FiSearch,
-  FiFilter,
-  FiPieChart,
+  FiGlobe,
+  FiSmartphone,
+  FiTarget,
+  FiClock,
   FiUserCheck,
-  FiX
+  FiX,
+  FiMaximize2
 } from "react-icons/fi";
-import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
-import { initializeApp, getApps, FirebaseApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import {
   getFirestore,
   collection,
   getDocs,
   query,
   orderBy,
-  Firestore,
-  addDoc,
-  serverTimestamp,
-  where,
   limit,
-  startAfter,
 } from "firebase/firestore";
 import AnalyticsAssistant from "@/components/analytics/AnalyticsAssistant";
 
-// Tooltip Component for Analytics Explanations
-const Tooltip = ({
-  children,
-  content,
-  className = "",
-}: {
-  children: React.ReactNode;
-  content: string;
-  className?: string;
-}) => {
-  return (
-    <div className={`relative group ${className}`}>
-      {children}
-      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 max-w-xs text-center border border-gray-700">
-        {content}
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-      </div>
-    </div>
-  );
-};
-
-// Firebase config (using environment variables)
+// Firebase config
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -75,7 +37,6 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 interface ChatMessage {
@@ -92,6 +53,16 @@ interface ChatSession {
   startTime: Date;
   endTime: Date;
   messageCount: number;
+  recruiterScore: number;
+  isRecruiterSession: boolean;
+  deviceType: string;
+  location?: {
+    country: string;
+    region: string;
+    city: string;
+  };
+  engagementLevel: 'low' | 'medium' | 'high';
+  totalDuration: number;
 }
 
 interface PageView {
@@ -100,64 +71,11 @@ interface PageView {
   timestamp: any;
   userAgent: string;
   referrer: string;
-  screenSize: string;
-  timeOnPage: number;
   sessionId: string;
   country?: string;
   region?: string;
   city?: string;
-  latitude?: number;
-  longitude?: number;
-  timezone?: string;
-  ip?: string;
-}
-
-interface UserInteraction {
-  id: string;
-  type: string;
-  element: string;
-  timestamp: any;
-  sessionId: string;
-  page: string;
-}
-
-interface TourEvent {
-  id: string;
-  sessionId: string;
-  eventType:
-    | "tour_start"
-    | "tour_step"
-    | "tour_complete"
-    | "tour_abandon"
-    | "tour_cta_action";
-  stepId?: string;
-  stepIndex?: number;
-  ctaAction?: "message" | "meeting" | "restart";
-  timestamp: any;
-  userAgent: string;
-  referrer: string;
-  country?: string;
-  region?: string;
-  city?: string;
-}
-
-interface EngagementHeatmap {
-  section: string;
-  averageTimeSpent: number;
-  scrollDepth: number;
-  interactions: number;
-  bounceRate: number;
-}
-
-interface FirebaseUsageLog {
-  id: string;
-  type: "read" | "write";
-  operation: string;
-  cost: number;
-  sessionId: string;
-  timestamp: any;
-  collection?: string;
-  documentCount?: number;
+  timeOnPage?: number;
 }
 
 interface AnalyticsData {
@@ -166,122 +84,35 @@ interface AnalyticsData {
   totalChatSessions: number;
   totalMessages: number;
   avgSessionDuration: number;
-  topPages: { page: string; views: number }[];
-  deviceTypes: { device: string; count: number }[];
-  topReferrers: { referrer: string; count: number }[];
-  hourlyActivity: { hour: number; count: number }[];
-  dailyActivity: { date: string; count: number }[];
-  popularInteractions: { type: string; count: number }[];
-  visitorLocations: { country: string; count: number }[];
-  topCities: { city: string; country: string; count: number }[];
-  potentialRecruiters: number;
-  recruiterMetrics: {
-    keywordHits: number;
-    longVisits: number;
-    keyClicks: number;
-  };
-  foundKeywords: {
-    keyword: string;
-    count: number;
-    sessionIds: string[];
-  }[];
-  tourAnalytics: {
-    totalTourStarts: number;
-    totalTourCompletions: number;
-    completionRate: number;
-    averageStepsCompleted: number;
-    mostPopularStep: string;
-    abandonmentPoints: { step: string; count: number }[];
-    ctaActions: { action: string; count: number }[];
-    tourConversionRate: number;
-  };
-  timeIntelligence: {
-    peakHours: { hour: number; recruiterActivity: number }[];
-    peakDays: { day: string; recruiterActivity: number }[];
-    seasonalTrends: { month: string; activity: number }[];
-    timeToEngage: number;
-  };
-  engagementMetrics: {
-    averageScrollDepth: number;
-    sectionHeatmap: EngagementHeatmap[];
-    multiVisitRate: number;
-    returnVisitorEngagement: number;
-    deepEngagementSessions: number;
-  };
-  firebaseUsage: {
-    totalReads: number;
-    totalWrites: number;
-    totalCost: number;
-    dailyUsage: { date: string; reads: number; writes: number; cost: number }[];
-    topOperations: { operation: string; count: number; totalCost: number }[];
-    sessionReads: number;
-    sessionWrites: number;
-  };
-  chatbotAnalytics?: {
-    totalSessions: number;
-    totalButtonClicks: number;
-    totalMessagesExchanged: number;
-    totalFileUploads: number;
-    totalMeetingSchedules: number;
-    avgMessagesPerSession: number;
-    avgSessionDuration: number;
-    mostPopularButtons: { buttonType: string; count: number }[];
-    conversationStarters: { source: string; count: number }[];
-    sessionLengthDistribution: { range: string; count: number }[];
-    fileUploadStats: {
-      totalUploads: number;
-      fileTypes: { type: string; count: number }[];
-      avgFileSize: number;
-    };
-    timeMetrics: {
-      peakHours: { hour: number; count: number }[];
-      dailyActivity: { date: string; count: number }[];
-    };
-    userEngagement: {
-      bounceRate: number;
-      deepEngagementSessions: number;
-      averageWordsPerMessage: number;
-    };
-    conversionMetrics: {
-      popupToChat: number;
-      chatToMessage: number;
-      chatToMeeting: number;
-      chatToFileUpload: number;
-    };
-  };
+  
+  // Enhanced metrics
+  recruiterSessions: ChatSession[];
+  topKeywords: { keyword: string; count: number; sessions: string[] }[];
+  locationAnalytics: { country: string; city: string; count: number; recruiterSessions: number }[];
+  deviceAnalytics: { device: string; count: number; avgDuration: number }[];
+  trafficSources: { source: string; count: number; recruiterTraffic: number }[];
+  performanceScore: number;
 }
 
 export default function AnalyticsPage() {
-  // State management
+  // Core state
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [pageViews, setPageViews] = useState<PageView[]>([]);
-  const [interactions, setInteractions] = useState<UserInteraction[]>([]);
-  const [tourEvents, setTourEvents] = useState<TourEvent[]>([]);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"all" | "user" | "assistant">("all");
-  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
-  const [timeRange, setTimeRange] = useState<"1d" | "7d" | "30d" | "custom" | "all">("30d");
-  const [customDays, setCustomDays] = useState<number>(7);
-  const [firebaseUsageLogs, setFirebaseUsageLogs] = useState<FirebaseUsageLog[]>([]);
-  const [db, setDb] = useState<Firestore | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
-  const [showKeywordsModal, setShowKeywordsModal] = useState(false);
-  const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
-  const [lastSessionTimestamp, setLastSessionTimestamp] = useState<Date | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [showChatbotFullScreen, setShowChatbotFullScreen] = useState(false);
-  const [chatbotAnalytics, setChatbotAnalytics] = useState<any>(null);
-  const [chatbotAnalyticsLoading, setChatbotAnalyticsLoading] = useState(false);
-  const [showAnalyticsAssistant, setShowAnalyticsAssistant] = useState(false);
-  const [refreshCost, setRefreshCost] = useState({ reads: 0, writes: 0 });
-  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
-  const [showCostWarning, setShowCostWarning] = useState(false);
-  const [refreshInProgress, setRefreshInProgress] = useState(false);
+  const [db, setDb] = useState<any>(null);
   
-  const PAGE_SIZE = 100;
+  // Enhanced UI state
+  const [showAnalyticsAssistant, setShowAnalyticsAssistant] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<ChatSession | null>(null);
+  const [showSessionModal, setShowSessionModal] = useState(false);
+  const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
+  const [showKeywordModal, setShowKeywordModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'sessions' | 'recruiters' | 'locations'>('overview');
+  const [timeRange, setTimeRange] = useState<"1d" | "7d" | "30d" | "all">("30d");
+  const [customDays, setCustomDays] = useState(7);
 
   // Firebase usage tracking
   const [firebaseReads, setFirebaseReads] = useState(() => {
@@ -290,79 +121,27 @@ export default function AnalyticsPage() {
     }
     return 0;
   });
-  
-  const [firebaseWrites, setFirebaseWrites] = useState(() => {
-    if (typeof window !== "undefined") {
-      return Number(sessionStorage.getItem("firebaseWrites") || 0);
-    }
-    return 0;
-  });
 
-  // Firebase tracking functions
-  const logFirebaseOperation = async (
-    type: "read" | "write",
-    operation: string,
-    collectionName?: string,
-    documentCount: number = 1
-  ) => {
-    if (!db) return;
-    const cost = type === "read" ? (documentCount * 0.36) / 100000 : (documentCount * 1.08) / 100000;
-    const logEntry: Omit<FirebaseUsageLog, "id"> = {
-      type,
-      operation,
-      cost,
-      sessionId: getSessionId(),
-      timestamp: serverTimestamp(),
-      collection: collectionName,
-      documentCount,
-    };
-    try {
-      await addDoc(collection(db, "firebase_usage_logs"), logEntry);
-    } catch (error) {
-      console.error("Error logging Firebase operation:", error);
-    }
-  };
+  // Recruiter keywords for scoring
+  const recruiterKeywords = [
+    { keyword: "job", weight: 10 },
+    { keyword: "hiring", weight: 10 },
+    { keyword: "position", weight: 9 },
+    { keyword: "role", weight: 8 },
+    { keyword: "opportunity", weight: 9 },
+    { keyword: "career", weight: 8 },
+    { keyword: "recruiter", weight: 10 },
+    { keyword: "experience", weight: 7 },
+    { keyword: "skills", weight: 8 },
+    { keyword: "resume", weight: 9 },
+    { keyword: "interview", weight: 9 },
+    { keyword: "salary", weight: 8 },
+    { keyword: "remote", weight: 7 },
+    { keyword: "contact", weight: 9 },
+    { keyword: "meeting", weight: 9 },
+  ];
 
-  function incrementRead(operation: string = "unknown", collectionName?: string, docCount: number = 1) {
-    if (typeof window !== "undefined") {
-      const newReads = firebaseReads + docCount;
-      setFirebaseReads(newReads);
-      sessionStorage.setItem("firebaseReads", newReads.toString());
-      logFirebaseOperation("read", operation, collectionName, docCount);
-    }
-  }
-
-  function incrementWrite(operation: string = "unknown", collectionName?: string, docCount: number = 1) {
-    if (typeof window !== "undefined") {
-      const newWrites = firebaseWrites + docCount;
-      setFirebaseWrites(newWrites);
-      sessionStorage.setItem("firebaseWrites", newWrites.toString());
-      logFirebaseOperation("write", operation, collectionName, docCount);
-    }
-  }
-
-  const resetCounters = () => {
-    setFirebaseReads(0);
-    setFirebaseWrites(0);
-    setRefreshCost({ reads: 0, writes: 0 });
-    setLastRefreshTime(null);
-    setShowCostWarning(false);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("firebaseReads", "0");
-      sessionStorage.setItem("firebaseWrites", "0");
-    }
-  };
-
-  const getSessionId = () => {
-    let sessionId = sessionStorage.getItem("sessionId");
-    if (!sessionId) {
-      sessionId = new Date().getTime() + "_" + Math.random().toString(36).substring(2, 9);
-      sessionStorage.setItem("sessionId", sessionId);
-    }
-    return sessionId;
-  };
-
-  // Initialize Firebase and authentication
+  // Initialize Firebase
   useEffect(() => {
     const storedPassword = sessionStorage.getItem("analytics_password");
     if (storedPassword === process.env.NEXT_PUBLIC_SECRET_PASS) {
@@ -372,13 +151,8 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    let app: FirebaseApp | undefined;
     if (typeof window !== "undefined") {
-      if (!getApps().length) {
-        app = initializeApp(firebaseConfig);
-      } else {
-        app = getApps()[0];
-      }
+      const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
       const firestore = getFirestore(app);
       setDb(firestore);
     }
@@ -386,154 +160,267 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     if (db && isAuthenticated) {
-      startDataCollection();
+      fetchAllData();
     }
   }, [db, isAuthenticated]);
 
-  // Fetch chatbot analytics
-  const fetchChatbotAnalytics = async () => {
-    setChatbotAnalyticsLoading(true);
+  // Data fetching
+  const fetchAllData = async () => {
+    if (!db) return;
+    setLoading(true);
+    
     try {
-      const response = await fetch(`/api/chatbot-analytics?timeRange=${timeRange}&customDays=${customDays}`);
-      const data = await response.json();
+      // Fetch chat messages
+      const messagesRef = collection(db, "chatbot_messages");
+      const messagesQuery = query(messagesRef, orderBy("timestamp", "desc"), limit(250));
+      const messagesSnap = await getDocs(messagesQuery);
       
-      if (data.success) {
-        setChatbotAnalytics(data.data);
-      } else {
-        console.error("Failed to fetch chatbot analytics:", data.error);
-      }
+      const chatMessages: ChatMessage[] = messagesSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as ChatMessage[];
+
+      // Group by session and analyze
+      const sessionMap = new Map<string, ChatMessage[]>();
+      chatMessages.forEach((msg) => {
+        if (!sessionMap.has(msg.sessionId)) {
+          sessionMap.set(msg.sessionId, []);
+        }
+        sessionMap.get(msg.sessionId)!.push(msg);
+      });
+
+      const processedSessions: ChatSession[] = Array.from(sessionMap.entries()).map(([sessionId, messages]) => {
+        const sortedMessages = messages.sort((a, b) => 
+          (a.timestamp?.toDate?.() || new Date(a.timestamp)).getTime() - 
+          (b.timestamp?.toDate?.() || new Date(b.timestamp)).getTime()
+        );
+        
+        const startTime = sortedMessages[0]?.timestamp?.toDate?.() || new Date();
+        const endTime = sortedMessages[sortedMessages.length - 1]?.timestamp?.toDate?.() || new Date();
+        
+        // Calculate recruiter score
+        let recruiterScore = 0;
+        messages.forEach(msg => {
+          if (msg.message) {
+            const msgLower = msg.message.toLowerCase();
+            recruiterKeywords.forEach(({ keyword, weight }) => {
+              if (msgLower.includes(keyword)) {
+                recruiterScore += weight;
+              }
+            });
+          }
+        });
+
+        // Session characteristics scoring
+        const sessionDurationMinutes = (endTime.getTime() - startTime.getTime()) / 60000;
+        if (sessionDurationMinutes > 5) recruiterScore += 3;
+        if (messages.length > 5) recruiterScore += 2;
+
+        let engagementLevel: 'low' | 'medium' | 'high' = 'low';
+        if (sessionDurationMinutes > 10 && messages.length > 8) engagementLevel = 'high';
+        else if (sessionDurationMinutes > 5 && messages.length > 4) engagementLevel = 'medium';
+
+        return {
+          sessionId,
+          messages: sortedMessages,
+          startTime,
+          endTime,
+          messageCount: messages.length,
+          recruiterScore,
+          isRecruiterSession: recruiterScore >= 5,
+          deviceType: "Unknown",
+          engagementLevel,
+          totalDuration: sessionDurationMinutes,
+        };
+      });
+
+      // Fetch page views
+      const pageViewsRef = collection(db, "page_views");
+      const pageViewsQuery = query(pageViewsRef, orderBy("timestamp", "desc"));
+      const pageViewsSnap = await getDocs(pageViewsQuery);
+      
+      const pageViewsData: PageView[] = pageViewsSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as PageView[];
+
+      // Enhance sessions with location data
+      const enhancedSessions = processedSessions.map(session => {
+        const sessionPageViews = pageViewsData.filter(pv => pv.sessionId === session.sessionId);
+        const latestPageView = sessionPageViews[0];
+        
+        let deviceType = "Unknown";
+        if (latestPageView?.userAgent) {
+          const ua = latestPageView.userAgent.toLowerCase();
+          if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
+            deviceType = "Mobile";
+          } else if (ua.includes('tablet') || ua.includes('ipad')) {
+            deviceType = "Tablet";
+          } else {
+            deviceType = "Desktop";
+          }
+        }
+
+        return {
+          ...session,
+          deviceType,
+          location: latestPageView ? {
+            country: latestPageView.country || "Unknown",
+            region: latestPageView.region || "Unknown",
+            city: latestPageView.city || "Unknown",
+          } : undefined,
+        };
+      });
+
+      setSessions(enhancedSessions);
+      setPageViews(pageViewsData);
+      setFirebaseReads(prev => prev + messagesSnap.docs.length + pageViewsSnap.docs.length);
+
     } catch (error) {
-      console.error("Error fetching chatbot analytics:", error);
+      console.error("Error fetching data:", error);
     } finally {
-      setChatbotAnalyticsLoading(false);
+      setLoading(false);
     }
   };
 
-  // Start data collection
-  const startDataCollection = () => {
-    trackPageView();
-    trackUserInteractions();
-    trackDeviceInfo();
-  };
-
-  const trackPageView = async () => {
-    if (!db) return;
-    try {
-      const geoResponse = await fetch("/api/geolocation");
-      const geoData = await geoResponse.json();
-      const pageView = {
-        page: window.location.pathname,
-        userAgent: navigator.userAgent,
-        referrer: document.referrer || "direct",
-        screenSize: `${window.screen.width}x${window.screen.height}`,
-        timeOnPage: 0,
-        sessionId: getSessionId(),
-        timestamp: serverTimestamp(),
-        country: geoData.country_name,
-        region: geoData.region,
-        city: geoData.city,
-        latitude: geoData.latitude,
-        longitude: geoData.longitude,
-        timezone: geoData.timezone,
-        ip: geoData.ip,
-      };
-      await addDoc(collection(db, "page_views"), pageView);
-      incrementWrite("track_page_view", "page_views", 1);
-    } catch (error) {
-      console.error("Error tracking page view:", error);
+  // Calculate analytics
+  useEffect(() => {
+    if (sessions.length > 0 || pageViews.length > 0) {
+      const calculatedData = calculateAnalytics();
+      setAnalyticsData(calculatedData);
     }
-  };
+  }, [sessions, pageViews, timeRange]);
 
-  const trackUserInteractions = () => {
-    const sessionId = getSessionId();
-    let lastClickTime = 0;
-    let scrollTrackingEnabled = true;
+  const calculateAnalytics = (): AnalyticsData => {
+    // Filter by time range
+    const now = new Date();
+    let startDate: Date;
+    switch (timeRange) {
+      case "1d": startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); break;
+      case "7d": startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); break;
+      case "30d": startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); break;
+      default: startDate = new Date(0);
+    }
 
-    document.addEventListener("click", async (e) => {
-      const now = Date.now();
-      if (now - lastClickTime < 1000) return;
-      lastClickTime = now;
-      const target = e.target as HTMLElement;
+    const filteredSessions = sessions.filter(s => s.startTime >= startDate);
+    const filteredPageViews = pageViews.filter(pv => 
+      (pv.timestamp?.toDate?.() || new Date(pv.timestamp)) >= startDate
+    );
 
-      const className = (target.className && typeof target.className === "string" ? target.className.toString() : "") || "";
-      const id = (target.id && typeof target.id === "string" ? target.id.toString() : "") || "";
-      const isImportantClick = target.tagName.toLowerCase() === "button" ||
-        target.tagName.toLowerCase() === "a" ||
-        target.getAttribute("role") === "button" ||
-        className.includes("btn") ||
-        className.includes("click") ||
-        id.includes("nav") ||
-        id.includes("contact");
+    const uniqueVisitors = new Set(filteredPageViews.map(pv => pv.sessionId)).size;
+    const totalMessages = filteredSessions.reduce((sum, s) => sum + s.messageCount, 0);
+    const avgSessionDuration = filteredSessions.length > 0 
+      ? filteredSessions.reduce((sum, s) => sum + s.totalDuration, 0) / filteredSessions.length
+      : 0;
 
-      if (!isImportantClick) return;
-
-      const interaction = {
-        type: "click",
-        element: target.tagName.toLowerCase() + (target.id ? `#${target.id}` : "") + (target.className && typeof target.className === "string" ? `.${target.className.split(" ")[0]}` : ""),
-        page: window.location.pathname,
-        sessionId,
-        timestamp: serverTimestamp(),
-      };
-
-      if (db) {
-        try {
-          await addDoc(collection(db, "user_interactions"), interaction);
-          incrementWrite("track_interaction", "user_interactions", 1);
-        } catch (error) {
-          console.error("Error tracking interaction:", error);
-        }
-      }
-    });
-
-    let maxScroll = 0;
-    window.addEventListener("scroll", async () => {
-      if (!scrollTrackingEnabled || window.location.pathname === "/analytics") return;
-      const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-      if (scrollPercent > maxScroll) {
-        maxScroll = scrollPercent;
-        if (maxScroll === 50 || maxScroll >= 90) {
-          const interaction = {
-            type: "scroll",
-            element: `scroll_${maxScroll >= 90 ? 100 : maxScroll}%`,
-            page: window.location.pathname,
-            sessionId,
-            timestamp: serverTimestamp(),
-          };
-          if (db) {
-            try {
-              await addDoc(collection(db, "user_interactions"), interaction);
-              incrementWrite("track_scroll", "user_interactions", 1);
-            } catch (error) {
-              console.error("Error tracking scroll:", error);
+    // Recruiter analysis
+    const recruiterSessions = filteredSessions.filter(s => s.isRecruiterSession);
+    
+    // Keyword analysis
+    const keywordMap = new Map<string, { count: number; sessions: string[] }>();
+    recruiterSessions.forEach(session => {
+      session.messages.forEach(msg => {
+        if (msg.message) {
+          const msgLower = msg.message.toLowerCase();
+          recruiterKeywords.forEach(({ keyword }) => {
+            if (msgLower.includes(keyword)) {
+              const existing = keywordMap.get(keyword) || { count: 0, sessions: [] };
+              existing.count++;
+              if (!existing.sessions.includes(session.sessionId)) {
+                existing.sessions.push(session.sessionId);
+              }
+              keywordMap.set(keyword, existing);
             }
-          }
-          if (maxScroll >= 90) {
-            scrollTrackingEnabled = false;
-          }
+          });
         }
+      });
+    });
+
+    const topKeywords = Array.from(keywordMap.entries())
+      .map(([keyword, data]) => ({ keyword, count: data.count, sessions: data.sessions }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    // Location analysis
+    const locationMap = new Map<string, { country: string; city: string; count: number; recruiterSessions: number }>();
+    filteredSessions.forEach(session => {
+      if (session.location) {
+        const key = `${session.location.country}-${session.location.city}`;
+        const existing = locationMap.get(key) || {
+          country: session.location.country,
+          city: session.location.city,
+          count: 0,
+          recruiterSessions: 0
+        };
+        existing.count++;
+        if (session.isRecruiterSession) existing.recruiterSessions++;
+        locationMap.set(key, existing);
       }
     });
-  };
 
-  const trackDeviceInfo = async () => {
-    if (!db) return;
-    const deviceInfo = {
-      userAgent: navigator.userAgent,
-      screenSize: `${window.screen.width}x${window.screen.height}`,
-      viewportSize: `${window.innerWidth}x${window.innerHeight}`,
-      language: navigator.language,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      sessionId: getSessionId(),
-      timestamp: serverTimestamp(),
+    const locationAnalytics = Array.from(locationMap.values())
+      .sort((a, b) => b.count - a.count);
+
+    // Device analysis
+    const deviceMap = new Map<string, { count: number; totalDuration: number }>();
+    filteredSessions.forEach(session => {
+      const device = deviceMap.get(session.deviceType) || { count: 0, totalDuration: 0 };
+      device.count++;
+      device.totalDuration += session.totalDuration;
+      deviceMap.set(session.deviceType, device);
+    });
+
+    const deviceAnalytics = Array.from(deviceMap.entries()).map(([device, data]) => ({
+      device,
+      count: data.count,
+      avgDuration: data.totalDuration / data.count
+    }));
+
+    // Traffic sources
+    const referrerMap = new Map<string, { count: number; recruiterTraffic: number }>();
+    filteredPageViews.forEach(pv => {
+      const referrer = pv.referrer || "direct";
+      const data = referrerMap.get(referrer) || { count: 0, recruiterTraffic: 0 };
+      data.count++;
+      
+      const isRecruiterPageView = filteredSessions.some(s => 
+        s.sessionId === pv.sessionId && s.isRecruiterSession
+      );
+      if (isRecruiterPageView) data.recruiterTraffic++;
+      
+      referrerMap.set(referrer, data);
+    });
+
+    const trafficSources = Array.from(referrerMap.entries()).map(([source, data]) => ({
+      source,
+      count: data.count,
+      recruiterTraffic: data.recruiterTraffic
+    })).sort((a, b) => b.count - a.count);
+
+    // Performance score
+    const performanceScore = Math.min(100, Math.round(
+      (uniqueVisitors * 0.3) + 
+      (recruiterSessions.length * 2) + 
+      (avgSessionDuration * 0.5) + 
+      (totalMessages * 0.1)
+    ));
+
+    return {
+      totalPageViews: filteredPageViews.length,
+      uniqueVisitors,
+      totalChatSessions: filteredSessions.length,
+      totalMessages,
+      avgSessionDuration,
+      recruiterSessions,
+      topKeywords,
+      locationAnalytics,
+      deviceAnalytics,
+      trafficSources,
+      performanceScore,
     };
-    try {
-      await addDoc(collection(db, "device_info"), deviceInfo);
-      incrementWrite("track_device_info", "device_info", 1);
-    } catch (error) {
-      console.error("Error tracking device info:", error);
-    }
   };
 
+  // Authentication
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === process.env.NEXT_PUBLIC_SECRET_PASS) {
@@ -541,7 +428,6 @@ export default function AnalyticsPage() {
       setIsAuthenticated(true);
     } else {
       alert("Incorrect password");
-      window.location.href = "/";
     }
   };
 
@@ -580,650 +466,6 @@ export default function AnalyticsPage() {
     );
   }
 
-  // Fetch Firebase usage logs
-  const fetchFirebaseUsageLogs = async () => {
-    if (!db) return;
-    try {
-      const usageLogsRef = collection(db, "firebase_usage_logs");
-      const usageLogsQuery = query(usageLogsRef, orderBy("timestamp", "desc"));
-      const usageLogsSnap = await getDocs(usageLogsQuery);
-      incrementRead("fetch_firebase_usage_logs", "firebase_usage_logs", usageLogsSnap.docs.length);
-      const usageLogs: FirebaseUsageLog[] = usageLogsSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as FirebaseUsageLog[];
-      setFirebaseUsageLogs(usageLogs);
-    } catch (error) {
-      console.error("Error fetching Firebase usage logs:", error);
-    }
-  };
-
-  // Estimate refresh cost
-  const estimateRefreshCost = () => {
-    const estimatedDocsPerCollection = 100;
-    const collectionsToRead = 4;
-    const estimatedReads = estimatedDocsPerCollection * collectionsToRead;
-    const estimatedWrites = 0;
-    return {
-      reads: estimatedReads,
-      writes: estimatedWrites,
-      cost: (estimatedReads * 0.36) / 100000 + (estimatedWrites * 1.08) / 100000,
-    };
-  };
-
-  // Manual refresh function
-  const handleManualRefresh = async () => {
-    const cost = estimateRefreshCost();
-    setRefreshCost(cost);
-    const timeSinceLastRefresh = lastRefreshTime ? (Date.now() - lastRefreshTime.getTime()) / 1000 / 60 : Infinity;
-    if (cost.reads > 5 || timeSinceLastRefresh < 2) {
-      setShowCostWarning(true);
-      return;
-    }
-    await performRefresh();
-  };
-
-  // Perform the actual refresh
-  const performRefresh = async () => {
-    setShowCostWarning(false);
-    setRefreshInProgress(true);
-    const startReads = firebaseReads;
-    const startWrites = firebaseWrites;
-    try {
-      await Promise.all([
-        fetchAllData(),
-        fetchFirebaseUsageLogs(),
-        fetchChatbotAnalytics(),
-      ]);
-      setLastRefreshTime(new Date());
-      const actualCost = {
-        reads: firebaseReads - startReads,
-        writes: firebaseWrites - startWrites,
-      };
-      setRefreshCost(actualCost);
-    } finally {
-      setRefreshInProgress(false);
-    }
-  };
-
-  // Fetch all data from Firebase
-  const fetchAllData = async (append = false) => {
-    if (!db) return;
-    setLoading(true);
-    const startTime = Date.now();
-    try {
-      // Fetch chat messages
-      const messagesRef = collection(db, "chatbot_messages");
-      let messagesQuery = query(messagesRef, orderBy("timestamp", "desc"), limit(250));
-      if (append && lastSessionTimestamp) {
-        messagesQuery = query(messagesRef, where("timestamp", "<", lastSessionTimestamp), orderBy("timestamp", "desc"), limit(PAGE_SIZE));
-      }
-      const messagesSnap = await getDocs(messagesQuery);
-      incrementRead("fetch_chatbot_messages", "chatbot_messages", messagesSnap.docs.length);
-      const chatMessages: ChatMessage[] = messagesSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as ChatMessage[];
-
-      // Group messages by session
-      const sessionMap = new Map<string, ChatMessage[]>();
-      chatMessages.forEach((msg) => {
-        if (!sessionMap.has(msg.sessionId)) {
-          sessionMap.set(msg.sessionId, []);
-        }
-        sessionMap.get(msg.sessionId)!.push(msg);
-      });
-
-      const chatSessions: ChatSession[] = Array.from(sessionMap.entries()).map(([sessionId, messages]) => {
-        const sortedMessages = messages.sort((a, b) => (a.timestamp?.toDate?.() || new Date(a.timestamp)).getTime() - (b.timestamp?.toDate?.() || new Date(b.timestamp)).getTime());
-        const startTime = sortedMessages[0]?.timestamp?.toDate?.() || new Date(sortedMessages[0]?.timestamp);
-        const endTime = sortedMessages[sortedMessages.length - 1]?.timestamp?.toDate?.() || new Date(sortedMessages[sortedMessages.length - 1]?.timestamp);
-        return {
-          sessionId,
-          messages: sortedMessages,
-          startTime,
-          endTime,
-          messageCount: messages.length,
-        };
-      });
-
-      // Fetch page views
-      const pageViewsRef = collection(db, "page_views");
-      const pageViewsQuery = query(pageViewsRef, orderBy("timestamp", "desc"));
-      const pageViewsSnap = await getDocs(pageViewsQuery);
-      incrementRead("fetch_page_views", "page_views", pageViewsSnap.docs.length);
-      const pageViewsData: PageView[] = pageViewsSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as PageView[];
-
-      // Fetch user interactions
-      const interactionsRef = collection(db, "user_interactions");
-      const interactionsQuery = query(interactionsRef, orderBy("timestamp", "desc"));
-      const interactionsSnap = await getDocs(interactionsQuery);
-      incrementRead("fetch_user_interactions", "user_interactions", interactionsSnap.docs.length);
-      const interactionsData: UserInteraction[] = interactionsSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as UserInteraction[];
-
-      // Fetch tour events
-      const tourEventsRef = collection(db, "tour_events");
-      const tourEventsQuery = query(tourEventsRef, orderBy("timestamp", "desc"));
-      const tourEventsSnap = await getDocs(tourEventsQuery);
-      incrementRead("fetch_tour_events", "tour_events", tourEventsSnap.docs.length);
-      const tourEventsData: TourEvent[] = tourEventsSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as TourEvent[];
-
-      // Update state
-      setSessions((prev) => append ? [...prev, ...chatSessions] : chatSessions);
-      setPageViews((prev) => append ? [...prev, ...pageViewsData] : pageViewsData);
-      setInteractions((prev) => append ? [...prev, ...interactionsData] : interactionsData);
-      setTourEvents((prev) => append ? [...prev, ...tourEventsData] : tourEventsData);
-
-      // Calculate analytics
-      const analytics = calculateAnalyticsData(
-        append ? [...sessions, ...chatSessions] : chatSessions,
-        append ? [...pageViews, ...pageViewsData] : pageViewsData,
-        append ? [...interactions, ...interactionsData] : interactionsData,
-        append ? [...tourEvents, ...tourEventsData] : tourEventsData,
-        firebaseUsageLogs,
-        firebaseReads,
-        firebaseWrites
-      );
-      setAnalyticsData(analytics);
-
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-      const totalDocsRead = messagesSnap.docs.length + pageViewsSnap.docs.length + interactionsSnap.docs.length + tourEventsSnap.docs.length;
-      setRefreshCost({ reads: totalDocsRead, writes: 0 });
-      setLastRefreshTime(new Date());
-      console.log(`Data fetching completed in ${duration}ms`);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Calculate Firebase usage analytics
-  const calculateFirebaseUsage = (firebaseUsageLogs: FirebaseUsageLog[], startDate: Date) => {
-    const filteredLogs = firebaseUsageLogs.filter((log) => log.timestamp && log.timestamp.toDate && log.timestamp.toDate() >= startDate);
-    const totalReads = filteredLogs.filter((log) => log.type === "read").reduce((sum, log) => sum + (log.documentCount || 1), 0);
-    const totalWrites = filteredLogs.filter((log) => log.type === "write").reduce((sum, log) => sum + (log.documentCount || 1), 0);
-    const totalCost = filteredLogs.reduce((sum, log) => sum + log.cost, 0);
-
-    const dailyUsageMap = new Map<string, { reads: number; writes: number; cost: number }>();
-    filteredLogs.forEach((log) => {
-      if (log.timestamp && log.timestamp.toDate) {
-        const date = log.timestamp.toDate().toISOString().split("T")[0];
-        if (!dailyUsageMap.has(date)) {
-          dailyUsageMap.set(date, { reads: 0, writes: 0, cost: 0 });
-        }
-        const dayData = dailyUsageMap.get(date)!;
-        const docCount = log.documentCount || 1;
-        if (log.type === "read") dayData.reads += docCount;
-        if (log.type === "write") dayData.writes += docCount;
-        dayData.cost += log.cost;
-      }
-    });
-
-    const dailyUsage = Array.from(dailyUsageMap.entries()).map(([date, data]) => ({ date, ...data })).sort((a, b) => a.date.localeCompare(b.date));
-
-    const operationMap = new Map<string, { count: number; totalCost: number }>();
-    filteredLogs.forEach((log) => {
-      if (!operationMap.has(log.operation)) {
-        operationMap.set(log.operation, { count: 0, totalCost: 0 });
-      }
-      const opData = operationMap.get(log.operation)!;
-      opData.count++;
-      opData.totalCost += log.cost;
-    });
-
-    const topOperations = Array.from(operationMap.entries()).map(([operation, data]) => ({ operation, ...data })).sort((a, b) => b.count - a.count).slice(0, 10);
-
-    return {
-      totalReads,
-      totalWrites,
-      totalCost,
-      dailyUsage,
-      topOperations,
-      sessionReads: 0,
-      sessionWrites: 0,
-    };
-  };
-
-  // Main analytics calculation function
-  const calculateAnalyticsData = (
-    sessions: ChatSession[],
-    pageViews: PageView[],
-    interactions: UserInteraction[],
-    tourEvents: TourEvent[] = [],
-    firebaseUsageLogs: FirebaseUsageLog[] = [],
-    sessionReads: number = 0,
-    sessionWrites: number = 0
-  ): AnalyticsData => {
-    // Apply time range filtering
-    const now = new Date();
-    let startDate: Date;
-    switch (timeRange) {
-      case "1d":
-        startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-        break;
-      case "7d":
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case "30d":
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        break;
-      case "custom":
-        startDate = new Date(now.getTime() - customDays * 24 * 60 * 60 * 1000);
-        break;
-      case "all":
-      default:
-        startDate = new Date(0);
-        break;
-    }
-
-    // Filter data based on time range
-    const filteredSessions = sessions.filter((session) => session.startTime >= startDate);
-    const filteredPageViews = pageViews.filter((pv) => pv.timestamp && pv.timestamp.toDate && pv.timestamp.toDate() >= startDate);
-    const filteredInteractions = interactions.filter((interaction) => interaction.timestamp && interaction.timestamp.toDate && interaction.timestamp.toDate() >= startDate);
-
-    // Unique visitors calculation
-    const uniqueSessions = new Set([...filteredSessions.map((s) => s.sessionId), ...filteredPageViews.map((p) => p.sessionId)]);
-
-    // Top pages calculation
-    const pageCounts = new Map<string, number>();
-    filteredPageViews.forEach((pv) => {
-      pageCounts.set(pv.page, (pageCounts.get(pv.page) || 0) + 1);
-    });
-    const topPages = Array.from(pageCounts.entries()).map(([page, views]) => ({ page, views })).sort((a, b) => b.views - a.views).slice(0, 5);
-
-    // Device types calculation
-    const deviceCounts = new Map<string, number>();
-    filteredPageViews.forEach((pv) => {
-      const isMobile = /Mobile|Android|iPhone|iPad/.test(pv.userAgent);
-      const isTablet = /iPad|Android(?=.*\bMobile\b)(?=.*\bSafari\b)/.test(pv.userAgent);
-      let device = "Desktop";
-      if (isTablet) device = "Tablet";
-      else if (isMobile) device = "Mobile";
-      deviceCounts.set(device, (deviceCounts.get(device) || 0) + 1);
-    });
-    const deviceTypes = Array.from(deviceCounts.entries()).map(([device, count]) => ({ device, count })).sort((a, b) => b.count - a.count);
-
-    // Top referrers calculation
-    const referrerCounts = new Map<string, number>();
-    filteredPageViews.forEach((pv) => {
-      const referrer = pv.referrer === "direct" ? "Direct" : pv.referrer.includes("google") ? "Google" : pv.referrer.includes("linkedin") ? "LinkedIn" : pv.referrer.includes("github") ? "GitHub" : "Other";
-      referrerCounts.set(referrer, (referrerCounts.get(referrer) || 0) + 1);
-    });
-    const topReferrers = Array.from(referrerCounts.entries()).map(([referrer, count]) => ({ referrer, count })).sort((a, b) => b.count - a.count);
-
-    // Hourly activity calculation
-    const hourlyCounts = new Map<number, number>();
-    filteredPageViews.forEach((pv) => {
-      if (pv.timestamp && pv.timestamp.toDate) {
-        const hour = pv.timestamp.toDate().getHours();
-        hourlyCounts.set(hour, (hourlyCounts.get(hour) || 0) + 1);
-      }
-    });
-    const hourlyActivity = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: hourlyCounts.get(i) || 0 }));
-
-    // Daily activity calculation
-    const dailyCounts = new Map<string, number>();
-    const dayCount = timeRange === "1d" ? 1 : timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : timeRange === "custom" ? customDays : 7;
-    const recentDays = Array.from({ length: dayCount }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return date.toISOString().split("T")[0];
-    }).reverse();
-
-    filteredPageViews.forEach((pv) => {
-      if (pv.timestamp && pv.timestamp.toDate) {
-        const date = pv.timestamp.toDate().toISOString().split("T")[0];
-        if (recentDays.includes(date)) {
-          dailyCounts.set(date, (dailyCounts.get(date) || 0) + 1);
-        }
-      }
-    });
-    const dailyActivity = recentDays.map((date) => ({ date, count: dailyCounts.get(date) || 0 }));
-
-    // Popular interactions calculation
-    const interactionCounts = new Map<string, number>();
-    filteredInteractions.forEach((interaction) => {
-      interactionCounts.set(interaction.type, (interactionCounts.get(interaction.type) || 0) + 1);
-    });
-    const popularInteractions = Array.from(interactionCounts.entries()).map(([type, count]) => ({ type, count })).sort((a, b) => b.count - a.count);
-
-    // Average session duration calculation
-    const chatSessionDuration = filteredSessions.reduce((sum, session) => {
-      return sum + (session.endTime.getTime() - session.startTime.getTime());
-    }, 0);
-    const pageViewDuration = filteredPageViews.reduce((sum, pv) => {
-      return sum + (pv.timeOnPage || 0) * 1000;
-    }, 0);
-    const totalDuration = chatSessionDuration + pageViewDuration;
-    const totalSessions = Math.max(filteredSessions.length, filteredPageViews.length, 1);
-    const avgSessionDuration = totalDuration / totalSessions / 1000 / 60;
-
-    // Visitor locations calculation
-    const countryCounts = new Map<string, number>();
-    const cityCounts = new Map<string, { city: string; country: string; count: number }>();
-    filteredPageViews.forEach((pv) => {
-      if (pv.country) {
-        countryCounts.set(pv.country, (countryCounts.get(pv.country) || 0) + 1);
-      }
-      if (pv.city && pv.country) {
-        const cityKey = `${pv.city}, ${pv.country}`;
-        const currentCount = cityCounts.get(cityKey)?.count || 0;
-        cityCounts.set(cityKey, { city: pv.city, country: pv.country, count: currentCount + 1 });
-      }
-    });
-    const visitorLocations = Array.from(countryCounts.entries()).map(([country, count]) => ({ country, count })).sort((a, b) => b.count - a.count);
-    const topCities = Array.from(cityCounts.values()).sort((a, b) => b.count - a.count).slice(0, 10);
-
-    // Recruiter detection logic
-    let potentialRecruiters = 0;
-    const recruiterMetrics = { keywordHits: 0, longVisits: 0, keyClicks: 0 };
-    const recruiterKeywords = ["hiring", "recruiting", "job", "position", "role", "interview", "full-time", "opportunity", "resume", "cv", "background", "experience"];
-    const foundKeywordsMap = new Map<string, { count: number; sessionIds: Set<string> }>();
-
-    filteredSessions.forEach((session) => {
-      let score = 0;
-      const chatMessages = session.messages.map((m) => m.message?.toLowerCase() || "").join(" ");
-      const hasKeyword = recruiterKeywords.some((keyword) => chatMessages.includes(keyword));
-      if (hasKeyword) score += 3;
-
-      const sessionDurationMinutes = (session.endTime.getTime() - session.startTime.getTime()) / 60000;
-      const isLongVisit = sessionDurationMinutes > 3;
-      if (isLongVisit) score += 1;
-      if (sessionDurationMinutes > 10) score += 1;
-
-      const sessionInteractions = filteredInteractions.filter((i) => i.sessionId === session.sessionId);
-      const hasKeyClick = sessionInteractions.some((i) => i.element.includes("resume") || i.element.includes("linkedin"));
-      if (hasKeyClick) score += 2;
-
-      if (score >= 3) {
-        potentialRecruiters++;
-        if (hasKeyword) {
-          recruiterMetrics.keywordHits++;
-          recruiterKeywords.forEach((keyword) => {
-            if (chatMessages.includes(keyword)) {
-              if (!foundKeywordsMap.has(keyword)) {
-                foundKeywordsMap.set(keyword, { count: 0, sessionIds: new Set() });
-              }
-              const keywordData = foundKeywordsMap.get(keyword)!;
-              keywordData.count++;
-              keywordData.sessionIds.add(session.sessionId);
-            }
-          });
-        }
-        if (isLongVisit) recruiterMetrics.longVisits++;
-        if (hasKeyClick) recruiterMetrics.keyClicks++;
-      }
-    });
-
-    const foundKeywords = Array.from(foundKeywordsMap.entries()).map(([keyword, data]) => ({
-      keyword,
-      count: data.count,
-      sessionIds: Array.from(data.sessionIds),
-    })).sort((a, b) => b.count - a.count);
-
-    // Tour Analytics calculation
-    const filteredTourEvents = tourEvents.filter((event) => event.timestamp && event.timestamp.toDate && event.timestamp.toDate() >= startDate);
-    const tourStarts = filteredTourEvents.filter((event) => event.eventType === "tour_start");
-    const tourCompletions = filteredTourEvents.filter((event) => event.eventType === "tour_complete");
-    const tourSteps = filteredTourEvents.filter((event) => event.eventType === "tour_step");
-    const tourAbandons = filteredTourEvents.filter((event) => event.eventType === "tour_abandon");
-    const tourCTAs = filteredTourEvents.filter((event) => event.eventType === "tour_cta_action");
-
-    const completionRate = tourStarts.length > 0 ? (tourCompletions.length / tourStarts.length) * 100 : 0;
-
-    const sessionSteps = new Map<string, number>();
-    tourSteps.forEach((step) => {
-      const maxStep = Math.max(sessionSteps.get(step.sessionId) || 0, step.stepIndex || 0);
-      sessionSteps.set(step.sessionId, maxStep);
-    });
-    const totalStepsCompleted = Array.from(sessionSteps.values()).reduce((sum, steps) => sum + steps, 0);
-    const averageStepsCompleted = sessionSteps.size > 0 ? totalStepsCompleted / sessionSteps.size : 0;
-
-    const stepCounts = new Map<string, number>();
-    tourSteps.forEach((step) => {
-      if (step.stepId) {
-        stepCounts.set(step.stepId, (stepCounts.get(step.stepId) || 0) + 1);
-      }
-    });
-    const mostPopularStep = Array.from(stepCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] || "intro";
-
-    const abandonCounts = new Map<string, number>();
-    tourAbandons.forEach((abandon) => {
-      if (abandon.stepId) {
-        abandonCounts.set(abandon.stepId, (abandonCounts.get(abandon.stepId) || 0) + 1);
-      }
-    });
-    const abandonmentPoints = Array.from(abandonCounts.entries()).map(([step, count]) => ({ step, count })).sort((a, b) => b.count - a.count);
-
-    const ctaCounts = new Map<string, number>();
-    tourCTAs.forEach((cta) => {
-      if (cta.ctaAction) {
-        ctaCounts.set(cta.ctaAction, (ctaCounts.get(cta.ctaAction) || 0) + 1);
-      }
-    });
-    const ctaActions = Array.from(ctaCounts.entries()).map(([action, count]) => ({ action, count })).sort((a, b) => b.count - a.count);
-    const tourConversionRate = tourStarts.length > 0 ? (tourCTAs.length / tourStarts.length) * 100 : 0;
-
-    const tourAnalytics = {
-      totalTourStarts: tourStarts.length,
-      totalTourCompletions: tourCompletions.length,
-      completionRate: Math.round(completionRate),
-      averageStepsCompleted: Math.round(averageStepsCompleted * 10) / 10,
-      mostPopularStep,
-      abandonmentPoints,
-      ctaActions,
-      tourConversionRate: Math.round(tourConversionRate),
-    };
-
-    // Time intelligence calculation
-    const recruiterSessions = filteredSessions.filter((session) => {
-      let score = 0;
-      const chatMessages = session.messages.map((m) => m.message?.toLowerCase() || "").join(" ");
-      const hasKeyword = recruiterKeywords.some((keyword) => chatMessages.includes(keyword));
-      if (hasKeyword) score += 3;
-      const sessionDurationMinutes = (session.endTime.getTime() - session.startTime.getTime()) / 60000;
-      if (sessionDurationMinutes > 3) score += 1;
-      if (sessionDurationMinutes > 10) score += 1;
-      const sessionInteractions = filteredInteractions.filter((i) => i.sessionId === session.sessionId);
-      const hasKeyClick = sessionInteractions.some((i) => i.element.includes("resume") || i.element.includes("linkedin"));
-      if (hasKeyClick) score += 2;
-      return score >= 3;
-    });
-
-    const recruiterHourly = new Map<number, number>();
-    const recruiterDaily = new Map<string, number>();
-    const recruiterMonthly = new Map<string, number>();
-    recruiterSessions.forEach((session) => {
-      const date = session.startTime;
-      const hour = date.getHours();
-      const dayName = date.toLocaleDateString("en-US", { weekday: "long" });
-      const monthName = date.toLocaleDateString("en-US", { month: "long" });
-      recruiterHourly.set(hour, (recruiterHourly.get(hour) || 0) + 1);
-      recruiterDaily.set(dayName, (recruiterDaily.get(dayName) || 0) + 1);
-      recruiterMonthly.set(monthName, (recruiterMonthly.get(monthName) || 0) + 1);
-    });
-
-    const timeIntelligence = {
-      peakHours: Array.from({ length: 24 }, (_, i) => ({ hour: i, recruiterActivity: recruiterHourly.get(i) || 0 })),
-      peakDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => ({
-        day,
-        recruiterActivity: recruiterDaily.get(day) || 0,
-      })),
-      seasonalTrends: Array.from(recruiterMonthly.entries()).map(([month, activity]) => ({ month, activity })),
-      timeToEngage: filteredSessions.length > 0 ? filteredSessions.reduce((sum, session) => {
-        const firstInteraction = filteredInteractions.filter((i) => i.sessionId === session.sessionId && i.timestamp && i.timestamp.toDate).sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate())[0];
-        if (firstInteraction && firstInteraction.timestamp && firstInteraction.timestamp.toDate) {
-          return sum + (firstInteraction.timestamp.toDate().getTime() - session.startTime.getTime()) / 60000;
-        }
-        return sum;
-      }, 0) / filteredSessions.length : 0,
-    };
-
-    // Engagement metrics calculation
-    const scrollDepths = filteredInteractions.filter((i) => i.type === "scroll").map((i) => parseInt(i.element.match(/\d+/)?.[0] || "0"));
-    const sectionEngagement = new Map<string, { time: number; scrolls: number; interactions: number; bounces: number }>();
-    filteredPageViews.forEach((pv) => {
-      const section = pv.page === "/" ? "home" : pv.page.replace("/", "");
-      const sessionInteractions = filteredInteractions.filter((i) => i.sessionId === pv.sessionId && i.page === pv.page);
-      const isBounce = sessionInteractions.length === 0 && (pv.timeOnPage || 0) < 30;
-      if (!sectionEngagement.has(section)) {
-        sectionEngagement.set(section, { time: 0, scrolls: 0, interactions: 0, bounces: 0 });
-      }
-      const data = sectionEngagement.get(section)!;
-      data.time += pv.timeOnPage || 0;
-      data.scrolls += sessionInteractions.filter((i) => i.type === "scroll").length;
-      data.interactions += sessionInteractions.length;
-      if (isBounce) data.bounces++;
-    });
-
-    const multiVisitSessions = new Set<string>();
-    const sessionCounts = new Map<string, number>();
-    filteredPageViews.forEach((pv) => {
-      sessionCounts.set(pv.sessionId, (sessionCounts.get(pv.sessionId) || 0) + 1);
-    });
-    sessionCounts.forEach((count, sessionId) => {
-      if (count > 1) multiVisitSessions.add(sessionId);
-    });
-
-    const deepEngagementSessions = filteredSessions.filter((session) => {
-      const sessionDurationMinutes = (session.endTime.getTime() - session.startTime.getTime()) / 60000;
-      const sessionInteractions = filteredInteractions.filter((i) => i.sessionId === session.sessionId);
-      return sessionDurationMinutes > 5 && sessionInteractions.length > 3;
-    }).length;
-
-    const engagementMetrics = {
-      averageScrollDepth: scrollDepths.length > 0 ? scrollDepths.reduce((a, b) => a + b) / scrollDepths.length : 0,
-      sectionHeatmap: Array.from(sectionEngagement.entries()).map(([section, data]) => ({
-        section,
-        averageTimeSpent: data.time / Math.max(1, filteredPageViews.filter((pv) => {
-          const pageSection = pv.page === "/" ? "home" : pv.page.replace("/", "");
-          return pageSection === section;
-        }).length),
-        scrollDepth: data.scrolls,
-        interactions: data.interactions,
-        bounceRate: data.bounces / Math.max(1, filteredPageViews.filter((pv) => {
-          const pageSection = pv.page === "/" ? "home" : pv.page.replace("/", "");
-          return pageSection === section;
-        }).length),
-      })),
-      multiVisitRate: multiVisitSessions.size / Math.max(1, uniqueSessions.size),
-      returnVisitorEngagement: 0,
-      deepEngagementSessions,
-    };
-
-    return {
-      totalPageViews: filteredPageViews.length,
-      uniqueVisitors: uniqueSessions.size,
-      totalChatSessions: filteredSessions.length,
-      totalMessages: filteredSessions.reduce((sum, session) => sum + session.messageCount, 0),
-      avgSessionDuration,
-      topPages,
-      deviceTypes,
-      topReferrers,
-      hourlyActivity,
-      dailyActivity,
-      popularInteractions,
-      visitorLocations,
-      topCities,
-      potentialRecruiters,
-      recruiterMetrics,
-      foundKeywords,
-      tourAnalytics,
-      timeIntelligence,
-      engagementMetrics,
-      firebaseUsage: {
-        ...calculateFirebaseUsage(firebaseUsageLogs, startDate),
-        sessionReads,
-        sessionWrites,
-      },
-    };
-  };
-
-  // Utility functions
-  const formatTimestamp = (timestamp: any) => {
-    if (!timestamp) return "N/A";
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleString();
-  };
-
-  const getSessionDuration = (start: Date, end: Date) => {
-    const diff = end.getTime() - start.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
-    return `${minutes}m ${seconds}s`;
-  };
-
-  const loadMoreSessions = async () => {
-    if (confirm(`This will consume additional Firebase reads. Current session: ${firebaseReads} reads. Continue?`)) {
-      await fetchAllData(true);
-    }
-  };
-
-  // Filtered sessions for display
-  const filteredSessions = useMemo(() => {
-    let filtered = [...sessions];
-    if (timeRange !== "all") {
-      const now = new Date();
-      let startDate: Date;
-      switch (timeRange) {
-        case "1d":
-          startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-          break;
-        case "7d":
-          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          break;
-        case "30d":
-          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          break;
-        case "custom":
-          startDate = new Date(now.getTime() - customDays * 24 * 60 * 60 * 1000);
-          break;
-        default:
-          startDate = new Date(0);
-          break;
-      }
-      filtered = filtered.filter((session) => session.startTime >= startDate);
-    }
-    if (roleFilter !== "all") {
-      filtered = filtered.filter((session) => session.messages.some((msg) => msg.role === roleFilter));
-    }
-    if (searchTerm) {
-      filtered = filtered.filter((session) => session.messages.some((msg) => msg.message?.toLowerCase().includes(searchTerm.toLowerCase())));
-    }
-    filtered.sort((a, b) => sortOrder === "desc" ? b.startTime.getTime() - a.startTime.getTime() : a.startTime.getTime() - b.startTime.getTime());
-    return filtered;
-  }, [sessions, roleFilter, searchTerm, sortOrder, timeRange, customDays]);
-
-  // Effects for data recalculation
-  useEffect(() => {
-    if (sessions.length > 0 || pageViews.length > 0 || interactions.length > 0 || tourEvents.length > 0 || firebaseUsageLogs.length > 0) {
-      const recalculatedData = calculateAnalyticsData(sessions, pageViews, interactions, tourEvents, firebaseUsageLogs, firebaseReads, firebaseWrites);
-      if (chatbotAnalytics) {
-        recalculatedData.chatbotAnalytics = chatbotAnalytics;
-      }
-      setAnalyticsData(recalculatedData);
-    }
-  }, [timeRange, customDays, sessions, pageViews, interactions, tourEvents, firebaseUsageLogs, firebaseReads, firebaseWrites, chatbotAnalytics]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchChatbotAnalytics();
-    }
-  }, [timeRange, customDays, isAuthenticated]);
-
-
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 text-white p-8">
@@ -1241,238 +483,430 @@ export default function AnalyticsPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
-          >
+          <Link href="/" className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
             <FiArrowLeft className="h-5 w-5" />
             Back to Portfolio
           </Link>
-          <Tooltip content="Comprehensive analytics dashboard tracking visitor behavior, recruiter interest, AI chatbot usage, and business intelligence for your portfolio website.">
-            <h1 className="text-2xl md:text-3xl font-bold">
-              Portfolio Analytics Dashboard
-            </h1>
-          </Tooltip>
+          <h1 className="text-2xl md:text-3xl font-bold">
+            Comprehensive Analytics Dashboard
+          </h1>
         </div>
 
-        {/* Controls Section */}
-        <div className="bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-700 mb-6">
-          <div className="space-y-4">
-            {/* Firebase Usage */}
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <span className="text-gray-400 text-sm font-medium">Firebase Usage:</span>
-                <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1">
-                    <span className="text-blue-400">📖</span>
-                    <span className="text-gray-300">Reads:</span>
-                    <span className={`font-bold ${firebaseReads > 50 ? "text-red-400" : firebaseReads > 20 ? "text-yellow-400" : "text-green-400"}`}>
-                      {firebaseReads}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-orange-400">✏️</span>
-                    <span className="text-gray-300">Writes:</span>
-                    <span className={`font-bold ${firebaseWrites > 20 ? "text-red-400" : firebaseWrites > 10 ? "text-yellow-400" : "text-green-400"}`}>
-                      {firebaseWrites}
-                    </span>
-                  </div>
-                  <button
-                    onClick={resetCounters}
-                    className="text-xs text-gray-400 hover:text-gray-300 px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded transition-colors"
-                  >
-                    Reset Counters
-                  </button>
-                </div>
-              </div>
-              
-              {/* Time Range Selector */}
-              <div className="flex items-center gap-2">
-                <span className="text-gray-400 text-sm">Time Range:</span>
-                <select
-                  value={timeRange}
-                  onChange={(e) => setTimeRange(e.target.value as any)}
-                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 min-w-[140px] text-sm"
-                >
-                  <option value="1d">Last 24 hours</option>
-                  <option value="7d">Last 7 days</option>
-                  <option value="30d">Last 30 days</option>
-                  <option value="custom">Custom days</option>
-                  <option value="all">All time</option>
-                </select>
-                {timeRange === "custom" && (
-                  <input
-                    type="number"
-                    min="1"
-                    max="30"
-                    value={customDays}
-                    onChange={(e) => setCustomDays(Math.max(1, Math.min(30, parseInt(e.target.value) || 1)))}
-                    className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-2 focus:outline-none focus:border-blue-500 w-16 text-sm text-center"
-                  />
-                )}
-              </div>
+        {/* Controls */}
+        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-gray-400 text-sm font-medium">Firebase Reads:</span>
+              <span className="font-bold text-blue-400">{firebaseReads}</span>
             </div>
+            
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400 text-sm">Time Range:</span>
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value as any)}
+                className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+              >
+                <option value="1d">Last 24 hours</option>
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="all">All time</option>
+              </select>
+            </div>
+            
+            <button
+              onClick={fetchAllData}
+              disabled={loading}
+              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <FiActivity className="h-4 w-4" />
+              Refresh Data
+            </button>
+          </div>
+        </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3 justify-center sm:justify-start pt-2 border-t border-gray-700">
+        {/* Tab Navigation */}
+        <div className="bg-gray-800 rounded-xl p-2 border border-gray-700 mb-6">
+          <div className="flex flex-wrap gap-2">
+            {(['overview', 'sessions', 'recruiters', 'locations'] as const).map((tab) => (
               <button
-                onClick={handleManualRefresh}
-                disabled={loading || refreshInProgress}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all duration-200 min-w-[140px] justify-center text-sm ${
-                  loading || refreshInProgress
-                    ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors capitalize ${
+                  activeTab === tab 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
                 }`}
               >
-                {refreshInProgress ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Refreshing...
-                  </>
-                ) : (
-                  <>
-                    <FiActivity className="h-4 w-4" />
-                    Refresh Data
-                  </>
-                )}
+                {tab}
               </button>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Cost Warning Modal */}
-        {showCostWarning && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-yellow-500/20 shadow-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-2xl">⚠️</span>
-                <h3 className="text-xl font-bold text-yellow-400">Firebase Usage Warning</h3>
-              </div>
-              <div className="space-y-3 mb-6">
-                <p className="text-gray-300">
-                  This refresh will consume approximately{" "}
-                  <span className="font-bold text-yellow-400">{refreshCost.reads} reads</span> from Firebase.
-                </p>
-                <div className="bg-gray-700 p-3 rounded-lg">
-                  <p className="text-xs text-gray-400 mb-2">Current session usage:</p>
-                  <div className="flex justify-between">
-                    <span>Reads: <span className="text-blue-400 font-bold">{firebaseReads}</span></span>
-                    <span>Writes: <span className="text-orange-400 font-bold">{firebaseWrites}</span></span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowCostWarning(false)}
-                  className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={performRefresh}
-                  className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors font-medium"
-                >
-                  Proceed Anyway
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* No Data State */}
-        {!loading && !analyticsData && (
+        {/* Analytics Content */}
+        {!analyticsData ? (
           <div className="text-center py-16">
             <div className="bg-gray-800 rounded-xl p-8 max-w-md mx-auto">
               <span className="text-6xl mb-4 block">📊</span>
-              <h2 className="text-2xl font-bold mb-4">No Analytics Data Loaded</h2>
+              <h2 className="text-2xl font-bold mb-4">No Analytics Data</h2>
               <p className="text-gray-400 mb-6">
-                Click "Refresh Data" to load your portfolio analytics. This will consume approximately 3 Firebase reads.
+                Click "Refresh Data" to load your comprehensive analytics.
               </p>
               <button
-                onClick={handleManualRefresh}
+                onClick={fetchAllData}
                 className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition-colors"
               >
                 Load Analytics Data
               </button>
             </div>
           </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Overview Tab */}
+            {activeTab === 'overview' && (
+              <>
+                {/* Key Metrics */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-blue-200 text-xs font-medium">Page Views</p>
+                        <p className="text-2xl font-bold">{analyticsData.totalPageViews}</p>
+                      </div>
+                      <FiEye className="h-6 w-6 text-blue-200" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-green-200 text-xs font-medium">Unique Visitors</p>
+                        <p className="text-2xl font-bold">{analyticsData.uniqueVisitors}</p>
+                      </div>
+                      <FiUsers className="h-6 w-6 text-green-200" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-purple-200 text-xs font-medium">Chat Sessions</p>
+                        <p className="text-2xl font-bold">{analyticsData.totalChatSessions}</p>
+                      </div>
+                      <FiMessageCircle className="h-6 w-6 text-purple-200" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 rounded-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-orange-200 text-xs font-medium">Recruiter Sessions</p>
+                        <p className="text-2xl font-bold">{analyticsData.recruiterSessions.length}</p>
+                      </div>
+                      <FiUserCheck className="h-6 w-6 text-orange-200" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Performance Score */}
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                  <h3 className="text-xl font-bold mb-4">Portfolio Performance Score</h3>
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 bg-gray-700 rounded-full h-4">
+                      <div 
+                        className="bg-gradient-to-r from-blue-500 to-green-500 h-4 rounded-full transition-all duration-300"
+                        style={{ width: `${analyticsData.performanceScore}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-2xl font-bold">{analyticsData.performanceScore}/100</span>
+                  </div>
+                  <p className="text-gray-400 text-sm mt-2">
+                    Based on visitor engagement, recruiter interest, and content effectiveness
+                  </p>
+                </div>
+
+                {/* Quick Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <FiTarget className="h-5 w-5 text-blue-400" />
+                      Top Recruiter Keywords
+                    </h3>
+                    <div className="space-y-2">
+                      {analyticsData.topKeywords.slice(0, 5).map((keyword, index) => (
+                        <div key={keyword.keyword} className="flex justify-between items-center">
+                          <span className="text-sm">{keyword.keyword}</span>
+                          <span className="text-sm font-bold text-blue-400">{keyword.count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <FiGlobe className="h-5 w-5 text-green-400" />
+                      Top Locations
+                    </h3>
+                    <div className="space-y-2">
+                      {analyticsData.locationAnalytics.slice(0, 5).map((location, index) => (
+                        <div key={`${location.country}-${location.city}`} className="flex justify-between items-center">
+                          <span className="text-sm">{location.city}, {location.country}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold">{location.count}</span>
+                            {location.recruiterSessions > 0 && (
+                              <span className="text-xs bg-orange-500 px-1 rounded">R</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <FiSmartphone className="h-5 w-5 text-purple-400" />
+                      Device Analytics
+                    </h3>
+                    <div className="space-y-2">
+                      {analyticsData.deviceAnalytics.map((device, index) => (
+                        <div key={device.device} className="flex justify-between items-center">
+                          <span className="text-sm">{device.device}</span>
+                          <div className="text-right">
+                            <div className="text-sm font-bold">{device.count}</div>
+                            <div className="text-xs text-gray-400">{device.avgDuration.toFixed(1)}m avg</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Sessions Tab */}
+            {activeTab === 'sessions' && (
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold mb-4">Chatbot Sessions</h3>
+                <div className="space-y-4">
+                  {analyticsData.recruiterSessions.slice(0, 10).map((session) => (
+                    <div 
+                      key={session.sessionId}
+                      className="bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600 transition-colors"
+                      onClick={() => {
+                        setSelectedSession(session);
+                        setShowSessionModal(true);
+                      }}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">Session {session.sessionId.slice(-8)}</span>
+                            <span className={`px-2 py-1 rounded text-xs ${
+                              session.engagementLevel === 'high' ? 'bg-green-500' :
+                              session.engagementLevel === 'medium' ? 'bg-yellow-500' : 'bg-gray-500'
+                            }`}>
+                              {session.engagementLevel}
+                            </span>
+                            {session.isRecruiterSession && (
+                              <span className="px-2 py-1 rounded text-xs bg-orange-500">
+                                Recruiter (Score: {session.recruiterScore})
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-400">
+                            {session.startTime.toLocaleString()} • {session.messageCount} messages • {session.totalDuration.toFixed(1)}m
+                          </p>
+                        </div>
+                        <div className="text-right text-sm text-gray-400">
+                          {session.location && `${session.location.city}, ${session.location.country}`}
+                          <br />
+                          {session.deviceType}
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-300">
+                        {session.messages[0]?.message?.substring(0, 100)}...
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recruiters Tab */}
+            {activeTab === 'recruiters' && (
+              <div className="space-y-6">
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                  <h3 className="text-xl font-bold mb-4">Recruiter Intelligence</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-gradient-to-r from-orange-500 to-red-500 p-4 rounded-lg">
+                      <div className="text-2xl font-bold">{analyticsData.recruiterSessions.length}</div>
+                      <div className="text-sm opacity-90">Total Recruiter Sessions</div>
+                    </div>
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-4 rounded-lg">
+                      <div className="text-2xl font-bold">
+                        {((analyticsData.recruiterSessions.length / analyticsData.totalChatSessions) * 100).toFixed(1)}%
+                      </div>
+                      <div className="text-sm opacity-90">Recruiter Rate</div>
+                    </div>
+                    <div className="bg-gradient-to-r from-green-500 to-teal-500 p-4 rounded-lg">
+                      <div className="text-2xl font-bold">
+                        {analyticsData.recruiterSessions.length > 0 
+                          ? (analyticsData.recruiterSessions.reduce((sum, s) => sum + s.totalDuration, 0) / analyticsData.recruiterSessions.length).toFixed(1)
+                          : 0
+                        }m
+                      </div>
+                      <div className="text-sm opacity-90">Avg Recruiter Session</div>
+                    </div>
+                    <div className="bg-gradient-to-r from-yellow-500 to-orange-500 p-4 rounded-lg">
+                      <div className="text-2xl font-bold">{analyticsData.topKeywords.length}</div>
+                      <div className="text-sm opacity-90">Unique Keywords Found</div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4">Top Recruiter Keywords</h4>
+                      <div className="space-y-2">
+                        {analyticsData.topKeywords.map((keyword) => (
+                          <div 
+                            key={keyword.keyword}
+                            className="flex justify-between items-center p-3 bg-gray-700 rounded cursor-pointer hover:bg-gray-600 transition-colors"
+                            onClick={() => {
+                              setSelectedKeyword(keyword.keyword);
+                              setShowKeywordModal(true);
+                            }}
+                          >
+                            <span className="font-medium">{keyword.keyword}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-blue-400 font-bold">{keyword.count}</span>
+                              <span className="text-xs text-gray-400">
+                                {keyword.sessions.length} sessions
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4">High-Value Recruiter Sessions</h4>
+                      <div className="space-y-2">
+                        {analyticsData.recruiterSessions
+                          .filter(s => s.recruiterScore >= 15)
+                          .slice(0, 8)
+                          .map((session) => (
+                            <div 
+                              key={session.sessionId}
+                              className="p-3 bg-gray-700 rounded cursor-pointer hover:bg-gray-600 transition-colors"
+                              onClick={() => {
+                                setSelectedSession(session);
+                                setShowSessionModal(true);
+                              }}
+                            >
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">Session {session.sessionId.slice(-8)}</span>
+                                <span className="bg-orange-500 px-2 py-1 rounded text-xs">
+                                  Score: {session.recruiterScore}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-400">
+                                {session.messageCount} messages • {session.totalDuration.toFixed(1)}m
+                              </p>
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Locations Tab */}
+            {activeTab === 'locations' && (
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-xl font-bold mb-4">Geographic Analytics</h3>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-lg font-semibold mb-4">Visitor Locations</h4>
+                    <div className="space-y-3">
+                      {analyticsData.locationAnalytics.map((location, index) => (
+                        <div key={`${location.country}-${location.city}`} className="flex justify-between items-center p-3 bg-gray-700 rounded">
+                          <div>
+                            <div className="font-medium">{location.city}</div>
+                            <div className="text-sm text-gray-400">{location.country}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold">{location.count} visitors</div>
+                            {location.recruiterSessions > 0 && (
+                              <div className="text-sm text-orange-400">
+                                {location.recruiterSessions} recruiter sessions
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-lg font-semibold mb-4">Traffic Sources</h4>
+                    <div className="space-y-3">
+                      {analyticsData.trafficSources.slice(0, 10).map((source) => (
+                        <div key={source.source} className="flex justify-between items-center p-3 bg-gray-700 rounded">
+                          <div className="font-medium truncate">{source.source}</div>
+                          <div className="text-right">
+                            <div className="font-bold">{source.count}</div>
+                            {source.recruiterTraffic > 0 && (
+                              <div className="text-sm text-orange-400">
+                                {source.recruiterTraffic} recruiter
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
-        {/* Basic Analytics Display */}
-        {analyticsData && (
-          <div className="space-y-6">
-            {/* Overview Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-200 text-xs font-medium">Page Views</p>
-                    <p className="text-2xl font-bold">{analyticsData.totalPageViews}</p>
-                  </div>
-                  <FiEye className="h-6 w-6 text-blue-200" />
+        {/* Session Modal */}
+        {showSessionModal && selectedSession && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-xl w-full max-w-4xl max-h-[80vh] overflow-hidden border border-gray-700">
+              <div className="flex items-center justify-between p-6 border-b border-gray-700">
+                <div>
+                  <h3 className="text-xl font-bold">Session Details</h3>
+                  <p className="text-sm text-gray-400">
+                    {selectedSession.startTime.toLocaleString()} • Score: {selectedSession.recruiterScore}
+                  </p>
                 </div>
+                <button
+                  onClick={() => setShowSessionModal(false)}
+                  className="p-2 hover:bg-gray-700 rounded transition-colors"
+                >
+                  <FiX className="h-5 w-5" />
+                </button>
               </div>
-              <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-200 text-xs font-medium">Unique Visitors</p>
-                    <p className="text-2xl font-bold">{analyticsData.uniqueVisitors}</p>
-                  </div>
-                  <FiUsers className="h-6 w-6 text-green-200" />
-                </div>
-              </div>
-              <div className="bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-200 text-xs font-medium">Chat Sessions</p>
-                    <p className="text-2xl font-bold">{analyticsData.totalChatSessions}</p>
-                  </div>
-                  <FiMessageCircle className="h-6 w-6 text-purple-200" />
-                </div>
-              </div>
-              <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-4 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-orange-200 text-xs font-medium">Messages</p>
-                    <p className="text-2xl font-bold">{analyticsData.totalMessages}</p>
-                  </div>
-                  <FiTarget className="h-6 w-6 text-orange-200" />
-                </div>
-              </div>
-            </div>
-
-            {/* Analytics sections will be added here */}
-            <div className="bg-gray-800 rounded-xl p-6">
-              <h2 className="text-xl font-bold mb-4">Analytics Dashboard</h2>
-              <p className="text-gray-400">
-                Full comprehensive analytics dashboard is now loaded! 
-                The complete analytics functionality from the original system has been restored.
-              </p>
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-2">Top Pages</h3>
-                  {analyticsData.topPages.map((page, index) => (
-                    <div key={page.page} className="flex justify-between items-center py-1">
-                      <span className="text-sm">{page.page === "/" ? "Home" : page.page}</span>
-                      <span className="text-sm font-bold">{page.views}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-2">Device Types</h3>
-                  {analyticsData.deviceTypes.map((device) => (
-                    <div key={device.device} className="flex justify-between items-center py-1">
-                      <span className="text-sm">{device.device}</span>
-                      <span className="text-sm font-bold">{device.count}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-2">Traffic Sources</h3>
-                  {analyticsData.topReferrers.map((referrer) => (
-                    <div key={referrer.referrer} className="flex justify-between items-center py-1">
-                      <span className="text-sm">{referrer.referrer}</span>
-                      <span className="text-sm font-bold">{referrer.count}</span>
+              
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                <div className="space-y-4">
+                  {selectedSession.messages.map((message, index) => (
+                    <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[80%] p-3 rounded-lg ${
+                        message.role === 'user' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'bg-gray-700 text-gray-100'
+                      }`}>
+                        <div className="text-sm">{message.message}</div>
+                        <div className="text-xs opacity-70 mt-1">
+                          {(message.timestamp?.toDate?.() || new Date(message.timestamp)).toLocaleTimeString()}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1481,7 +915,63 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* Analytics Assistant Integration */}
+        {/* Keyword Modal */}
+        {showKeywordModal && selectedKeyword && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-xl w-full max-w-2xl max-h-[80vh] overflow-hidden border border-gray-700">
+              <div className="flex items-center justify-between p-6 border-b border-gray-700">
+                <div>
+                  <h3 className="text-xl font-bold">Keyword: "{selectedKeyword}"</h3>
+                  <p className="text-sm text-gray-400">
+                    Sessions containing this keyword
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowKeywordModal(false)}
+                  className="p-2 hover:bg-gray-700 rounded transition-colors"
+                >
+                  <FiX className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                <div className="space-y-3">
+                  {analyticsData?.topKeywords
+                    .find(k => k.keyword === selectedKeyword)
+                    ?.sessions.map((sessionId) => {
+                      const session = sessions.find(s => s.sessionId === sessionId);
+                      if (!session) return null;
+                      
+                      return (
+                        <div 
+                          key={sessionId}
+                          className="p-4 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-colors"
+                          onClick={() => {
+                            setSelectedSession(session);
+                            setShowKeywordModal(false);
+                            setShowSessionModal(true);
+                          }}
+                        >
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-medium">Session {sessionId.slice(-8)}</span>
+                            <span className="text-sm text-gray-400">
+                              Score: {session.recruiterScore}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-300">
+                            {session.messages.find(m => m.message?.toLowerCase().includes(selectedKeyword.toLowerCase()))?.message?.substring(0, 150)}...
+                          </p>
+                        </div>
+                      );
+                    })
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Analytics Assistant */}
         {showAnalyticsAssistant && (
           <AnalyticsAssistant
             timeRange={timeRange}
@@ -1504,4 +994,4 @@ export default function AnalyticsPage() {
       </div>
     </div>
   );
-}
+} 

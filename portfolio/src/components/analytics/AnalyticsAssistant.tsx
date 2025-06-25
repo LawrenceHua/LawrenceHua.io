@@ -253,32 +253,37 @@ I'm your personal data analyst! I can help you understand your portfolio analyti
       initial={{ x: "100%", opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: "100%", opacity: 0 }}
-      className={`fixed top-0 right-0 z-50 bg-gray-900 border-l border-gray-700 shadow-2xl h-full ${
+      className={`fixed top-0 right-0 z-50 bg-white border-l border-gray-300 shadow-2xl h-full ${
         isMinimized ? "w-16" : "w-96"
       } transition-all duration-300 flex flex-col`}
+      style={{ 
+        backgroundColor: 'rgba(255, 255, 255, 0.98)', 
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)'
+      }}
     >
       {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-700">
+      <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-300">
         {!isMinimized ? (
           <>
             <div className="flex items-center gap-2">
-              <FiBarChart className="h-5 w-5 text-blue-400" />
-              <span className="font-semibold text-white">Analytics Assistant</span>
-              <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
+              <FiBarChart className="h-5 w-5 text-blue-600" />
+              <span className="font-semibold text-gray-900">Analytics Assistant</span>
+              <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
                 {timeRange === "1d" ? "24h" : timeRange === "7d" ? "7d" : timeRange === "30d" ? "30d" : "Custom"}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsMinimized(true)}
-                className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded transition-colors"
+                className="p-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
                 title="Minimize"
               >
                 <FiMinimize2 className="h-4 w-4" />
               </button>
               <button
                 onClick={onClose}
-                className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded transition-colors"
+                className="p-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
                 title="Close"
               >
                 <FiX className="h-4 w-4" />
@@ -289,14 +294,14 @@ I'm your personal data analyst! I can help you understand your portfolio analyti
           <div className="flex flex-col items-center w-full">
             <button
               onClick={() => setIsMinimized(false)}
-              className="p-2 text-blue-400 hover:text-blue-300 hover:bg-gray-800 rounded transition-colors w-full"
+              className="p-2 text-blue-600 hover:text-blue-800 hover:bg-gray-100 rounded transition-colors w-full"
               title="Expand Analytics Assistant"
             >
               <FiBarChart className="h-5 w-5 mx-auto" />
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded transition-colors w-full mt-2"
+              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors w-full mt-2"
               title="Close"
             >
               <FiX className="h-4 w-4 mx-auto" />
@@ -318,7 +323,7 @@ I'm your personal data analyst! I can help you understand your portfolio analyti
                   className={`max-w-[85%] p-3 rounded-lg ${
                     message.role === "user"
                       ? "bg-blue-600 text-white ml-4"
-                      : "bg-gray-800 text-gray-100 mr-4"
+                      : "bg-gray-100 text-gray-900 mr-4 border border-gray-200"
                   }`}
                 >
                   <div
@@ -339,9 +344,9 @@ I'm your personal data analyst! I can help you understand your portfolio analyti
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-800 text-gray-100 p-3 rounded-lg mr-4">
+                <div className="bg-gray-100 text-gray-900 p-3 rounded-lg mr-4 border border-gray-200">
                   <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                     <span className="text-sm">Analyzing data...</span>
                   </div>
                 </div>
@@ -352,7 +357,7 @@ I'm your personal data analyst! I can help you understand your portfolio analyti
           </div>
 
           {/* Input */}
-          <div className="flex-shrink-0 p-4 border-t border-gray-700">
+          <div className="flex-shrink-0 p-4 border-t border-gray-300">
             <form onSubmit={handleSubmit}>
               <div className="flex gap-2">
                 <textarea
@@ -360,7 +365,7 @@ I'm your personal data analyst! I can help you understand your portfolio analyti
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about your analytics data..."
-                  className="flex-1 bg-gray-800 text-white border border-gray-600 rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 bg-white text-gray-900 border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   rows={2}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
@@ -373,7 +378,7 @@ I'm your personal data analyst! I can help you understand your portfolio analyti
                 <button
                   type="submit"
                   disabled={!input.trim() || isLoading}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center justify-center"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center justify-center"
                 >
                   <FiSend className="h-4 w-4" />
                 </button>
