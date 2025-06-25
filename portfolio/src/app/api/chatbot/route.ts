@@ -117,7 +117,7 @@ const instantResponses = new Map<string, string>([
 <button-skills>🛠️ Technical Skills</button-skills> <button-projects>💻 View Projects</button-projects> <button-message>📧 Contact Lawrence</button-message>
 
 **Quick Actions:**
-<button-meeting>📅 Schedule Call</button-meeting> <button-upload>📎 Send Resume</button-upload> <button-funfact>🎲 Fun Fact</button-funfact>`,
+<button-meeting>📅 Schedule Call</button-meeting> <button-upload>📎 Upload Job</button-upload> <button-funfact>🎲 Fun Fact</button-funfact>`,
   ],
   [
     "projects",

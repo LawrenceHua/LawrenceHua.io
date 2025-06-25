@@ -1270,6 +1270,42 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
             {/* Hamburger Menu */}
             {showMenu && !isMinimized && (
               <div className="absolute top-12 right-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 py-2 min-w-[200px]">
+                {/* Quick Actions */}
+                <div className="px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                  Quick Actions
+                </div>
+                <button
+                  onClick={() => {
+                    handleButtonClick("message");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  📧 Send Message
+                </button>
+                <button
+                  onClick={() => {
+                    handleButtonClick("meeting");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  📅 Book Call
+                </button>
+                <button
+                  onClick={() => {
+                    handleButtonClick("upload");
+                    setShowMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  📎 Upload Job
+                </button>
+                <hr className="my-2 border-gray-200 dark:border-gray-600" />
+                {/* Learn About Lawrence */}
+                <div className="px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                  Learn About Lawrence
+                </div>
                 <button
                   onClick={() => {
                     handleButtonClick("experience");
@@ -1277,7 +1313,7 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
                   }}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
                 >
-                  💼 Experience
+                  🚀 Experience
                 </button>
                 <button
                   onClick={() => {
@@ -1295,8 +1331,13 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
                   }}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
                 >
-                  🚀 Projects
+                  💻 Projects
                 </button>
+                <hr className="my-2 border-gray-200 dark:border-gray-600" />
+                {/* Fun Features */}
+                <div className="px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                  Fun Features
+                </div>
                 <button
                   onClick={() => {
                     handleButtonClick("funfact");
@@ -1304,7 +1345,7 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
                   }}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
                 >
-                  🎯 Fun Fact
+                  🎲 Fun Fact
                 </button>
                 <button
                   onClick={() => {
@@ -1314,35 +1355,6 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
                   className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
                 >
                   💡 Generate Question
-                </button>
-                <hr className="my-2 border-gray-200 dark:border-gray-600" />
-                <button
-                  onClick={() => {
-                    handleButtonClick("message");
-                    setShowMenu(false);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                >
-                  📧 /message
-                </button>
-                <button
-                  onClick={() => {
-                    handleButtonClick("meeting");
-                    setShowMenu(false);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                >
-                  📅 /meeting
-                </button>
-                <hr className="my-2 border-gray-200 dark:border-gray-600" />
-                <button
-                  onClick={() => {
-                    handleButtonClick("upload");
-                    setShowMenu(false);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                >
-                  📎 Upload Job Description
                 </button>
               </div>
             )}
