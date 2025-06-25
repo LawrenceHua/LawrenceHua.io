@@ -67,7 +67,7 @@ export default function AnalyticsPage() {
           <h2 className="text-2xl font-bold mb-4">Analytics Dashboard</h2>
               <p className="text-gray-400 mb-6">
             The analytics dashboard is currently being rebuilt. Please check back soon.
-          </p>
+              </p>
           <div className="animate-pulse bg-gray-700 h-32 rounded-lg mb-4"></div>
           <div className="animate-pulse bg-gray-700 h-32 rounded-lg"></div>
             </div>

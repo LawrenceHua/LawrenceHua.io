@@ -952,7 +952,7 @@ export default function PMTour({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-4 right-4 z-40 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded-xl shadow-lg border border-green-300 dark:border-green-700 animate-pulse"
+            className="fixed bottom-4 left-4 z-40 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded-xl shadow-lg border border-green-300 dark:border-green-700 animate-pulse"
           >
             <div className="flex items-center gap-2 text-sm font-medium">
               <span>🟢</span>

@@ -231,10 +231,11 @@ export function FloatingChatbot({
     <>
       {/* Floating Button */}
       <motion.div
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60]"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60] pointer-events-none"
         initial={tourActive ? false : { scale: 0, opacity: 0 }}
         animate={tourActive ? false : { scale: 1, opacity: 1 }}
         transition={tourActive ? {} : { delay: 1, duration: 0.3 }}
+        style={{ pointerEvents: 'none' }}
       >
         {/* Scroll Popup */}
         <AnimatePresence>
@@ -243,7 +244,8 @@ export function FloatingChatbot({
               initial={{ opacity: 0, x: 20, y: 10 }}
               animate={{ opacity: 1, x: 0, y: 0 }}
               exit={{ opacity: 0, x: 20, y: 10 }}
-              className="absolute bottom-16 right-0 mb-2 sm:bottom-16 sm:right-0"
+              className="absolute bottom-20 right-0 mb-2 sm:bottom-20 sm:right-0 pointer-events-auto"
+              style={{ pointerEvents: 'auto' }}
             >
               <div className="relative">
                 <div
@@ -281,14 +283,15 @@ export function FloatingChatbot({
         <motion.button
           onClick={openChatbot}
           disabled={tourActive}
-          className={`h-14 w-14 rounded-full text-white shadow-lg transition-all duration-300 flex items-center justify-center group ${
+          className={`h-14 w-14 rounded-full text-white shadow-lg transition-all duration-300 flex items-center justify-center group relative z-10 ${
             tourActive
-              ? "bg-gray-400 cursor-not-allowed opacity-50"
-              : "bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-xl cursor-pointer"
+              ? "bg-gray-400 cursor-not-allowed opacity-50 pointer-events-none"
+              : "bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-xl cursor-pointer pointer-events-auto"
           }`}
           whileHover={tourActive ? {} : { scale: 1.1 }}
           whileTap={tourActive ? {} : { scale: 0.9 }}
           title={tourActive ? "Chat is disabled during tour" : "Open chat"}
+          style={{ pointerEvents: tourActive ? 'none' : 'auto' }}
         >
           <MessageCircle
             className={`h-6 w-6 transition-transform ${tourActive ? "" : "group-hover:scale-110"}`}
