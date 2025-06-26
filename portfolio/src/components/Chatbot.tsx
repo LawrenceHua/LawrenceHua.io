@@ -971,25 +971,51 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
     }
   }, [isOpen]);
 
-  // Focus input when chatbot opens (only on desktop to prevent mobile zoom)
+  // Focus input when chatbot opens (mobile + desktop with gentle mobile handling)
   useEffect(() => {
-    if (isOpen && !isMinimized && inputRef.current && isDesktop) {
+    if (isOpen && !isMinimized && inputRef.current) {
       // Small delay to ensure the component is fully rendered
       setTimeout(() => {
-        inputRef.current?.focus();
+        if (inputRef.current) {
+          try {
+            if (isMobile) {
+              // Gentle focus for mobile - prevent keyboard popup until user interacts
+              inputRef.current.focus({ preventScroll: true });
+            } else {
+              // Normal focus for desktop
+              inputRef.current.focus();
+            }
+          } catch (error) {
+            console.log('Initial focus failed:', error);
+          }
+        }
       }, 100);
     }
-  }, [isOpen, isMinimized, isDesktop]);
+  }, [isOpen, isMinimized, isMobile]);
 
-  // Auto-focus input after first message and subsequent assistant responses (desktop only)
+  // Auto-focus input after first message and subsequent assistant responses (mobile + desktop)
   useEffect(() => {
-    if (hasUserSentMessage && !isLoading && isDesktop && !isMinimized && inputRef.current) {
+    if (hasUserSentMessage && !isLoading && !isMinimized && inputRef.current) {
       // Small delay to ensure the assistant response is fully rendered
       setTimeout(() => {
-        inputRef.current?.focus();
+        if (inputRef.current) {
+          try {
+            // For mobile, use a more gentle focus approach
+            if (isMobile) {
+              // Set focus without scrolling for mobile
+              inputRef.current.focus({ preventScroll: true });
+            } else {
+              // Normal focus for desktop
+              inputRef.current.focus();
+            }
+          } catch (error) {
+            // Fallback if focus fails
+            console.log('Auto-focus failed:', error);
+          }
+        }
       }, 300);
     }
-  }, [messages, isLoading, hasUserSentMessage, isDesktop, isMinimized]);
+  }, [messages, isLoading, hasUserSentMessage, isMobile, isMinimized]);
 
   // Handle wheel events to prevent body scroll when scrolling inside chatbot
   const handleWheel = (e: React.WheelEvent) => {
@@ -1541,6 +1567,11 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
                         touchAction: "manipulation",
                       }}
                       disabled={isLoading}
+                      autoComplete="off"
+                      autoCorrect="on"
+                      autoCapitalize="sentences"
+                      spellCheck="true"
+                      enterKeyHint="send"
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
