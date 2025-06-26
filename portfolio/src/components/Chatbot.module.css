@@ -284,7 +284,7 @@
   from {
     opacity: 0;
     transform: translateY(12px);
-}
+  }
   to {
     opacity: 1;
     transform: translateY(0);
@@ -338,7 +338,7 @@
 }
 
 .chatbotContainer button[onclick]:active {
-  transform: translateY(0);
+    transform: translateY(0);
 }
 
 /* Dark mode support - Same professional styling for desktop and mobile */
@@ -501,11 +501,11 @@
     color: #831843;
   }
 
-  /* Mobile-optimized welcome message styling */
+  /* Mobile-optimized welcome message styling - compact spacing */
   .messageBubble.assistant strong {
     display: block;
-    margin-top: 0.75rem;
-    margin-bottom: 0.5rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.125rem;
     font-size: 0.9rem;
   }
 
