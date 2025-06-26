@@ -386,47 +386,7 @@
     color: #fce7f3;
   }
 
-  /* Dark mode mobile overrides to ensure consistency */
-  @media (max-width: 768px) {
-    .chatbotContainer {
-      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-      border-color: rgba(71, 85, 105, 0.3);
-    }
 
-    .messagesContainer {
-      background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
-    }
-
-    .messageBubble.assistant {
-      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-      color: #f1f5f9;
-      border-color: rgba(71, 85, 105, 0.3);
-    }
-
-    .inputArea {
-      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-      border-color: rgba(71, 85, 105, 0.3);
-    }
-
-    .minimized {
-      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-      border-color: rgba(71, 85, 105, 0.3);
-    }
-
-    /* Love mode dark theme on mobile */
-    .loveMode.chatbotContainer {
-      background: linear-gradient(145deg, #4c1d95 0%, #1e1b4b 100%);
-    }
-
-    .loveMode .messagesContainer {
-      background: linear-gradient(180deg, #1e1b4b 0%, #0f0f23 100%);
-    }
-
-    .loveMode .messageBubble.assistant {
-      background: linear-gradient(135deg, #4c1d95 0%, #6b21a8 100%);
-      color: #fce7f3;
-    }
-  }
 }
 
 /* Focus states for accessibility */
@@ -441,50 +401,51 @@
   animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Responsive Design - Mobile matches desktop styling */
+/* Responsive Design - Mobile uses dark theme by default */
 @media (max-width: 768px) {
   .chatbotContainer {
-    /* Maintain professional desktop styling on mobile - smaller but same design */
+    /* Mobile always uses dark professional styling */
     width: calc(100vw - 2rem) !important;
     height: calc(100vh - 4rem) !important;
     max-width: calc(100vw - 2rem) !important;
     max-height: calc(100vh - 4rem) !important;
-    border-radius: 1.5rem !important; /* Keep rounded corners like desktop */
+    border-radius: 1.5rem !important;
     top: 1rem !important;
     left: 1rem !important;
     right: 1rem !important;
     bottom: 1rem !important;
-    /* Keep all professional gradients and borders like desktop */
-    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-    border: 1px solid rgba(203, 213, 225, 0.3);
+    /* Dark theme by default on mobile */
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%) !important;
+    border: 1px solid rgba(71, 85, 105, 0.3) !important;
     box-shadow: 
-      0 25px 50px -12px rgba(0, 0, 0, 0.15),
-      0 0 0 1px rgba(203, 213, 225, 0.2),
-      0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      0 25px 50px -12px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(71, 85, 105, 0.2),
+      0 4px 6px -1px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(16px);
+    color: #f1f5f9 !important;
   }
 
   .header {
-    /* Keep professional header styling exactly like desktop */
+    /* Dark header styling for mobile */
     padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 1.5rem 1.5rem 0 0; /* Only round top corners */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-radius: 1.5rem 1.5rem 0 0;
     font-size: 1rem;
-    color: white;
+    color: white !important;
     font-weight: 600;
   }
 
   .messagesContainer {
-    /* Keep professional gradient background like desktop */
-    background: linear-gradient(180deg, #fafbff 0%, #f1f5f9 100%);
+    /* Dark messages container for mobile */
+    background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important;
     padding: 1rem 0;
   }
 
   .inputArea {
-    /* Keep professional input styling like desktop */
+    /* Dark input area for mobile */
     padding: 1rem 1.5rem;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    border-top: 1px solid rgba(203, 213, 225, 0.3);
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+    border-top: 1px solid rgba(71, 85, 105, 0.3) !important;
     backdrop-filter: blur(8px);
   }
 
@@ -497,18 +458,18 @@
   }
 
   .messageBubble.user {
-    /* Keep professional user message gradient */
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* User message - keep same purple gradient */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     margin-right: 1rem;
   }
 
   .messageBubble.assistant {
-    /* Keep professional assistant message gradient */
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    color: #1e293b;
-    border: 1px solid rgba(203, 213, 225, 0.3);
+    /* Assistant message - dark styling for mobile */
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+    color: #f1f5f9 !important;
+    border: 1px solid rgba(71, 85, 105, 0.3) !important;
     margin-left: 1rem;
   }
 
@@ -550,7 +511,7 @@
     /* Keep professional button gradients like desktop */
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    border: none;
+  border: none;
     border-radius: 0.5rem;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
@@ -572,22 +533,23 @@
     overflow-wrap: break-word;
   }
 
-  /* Minimized state on mobile - keep professional styling */
+  /* Minimized state on mobile - dark styling */
   .minimized {
     width: 280px !important;
     bottom: 1rem !important;
     right: 1rem !important;
     height: 64px !important;
     border-radius: 2rem !important;
-    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-    border: 1px solid rgba(203, 213, 225, 0.3);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%) !important;
+    border: 1px solid rgba(71, 85, 105, 0.3) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
   }
 
   .minimized .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     border-radius: 2rem;
     padding: 1.25rem 1.5rem;
+    color: white !important;
   }
 }
 
