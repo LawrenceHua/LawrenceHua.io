@@ -137,9 +137,12 @@ export default function GraphSection({ timeRange }: GraphSectionProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Daily Analytics Graph</h2>
-          <p className="text-gray-400 text-sm">
+          <button
+            onClick={() => setShowCalendar(!showCalendar)}
+            className="text-gray-400 text-sm hover:text-gray-300 transition-colors cursor-pointer"
+          >
             {formatDate(selectedDate)} • {dayData.totalEvents} total events
-          </p>
+          </button>
         </div>
         
         <button
@@ -152,16 +155,32 @@ export default function GraphSection({ timeRange }: GraphSectionProps) {
       </div>
 
       {showCalendar && (
-        <div className="bg-gray-800 border border-gray-600 rounded-xl p-4">
+        <div className="bg-gray-800 border border-gray-600 rounded-xl p-6">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold mb-2">Select Date</h3>
+            <p className="text-gray-400 text-sm">Choose a date to view analytics for that day</p>
+          </div>
           <input
             type="date"
             value={selectedDate.toISOString().split('T')[0]}
             onChange={(e) => {
-              setSelectedDate(new Date(e.target.value));
+              // Fix timezone issue by parsing the date components manually
+              const dateStr = e.target.value;
+              const [year, month, day] = dateStr.split('-').map(Number);
+              setSelectedDate(new Date(year, month - 1, day));
               setShowCalendar(false);
             }}
-            className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
+            className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white text-lg focus:border-blue-500 focus:outline-none"
+            max={new Date().toISOString().split('T')[0]}
           />
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={() => setShowCalendar(false)}
+              className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
