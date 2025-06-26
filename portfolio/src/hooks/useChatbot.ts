@@ -125,7 +125,37 @@ Try asking me something like "What's Lawrence's biggest accomplishment?" or "How
   };
 
   // Get a varied loading message (restored from original)
-  const getLoadingMessage = (messageText: string): string => {
+  const getLoadingMessage = (messageText: string, currentMessages?: Message[]): string => {
+    const lowerMessage = messageText.toLowerCase();
+    
+    // Check if this is a contact flow (message or meeting request)
+    const isContactFlow = 
+      lowerMessage.startsWith("/message") || 
+      lowerMessage.startsWith("/meeting") || 
+      lowerMessage.startsWith("/meet");
+    
+    // Check if we're in the middle of a contact flow by looking at recent assistant messages
+    const lastFewMessages = currentMessages ? currentMessages.slice(-3) : messages.slice(-3);
+    const inContactFlow = lastFewMessages.some(msg => 
+      msg.role === "assistant" && (
+        msg.content.includes("What's your name") ||
+        msg.content.includes("What company are you with") ||
+        msg.content.includes("email address") ||
+        msg.content.includes("What's your message") ||
+        msg.content.includes("What is your message") ||
+        msg.content.includes("what would you like to discuss") ||
+        msg.content.includes("when would you like to schedule") ||
+        msg.content.includes("What date and time") ||
+        msg.content.includes("Message Sent Successfully") ||
+        msg.content.includes("Meeting Request Sent")
+      )
+    );
+
+    // For contact flows, use simple default thinking message
+    if (isContactFlow || inContactFlow) {
+      return "Thinking...";
+    }
+
     const loadingMessages = [
       "⏳ Bear with me while I gather Lawrence's detailed info...",
       "🔍 Pulling up Lawrence's comprehensive background...",
@@ -136,7 +166,6 @@ Try asking me something like "What's Lawrence's biggest accomplishment?" or "How
     ];
 
     // Choose based on message content for more relevance
-    const lowerMessage = messageText.toLowerCase();
     if (lowerMessage.includes("skill") || lowerMessage.includes("technical")) {
       return "🛠️ Compiling Lawrence's technical skills and expertise...";
     } else if (
@@ -167,7 +196,7 @@ Try asking me something like "What's Lawrence's biggest accomplishment?" or "How
     if (isLongRunning) {
       const loadingMessage: Message = {
         role: "assistant",
-        content: getLoadingMessage(messageText),
+        content: getLoadingMessage(messageText, currentMessages),
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, loadingMessage]);

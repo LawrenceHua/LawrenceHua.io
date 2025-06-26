@@ -135,7 +135,7 @@ const tourSteps: TourStep[] = [
   {
     id: "project-expired-solutions",
     title: "💡 Featured Project: Expired Solutions",
-          content:
+    content:
         "I founded and led the development of an AI platform that helps grocery stores reduce food waste. We pitched this solution to major retailers including Giant Eagle's C-Suite executives.",
     targetSection: "projects",
     icon: <FiTarget className="w-5 h-5" />,
@@ -601,14 +601,14 @@ export default function ModernHome() {
       // Try to add geolocation using centralized manager
       try {
         const geoData = await geolocationManager.getGeolocation();
-        tourEvent.location.country = geoData.country_name || "Unknown";
-        tourEvent.location.region = geoData.region || "Unknown";
-        tourEvent.location.city = geoData.city || "Unknown";
+          tourEvent.location.country = geoData.country_name || "Unknown";
+          tourEvent.location.region = geoData.region || "Unknown";
+          tourEvent.location.city = geoData.city || "Unknown";
         console.log("🌍 Geolocation added to tour event:", {
-          country: tourEvent.location.country,
-          region: tourEvent.location.region,
-          city: tourEvent.location.city,
-        });
+            country: tourEvent.location.country,
+            region: tourEvent.location.region,
+            city: tourEvent.location.city,
+          });
       } catch (geoError) {
         console.log("🌍 Geolocation fetch failed, using defaults:", geoError);
       }
@@ -1528,7 +1528,7 @@ export default function ModernHome() {
 
       // Track button click
       trackTourEvent("clicked", `next-button-step-${currentStep + 1}`, currentStep);
-      
+
       // Track tour step progression
       trackTourEvent("viewed", tourSteps[nextStepIndex].id, nextStepIndex);
 
@@ -1580,7 +1580,7 @@ export default function ModernHome() {
 
       // Track button click
       trackTourEvent("clicked", `prev-button-step-${currentStep + 1}`, currentStep);
-      
+
       // Track going back to previous step
       trackTourEvent("viewed", tourSteps[prevStepIndex].id, prevStepIndex);
 

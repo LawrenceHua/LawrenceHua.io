@@ -30,18 +30,18 @@ export async function POST(request: NextRequest) {
     let geoData = locationData;
     if (!geoData) {
       console.log("🌍 No pre-fetched geolocation data, fetching fresh...");
-      try {
-        const geoResponse = await fetch(`${request.nextUrl.origin}/api/geolocation`, {
-          method: 'GET',
-          headers: {
-            'x-forwarded-for': request.headers.get('x-forwarded-for') || '',
-          },
-        });
-        if (geoResponse.ok) {
-          geoData = await geoResponse.json();
-        }
-      } catch (geoError) {
-        console.log("Geolocation fetch failed for visitor tracking:", geoError);
+    try {
+      const geoResponse = await fetch(`${request.nextUrl.origin}/api/geolocation`, {
+        method: 'GET',
+        headers: {
+          'x-forwarded-for': request.headers.get('x-forwarded-for') || '',
+        },
+      });
+      if (geoResponse.ok) {
+        geoData = await geoResponse.json();
+      }
+    } catch (geoError) {
+      console.log("Geolocation fetch failed for visitor tracking:", geoError);
       }
     } else {
       console.log("🌍 Using pre-fetched geolocation data for visitor tracking");

@@ -59,7 +59,7 @@ export default function VisitorTracker() {
     }
 
     timeoutRef.current = setTimeout(() => {
-      trackVisitorLocation();
+    trackVisitorLocation();
     }, 100); // 100ms debounce
 
     // Cleanup timeout on unmount

@@ -10,7 +10,7 @@ import styles from "../Chatbot.module.css";
 interface MessageListProps {
   messages: Message[];
   isLoading: boolean;
-  getLoadingMessage: (message: string) => string;
+  getLoadingMessage: (message: string, currentMessages?: Message[]) => string;
   messagesEndRef: React.RefObject<HTMLDivElement>;
   isMobile: boolean;
   isLoveMode?: boolean;

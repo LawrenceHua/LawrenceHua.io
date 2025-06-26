@@ -86,7 +86,7 @@ export default function FloatingChatbot() {
               {!hasBeenClicked && (
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-400 to-green-500 rounded-full border-2 border-white shadow-lg">
                   <div className="w-full h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full animate-pulse" />
-                </div>
+                  </div>
               )}
                 </div>
 
