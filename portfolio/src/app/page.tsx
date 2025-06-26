@@ -1812,7 +1812,7 @@ export default function ModernHome() {
         if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
           setShowTourInvitation(true);
         }
-      }, 3000); // Show after 3 seconds
+      }, 4000); // Show after 4 seconds
 
       return () => {
         clearTimeout(timer);
