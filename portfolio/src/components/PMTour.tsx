@@ -128,7 +128,8 @@ const trackTourEvent = async (
   eventType: 'tour_start' | 'tour_step' | 'tour_complete' | 'tour_abandon' | 'tour_cta_action',
   stepId: string,
   stepIndex: number,
-  ctaAction?: string
+  ctaAction?: string,
+  actualTimeOnStep?: number
 ) => {
   try {
     const sessionId = sessionStorage.getItem('sessionId') || 
@@ -144,17 +145,18 @@ const trackTourEvent = async (
         tourStep: stepId,
         action: eventType,
         sessionId,
-        timeOnStep: stepIndex * 1000, // Convert to milliseconds
+        timeOnStep: actualTimeOnStep || (stepIndex * 1000), // Use actual time if provided
         metadata: {
           stepIndex,
           ctaAction: ctaAction || null,
-          userAgent: navigator.userAgent
+          userAgent: navigator.userAgent,
+          actualTimeSpent: actualTimeOnStep || null
         }
       }),
     });
     
     if (response.ok) {
-      console.log(`🎯 Tour event tracked: ${eventType} - ${stepId}`);
+      console.log(`🎯 Tour event tracked: ${eventType} - ${stepId} (${actualTimeOnStep ? Math.round(actualTimeOnStep/1000) + 's' : 'estimated time'})`);
     } else {
       console.error('Failed to track tour event:', await response.text());
     }
@@ -176,6 +178,7 @@ export default function PMTour({
   const [isPaused, setIsPaused] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const [stepStartTime, setStepStartTime] = useState<number>(Date.now());
 
   // New states for popup flow
   const [showTourHoverPopup, setShowTourHoverPopup] = useState(false);
@@ -198,6 +201,7 @@ export default function PMTour({
     setIsTypingComplete(false);
     setShowTourHoverPopup(false);
     setHasShownAutoPopup(true);
+    setStepStartTime(Date.now());
     
     // Track tour start
     trackTourEvent('tour_start', tourSteps[0].id, 0);
@@ -269,23 +273,30 @@ export default function PMTour({
 
   const nextStep = () => {
     if (currentStep < tourSteps.length - 1) {
+      // Calculate actual time spent on current step
+      const timeSpent = Date.now() - stepStartTime;
+      
       const nextStepIndex = currentStep + 1;
       setCurrentStep(nextStepIndex);
       setReadingProgress(0);
       setHighlightedIndex(0);
       setTypedText("");
       setIsTypingComplete(false);
+      setStepStartTime(Date.now()); // Reset timer for next step
       scrollToSection(tourSteps[nextStepIndex].targetSection);
       
-      // Track step view
-      trackTourEvent('tour_step', tourSteps[nextStepIndex].id, nextStepIndex);
+      // Track step view with actual time
+      trackTourEvent('tour_step', tourSteps[nextStepIndex].id, nextStepIndex, undefined, timeSpent);
     } else {
+      // Calculate time spent on final step
+      const timeSpent = Date.now() - stepStartTime;
+      
       // Tour complete, show final CTA
       setShowFinalCTA(true);
       setIsActive(false);
       
-      // Track tour completion
-      trackTourEvent('tour_complete', tourSteps[currentStep].id, currentStep);
+      // Track tour completion with actual time
+      trackTourEvent('tour_complete', tourSteps[currentStep].id, currentStep, undefined, timeSpent);
     }
   };
 
@@ -294,20 +305,28 @@ export default function PMTour({
       // Restart tour
       startTour();
     } else {
+      // Calculate actual time spent on current step
+      const timeSpent = Date.now() - stepStartTime;
+      
       const prevStepIndex = currentStep - 1;
       setCurrentStep(prevStepIndex);
       setReadingProgress(0);
       setHighlightedIndex(0);
       setTypedText("");
       setIsTypingComplete(false);
+      setStepStartTime(Date.now()); // Reset timer for previous step
       scrollToSection(tourSteps[prevStepIndex].targetSection);
+      
+      // Track going back to previous step with actual time
+      trackTourEvent('tour_step', tourSteps[prevStepIndex].id, prevStepIndex, undefined, timeSpent);
     }
   };
 
   const closeTour = () => {
     // Track tour abandonment if tour was active
     if (isActive) {
-      trackTourEvent('tour_abandon', tourSteps[currentStep].id, currentStep);
+      const timeSpent = Date.now() - stepStartTime;
+      trackTourEvent('tour_abandon', tourSteps[currentStep].id, currentStep, undefined, timeSpent);
     }
     
     setIsActive(false);
@@ -318,6 +337,7 @@ export default function PMTour({
     setCurrentStep(0);
     setTypedText("");
     setIsTypingComplete(false);
+    setStepStartTime(Date.now());
   };
 
   const togglePause = () => {

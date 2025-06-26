@@ -401,6 +401,7 @@ export function HeroSection({
             href="https://www.linkedin.com/in/lawrencehua"
             target="_blank"
             className="group flex items-center justify-center rounded-lg bg-gradient-to-r from-[#0077B5] to-[#006399] px-6 sm:px-8 py-3 sm:py-4 text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+            onClick={() => trackButtonClick?.("linkedin_profile", "LinkedIn")}
           >
             <FaLinkedin className="mr-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
             LinkedIn

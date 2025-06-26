@@ -572,24 +572,25 @@ export default function ModernHome() {
 
     try {
       console.log("📊 Creating tour event object...");
-      // Create base tour event (geolocation is optional)
+      // Create base tour event matching v2 collection structure
       const tourEvent: any = {
+        tourStep: stepId || "unknown",
+        action: eventType,
         sessionId: getSessionId(),
-        eventType,
-        stepId,
-        stepIndex,
+        timeOnStep: (stepIndex || 0) * 1000, // Convert to milliseconds
         timestamp: serverTimestamp(),
-        userAgent: navigator.userAgent,
-        referrer: document.referrer || "direct",
-        country: "Unknown",
-        region: "Unknown",
-        city: "Unknown",
+        location: {
+          country: "Unknown",
+          region: "Unknown", 
+          city: "Unknown",
+        },
+        metadata: {
+          stepIndex: stepIndex || 0,
+          ctaAction: ctaAction || null,
+          userAgent: navigator.userAgent,
+          referrer: document.referrer || "direct",
+        }
       };
-
-      // Only add ctaAction if it has a value
-      if (ctaAction !== undefined) {
-        tourEvent.ctaAction = ctaAction;
-      }
 
       console.log("📊 Base tour event created:", {
         ...tourEvent,
@@ -602,13 +603,13 @@ export default function ModernHome() {
         const geoResponse = await fetch("/api/geolocation");
         if (geoResponse.ok) {
           const geoData = await geoResponse.json();
-          tourEvent.country = geoData.country_name || "Unknown";
-          tourEvent.region = geoData.region || "Unknown";
-          tourEvent.city = geoData.city || "Unknown";
+          tourEvent.location.country = geoData.country_name || "Unknown";
+          tourEvent.location.region = geoData.region || "Unknown";
+          tourEvent.location.city = geoData.city || "Unknown";
           console.log("🌍 Geolocation added:", {
-            country: tourEvent.country,
-            region: tourEvent.region,
-            city: tourEvent.city,
+            country: tourEvent.location.country,
+            region: tourEvent.location.region,
+            city: tourEvent.location.city,
           });
         } else {
           console.log(
@@ -621,7 +622,7 @@ export default function ModernHome() {
       }
 
       console.log("📊 Saving to Firebase...");
-      const docRef = await addDoc(collection(db, "tour_events"), tourEvent);
+      const docRef = await addDoc(collection(db, "analytics_tour_interactions_v2"), tourEvent);
       console.log(`✅ Tour event tracked successfully: ${eventType}`, {
         docId: docRef.id,
         eventData: { ...tourEvent, timestamp: "serverTimestamp()" },
@@ -1563,6 +1564,9 @@ export default function ModernHome() {
       setCurrentCharacterIndex(0);
       setIsPaused(false);
 
+      // Track going back to previous step
+      trackTourEvent("tour_step", tourSteps[prevStepIndex].id, prevStepIndex);
+
       // All steps use consistent scrollToSection logic
       scrollToSection(tourSteps[prevStepIndex].targetSection, prevStepIndex);
     }
@@ -1781,15 +1785,15 @@ export default function ModernHome() {
     }
   }, [showFinalCTA]);
 
-  // Tour invitation popup effect - show after 5 seconds of landing
+  // Tour invitation popup effect - show after 3 seconds of landing
   useEffect(() => {
     if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
-      // Simple 5 second timer after landing on the site
+      // Simple 3 second timer after landing on the site
       const timer = setTimeout(() => {
         if (!isActive && !tourInvitationDismissed && !showFinalCTA) {
           setShowTourInvitation(true);
         }
-      }, 5000); // Show after 5 seconds
+      }, 3000); // Show after 3 seconds
 
       return () => {
         clearTimeout(timer);
