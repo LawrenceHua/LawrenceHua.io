@@ -173,6 +173,24 @@ export function ChatInterface({ isOpen, onClose }: ChatbotProps) {
     };
   }, []);
 
+  // Close hamburger menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showMenu && !target.closest('.hamburger-menu-container') && !target.closest('[title="Open menu"]')) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMenu]);
+
   // Handle calendar date/time selection (restored from original)
   const handleDateTimeSelect = async (dateTime: string) => {
     setShowCalendar(false);
@@ -323,7 +341,7 @@ export function ChatInterface({ isOpen, onClose }: ChatbotProps) {
             {/* Hamburger Menu - Positioned above hamburger icon */}
             {showMenu && !isMinimized && (
               <div 
-                className={`${styles.menu} absolute bottom-20 right-4 py-3 w-[280px] max-h-[400px] z-20`}
+                className={`${styles.menu} hamburger-menu-container absolute bottom-20 right-4 py-3 w-[280px] max-h-[400px] z-20`}
                 style={{ overflowY: "auto", pointerEvents: "auto" }}
               >
                 {/* Quick Actions */}

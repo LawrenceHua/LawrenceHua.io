@@ -948,15 +948,16 @@ export default function ModernHome() {
           if (workExperienceTitle) {
             const workRect = workExperienceTitle.getBoundingClientRect();
             const workAbsoluteTop = workRect.top + window.pageYOffset;
-            // Position below the work experience title with some spacing
-            const finalPosition = workAbsoluteTop + workRect.height + 20;
+            // Position below the work experience title but moved up by one card length (170px)
+            const finalPosition = workAbsoluteTop + workRect.height + 20 - 170;
             debugLog(
-              "🎯 Mobile Step 4: Work experience title positioning",
+              "🎯 Mobile Step 4: Work experience title positioning (moved up by one card)",
               {
                 finalPosition,
                 workAbsoluteTop,
                 titleHeight: workRect.height,
                 offset: 20,
+                cardOffset: -170,
               }
             );
             window.scrollTo({ top: finalPosition, behavior: "smooth" });

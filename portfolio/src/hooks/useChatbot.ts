@@ -17,7 +17,6 @@ I can help you discover what makes Lawrence tick as a Product Manager and AI bui
 
 **Popular Topics:**
 <button-experience>🚀 Experience</button-experience> <button-skills>🛠️ Skills</button-skills> <button-projects>💻 Projects</button-projects>
-
 **Quick Actions:**
 <button-message>📧 Send Message</button-message> <button-meeting>📅 Book Call</button-meeting> <button-upload>📎 Upload Job</button-upload> <button-funfact>🎲 Surprise Me!</button-funfact> <button-generate-question>💡 Generate Question</button-generate-question>
 
