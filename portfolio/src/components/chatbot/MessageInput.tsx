@@ -107,15 +107,17 @@ export function MessageInput({
             rows={1}
             disabled={isLoading}
             style={{ 
-              height: '52px',
-              lineHeight: '1.5',
+              height: isMobile ? '44px' : '52px',
+              lineHeight: '1.4',
               padding: '12px 16px',
-              maxHeight: '120px',
+              maxHeight: isMobile ? '100px' : '120px',
               boxSizing: 'border-box',
               verticalAlign: 'top',
               fontFamily: 'inherit',
               fontSize: '16px',
-              borderWidth: '1px'
+              borderWidth: '1px',
+              minHeight: isMobile ? '44px' : '52px',
+              resize: 'none'
             }}
           />
         </div>
@@ -130,11 +132,13 @@ export function MessageInput({
             title="Open menu"
             disabled={isLoading}
             style={{ 
-              width: '52px', 
-              height: '52px',
+              width: isMobile ? '44px' : '52px', 
+              height: isMobile ? '44px' : '52px',
               boxSizing: 'border-box',
               borderWidth: '1px',
-              flexShrink: 0
+              flexShrink: 0,
+              minWidth: isMobile ? '44px' : '52px',
+              minHeight: isMobile ? '44px' : '52px'
             }}
           >
             <FiMenu className="h-5 w-5" />
@@ -147,11 +151,13 @@ export function MessageInput({
             className="flex-shrink-0 flex items-center justify-center bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 text-white rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 disabled:scale-100 disabled:cursor-not-allowed shadow-lg hover:shadow-xl disabled:shadow-md"
             title="Send message"
             style={{ 
-              width: '52px', 
-              height: '52px',
+              width: isMobile ? '44px' : '52px', 
+              height: isMobile ? '44px' : '52px',
               boxSizing: 'border-box',
               borderWidth: '0px',
-              flexShrink: 0
+              flexShrink: 0,
+              minWidth: isMobile ? '44px' : '52px',
+              minHeight: isMobile ? '44px' : '52px'
             }}
           >
             {isLoading ? (
