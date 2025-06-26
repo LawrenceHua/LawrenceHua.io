@@ -102,7 +102,36 @@ export function MessageInput({
                 handleSubmit(e);
               }
             }}
-            placeholder="Ask me anything about Lawrence"
+            onTouchStart={(e) => {
+              // Ensure keyboard appears on mobile when tapping input
+              if (isMobile && inputRef.current) {
+                // Brief delay to ensure touch is registered, then focus
+                setTimeout(() => {
+                  if (inputRef.current) {
+                    inputRef.current.focus();
+                    // Scroll to input if needed
+                    inputRef.current.scrollIntoView({ 
+                      behavior: 'smooth', 
+                      block: 'center' 
+                    });
+                  }
+                }, 50);
+              }
+            }}
+            onFocus={() => {
+              // When input gets focus, ensure it's visible on mobile
+              if (isMobile && inputRef.current) {
+                setTimeout(() => {
+                  if (inputRef.current) {
+                    inputRef.current.scrollIntoView({ 
+                      behavior: 'smooth', 
+                      block: 'center' 
+                    });
+                  }
+                }, 300); // Delay to account for keyboard animation
+              }
+            }}
+            placeholder={isMobile ? "Ask me anything" : "Ask me anything about Lawrence"}
             className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500"
             rows={1}
             disabled={isLoading}

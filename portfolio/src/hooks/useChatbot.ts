@@ -17,7 +17,6 @@ I can help you discover what makes Lawrence tick as a Product Manager and AI bui
 
 **Popular Topics:**
 <button-experience>🚀 Experience</button-experience> <button-skills>🛠️ Skills</button-skills> <button-projects>💻 Projects</button-projects>
-
 **Quick Actions:**
 <button-message>📧 Send Message</button-message> <button-meeting>📅 Book Call</button-meeting> <button-upload>📎 Upload Job</button-upload> <button-funfact>🎲 Surprise Me!</button-funfact> <button-generate-question>💡 Generate Question</button-generate-question>
 
@@ -329,7 +328,8 @@ Try asking me something like "What's Lawrence's biggest accomplishment?" or "How
         if (inputRef.current) {
           try {
             if (isMobile) {
-              // Gentle focus for mobile - prevent keyboard popup until user interacts
+              // For mobile, set focus but prevent auto-scroll until user explicitly taps
+              // This prepares the input for keyboard activation on touch
               inputRef.current.focus({ preventScroll: true });
             } else {
               // Normal focus for desktop
@@ -350,9 +350,9 @@ Try asking me something like "What's Lawrence's biggest accomplishment?" or "How
       setTimeout(() => {
         if (inputRef.current) {
           try {
-            // For mobile, use a more gentle focus approach
+            // For mobile, ensure input stays ready for keyboard
             if (isMobile) {
-              // Set focus without scrolling for mobile
+              // Keep input ready for keyboard activation
               inputRef.current.focus({ preventScroll: true });
             } else {
               // Normal focus for desktop

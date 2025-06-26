@@ -632,6 +632,74 @@
     right: 1rem !important;
     max-width: calc(100vw - 2rem) !important;
   }
+
+  /* Mobile keyboard handling */
+  .inputArea {
+    /* Fix for mobile keyboard - use viewport units that adapt to keyboard */
+    position: sticky !important;
+    bottom: 0 !important;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+    border-top: 1px solid rgba(71, 85, 105, 0.3) !important;
+    z-index: 1001 !important;
+  }
+
+  /* Ensure input gets focus and brings up keyboard properly */
+  .inputArea textarea:focus {
+    transform: none !important;
+    /* Force keyboard to appear on mobile */
+    -webkit-user-select: text !important;
+    user-select: text !important;
+  }
+
+  /* Prevent zoom on iOS when focusing input */
+  .inputArea textarea {
+    -webkit-text-size-adjust: 100% !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  /* Adjust chatbot container for keyboard on mobile */
+  .chatbotContainer {
+    /* Use viewport height that adjusts to keyboard */
+    height: 100vh !important;
+    height: 100dvh !important; /* Dynamic viewport height for mobile */
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    /* Ensure container resizes with virtual keyboard */
+    resize: none !important;
+    overflow: hidden !important;
+  }
+
+  /* Additional mobile environment handling */
+  @supports (height: 100dvh) {
+    .chatbotContainer {
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+    }
+  }
+
+  /* iOS specific fixes for keyboard */
+  @supports (-webkit-touch-callout: none) {
+    .chatbotContainer {
+      /* iOS Safari specific adjustments */
+      height: -webkit-fill-available !important;
+      min-height: -webkit-fill-available !important;
+    }
+    
+    .messagesContainer {
+      /* Better scroll behavior on iOS */
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior: contain !important;
+    }
+  }
+
+  /* Messages container should fill available space */
+  .messagesContainer {
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 1 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
 }
 
 /* Desktop positioning for larger chatbot */
