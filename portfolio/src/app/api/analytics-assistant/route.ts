@@ -98,19 +98,19 @@ async function fetchAnalyticsData(startDate: Date) {
   const data: any = {};
 
   try {
-    // Fetch chatbot analytics
-    const chatbotAnalyticsRef = collection(db, "chatbot_analytics");
-    const chatbotQuery = query(
-      chatbotAnalyticsRef,
-      where("timestamp", ">=", startDate),
-      orderBy("timestamp", "desc"),
+    // Fetch chat sessions from V2 collection
+    const sessionsRef = collection(db, "analytics_sessions_v2");
+    const sessionsQuery = query(
+      sessionsRef,
+      where("startTime", ">=", startDate),
+      orderBy("startTime", "desc"),
       limit(1000)
     );
-    const chatbotSnap = await getDocs(chatbotQuery);
-    data.chatbotEvents = chatbotSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const sessionsSnap = await getDocs(sessionsQuery);
+    data.chatSessions = sessionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // Fetch chat messages
-    const messagesRef = collection(db, "chatbot_messages");
+    // Fetch chat messages from V2 collection
+    const messagesRef = collection(db, "analytics_chat_messages_v2");
     const messagesQuery = query(
       messagesRef,
       where("timestamp", ">=", startDate),
@@ -120,38 +120,49 @@ async function fetchAnalyticsData(startDate: Date) {
     const messagesSnap = await getDocs(messagesQuery);
     data.chatMessages = messagesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // Fetch page views
-    const pageViewsRef = collection(db, "page_views");
-    const pageViewsQuery = query(
-      pageViewsRef,
+    // Fetch button clicks from V2 collection
+    const buttonClicksRef = collection(db, "analytics_button_clicks_v2");
+    const buttonClicksQuery = query(
+      buttonClicksRef,
       where("timestamp", ">=", startDate),
       orderBy("timestamp", "desc"),
       limit(500)
     );
-    const pageViewsSnap = await getDocs(pageViewsQuery);
-    data.pageViews = pageViewsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const buttonClicksSnap = await getDocs(buttonClicksQuery);
+    data.buttonClicks = buttonClicksSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // Fetch user interactions
-    const interactionsRef = collection(db, "user_interactions");
-    const interactionsQuery = query(
-      interactionsRef,
-      where("timestamp", ">=", startDate),
-      orderBy("timestamp", "desc"),
-      limit(500)
-    );
-    const interactionsSnap = await getDocs(interactionsQuery);
-    data.userInteractions = interactionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    // Fetch tour events
-    const tourEventsRef = collection(db, "tour_events");
-    const tourEventsQuery = query(
-      tourEventsRef,
+    // Fetch tour interactions from V2 collection
+    const tourInteractionsRef = collection(db, "analytics_tour_interactions_v2");
+    const tourInteractionsQuery = query(
+      tourInteractionsRef,
       where("timestamp", ">=", startDate),
       orderBy("timestamp", "desc"),
       limit(300)
     );
-    const tourEventsSnap = await getDocs(tourEventsQuery);
-    data.tourEvents = tourEventsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const tourInteractionsSnap = await getDocs(tourInteractionsQuery);
+    data.tourInteractions = tourInteractionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Fetch visitor locations from V2 collection
+    const visitorLocationsRef = collection(db, "analytics_visitor_locations_v2");
+    const visitorLocationsQuery = query(
+      visitorLocationsRef,
+      where("timestamp", ">=", startDate),
+      orderBy("timestamp", "desc"),
+      limit(500)
+    );
+    const visitorLocationsSnap = await getDocs(visitorLocationsQuery);
+    data.visitorLocations = visitorLocationsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Fetch device analytics from V2 collection
+    const deviceAnalyticsRef = collection(db, "analytics_device_info_v2");
+    const deviceAnalyticsQuery = query(
+      deviceAnalyticsRef,
+      where("timestamp", ">=", startDate),
+      orderBy("timestamp", "desc"),
+      limit(500)
+    );
+    const deviceAnalyticsSnap = await getDocs(deviceAnalyticsQuery);
+    data.deviceAnalytics = deviceAnalyticsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
   } catch (error) {
     console.error("Error fetching analytics data:", error);
@@ -234,34 +245,39 @@ Analyze the data and provide a comprehensive, insightful response.`;
 function processAnalyticsInsights(data: any, timeRange: string) {
   const insights: any = {};
 
-  // Process chatbot events
-  if (data.chatbotEvents?.length) {
-    const events = data.chatbotEvents;
-    const sessions = new Set(events.map((e: any) => e.sessionId));
-    const buttonClicks = events.filter((e: any) => e.eventType === 'button_clicked');
-    const messagesSent = events.filter((e: any) => e.eventType === 'message_sent');
-    const popupShown = events.filter((e: any) => e.eventType === 'popup_shown');
-    const chatOpened = events.filter((e: any) => e.eventType === 'chatbot_opened');
-    const fileUploads = events.filter((e: any) => e.eventType === 'files_selected');
-    const meetingSchedules = events.filter((e: any) => e.eventType === 'calendar_datetime_selected');
+  // Process chat sessions from V2 collection
+  if (data.chatSessions?.length) {
+    const sessions = data.chatSessions;
+    const uniqueSessionIds = new Set(sessions.map((s: any) => s.sessionId));
 
     insights.chatbot = {
-      totalSessions: sessions.size,
-      totalEvents: events.length,
-      buttonClicks: buttonClicks.length,
-      messagesSent: messagesSent.length,
-      popupViews: popupShown.length,
-      chatOpens: chatOpened.length,
-      fileUploads: fileUploads.length,
-      meetingSchedules: meetingSchedules.length,
-      hoverButtonEvents: events.filter((e: any) => e.eventType === 'chatbot_button_loaded').length,
-      popupDismissals: events.filter((e: any) => e.eventType === 'popup_dismissed').length,
-      conversionRate: popupShown.length > 0 ? ((chatOpened.length / popupShown.length) * 100).toFixed(1) : "0.0",
-      mostPopularButtons: getMostPopularButtons(buttonClicks),
+      totalSessions: uniqueSessionIds.size,
+      totalEvents: sessions.length,
+      buttonClicks: 0, // Will be calculated from button clicks data
+      messagesSent: sessions.reduce((total: number, s: any) => total + (s.messageCount || 0), 0),
+      avgMessagesPerSession: uniqueSessionIds.size > 0 ? 
+        (sessions.reduce((total: number, s: any) => total + (s.messageCount || 0), 0) / uniqueSessionIds.size).toFixed(1) : "0.0",
+      totalDuration: sessions.reduce((total: number, s: any) => total + (s.totalDuration || 0), 0),
     };
   }
 
-  // Process chat messages
+  // Process button clicks from V2 collection
+  if (data.buttonClicks?.length) {
+    const clicks = data.buttonClicks;
+    
+    insights.engagement = {
+      totalButtonClicks: clicks.length,
+      topButtons: getMostPopularButtons(clicks),
+      buttonsByPage: getButtonsByPage(clicks),
+    };
+
+    // Update chatbot insights with button click count
+    if (insights.chatbot) {
+      insights.chatbot.buttonClicks = clicks.length;
+    }
+  }
+
+  // Process chat messages from V2 collection
   if (data.chatMessages?.length) {
     const messages = data.chatMessages;
     const sessions = new Set(messages.map((m: any) => m.sessionId));
@@ -277,53 +293,56 @@ function processAnalyticsInsights(data: any, timeRange: string) {
     };
   }
 
-  // Process page views
-  if (data.pageViews?.length) {
-    const pageViews = data.pageViews;
-    const uniqueVisitors = new Set(pageViews.map((pv: any) => pv.sessionId));
-    const countries = new Set(pageViews.map((pv: any) => pv.country).filter(Boolean));
-    const referrers = pageViews.map((pv: any) => pv.referrer);
-    const devices = pageViews.map((pv: any) => {
-      const isMobile = /Mobile|Android|iPhone|iPad/.test(pv.userAgent);
-      return isMobile ? 'Mobile' : 'Desktop';
-    });
+  // Process visitor locations from V2 collection  
+  if (data.visitorLocations?.length) {
+    const locations = data.visitorLocations;
+    const uniqueVisitors = new Set(locations.map((l: any) => l.sessionId));
+    const countries = new Set(locations.map((l: any) => l.location?.country || l.country).filter(Boolean));
+    const cities = new Set(locations.map((l: any) => l.location?.city || l.city).filter(Boolean));
 
-    insights.website = {
-      totalPageViews: pageViews.length,
+    insights.geography = {
+      totalVisits: locations.length,
       uniqueVisitors: uniqueVisitors.size,
       countries: countries.size,
-      avgTimeOnPage: calculateAvgTimeOnPage(pageViews),
-      topReferrers: getTopReferrers(referrers),
-      deviceBreakdown: getDeviceBreakdown(devices),
+      cities: cities.size,
+      topLocations: getTopLocations(locations),
     };
   }
 
-  // Process user interactions
-  if (data.userInteractions?.length) {
-    const interactions = data.userInteractions;
-    const clicks = interactions.filter((i: any) => i.type === 'click');
-    const scrolls = interactions.filter((i: any) => i.type === 'scroll');
-
-    insights.engagement = {
-      totalInteractions: interactions.length,
-      clicks: clicks.length,
-      scrolls: scrolls.length,
-      topInteractionTypes: getTopInteractionTypes(interactions),
-    };
-  }
-
-  // Process tour events
-  if (data.tourEvents?.length) {
-    const tourEvents = data.tourEvents;
-    const starts = tourEvents.filter((e: any) => e.eventType === 'tour_start');
-    const completions = tourEvents.filter((e: any) => e.eventType === 'tour_complete');
-    const abandons = tourEvents.filter((e: any) => e.eventType === 'tour_abandon');
+  // Process tour interactions from V2 collection
+  if (data.tourInteractions?.length) {
+    const tourInteractions = data.tourInteractions;
+    const viewed = tourInteractions.filter((i: any) => i.action === 'viewed');
+    const clicked = tourInteractions.filter((i: any) => i.action === 'clicked');
+    const completed = tourInteractions.filter((i: any) => i.action === 'completed');
+    const skipped = tourInteractions.filter((i: any) => i.action === 'skipped');
 
     insights.tour = {
-      starts: starts.length,
-      completions: completions.length,
-      abandons: abandons.length,
-      completionRate: starts.length > 0 ? ((completions.length / starts.length) * 100).toFixed(1) : "0.0",
+      totalInteractions: tourInteractions.length,
+      viewed: viewed.length,
+      clicked: clicked.length,
+      completed: completed.length,
+      skipped: skipped.length,
+      completionRate: viewed.length > 0 ? ((completed.length / viewed.length) * 100).toFixed(1) : "0.0",
+      mostViewedSteps: getMostPopularTourSteps(tourInteractions),
+    };
+  }
+
+  // Process device analytics from V2 collection
+  if (data.deviceAnalytics?.length) {
+    const devices = data.deviceAnalytics;
+    const mobile = devices.filter((d: any) => d.deviceType === 'mobile');
+    const desktop = devices.filter((d: any) => d.deviceType === 'desktop');
+    const tablet = devices.filter((d: any) => d.deviceType === 'tablet');
+
+    insights.devices = {
+      total: devices.length,
+      mobile: mobile.length,
+      desktop: desktop.length,
+      tablet: tablet.length,
+      mobilePercentage: devices.length > 0 ? ((mobile.length / devices.length) * 100).toFixed(1) : "0.0",
+      topBrowsers: getTopBrowsers(devices),
+      topOperatingSystems: getTopOperatingSystems(devices),
     };
   }
 
@@ -349,9 +368,69 @@ function getMostPopularButtons(buttonClicks: any[]) {
     .map(([button, count]) => ({ button, count }));
 }
 
-function calculateAvgTimeOnPage(pageViews: any[]) {
-  const validTimes = pageViews
-    .map(pv => pv.timeOnPage)
+function getButtonsByPage(buttonClicks: any[]) {
+  const pageCount = new Map();
+  buttonClicks.forEach(click => {
+    const page = click.page || 'unknown';
+    pageCount.set(page, (pageCount.get(page) || 0) + 1);
+  });
+  return Array.from(pageCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([page, count]) => ({ page, count }));
+}
+
+function getTopLocations(locations: any[]) {
+  const locationCount = new Map();
+  locations.forEach(loc => {
+    const key = `${loc.location?.city || loc.city}, ${loc.location?.country || loc.country}`;
+    locationCount.set(key, (locationCount.get(key) || 0) + 1);
+  });
+  return Array.from(locationCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([location, count]) => ({ location, count }));
+}
+
+function getMostPopularTourSteps(tourInteractions: any[]) {
+  const stepCount = new Map();
+  tourInteractions.forEach(interaction => {
+    const step = interaction.tourStep;
+    stepCount.set(step, (stepCount.get(step) || 0) + 1);
+  });
+  return Array.from(stepCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([step, count]) => ({ step, count }));
+}
+
+function getTopBrowsers(devices: any[]) {
+  const browserCount = new Map();
+  devices.forEach(device => {
+    const browser = device.browser || 'Unknown';
+    browserCount.set(browser, (browserCount.get(browser) || 0) + 1);
+  });
+  return Array.from(browserCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([browser, count]) => ({ browser, count }));
+}
+
+function getTopOperatingSystems(devices: any[]) {
+  const osCount = new Map();
+  devices.forEach(device => {
+    const os = device.operatingSystem || 'Unknown';
+    osCount.set(os, (osCount.get(os) || 0) + 1);
+  });
+  return Array.from(osCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([os, count]) => ({ os, count }));
+}
+
+function calculateAvgTimeOnPage(locations: any[]) {
+  const validTimes = locations
+    .map(l => l.timeOnPage)
     .filter(time => time && time > 0);
   
   if (validTimes.length === 0) return "0.0";
@@ -360,54 +439,15 @@ function calculateAvgTimeOnPage(pageViews: any[]) {
   return (avg / 60).toFixed(1); // Convert to minutes
 }
 
-function getTopReferrers(referrers: string[]) {
-  const referrerCount = new Map();
-  referrers.forEach(ref => {
-    const source = ref === "direct" ? "Direct" :
-                   ref.includes("google") ? "Google" :
-                   ref.includes("linkedin") ? "LinkedIn" :
-                   ref.includes("github") ? "GitHub" : "Other";
-    referrerCount.set(source, (referrerCount.get(source) || 0) + 1);
-  });
-  return Array.from(referrerCount.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([source, count]) => ({ source, count }));
-}
-
-function getDeviceBreakdown(devices: string[]) {
-  const deviceCount = new Map();
-  devices.forEach(device => {
-    deviceCount.set(device, (deviceCount.get(device) || 0) + 1);
-  });
-  const total = devices.length;
-  return Array.from(deviceCount.entries()).map(([device, count]) => ({
-    device,
-    count,
-    percentage: ((count / total) * 100).toFixed(1)
-  }));
-}
-
-function getTopInteractionTypes(interactions: any[]) {
-  const typeCount = new Map();
-  interactions.forEach(interaction => {
-    typeCount.set(interaction.type, (typeCount.get(interaction.type) || 0) + 1);
-  });
-  return Array.from(typeCount.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([type, count]) => ({ type, count }));
-}
-
 function calculatePeakHours(data: any) {
   const hourCounts = new Map();
   
   // Aggregate all timestamped events
   const allEvents = [
-    ...(data.chatbotEvents || []),
+    ...(data.chatSessions || []),
     ...(data.chatMessages || []),
-    ...(data.pageViews || []),
-    ...(data.userInteractions || []),
+    ...(data.visitorLocations || []),
+    ...(data.buttonClicks || []),
   ];
   
   allEvents.forEach(event => {
@@ -428,9 +468,9 @@ function calculateDailyTrends(data: any) {
   const dayCounts = new Map();
   
   const allEvents = [
-    ...(data.chatbotEvents || []),
+    ...(data.chatSessions || []),
     ...(data.chatMessages || []),
-    ...(data.pageViews || []),
+    ...(data.visitorLocations || []),
   ];
   
   allEvents.forEach(event => {

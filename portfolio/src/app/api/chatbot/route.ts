@@ -261,32 +261,32 @@ Click the buttons above for instant assistance, or tell me what you'd like to di
 const quickPatterns = [
   {
     // Only exact single-word matches or very close variants
-    exactMatches: ["skills", "skill", "technologies", "tech stack"],
+    exactMatches: ["skills", "skill", "technologies", "tech stack", "technical", "abilities"],
     response: "skills",
   },
   {
     // Only exact single-word matches
-    exactMatches: ["projects", "portfolio"],
+    exactMatches: ["projects", "portfolio", "work", "showcase"],
     response: "projects",
   },
   {
     // Only exact single-word matches
-    exactMatches: ["experience", "experiences"],
+    exactMatches: ["experience", "experiences", "background", "history"],
     response: "experience",
   },
   {
     // Only exact single-word matches
-    exactMatches: ["education", "degree"],
+    exactMatches: ["education", "degree", "school", "university"],
     response: "education",
   },
   {
     // Only exact single-word matches
-    exactMatches: ["contact", "connect"],
+    exactMatches: ["contact", "connect", "reach", "touch"],
     response: "contact",
   },
   {
     // Only exact matches for AI topics
-    exactMatches: ["ai", "artificial intelligence", "machine learning", "ml"],
+    exactMatches: ["ai", "artificial intelligence", "machine learning", "ml", "artificial", "intelligence"],
     response: "ai",
   },
 ];

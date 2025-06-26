@@ -24,6 +24,7 @@ import ButtonClicksSection from "./sections/ButtonClicksSection";
 import TourAnalyticsSection from "./sections/TourAnalyticsSection";
 import GeoLocationSection from "./sections/GeoLocationSection";
 import DeviceAnalyticsSection from "./sections/DeviceAnalyticsSection";
+import GraphSection from "./sections/GraphSection";
 
 // Enhanced scrolling styles
 const scrollStyles = `
@@ -89,6 +90,7 @@ export default function AnalyticsDashboard() {
     { id: "tours", label: "Tour Analytics", icon: FiTarget, color: "orange" },
     { id: "geo", label: "Geo Location", icon: FiGlobe, color: "teal" },
     { id: "devices", label: "Device Analytics", icon: FiSmartphone, color: "indigo" },
+    { id: "graph", label: "Graph", icon: FiActivity, color: "purple" },
   ];
 
   const getColorClasses = (color: string, isActive: boolean) => {
@@ -187,8 +189,8 @@ export default function AnalyticsDashboard() {
         </div>
       </div>
 
-      {/* Content Area - Natural scrolling */}
-      <div className="bg-gray-800 rounded-xl border border-gray-700 min-h-[600px]">
+      {/* Content Area - Expanded for Graph section */}
+      <div className={`bg-gray-800 rounded-xl border border-gray-700 ${activeTab === 'graph' ? '' : 'min-h-[600px]'}`}>
         <div className="p-6">
           {/* Loading State */}
           {analytics.loading && (
@@ -209,6 +211,7 @@ export default function AnalyticsDashboard() {
               {activeTab === "tours" && <TourAnalyticsSection timeRange={timeRange} />}
               {activeTab === "geo" && <GeoLocationSection timeRange={timeRange} />}
               {activeTab === "devices" && <DeviceAnalyticsSection timeRange={timeRange} />}
+              {activeTab === "graph" && <GraphSection timeRange={timeRange} />}
             </>
           )}
 

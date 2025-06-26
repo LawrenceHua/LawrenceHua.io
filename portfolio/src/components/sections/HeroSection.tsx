@@ -397,6 +397,19 @@ export function HeroSection({
             Download Resume
           </Link>
 
+          <motion.button
+            onClick={() => {
+              trackButtonClick?.("start_tour", "Take Product Tour");
+              onStartTour?.();
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="group flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 px-6 sm:px-8 py-3 sm:py-4 text-white font-semibold transition-all duration-300 hover:from-purple-700 hover:to-purple-800 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
+          >
+            <span className="mr-2 text-lg">🎯</span>
+            Take Product Tour
+          </motion.button>
+
           <Link
             href="https://www.linkedin.com/in/lawrencehua"
             target="_blank"

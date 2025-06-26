@@ -39,7 +39,8 @@ import { TimelineSection } from "../components/sections/TimelineSection";
 import { ProjectsSection } from "../components/sections/ProjectsSection";
 import { TestimonialsSection } from "../components/sections/TestimonialsSection";
 import { ContactSection } from "../components/sections/ContactSection";
-import { FloatingChatbot } from "../components/FloatingChatbot";
+import FloatingChatbot from "../components/FloatingChatbot";
+import { geolocationManager } from "../lib/geolocation";
 
 // Firebase config (using environment variables)
 const firebaseConfig = {
@@ -134,8 +135,8 @@ const tourSteps: TourStep[] = [
   {
     id: "project-expired-solutions",
     title: "💡 Featured Project: Expired Solutions",
-    content:
-      "I founded and led the development of an AI platform that helps grocery stores reduce food waste. We pitched this solution and secured pilot opportunities with major retailers.",
+          content:
+        "I founded and led the development of an AI platform that helps grocery stores reduce food waste. We pitched this solution to major retailers including Giant Eagle's C-Suite executives.",
     targetSection: "projects",
     icon: <FiTarget className="w-5 h-5" />,
     color: "from-indigo-600 to-purple-600",
@@ -143,7 +144,7 @@ const tourSteps: TourStep[] = [
     highlights: [
       "Founder & CEO",
       "AI-Powered Platform",
-      "20% Shrink Reduction",
+      "C-Suite Pitch",
     ],
     position: "project-next-to-arrows",
   },
@@ -552,10 +553,10 @@ export default function ModernHome() {
 
   const trackTourEvent = async (
     eventType:
-      | "tour_start"
-      | "tour_step"
-      | "tour_complete"
-      | "tour_abandon"
+      | "viewed"
+      | "clicked" 
+      | "completed"
+      | "skipped"
       | "tour_cta_action",
     stepId?: string,
     stepIndex?: number,
@@ -597,26 +598,17 @@ export default function ModernHome() {
         timestamp: "serverTimestamp()",
       });
 
-      // Try to add geolocation, but don't fail if it doesn't work
+      // Try to add geolocation using centralized manager
       try {
-        console.log("🌍 Fetching geolocation...");
-        const geoResponse = await fetch("/api/geolocation");
-        if (geoResponse.ok) {
-          const geoData = await geoResponse.json();
-          tourEvent.location.country = geoData.country_name || "Unknown";
-          tourEvent.location.region = geoData.region || "Unknown";
-          tourEvent.location.city = geoData.city || "Unknown";
-          console.log("🌍 Geolocation added:", {
-            country: tourEvent.location.country,
-            region: tourEvent.location.region,
-            city: tourEvent.location.city,
-          });
-        } else {
-          console.log(
-            "🌍 Geolocation API response not ok:",
-            geoResponse.status
-          );
-        }
+        const geoData = await geolocationManager.getGeolocation();
+        tourEvent.location.country = geoData.country_name || "Unknown";
+        tourEvent.location.region = geoData.region || "Unknown";
+        tourEvent.location.city = geoData.city || "Unknown";
+        console.log("🌍 Geolocation added to tour event:", {
+          country: tourEvent.location.country,
+          region: tourEvent.location.region,
+          city: tourEvent.location.city,
+        });
       } catch (geoError) {
         console.log("🌍 Geolocation fetch failed, using defaults:", geoError);
       }
@@ -645,15 +637,11 @@ export default function ModernHome() {
     try {
       console.log("📊 Tracking page view...");
 
-      // Get geolocation data (optional)
+      // Get geolocation data using centralized manager
       let geoData = null;
       try {
-        console.log("🌍 Fetching geolocation...");
-        const geoResponse = await fetch("/api/geolocation");
-        if (geoResponse.ok) {
-          geoData = await geoResponse.json();
-          console.log("🌍 Geolocation data obtained");
-        }
+        geoData = await geolocationManager.getGeolocation();
+        console.log("🌍 Geolocation data obtained for page view");
       } catch (geoError) {
         console.log("🌍 Geolocation fetch failed, using defaults:", geoError);
       }
@@ -806,8 +794,8 @@ export default function ModernHome() {
     setShowCats(true);
 
     // Track tour start
-    console.log("📊 About to track tour_start event...");
-    trackTourEvent("tour_start", tourSteps[0].id, 0);
+    console.log("📊 About to track tour start event...");
+    trackTourEvent("viewed", tourSteps[0].id, 0);
 
     // Scroll to top first
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -947,21 +935,43 @@ export default function ModernHome() {
           window.scrollTo({ top: finalPosition, behavior: "smooth" });
           return;
         } else if (sectionId === "timeline" && actualStep === 3) {
-          // Work experience step - use same positioning as education for consistency
+          // Work experience step - position below the work experience title on mobile
           debugLog("✅ STEP 4 CONDITION MET: timeline + actualStep === 3");
           debugLog(
-            "🎯 Mobile Step 4: Using same positioning as Step 3 (education)"
+            "🎯 Mobile Step 4: Positioning below work experience title"
           );
 
-          // Use same approach as Step 3 education for consistent view
+          // Try to find the work experience title first
+          const workExperienceTitle = document.getElementById(
+            "work-experience-title"
+          );
+          if (workExperienceTitle) {
+            const workRect = workExperienceTitle.getBoundingClientRect();
+            const workAbsoluteTop = workRect.top + window.pageYOffset;
+            // Position below the work experience title with some spacing
+            const finalPosition = workAbsoluteTop + workRect.height + 20;
+            debugLog(
+              "🎯 Mobile Step 4: Work experience title positioning",
+              {
+                finalPosition,
+                workAbsoluteTop,
+                titleHeight: workRect.height,
+                offset: 20,
+              }
+            );
+            window.scrollTo({ top: finalPosition, behavior: "smooth" });
+            return;
+          }
+
+          // Fallback to timeline section if work experience title not found
           const timelineSection = document.getElementById("timeline");
           if (timelineSection) {
             const timelineRect = timelineSection.getBoundingClientRect();
             const timelineAbsoluteTop = timelineRect.top + window.pageYOffset;
-            // Position at the top of timeline (same as education) with reduced offset
+            // Position at the top of timeline with reduced offset
             const finalPosition = timelineAbsoluteTop - 50;
             debugLog(
-              "🎯 Mobile Step 4: Timeline positioning (same as education)",
+              "🎯 Mobile Step 4: Timeline fallback positioning",
               {
                 finalPosition,
                 timelineAbsoluteTop,
@@ -1515,8 +1525,11 @@ export default function ModernHome() {
       setCurrentCharacterIndex(0);
       setIsPaused(false);
 
+      // Track button click
+      trackTourEvent("clicked", `next-button-step-${currentStep + 1}`, currentStep);
+      
       // Track tour step progression
-      trackTourEvent("tour_step", tourSteps[nextStepIndex].id, nextStepIndex);
+      trackTourEvent("viewed", tourSteps[nextStepIndex].id, nextStepIndex);
 
       // Debug logging for step advancement
       debugLog(`🔄 Advancing to Step ${nextStepIndex + 1}`, {
@@ -1542,7 +1555,7 @@ export default function ModernHome() {
       }
 
       // Track tour completion
-      trackTourEvent("tour_complete", "final", tourSteps.length);
+              trackTourEvent("completed", "final", tourSteps.length);
 
       setIsActive(false);
       // Show final CTA after scroll completes
@@ -1564,8 +1577,11 @@ export default function ModernHome() {
       setCurrentCharacterIndex(0);
       setIsPaused(false);
 
+      // Track button click
+      trackTourEvent("clicked", `prev-button-step-${currentStep + 1}`, currentStep);
+      
       // Track going back to previous step
-      trackTourEvent("tour_step", tourSteps[prevStepIndex].id, prevStepIndex);
+      trackTourEvent("viewed", tourSteps[prevStepIndex].id, prevStepIndex);
 
       // All steps use consistent scrollToSection logic
       scrollToSection(tourSteps[prevStepIndex].targetSection, prevStepIndex);
@@ -1575,7 +1591,7 @@ export default function ModernHome() {
   const closeTour = () => {
     // Track tour abandonment if not at the end
     if (currentStep < tourSteps.length - 1) {
-      trackTourEvent("tour_abandon", tourSteps[currentStep].id, currentStep);
+      trackTourEvent("skipped", tourSteps[currentStep].id, currentStep);
     }
 
     setIsActive(false);
@@ -1595,6 +1611,9 @@ export default function ModernHome() {
   const togglePause = () => {
     const wasPaused = isPaused;
     setIsPaused(!isPaused);
+
+    // Track pause/resume actions
+    trackTourEvent("clicked", wasPaused ? "resume-button" : "pause-button", currentStep);
 
     // When resuming from pause, scroll back to the current step's target section
     if (wasPaused && isActive) {
@@ -1805,12 +1824,16 @@ export default function ModernHome() {
     console.log("🎯 Tour invitation accepted! Starting tour...");
     setShowTourInvitation(false);
     setTourInvitationDismissed(true);
+    // Track click on "Take Tour" button
+    trackTourEvent("clicked", "tour-invitation-accept", 0);
     startTour(); // This will automatically turn on cats via startTour function
   };
 
   const handleTourInvitationDismiss = () => {
     setShowTourInvitation(false);
     setTourInvitationDismissed(true);
+    // Track invitation dismissal
+    trackTourEvent("clicked", "tour-invitation-dismiss", 0);
   };
 
   return (
@@ -1850,11 +1873,7 @@ export default function ModernHome() {
       />
 
       {/* Floating Chatbot */}
-      <FloatingChatbot
-        isOpen={isChatbotOpen}
-        onOpenChange={setIsChatbotOpen}
-        tourActive={isActive}
-      />
+      <FloatingChatbot />
 
       {/* Tour Arrows */}
       <TourArrows
@@ -2185,7 +2204,11 @@ export default function ModernHome() {
                 </div>
 
                 <motion.button
-                  onClick={startTour}
+                  onClick={() => {
+                    // Track restart action
+                    trackTourEvent("tour_cta_action", "final_cta", tourSteps.length, "restart");
+                    startTour();
+                  }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="flex items-center justify-center gap-2 px-4 py-2 md:py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 text-sm min-h-[44px]"

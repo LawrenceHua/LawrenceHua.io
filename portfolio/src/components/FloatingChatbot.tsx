@@ -2,329 +2,107 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X } from "lucide-react";
-import Chatbot from "./Chatbot";
+import { FiMessageCircle, FiX } from "react-icons/fi";
+import { ChatInterface } from "./chatbot/ChatInterface";
+import { trackChatbotEvent } from "../lib/analytics";
 
-// Add Firebase imports for analytics tracking
-import { initializeApp, getApps } from "firebase/app";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp,
-} from "firebase/firestore";
+export default function FloatingChatbot() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [hasBeenClicked, setHasBeenClicked] = useState(false);
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-};
-
-// Initialize Firebase
-let db: any = null;
-if (typeof window !== "undefined") {
-  try {
-    const app = !getApps().length
-      ? initializeApp(firebaseConfig)
-      : getApps()[0];
-    db = getFirestore(app);
-  } catch (error) {
-    console.error("Firebase initialization failed:", error);
-  }
-}
-
-// Generate session ID for analytics tracking
-function getSessionId(): string {
-  if (typeof window === "undefined") return "server";
-  
-  let sessionId = sessionStorage.getItem("analytics_session_id");
-  if (!sessionId) {
-    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    sessionStorage.setItem("analytics_session_id", sessionId);
-  }
-  return sessionId;
-}
-
-// Track chatbot events
-async function trackChatbotEvent(eventType: string, data: any = {}) {
-  try {
-    const firestore = getFirestore();
-    await addDoc(collection(firestore, "chatbot_analytics"), {
-      eventType,
-      timestamp: serverTimestamp(),
-      sessionId: getSessionId(),
-      ...data,
-    });
-    console.log(`Tracked chatbot event: ${eventType}`);
-  } catch (error) {
-    console.error("Error tracking chatbot event:", error);
-  }
-}
-
-// Track button clicks for analytics
-async function trackButtonClick(buttonType: string, buttonText: string) {
-  try {
-    await fetch("/api/track-button-v2", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        buttonType,
-        buttonText,
-        page: window.location.pathname,
-        sessionId: getSessionId(),
-        userAgent: navigator.userAgent,
-      }),
-    });
-    console.log(`✅ Button click tracked: ${buttonType}`);
-  } catch (error) {
-    console.error("❌ Error tracking button click:", error);
-  }
-}
-
-interface FloatingChatbotProps {
-  isOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  tourActive?: boolean;
-}
-
-export function FloatingChatbot({
-  isOpen: externalIsOpen,
-  onOpenChange,
-  tourActive = false,
-}: FloatingChatbotProps = {}) {
-  const [internalIsOpen, setInternalIsOpen] = useState(false);
-
-  // Use external state if provided, otherwise use internal state
-  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
-  const setIsOpen = onOpenChange || setInternalIsOpen;
-  const [showPopup, setShowPopup] = useState(false);
-  const [hasScrolled, setHasScrolled] = useState(false);
-  const [dismissCount, setDismissCount] = useState(0);
-  const [hasBeenOpened, setHasBeenOpened] = useState(false);
-  const [permanentlyDismissed, setPermanentlyDismissed] = useState(false);
-
-  // Track when chatbot button becomes visible
+  // Check if chatbot has been clicked before on component mount
   useEffect(() => {
-    if (!tourActive) {
-      trackChatbotEvent("chatbot_button_loaded", {
-        tourActive,
-        page: window.location.pathname,
-      });
+    const chatbotClicked = localStorage.getItem('chatbot-clicked');
+    if (chatbotClicked === 'true') {
+      setHasBeenClicked(true);
     }
-  }, [tourActive]);
+  }, []);
 
+  // Detect mobile/desktop
   useEffect(() => {
-    const handleScroll = () => {
-      // Check if skills section is in viewport
-      const skillsSection = document.getElementById("skills");
-      if (skillsSection && !hasBeenOpened && !permanentlyDismissed) {
-        const rect = skillsSection.getBoundingClientRect();
-        const isInViewport = rect.top >= 0 && rect.top <= window.innerHeight;
-
-        if (isInViewport && !showPopup) {
-          setShowPopup(true);
-          setHasScrolled(true);
-
-          // Track popup show event
-          trackChatbotEvent("popup_shown", {
-            trigger: "scroll_to_skills",
-            scrollPosition: window.scrollY,
-          });
-
-          // Hide popup after time
-          setTimeout(() => {
-            setShowPopup(false);
-          }, 15000);
-        }
-      }
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [hasBeenOpened, permanentlyDismissed, showPopup]);
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
 
-  // Show popup after 20 seconds if still on about/above sections
-  useEffect(() => {
-    if (dismissCount < 1 && !hasBeenOpened && !permanentlyDismissed) {
-      const timer = setTimeout(() => {
-        if (!isOpen && !showPopup) {
-          // Check if user is still in the upper sections (home/about)
-          const aboutSection = document.getElementById("about");
-          const skillsSection = document.getElementById("skills");
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
 
-          if (aboutSection && skillsSection) {
-            const skillsRect = skillsSection.getBoundingClientRect();
-            // Only show popup if user is still above skills section
-            const isInUpperSections = skillsRect.top > 0;
+  const handleToggle = () => {
+    const newState = !isOpen;
+    setIsOpen(newState);
 
-            if (isInUpperSections) {
-              setShowPopup(true);
-
-              // Track popup show event
-              trackChatbotEvent("popup_shown", {
-                trigger: "timer_20s",
-                timeOnPage: 20000,
-              });
-
-              // Hide popup after 15 seconds
-              setTimeout(() => {
-                setShowPopup(false);
-              }, 15000);
-            }
-          }
-        }
-      }, 20000); // Show after 20 seconds
-
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, showPopup, dismissCount, hasBeenOpened, permanentlyDismissed]);
-
-  const dismissPopup = () => {
-    setShowPopup(false);
-    setDismissCount((prev) => prev + 1);
-    setPermanentlyDismissed(true); // Never show popups again after first dismissal
-
-    // Track popup dismissal
-    trackChatbotEvent("popup_dismissed", {
-      dismissCount: dismissCount + 1,
-      timeVisible: 15000, // Approximate time visible
-    });
-  };
-
-  const openChatbot = () => {
-    // Prevent opening chatbot when tour is active
-    if (tourActive) {
-      trackChatbotEvent("chatbot_open_blocked", {
-        reason: "tour_active",
-      });
-      return;
+    // Mark as clicked for the first time and store in localStorage
+    if (!hasBeenClicked) {
+      setHasBeenClicked(true);
+      localStorage.setItem('chatbot-clicked', 'true');
     }
 
-    setIsOpen(true);
-    setShowPopup(false);
-    setHasBeenOpened(true);
-
-    // Track chatbot open event
-    trackChatbotEvent("chatbot_opened", {
-      source: showPopup ? "popup_click" : "button_click",
-      hasBeenOpenedBefore: hasBeenOpened,
-      dismissCount,
+    // Track chatbot open/close
+    trackChatbotEvent(newState ? "chatbot_opened" : "chatbot_closed", {
+      trigger: "floating_button",
+      isMobile,
     });
-
-    // Track button click for analytics
-    trackButtonClick("chatbot_open", "Open Chatbot");
-
-    // Pre-load system prompt in the background for faster responses
-    fetch("/api/chatbot", { method: "GET" })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("System prompt pre-loaded:", data.message);
-      })
-      .catch((error) => {
-        console.warn("Pre-loading failed (non-critical):", error);
-      });
-  };
-
-  const closeChatbot = () => {
-    setIsOpen(false);
-    
-    // Track chatbot close event
-    trackChatbotEvent("chatbot_closed", {
-      hasBeenOpened: hasBeenOpened,
-    });
-
-    // Don't reset permanentlyDismissed - once dismissed, stay dismissed
-    // Only reset if user opened the chatbot (which shows they're engaged)
-    if (!permanentlyDismissed) {
-      setHasBeenOpened(false);
-      setDismissCount(0);
-      setHasScrolled(false);
-    }
   };
 
   return (
     <>
       {/* Floating Button */}
-      <motion.div
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60] pointer-events-none"
-        initial={tourActive ? false : { scale: 0, opacity: 0 }}
-        animate={tourActive ? false : { scale: 1, opacity: 1 }}
-        transition={tourActive ? {} : { delay: 1, duration: 0.3 }}
-        style={{ pointerEvents: 'none' }}
-      >
-        {/* Scroll Popup */}
         <AnimatePresence>
-          {showPopup && !tourActive && (
-            <motion.div
-              initial={{ opacity: 0, x: 20, y: 10 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              exit={{ opacity: 0, x: 20, y: 10 }}
-              className="absolute bottom-20 right-0 mb-2 sm:bottom-20 sm:right-0 pointer-events-auto"
-              style={{ pointerEvents: 'auto' }}
-            >
+        {!isOpen && (
+          <motion.button
+            onClick={handleToggle}
+            className="fixed bottom-6 right-6 z-50 group"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 30,
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {/* Main Button */}
               <div className="relative">
-                <div
-                  onClick={openChatbot}
-                  className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-3 sm:p-4 w-64 sm:w-72 max-w-[calc(100vw-2rem)] border border-slate-200 dark:border-slate-700 cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105"
-                >
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      dismissPopup();
-                    }}
-                    className="absolute top-1 right-1 sm:top-2 sm:right-2 p-2 sm:p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 z-10 bg-white/80 dark:bg-slate-800/80 rounded-full backdrop-blur-sm border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center justify-center"
-                    aria-label="Close popup"
-                  >
-                    <X className="h-3 w-3 sm:h-4 sm:w-4" />
-                  </button>
-                  <div className="pr-8 sm:pr-6">
-                    <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-1 sm:mb-2">
-                      💼 Open to AI PM/APM roles!
-                    </p>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                      Ask me about my experience in AI Product Management or
-                      schedule a meeting!
-                    </p>
-                  </div>
-                </div>
-                {/* Arrow pointing to button */}
-                <div className="absolute -bottom-2 right-8 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white dark:border-t-slate-800"></div>
+              {/* Gradient Background */}
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 via-blue-600 to-purple-700 rounded-full shadow-2xl hover:shadow-purple-500/30 transition-all duration-300 flex items-center justify-center group-hover:from-purple-600 group-hover:via-blue-700 group-hover:to-purple-800">
+                <FiMessageCircle className="w-7 h-7 text-white" />
               </div>
-            </motion.div>
+
+              {/* Glowing Border Effect */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-blue-600 to-purple-700 opacity-30 blur-lg group-hover:opacity-50 transition-opacity duration-300" />
+
+              {/* Pulse Animation - Only show if not clicked before */}
+              {!hasBeenClicked && (
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 to-blue-600 animate-ping opacity-20" />
+              )}
+
+              {/* Notification Dot - Only show if not clicked before */}
+              {!hasBeenClicked && (
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-400 to-green-500 rounded-full border-2 border-white shadow-lg">
+                  <div className="w-full h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full animate-pulse" />
+                </div>
+              )}
+                </div>
+
+            {/* Tooltip */}
+            <div className="absolute bottom-full right-0 mb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <div className="bg-slate-900 text-white text-sm font-medium px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+                💬 Chat with Lawrence's AI
+                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900" />
+              </div>
+            </div>
+          </motion.button>
           )}
         </AnimatePresence>
 
-        {/* Main Chat Button */}
-        <motion.button
-          onClick={openChatbot}
-          disabled={tourActive}
-          className={`h-14 w-14 rounded-full text-white shadow-lg transition-all duration-300 flex items-center justify-center group relative z-10 ${
-            tourActive
-              ? "bg-gray-400 cursor-not-allowed opacity-50 pointer-events-none"
-              : "bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-xl cursor-pointer pointer-events-auto"
-          }`}
-          whileHover={tourActive ? {} : { scale: 1.1 }}
-          whileTap={tourActive ? {} : { scale: 0.9 }}
-          title={tourActive ? "Chat is disabled during tour" : "Open chat"}
-          style={{ pointerEvents: tourActive ? 'none' : 'auto' }}
-        >
-          <MessageCircle
-            className={`h-6 w-6 transition-transform ${tourActive ? "" : "group-hover:scale-110"}`}
-          />
-        </motion.button>
-
-        {/* Removed pulse animation for performance */}
-      </motion.div>
-
-      {/* Chatbot Modal */}
-      <Chatbot isOpen={isOpen} onClose={closeChatbot} />
+      {/* Chatbot Interface */}
+      <ChatInterface isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
   );
 }

@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId, userAgent, referrer, pathname } = await request.json();
+    const { sessionId, userAgent, referrer, pathname, locationData } = await request.json();
 
     // Initialize Firebase
     let app;
@@ -26,20 +26,25 @@ export async function POST(request: NextRequest) {
     }
     const firestore = getFirestore(app);
 
-    // Get geolocation data
-    let geoData = null;
-    try {
-      const geoResponse = await fetch(`${request.nextUrl.origin}/api/geolocation`, {
-        method: 'GET',
-        headers: {
-          'x-forwarded-for': request.headers.get('x-forwarded-for') || '',
-        },
-      });
-      if (geoResponse.ok) {
-        geoData = await geoResponse.json();
+    // Use pre-fetched location data if available, otherwise fetch fresh
+    let geoData = locationData;
+    if (!geoData) {
+      console.log("🌍 No pre-fetched geolocation data, fetching fresh...");
+      try {
+        const geoResponse = await fetch(`${request.nextUrl.origin}/api/geolocation`, {
+          method: 'GET',
+          headers: {
+            'x-forwarded-for': request.headers.get('x-forwarded-for') || '',
+          },
+        });
+        if (geoResponse.ok) {
+          geoData = await geoResponse.json();
+        }
+      } catch (geoError) {
+        console.log("Geolocation fetch failed for visitor tracking:", geoError);
       }
-    } catch (geoError) {
-      console.log("Geolocation fetch failed for visitor tracking:", geoError);
+    } else {
+      console.log("🌍 Using pre-fetched geolocation data for visitor tracking");
     }
 
     // Track visitor location in new collection
@@ -59,16 +64,18 @@ export async function POST(request: NextRequest) {
       },
       ip: geoData?.ip || "Unknown",
       fresh: geoData?.fresh || false,
+      cached: !!locationData, // Track if this used cached data
     };
 
     await addDoc(collection(firestore, "analytics_visitor_locations_v2"), visitorLocation);
 
-    console.log(`🌍 Visitor location tracked: ${geoData?.city || 'Unknown'}, ${geoData?.country_name || 'Unknown'}`);
+    console.log(`🌍 Visitor location tracked: ${geoData?.city || 'Unknown'}, ${geoData?.country_name || 'Unknown'} (${locationData ? 'cached' : 'fresh'})`);
 
     return NextResponse.json({ 
       success: true, 
       collection: "analytics_visitor_locations_v2",
-      location: `${geoData?.city || 'Unknown'}, ${geoData?.country_name || 'Unknown'}`
+      location: `${geoData?.city || 'Unknown'}, ${geoData?.country_name || 'Unknown'}`,
+      cached: !!locationData
     });
   } catch (error) {
     console.error("Error tracking visitor location:", error);
