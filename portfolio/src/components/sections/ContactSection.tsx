@@ -15,6 +15,7 @@ import {
   CheckCircle,
   AlertCircle,
   Clock,
+  Phone,
 } from "lucide-react";
 import { FaLinkedin, FaGithub, FaFacebookF } from "react-icons/fa6";
 import "react-datepicker/dist/react-datepicker.css";
@@ -985,6 +986,14 @@ export function ContactSection({
                   title="Email: Lawrencehua2@gmail.com"
                 >
                   <Mail className="w-6 h-6" />
+                </Link>
+
+                <Link
+                  href="tel:+15612518138"
+                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200 p-2"
+                  title="Phone: +1 (561) 251-8138"
+                >
+                  <Phone className="w-6 h-6" />
                 </Link>
 
                 <button
