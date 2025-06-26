@@ -1,8 +1,49 @@
-# Lawrence W. Hua - Personal Portfolio
+# Lawrence W. Hua - Personal Portfolio V2 🚀
 
 **AI Product Manager | Transforming Ideas into Impactful Digital Solutions**
 
 🌐 **Live Site**: [www.lawrencehua.com](https://www.lawrencehua.com)
+
+> **V2 Update**: Complete redesign featuring modular chatbot architecture, enhanced mobile experience, advanced tour system, and professional dark theme across all devices.
+
+---
+
+## 🆕 What's New in V2
+
+### 🏗️ **Modular Chatbot Architecture**
+- **Complete Refactor**: Monolithic 1,600+ line chatbot split into clean, maintainable modules
+- **TypeScript Components**: Separate files for types, hooks, analytics, session management
+- **Reusable Components**: MessageList, MessageInput, CalendarPicker, FloatingButton
+- **Custom Hooks**: Centralized state management with `useChatbot` hook
+- **Better Performance**: Optimized loading states and instant UI feedback
+
+### 📱 **Enhanced Mobile Experience**
+- **Professional Dark Theme**: Consistent dark styling across all mobile interfaces
+- **Improved Touch Interactions**: Better tap targets and responsive design
+- **Smart Menu Behavior**: Click-outside to close functionality for hamburger menu
+- **Compact Message Layout**: More content fits on screen with better spacing
+- **Mobile Tour Optimization**: Perfect positioning for professional journey step
+
+### ⚡ **Performance & UX Improvements**
+- **Instant Quick Responses**: No loading delays for "Skills", "Projects", "Experience" buttons
+- **Immediate Message Display**: User messages appear instantly with `flushSync` optimization
+- **Smart Loading States**: Only show "thinking" indicators for complex queries
+- **Click-Outside Behavior**: Professional menu interactions on mobile and desktop
+- **Tour Analytics**: Complete tracking of tour interactions, pauses, and completions
+
+### 🎯 **Advanced Analytics & Tour System**
+- **Daily Analytics Graphs**: Date-specific analytics with hourly breakdowns
+- **Enhanced Tour Tracking**: Track all user interactions including dismissals and restarts
+- **Graph Section**: New analytics dashboard section with comprehensive daily insights
+- **Mobile Tour Positioning**: Step 4 (professional journey) positioned closer to work experience
+- **Floating Button Animation**: Stops pulsing after first interaction, persisted in localStorage
+
+### 🎨 **Design & Content Improvements**
+- **Actual Funny Fun Facts**: Replaced arrogant content with self-deprecating developer humor
+- **Professional Calendar Styling**: Dark theme calendar matching chatbot aesthetics
+- **Better Message Formatting**: Cleaner welcome message spacing and button organization
+- **Consistent Color Themes**: Purple/blue gradients maintained across all components
+- **Phone Contact Integration**: Added phone icon and number to footer
 
 ---
 
@@ -10,17 +51,17 @@
 
 ```
 LawrenceHua.io/
-├── portfolio/                          # Main Next.js portfolio application
+├── portfolio/                          # Main Next.js portfolio application (V2)
 │   ├── src/
 │   │   ├── app/                        # Next.js App Router
-│   │   │   ├── analytics/              # Analytics dashboard with AI assistant
+│   │   │   ├── analytics/              # Enhanced analytics dashboard with graphs
 │   │   │   ├── api/                    # API routes
 │   │   │   │   ├── analytics-assistant/ # AI data analyst endpoint
 │   │   │   │   ├── auth/               # Authentication APIs
-│   │   │   │   ├── chatbot/            # Main chatbot API with GPT-4
-│   │   │   │   ├── chatbot-analytics/  # Chatbot metrics API
+│   │   │   │   ├── chatbot/            # Modular chatbot API with GPT-4
+│   │   │   │   ├── chatbot-analytics/  # Enhanced chatbot metrics API
 │   │   │   │   ├── contact/            # Contact form handler
-│   │   │   │   ├── geolocation/        # Location tracking
+│   │   │   │   ├── geolocation/        # Optimized location tracking
 │   │   │   │   ├── meeting-request/    # Meeting scheduling
 │   │   │   │   ├── projects/           # Project data API
 │   │   │   │   ├── recruiter-contact/  # Recruiter messaging
@@ -31,27 +72,46 @@ LawrenceHua.io/
 │   │   │   ├── mturk-examples/         # Amazon Mechanical Turk demos
 │   │   │   ├── globals.css             # Global styles
 │   │   │   ├── layout.tsx              # Root layout component
-│   │   │   └── page.tsx                # Homepage component
-│   │   ├── components/                 # Reusable React components
-│   │   │   ├── analytics/              # Analytics-specific components
-│   │   │   │   └── AnalyticsAssistant.tsx # AI data analyst chatbot
+│   │   │   └── page.tsx                # Homepage with enhanced tour
+│   │   ├── components/                 # Modular React components (V2)
+│   │   │   ├── analytics/              # Enhanced analytics components
+│   │   │   │   ├── AnalyticsAssistant.tsx # AI data analyst chatbot
+│   │   │   │   ├── AnalyticsDashboard.tsx # Main dashboard
+│   │   │   │   ├── AnalyticsProvider.tsx  # Context provider
+│   │   │   │   └── sections/           # Dashboard sections including graphs
+│   │   │   ├── chatbot/                # NEW: Modular chatbot components
+│   │   │   │   ├── CalendarPicker.tsx  # Enhanced calendar with dark theme
+│   │   │   │   ├── ChatInterface.tsx   # Main chat container
+│   │   │   │   ├── FloatingButton.tsx  # Floating button with animation control
+│   │   │   │   ├── MessageInput.tsx    # Input interface with menu
+│   │   │   │   ├── MessageList.tsx     # Message rendering
+│   │   │   │   └── index.ts            # Export file
 │   │   │   ├── providers/              # Context providers
 │   │   │   │   ├── SmoothScrollProvider.tsx
 │   │   │   │   └── ThemeProvider.tsx
 │   │   │   ├── sections/               # Page sections
 │   │   │   │   ├── AboutSection.tsx
-│   │   │   │   ├── ContactSection.tsx
+│   │   │   │   ├── ContactSection.tsx  # With phone integration
 │   │   │   │   ├── HeroSection.tsx
 │   │   │   │   ├── ProjectsSection.tsx
 │   │   │   │   ├── SkillsSection.tsx
 │   │   │   │   ├── TestimonialsSection.tsx
 │   │   │   │   └── TimelineSection.tsx
-│   │   │   ├── Chatbot.tsx             # Main AI chatbot component
-│   │   │   ├── FloatingChatbot.tsx     # Popup chatbot trigger
+│   │   │   ├── Chatbot.tsx             # LEGACY: Maintained for compatibility
+│   │   │   ├── FloatingChatbot.tsx     # Enhanced popup chatbot trigger
 │   │   │   ├── ModernNavigation.tsx    # Navigation component
 │   │   │   ├── Navigation.tsx          # Alternative nav
-│   │   │   └── PMTour.tsx              # Product Manager guided tour
-│   │   ├── types/                      # TypeScript type definitions
+│   │   │   └── VisitorTracker.tsx      # Optimized geolocation tracking
+│   │   ├── hooks/                      # NEW: Custom hooks
+│   │   │   └── useChatbot.ts           # Centralized chatbot state management
+│   │   ├── lib/                        # NEW: Utility libraries
+│   │   │   ├── analytics.ts            # Analytics tracking functions
+│   │   │   ├── firebase.ts             # Centralized Firebase configuration
+│   │   │   ├── messageFormatter.ts     # Message formatting with button replacement
+│   │   │   ├── session.ts              # Session management
+│   │   │   └── geolocation.ts          # Geolocation utilities
+│   │   ├── types/                      # Enhanced TypeScript definitions
+│   │   │   ├── chatbot.ts              # NEW: Chatbot-specific types
 │   │   │   └── react-datepicker.d.ts
 │   │   └── package.json
 │   ├── public/                         # Static assets
@@ -92,7 +152,7 @@ LawrenceHua.io/
 ### Core Framework & Language
 - **Next.js 14.1.0** - React framework with App Router
 - **TypeScript 5.x** - Type-safe JavaScript with strict mode
-- **React 18** - Component-based UI library
+- **React 18** - Component-based UI library with concurrent features
 - **Node.js >=22.11.0** - Server runtime environment
 
 ### Styling & UI Components
@@ -110,7 +170,7 @@ LawrenceHua.io/
 
 ### Data Visualization & Charts
 - **Recharts** - Composable charting library
-- **React DatePicker** - Date selection component
+- **React DatePicker** - Enhanced date selection component
 - **React Hook Form** - Performant form library
 
 ### Development Tools
@@ -127,17 +187,18 @@ LawrenceHua.io/
 - **Environment Variables** - Secure configuration management
 
 ### Analytics & Tracking
-- **Custom Analytics Dashboard** - Real-time visitor tracking
+- **Custom Analytics Dashboard** - Real-time visitor tracking with graphs
 - **Firebase Analytics** - User interaction monitoring
 - **Chatbot Analytics** - Conversation and engagement metrics
 - **AI Analytics Assistant** - Natural language data querying
-- **Geolocation Tracking** - Visitor location insights
+- **Geolocation Tracking** - Optimized visitor location insights
+- **Tour Analytics** - Complete guided tour interaction tracking
 
 ---
 
-## 🚀 Create Your Own Portfolio
+## 🚀 Create Your Own Portfolio V2
 
-Want a beautiful, AI-powered portfolio like this? Follow these steps to create your own:
+Want a beautiful, AI-powered portfolio like this? Follow these steps to create your own V2 experience:
 
 1. **Fork this repository**
    - Click the "Fork" button at the top right of this page.
@@ -155,8 +216,9 @@ Want a beautiful, AI-powered portfolio like this? Follow these steps to create y
 4. **Customize your content**
    - Update your projects, timeline, and skills in `portfolio/src/app/page.tsx`.
    - Replace images in `portfolio/public/images/` and `portfolio/public/logos/`.
-   - Update the chatbot prompts in `portfolio/src/components/Chatbot.tsx`.
+   - Update the chatbot prompts in `portfolio/src/app/api/chatbot/route.ts`.
    - Change your profile picture: replace `profile.jpg` in `portfolio/public/`.
+   - Customize fun facts in the chatbot API to match your personality.
 5. **Set up environment variables**
    - Copy `.env.example` to `.env.local` and fill in your API keys:
      ```bash
@@ -165,6 +227,7 @@ Want a beautiful, AI-powered portfolio like this? Follow these steps to create y
      
      # Required for email functionality
      RESEND_API_KEY=your_resend_api_key
+     EMAIL_NAME=your_email@domain.com
      
      # Required for analytics
      NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
@@ -183,198 +246,180 @@ Want a beautiful, AI-powered portfolio like this? Follow these steps to create y
 7. **Deploy to Vercel**
    - Connect your GitHub repo to [Vercel](https://vercel.com/)
    - Set environment variables in the Vercel dashboard
-   - Deploy and enjoy your new portfolio!
+   - Deploy and enjoy your new V2 portfolio!
 
 ---
 
-## 🌟 Portfolio Features
+## 🌟 Portfolio Features (V2)
 
-### 🤖 AI-Powered Analytics Assistant *(NEW)*
+### 🤖 **Modular AI-Powered Chatbot** *(V2 REDESIGN)*
 
-- **Natural Language Queries**: Ask questions about your data in plain English
-- **Real-Time Analysis**: Live Firebase data processing with GPT-4 intelligence
-- **Smart Insights**: Conversion rates, traffic patterns, and engagement metrics
-- **Quick Actions**: Pre-built buttons for instant analytics reports
-- **Time Range Support**: Analyze data across different periods
-- **Minimizable Interface**: Non-intrusive floating chatbot design
+- **Modular Architecture**: Clean separation of concerns with TypeScript modules
+- **Instant Quick Responses**: Zero-delay responses for "Skills", "Projects", "Experience"
+- **Professional Mobile UI**: Dark theme consistent across all mobile devices
+- **Smart Loading States**: Only shows "thinking" for complex, comprehensive queries
+- **Enhanced Contact Flows**: Improved message and meeting request processing
+- **Custom Hooks**: Centralized state management with `useChatbot` hook
+- **Click-Outside Behavior**: Professional menu interactions on all devices
+- **Session Persistence**: Maintains conversation state across interactions
 
-#### Example Analytics Queries:
-- *"What's my chatbot conversion rate this week?"*
-- *"Show me peak activity hours"*
-- *"Which buttons are most popular?"*
-- *"How does engagement compare to last month?"*
-- *"What should I optimize for better conversions?"*
+#### Technical Architecture:
+- **Types**: `src/types/chatbot.ts` - TypeScript definitions
+- **Hooks**: `src/hooks/useChatbot.ts` - State management
+- **Components**: `src/components/chatbot/` - Modular UI components
+- **Utils**: `src/lib/` - Analytics, Firebase, session management
+- **API**: Enhanced route with better error handling and performance
 
-### 🎯 Interactive Product Manager Tour
+### 🎯 **Enhanced Interactive Tour System** *(V2 IMPROVEMENT)*
 
-- **1-Minute Guided Experience**: Take users through Lawrence's PM journey
-- **6 Strategic Steps**: PM experience, data-driven results, leadership, AI innovation, customer focus, and execution
-- **Mobile-Responsive Design**: Centered popups on mobile, side navigation on desktop
-- **Dynamic Text Highlighting**: Character-by-character text animation with strategic pauses
-- **Smart Scrolling**: Automatically positions content for optimal viewing
-- **Professional CTAs**: Seamless transition to contact forms at tour completion
+- **Advanced Analytics Tracking**: Complete tour interaction monitoring
+- **Mobile Optimization**: Step 4 positioned closer to work experience content
+- **Pause/Resume Tracking**: Monitors all user interactions with tour controls
+- **Dismissal Analytics**: Tracks when users close the tour invitation
+- **Restart Functionality**: "Do it again" button with separate tracking
+- **Professional Positioning**: Smart scrolling and content alignment
+- **4-Second Delay**: Optimized popup timing for better user experience
 
-### 🕒 Interactive Experience Timeline
+### 📊 **Advanced Analytics Dashboard** *(V2 ENHANCEMENT)*
 
-- Dynamic career timeline with filtering by year and category
-- Expandable experience cards with detailed achievements
-- Mobile-responsive design with touch-friendly interactions
-- Visual progression through education and work history
+- **Daily Analytics Graphs**: New "Graph" section with date-specific insights
+- **Hourly Activity Breakdown**: Detailed timeline of user interactions
+- **Enhanced Tour Analytics**: Views, clicks, completed, skipped tracking
+- **Button Interaction Analysis**: Visual progress bars for all button clicks
+- **Session Details**: Message counts and duration tracking
+- **Geographic Intelligence**: Enhanced visitor location insights
+- **Activity Timeline**: Chronological event listing with comprehensive data
 
-### 🤖 AI-Powered Chatbot Assistant
+### 🎨 **Professional Dark Mobile Theme** *(V2 FEATURE)*
 
-- **For Visitors**: Learn about my experience, skills, and projects
-- **For Recruiters**:
-  - Share job descriptions and files for analysis
-  - **Direct Contact**: Get in touch with Lawrence through the chatbot
-  - Real-time job fit analysis with detailed feedback
-  - File attachment support for comprehensive reviews
-- **Smart Contact System**: Recruiters can provide their information and send messages directly to Lawrence
-- **Email Validation**: Ensures valid contact information for follow-up
-- **Comprehensive Analytics**: Track every interaction, conversion, and engagement metric
+- **Consistent Dark UI**: All mobile interfaces use professional dark theme
+- **Gradient Backgrounds**: Purple/blue gradients maintained across components
+- **Enhanced Readability**: Light text on dark backgrounds for mobile viewing
+- **Professional Shadows**: Depth and visual hierarchy preserved on mobile
+- **Menu Styling**: Dark hamburger menu matching chatbot aesthetics
+- **Calendar Integration**: Dark-themed calendar picker for meeting scheduling
 
-### 📊 Advanced Analytics Dashboard
+### 📬 **Enhanced Contact System** *(V2 IMPROVEMENT)*
 
-- **Real-Time Visitor Tracking**: Live user behavior monitoring
-- **Chatbot Performance**: Detailed conversation and conversion analytics
-- **Geographic Insights**: Visitor location and country breakdown
-- **Engagement Metrics**: Session duration, scroll depth, and interaction tracking
-- **Firebase Usage Monitoring**: Cost tracking and optimization insights
-- **Tour Analytics**: Product Manager tour completion and abandonment rates
-- **Mobile/Desktop Breakdown**: Device-specific engagement patterns
+- **Phone Integration**: Added phone icon and contact number to footer
+- **Improved Email Flow**: Better message and meeting request processing
+- **Contact Intent Detection**: Natural language processing for contact requests
+- **Form Validation**: Enhanced error handling and user feedback
+- **Professional Templates**: Improved email formatting and delivery
 
-### 🎨 Project Showcase
+### ⚡ **Performance Optimizations** *(V2 FOCUS)*
 
-- **Product Related**: AI platforms, social apps, venture competitions
-- **Engineering**: ML models, distributed systems, tutorials
-- **Fun Projects**: Research, presentations, interactive simulations
-- Filterable gallery with detailed project information
+- **Instant UI Feedback**: User messages appear immediately with `flushSync`
+- **Smart Loading Logic**: Reduced unnecessary loading states for quick actions
+- **Optimized Geolocation**: Prevents duplicate API calls with caching
+- **Bundle Optimization**: Modular architecture reduces initial load time
+- **Memory Management**: Better session handling and cleanup
 
-### 🛠️ Skills & Expertise
+### 😂 **Improved Fun Facts** *(V2 CONTENT)*
 
-- Interactive skills visualization with proficiency levels
-- Endorsements and experience tracking
-- Highlighted achievements for each skill area
-
-### 📬 Contact Forms
-
-- **General Contact**: For general inquiries and collaboration
-- **Meeting Requests**: Schedule calls with Lawrence
-- **Recruiter Contact**: Direct messaging through AI assistant
-- **Email Integration**: Powered by Resend for reliable delivery
+- **Self-Deprecating Humor**: Replaced arrogant content with relatable developer jokes
+- **Actually Funny**: Content that makes users smile instead of cringe
+- **Relatable Scenarios**: Common developer experiences and coding fails
+- **Humble Personality**: Shows human side with failures and quirks
+- **Better User Connection**: Content people can relate to and enjoy
 
 ---
 
-## 📊 Current Projects
+## 📊 V2 Current Projects
 
 ### Product Management
 
-- **Expired Solutions**: AI-powered grocery automation platform
-- **PanPalz**: Nonprofit social media platform
-- **McGinnis Venture Competition**: Finalist presentation
-- **BBW Demo**: Enterprise LLM decision-support tool
-- **Tutora AI**: Automation platform for education
+- **Expired Solutions**: AI-powered grocery automation platform (V2 enhanced analytics)
+- **PM Happy Hour**: Community growth with AI-generated content campaigns
+- **McGinnis Venture Competition**: Finalist presentation with live pitch video
+- **Tutora AI**: EdTech automation platform with 35% outcome improvement
 - **NFC Feature Prototype**: Motorola hackathon winner
 
 ### Engineering & Development
 
+- **Portfolio V2**: This enhanced modular portfolio with advanced features
 - **Netflix Clone with KNN**: ML model analyzing 10M+ reviews
 - **Valohai AI Tutorial**: Reproducible ML pipeline guide
 - **Android + DB + RESTful**: Distributed systems project
 - **ML Playground**: Interactive machine learning simulation
-- **Portfolio Website**: This responsive portfolio site
 
 ---
 
-## 🎯 Skills & Expertise
+## 🎯 V2 Skills & Expertise
 
 ### Product Management
 
 - **Product Strategy**: Roadmap planning, GTM strategies, user research
 - **AI/ML Integration**: Computer vision, GPT, LLM applications
-- **Data Analysis**: A/B testing, analytics, performance metrics
+- **Data Analysis**: A/B testing, analytics, performance metrics, conversion optimization
 - **Stakeholder Management**: Cross-functional collaboration, presentations
 
 ### Technical Skills
 
-- **Programming**: Python, JavaScript, TypeScript, SQL
-- **Frameworks**: Next.js, React, Flask, Node.js
-- **AI/ML**: OpenAI APIs, Computer Vision, Machine Learning
-- **Cloud Platforms**: Azure, Firebase, AWS
-- **Tools**: Figma, Git, Docker, JIRA
+- **Frontend**: React 18, Next.js 14, TypeScript, TailwindCSS
+- **Backend**: Node.js, Python, Flask, API development
+- **AI/ML**: OpenAI APIs, Computer Vision, Machine Learning, prompt engineering
+- **Cloud Platforms**: Azure, Firebase, AWS, Vercel
+- **Tools**: Figma, Git, Docker, JIRA, advanced analytics
 
 ### Business & Leadership
 
 - **Startup Experience**: Founding, fundraising, team building
 - **Consulting**: Enterprise solutions, strategic planning
 - **Education**: Teaching, curriculum development, automation
-- **Communication**: Public speaking, technical writing
+- **Communication**: Public speaking, technical writing, presentation design
 
 ---
 
-## 📈 Career Journey
+## 🔧 V2 Development Features
 
-### 2025 - Present
+### Code Quality & Architecture
 
-- **Product Manager** at PM Happy Hour
-- **Produce Assistant Team Leader** at Giant Eagle
-
-### 2024
-
-- **Founder & CEO** at Expired Solutions
-- **Product Manager** at PanPalz
-- **Student Consultant, Technical Lead** at Kearney
-- **Master's Degree** from Carnegie Mellon University
-
-### 2023
-
-- **System Administrator** at University of Florida
-- **Bachelor's Degree** from University of Florida
-
----
-
-## 🔧 Development Features
-
-### Code Quality
-
-- **TypeScript**: Strict type checking for better code quality
+- **Modular Design**: Clean separation of concerns and reusable components
+- **TypeScript Strict**: Enhanced type checking for better code quality
+- **Custom Hooks**: Centralized state management and logic
 - **ESLint**: Code linting with Next.js best practices
 - **Prettier**: Consistent code formatting
 - **Husky**: Git hooks for pre-commit checks
 - **Monorepo**: Turbo for efficient workspace management
 
-### Performance
+### Performance & UX
 
-- **Next.js Optimization**: Automatic code splitting and optimization
+- **React 18 Features**: Concurrent rendering and Suspense optimization
+- **Instant Feedback**: `flushSync` for immediate UI updates
+- **Smart Loading**: Conditional loading states based on query complexity
 - **Image Optimization**: Next.js Image component for optimal loading
 - **Bundle Analysis**: Built-in performance monitoring
 - **SEO**: Meta tags, structured data, and social media optimization
 
-### Security
+### Security & Reliability
 
 - **Environment Variables**: Secure API key management
 - **Input Validation**: Server-side validation for all forms
 - **Email Validation**: Proper email format verification
 - **Rate Limiting**: Protection against spam and abuse
+- **Session Management**: Secure user session handling
 
-### Analytics & Intelligence
+### Analytics & Intelligence (V2)
 
-- **Firebase Integration**: Real-time data collection and storage
+- **Modular Analytics**: Separate components for different metric types
+- **Firebase Integration**: Optimized real-time data collection and storage
 - **AI-Powered Insights**: GPT-4 integration for smart analytics
-- **Custom Tracking**: Detailed user interaction monitoring
+- **Custom Tracking**: Detailed user interaction monitoring with tour analytics
 - **Cost Optimization**: Firebase usage tracking and optimization
-- **Conversion Funnels**: Complete user journey analysis
+- **Conversion Funnels**: Complete user journey analysis with enhanced metrics
 
 ---
 
-## 🚀 Deployment & Versioning
+## 🚀 Deployment & Versioning (V2)
 
 - **Hosting**: Deployed on Vercel with automatic deployments
-- **Version Control**: Automatic versioning system (currently v1.0.200+)
+- **Version Control**: Automatic versioning system (currently v1.0.227+)
 - **CI/CD**: GitHub Actions for automated testing and deployment
 - **Monitoring**: Real-time analytics and performance tracking
 - **Email Integration**: Reliable email delivery with Resend
-- **AI Features**: OpenAI integration for intelligent interactions
+- **AI Features**: Enhanced OpenAI integration for intelligent interactions
+- **Mobile Optimization**: Consistent experience across all devices
 
 ---
 
@@ -386,30 +431,33 @@ I'm always interested in connecting with fellow product managers, AI enthusiasts
 
 - **LinkedIn**: [Lawrence Hua](https://www.linkedin.com/in/lawrencehua)
 - **Email**: Available through the contact form on my site
+- **Phone**: +1 (561) 251-8138 *(NEW in V2)*
 - **Portfolio**: [www.lawrencehua.com](https://www.lawrencehua.com)
 
 ### For Recruiters:
 
 - **Resume**: Available for download on my portfolio
-- **AI Analysis**: Share job descriptions with my chatbot for detailed fit analysis
+- **AI Analysis**: Share job descriptions with my V2 chatbot for detailed fit analysis
 - **File Review**: Upload documents for comprehensive assessment
-- **Direct Contact**: Use the AI assistant to send messages directly to Lawrence
-- **Meeting Scheduling**: Request calls through the contact form
+- **Direct Contact**: Use the enhanced AI assistant to send messages directly to Lawrence
+- **Meeting Scheduling**: Request calls through the improved contact form
 
 ---
 
-## 🎨 Portfolio Design
+## 🎨 V2 Portfolio Design
 
-This portfolio features:
+This V2 portfolio features:
 
-- **Dark Mode**: Elegant dark theme optimized for readability
-- **Responsive Design**: Mobile-first approach with smooth animations
-- **Performance Optimized**: Built with Next.js for optimal loading speeds
+- **Professional Dark Mobile Theme**: Consistent dark experience across all mobile devices
+- **Modular Architecture**: Clean, maintainable codebase with TypeScript
+- **Enhanced Animations**: Smooth transitions and professional interactions
+- **Performance Optimized**: Built with Next.js 14 for optimal loading speeds
 - **Accessibility**: WCAG compliant with keyboard navigation support
 - **SEO Optimized**: Meta tags, structured data, and performance metrics
-- **Interactive Elements**: Hover effects, smooth transitions, and engaging animations
-- **AI Integration**: Multiple AI-powered features for enhanced user experience
-- **Analytics Dashboard**: Comprehensive visitor and engagement tracking
+- **Interactive Elements**: Enhanced hover effects, click-outside behavior, and engaging animations
+- **AI Integration**: Multiple AI-powered features with improved UX
+- **Advanced Analytics**: Comprehensive visitor tracking with daily graph insights
+- **Mobile-First Design**: Responsive design optimized for touch interactions
 
 ---
 
@@ -440,9 +488,11 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request. V2 includes improved architecture for easier contributions.
 
 ---
 
-*Built with ❤️ using Next.js, TypeScript, and AI*
-# Auto-versioning test - Wed Jun 25 01:38:06 EDT 2025
+*Built with ❤️ using Next.js 14, TypeScript, TailwindCSS, and Advanced AI Integration*
+
+**Portfolio V2** - Featuring modular architecture, enhanced mobile experience, and professional dark theme
+# Version 2.0 - Complete redesign with modular chatbot and enhanced UX
