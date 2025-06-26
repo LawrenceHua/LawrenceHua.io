@@ -369,11 +369,12 @@ function getMessageHash(message: string): string {
     .slice(0, 100);
 }
 
-// Quick pattern matching for instant responses - More flexible for common phrases
+// Quick pattern matching for instant responses - ONLY for button-like queries
 function getInstantResponse(message: string): string | null {
   const lowerMessage = message.toLowerCase().trim();
 
-  // Check for exact matches first (button-like behavior)
+  // ONLY check for exact matches (button-like behavior)
+  // Remove all the flexible phrase matching to prevent natural queries from triggering instant responses
   for (const pattern of quickPatterns) {
     if (pattern.exactMatches.includes(lowerMessage)) {
       const response = instantResponses.get(pattern.response);
@@ -383,24 +384,7 @@ function getInstantResponse(message: string): string | null {
     }
   }
 
-  // Check for common project-related phrases
-  if (lowerMessage.includes("project") && (lowerMessage.includes("show") || lowerMessage.includes("impressive") || lowerMessage.includes("key") || lowerMessage.includes("main"))) {
-    const response = instantResponses.get("projects");
-    if (response) return response;
-  }
-
-  // Check for common skills-related phrases
-  if ((lowerMessage.includes("skill") || lowerMessage.includes("technical") || lowerMessage.includes("ability")) && (lowerMessage.includes("key") || lowerMessage.includes("main") || lowerMessage.includes("what"))) {
-    const response = instantResponses.get("skills");
-    if (response) return response;
-  }
-
-  // Check for common experience-related phrases
-  if ((lowerMessage.includes("experience") || lowerMessage.includes("background")) && (lowerMessage.includes("tell") || lowerMessage.includes("about") || lowerMessage.includes("show"))) {
-    const response = instantResponses.get("experience");
-    if (response) return response;
-  }
-
+  // No more flexible phrase matching - let natural queries go to AI
   return null;
 }
 
