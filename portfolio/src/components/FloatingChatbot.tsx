@@ -52,20 +52,39 @@ function getSessionId(): string {
 
 // Track chatbot events
 async function trackChatbotEvent(eventType: string, data: any = {}) {
-  if (!db) return;
-
   try {
-    await addDoc(collection(db, "chatbot_analytics"), {
+    const firestore = getFirestore();
+    await addDoc(collection(firestore, "chatbot_analytics"), {
       eventType,
-      sessionId: getSessionId(),
       timestamp: serverTimestamp(),
-      userAgent: navigator.userAgent,
-      page: window.location.pathname,
+      sessionId: getSessionId(),
       ...data,
     });
     console.log(`Tracked chatbot event: ${eventType}`);
   } catch (error) {
     console.error("Error tracking chatbot event:", error);
+  }
+}
+
+// Track button clicks for analytics
+async function trackButtonClick(buttonType: string, buttonText: string) {
+  try {
+    await fetch("/api/track-button-v2", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        buttonType,
+        buttonText,
+        page: window.location.pathname,
+        sessionId: getSessionId(),
+        userAgent: navigator.userAgent,
+      }),
+    });
+    console.log(`✅ Button click tracked: ${buttonType}`);
+  } catch (error) {
+    console.error("❌ Error tracking button click:", error);
   }
 }
 
@@ -198,6 +217,9 @@ export function FloatingChatbot({
       hasBeenOpenedBefore: hasBeenOpened,
       dismissCount,
     });
+
+    // Track button click for analytics
+    trackButtonClick("chatbot_open", "Open Chatbot");
 
     // Pre-load system prompt in the background for faster responses
     fetch("/api/chatbot", { method: "GET" })

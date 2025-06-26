@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "../components/providers/ThemeProvider";
 import { SmoothScrollProvider } from "../components/providers/SmoothScrollProvider";
+import VisitorTracker from "../components/VisitorTracker";
 
 import "./globals.css";
 
@@ -103,7 +104,10 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <SmoothScrollProvider>
+            <VisitorTracker />
+            {children}
+          </SmoothScrollProvider>
         </ThemeProvider>
       </body>
     </html>

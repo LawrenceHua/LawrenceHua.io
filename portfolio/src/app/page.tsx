@@ -520,13 +520,34 @@ export default function ModernHome() {
 
   // Tour tracking functions
   const getSessionId = () => {
-    if (typeof window === "undefined") return "ssr-session";
-    let sessionId = sessionStorage.getItem("sessionId");
+    let sessionId = sessionStorage.getItem("analytics_session_id");
     if (!sessionId) {
       sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      sessionStorage.setItem("sessionId", sessionId);
+      sessionStorage.setItem("analytics_session_id", sessionId);
     }
     return sessionId;
+  };
+
+  // Track important button clicks for analytics
+  const trackButtonClick = async (buttonType: string, buttonText: string) => {
+    try {
+      await fetch("/api/track-button-v2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          buttonType,
+          buttonText,
+          page: window.location.pathname,
+          sessionId: getSessionId(),
+          userAgent: navigator.userAgent,
+        }),
+      });
+      console.log(`✅ Button click tracked: ${buttonType}`);
+    } catch (error) {
+      console.error("❌ Error tracking button click:", error);
+    }
   };
 
   const trackTourEvent = async (
@@ -1794,12 +1815,13 @@ export default function ModernHome() {
       <ModernNavigation tourActive={isActive} />
 
       {/* Modern Hero Section */}
-      <HeroSection
-        onStartTour={startTour}
-        tourActive={isActive}
-        showCats={showCats}
-        onCatsToggle={handleCatsToggle}
-      />
+                <HeroSection
+            onStartTour={startTour}
+            tourActive={isActive}
+            showCats={showCats}
+            onCatsToggle={handleCatsToggle}
+            trackButtonClick={trackButtonClick}
+          />
 
       {/* Modern About Section */}
       <AboutSection />

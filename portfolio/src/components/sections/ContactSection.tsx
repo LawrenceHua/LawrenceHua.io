@@ -353,11 +353,33 @@ export function ContactSection({
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={(e) => {
+                            onClick={async (e) => {
                               e.stopPropagation();
                               setActiveForm(
                                 method.action as "message" | "calendar"
                               );
+                              
+                              // Track button clicks
+                              try {
+                                const buttonType = method.action === "message" ? "direct_email" : "schedule_meeting";
+                                const sessionId = sessionStorage.getItem('sessionId') || 
+                                                localStorage.getItem('sessionId') || 
+                                                'contact-' + Date.now();
+                                
+                                await fetch("/api/track-button-v2", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    buttonType,
+                                    buttonText: method.buttonText,
+                                    page: "contact",
+                                    sessionId,
+                                    userAgent: navigator.userAgent
+                                  }),
+                                });
+                              } catch (error) {
+                                console.error("Failed to track button click:", error);
+                              }
                             }}
                             className={`inline-flex items-center space-x-2 rounded-lg px-6 py-3 text-sm font-medium text-white transition-all duration-200 ${
                               isActive

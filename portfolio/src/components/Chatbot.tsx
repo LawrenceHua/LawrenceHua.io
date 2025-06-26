@@ -596,6 +596,7 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [fileError, setFileError] = useState("");
+  const [hasUserSentMessage, setHasUserSentMessage] = useState(false);
 
   // Detect mobile/desktop with proper responsive handling
   const [isMobile, setIsMobile] = useState(false);
@@ -883,6 +884,9 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    
+    // Mark that user has sent their first message (for button clicks too)
+    setHasUserSentMessage(true);
 
     // Automatically send to API
     sendMessageToAPI(message, [...messages, userMessage]);
@@ -977,6 +981,16 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
     }
   }, [isOpen, isMinimized, isDesktop]);
 
+  // Auto-focus input after first message and subsequent assistant responses (desktop only)
+  useEffect(() => {
+    if (hasUserSentMessage && !isLoading && isDesktop && !isMinimized && inputRef.current) {
+      // Small delay to ensure the assistant response is fully rendered
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 300);
+    }
+  }, [messages, isLoading, hasUserSentMessage, isDesktop, isMinimized]);
+
   // Handle wheel events to prevent body scroll when scrolling inside chatbot
   const handleWheel = (e: React.WheelEvent) => {
     // Only prevent default if we're scrolling the messages container
@@ -1017,6 +1031,9 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    
+    // Mark that user has sent their first message (for calendar selections too)
+    setHasUserSentMessage(true);
 
     // Send the selected date/time to API to complete the meeting request
     sendMessageToAPI(dateTime, [...messages, userMessage]);
@@ -1065,6 +1082,9 @@ Try asking me something like *"What's Lawrence's biggest accomplishment?"* or *"
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    
+    // Mark that user has sent their first message
+    setHasUserSentMessage(true);
 
     // Handle file uploads with custom API call
     if (selectedFiles.length > 0) {

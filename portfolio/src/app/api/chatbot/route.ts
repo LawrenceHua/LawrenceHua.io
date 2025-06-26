@@ -10,6 +10,10 @@ import {
   collection,
   addDoc,
   serverTimestamp,
+  query,
+  where,
+  limit,
+  getDocs,
 } from "firebase/firestore";
 
 // Import pdf-parse at the top level to avoid dynamic import issues
@@ -920,11 +924,13 @@ function getOrCreateSessionId(sessionIdFromRequest?: string): string {
   return sessionId;
 }
 
-// Function to write messages to Firebase
+// Function to write messages to Firebase v2 collections
 async function saveMessageToFirebase(
   sessionId: string,
   role: "user" | "assistant",
-  message: string
+  message: string,
+  userAgent?: string,
+  clientIP?: string
 ) {
   if (!db) {
     console.log("DEBUG: Firebase not initialized, skipping message save");
@@ -932,16 +938,170 @@ async function saveMessageToFirebase(
   }
 
   try {
-    await addDoc(collection(db, "chatbot_messages"), {
+    // Save to new v2 chat messages collection
+    await addDoc(collection(db, "analytics_chat_messages_v2"), {
+      id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       sessionId,
       role,
-      message,
+      content: message,
       timestamp: serverTimestamp(),
+      messageLength: message.length,
+      hasFiles: false,
+      fileTypes: [],
     });
-    console.log(`DEBUG: Saved ${role} message to Firebase`);
+    console.log(`DEBUG: Saved ${role} message to Firebase v2`);
+    
+    // Also update/create the session record with real data
+    await updateSessionRecord(sessionId, role, message, userAgent, clientIP);
   } catch (error) {
-    console.error("DEBUG: Error saving message to Firebase:", error);
+    console.error("DEBUG: Error saving message to Firebase v2:", error);
   }
+}
+
+// Function to update session records for analytics
+async function updateSessionRecord(
+  sessionId: string, 
+  role: string, 
+  message: string, 
+  userAgent?: string,
+  clientIP?: string
+) {
+  if (!db) return;
+  
+  try {
+    // Check if session already exists
+    const existingSessionsQuery = query(
+      collection(db, "analytics_sessions_v2"),
+      where("sessionId", "==", sessionId),
+      limit(1)
+    );
+    
+    const existingSessionsSnap = await getDocs(existingSessionsQuery);
+    
+    if (existingSessionsSnap.empty) {
+      // Create new session only if it doesn't exist
+      const realUserAgent = userAgent || "Unknown Browser";
+      const deviceType = determineDeviceType(realUserAgent);
+      
+      // Fetch geolocation data for new sessions
+      let locationData = {
+        country: "Unknown",
+        region: "Unknown", 
+        city: "Unknown",
+        ip: clientIP || "Unknown"
+      };
+      
+      try {
+        // Call our geolocation API to get real location data
+        let geoUrl = "https://ipapi.co/json/";
+        if (clientIP && !isLocalIP(clientIP)) {
+          geoUrl = `https://ipapi.co/${clientIP}/json/`;
+        }
+        
+        const geoResponse = await fetch(geoUrl, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (compatible; Portfolio Analytics/1.0)",
+          },
+          signal: AbortSignal.timeout(3000), // 3 second timeout
+        });
+        
+        if (geoResponse.ok) {
+          const geoData = await geoResponse.json();
+          locationData = {
+            country: geoData.country_name || "Unknown",
+            region: geoData.region || "Unknown",
+            city: geoData.city || "Unknown",
+            ip: geoData.ip || clientIP || "Unknown"
+          };
+          console.log(`DEBUG: Fetched geolocation for session ${sessionId}:`, locationData);
+        }
+      } catch (geoError) {
+        console.log(`DEBUG: Could not fetch geolocation for session ${sessionId}:`, geoError);
+      }
+      
+      const sessionData = {
+        sessionId,
+        messages: [], // Messages are stored separately in analytics_chat_messages_v2
+        startTime: serverTimestamp(),
+        endTime: serverTimestamp(),
+        messageCount: 1, // Start with 1, will be updated by the analytics provider
+        totalDuration: 0, // Would be calculated from start/end times
+        userAgent: realUserAgent,
+        deviceType,
+        location: locationData,
+        engagementScore: calculateEngagementScore(message, role),
+        isRecruiterSession: isRecruiterMessage(message),
+        tags: generateTags(message, role)
+      };
+
+      // Save session data only once
+      await addDoc(collection(db, "analytics_sessions_v2"), sessionData);
+      console.log(`DEBUG: Created new session record for ${sessionId} with real data`);
+    } else {
+      console.log(`DEBUG: Session ${sessionId} already exists, skipping duplicate creation`);
+    }
+  } catch (error) {
+    console.error("DEBUG: Error updating session record:", error);
+  }
+}
+
+// Helper function to check if IP is local/private
+function isLocalIP(ip: string): boolean {
+  return !ip ||
+    ip === "::1" ||
+    ip === "127.0.0.1" ||
+    ip.startsWith("192.168.") ||
+    ip.startsWith("10.") ||
+    ip.startsWith("172.");
+}
+
+// Helper functions for session analytics
+function determineDeviceType(userAgent: string): "Mobile" | "Desktop" | "Tablet" | "Unknown" {
+  if (!userAgent) return "Unknown";
+  const ua = userAgent.toLowerCase();
+  if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
+    return "Mobile";
+  } else if (ua.includes('tablet') || ua.includes('ipad')) {
+    return "Tablet";
+  } else {
+    return "Desktop";
+  }
+}
+
+function calculateEngagementScore(message: string, role: string): number {
+  // Simple engagement scoring
+  let score = 3.0; // Base score
+  
+  if (role === "user") {
+    if (message.length > 50) score += 1.0;
+    if (message.length > 100) score += 1.0;
+    if (message.includes("?")) score += 0.5;
+    if (message.toLowerCase().includes("resume")) score += 2.0;
+    if (message.toLowerCase().includes("meeting")) score += 2.0;
+    if (message.toLowerCase().includes("job")) score += 2.0;
+  }
+  
+  return Math.min(10, score);
+}
+
+function isRecruiterMessage(message: string): boolean {
+  const recruiterKeywords = ["job", "position", "role", "hiring", "resume", "interview", "salary", "meeting", "opportunity"];
+  const lowerMessage = message.toLowerCase();
+  return recruiterKeywords.some(keyword => lowerMessage.includes(keyword));
+}
+
+function generateTags(message: string, role: string): string[] {
+  const tags = ["chatbot"];
+  const lowerMessage = message.toLowerCase();
+  
+  if (role === "user") {
+    if (lowerMessage.includes("resume")) tags.push("resume-interest");
+    if (lowerMessage.includes("meeting")) tags.push("meeting-request");
+    if (lowerMessage.includes("job")) tags.push("job-inquiry");
+    if (message.length > 100) tags.push("detailed-inquiry");
+  }
+  
+  return tags;
 }
 
 async function extractContactInfoWithAI(message: string): Promise<{
@@ -1582,6 +1742,17 @@ export async function POST(request: NextRequest) {
     // Generate or use existing session ID for this conversation
     const sessionId = getOrCreateSessionId(sessionIdFromRequest);
 
+    // Extract real user agent and IP for session tracking
+    const userAgent = request.headers.get("user-agent") || "Unknown Browser";
+    let clientIP = request.headers.get("x-forwarded-for");
+    if (clientIP) {
+      clientIP = clientIP.split(",")[0].trim();
+    } else {
+      clientIP = request.headers.get("x-real-ip") || "Unknown";
+    }
+    
+    console.log(`DEBUG: Session ${sessionId} - User Agent: ${userAgent}, IP: ${clientIP}`);
+
     // Process files first to check for image uploads
     let isImageUpload = false;
     let finalMessage = message;
@@ -1603,7 +1774,7 @@ export async function POST(request: NextRequest) {
         if (file.size > maxFileSize) {
           const errorResponse = `❌ **File Too Large**\n\nThe file "${file.name}" (${Math.round(file.size / 1024 / 1024)}MB) exceeds the 5MB limit per file.\n\nPlease compress the file or use a smaller version and try again.`;
 
-          await saveMessageToFirebase(sessionId, "assistant", errorResponse);
+          await saveMessageToFirebase(sessionId, "assistant", errorResponse, userAgent, clientIP);
           return NextResponse.json({
             response: errorResponse,
             error: "File too large",
@@ -1667,7 +1838,9 @@ You can also scroll down to see his full project portfolio and work experience o
               await saveMessageToFirebase(
                 sessionId,
                 "assistant",
-                imageResponse
+                imageResponse,
+                userAgent,
+                clientIP
               );
               return NextResponse.json({
                 response: imageResponse,
@@ -1764,7 +1937,9 @@ You can also scroll down to see his full project portfolio and work experience o
               await saveMessageToFirebase(
                 sessionId,
                 "assistant",
-                imageResponse
+                imageResponse,
+                userAgent,
+                clientIP
               );
               return NextResponse.json({
                 response: imageResponse,
@@ -1817,7 +1992,9 @@ You can also scroll down to see his full project portfolio and work experience o
               await saveMessageToFirebase(
                 sessionId,
                 "assistant",
-                fallbackResponse
+                fallbackResponse,
+                userAgent,
+                clientIP
               );
               return NextResponse.json({
                 response: fallbackResponse,
@@ -1842,7 +2019,7 @@ You can also scroll down to see his full project portfolio and work experience o
     const userMessage = finalMessage || "User sent a file for analysis.";
 
     // Save user message to Firebase
-    await saveMessageToFirebase(sessionId, "user", userMessage);
+    await saveMessageToFirebase(sessionId, "user", userMessage, userAgent, clientIP);
 
     // Enhanced contact intent detection (only if not an image upload)
     const contactAnalysis = isImageUpload
@@ -1859,7 +2036,7 @@ You can also scroll down to see his full project portfolio and work experience o
     // 1. Check for instant responses first (0ms response time)
     const instantResponse = getInstantResponse(message);
     if (instantResponse) {
-      await saveMessageToFirebase(sessionId, "assistant", instantResponse);
+      await saveMessageToFirebase(sessionId, "assistant", instantResponse, userAgent, clientIP);
       return NextResponse.json({
         response: instantResponse,
         instant: true,
@@ -1871,7 +2048,7 @@ You can also scroll down to see his full project portfolio and work experience o
     const messageHash = getMessageHash(message);
     const cachedResponse = getCachedResponse(messageHash);
     if (cachedResponse) {
-      await saveMessageToFirebase(sessionId, "assistant", cachedResponse);
+      await saveMessageToFirebase(sessionId, "assistant", cachedResponse, userAgent, clientIP);
       return NextResponse.json({
         response: cachedResponse,
         cached: true,
@@ -1881,7 +2058,7 @@ You can also scroll down to see his full project portfolio and work experience o
     // 3. Check for fun fact requests (fast path)
     if (isFunFactRequest(message)) {
       const funFactResponse = getRandomFunFact();
-      await saveMessageToFirebase(sessionId, "assistant", funFactResponse);
+      await saveMessageToFirebase(sessionId, "assistant", funFactResponse, userAgent, clientIP);
       return NextResponse.json({
         response: funFactResponse,
         funFact: true,
@@ -1923,7 +2100,7 @@ You can also scroll down to see his full project portfolio and work experience o
       );
 
       // Save assistant response to Firebase
-      await saveMessageToFirebase(sessionId, "assistant", response);
+      await saveMessageToFirebase(sessionId, "assistant", response, userAgent, clientIP);
 
       return NextResponse.json({
         response,
@@ -1937,7 +2114,7 @@ You can also scroll down to see his full project portfolio and work experience o
         "I'm sorry, I'm not configured to respond right now. Please reach out to Lawrence directly!";
 
       // Save assistant response to Firebase
-      await saveMessageToFirebase(sessionId, "assistant", fallbackResponse);
+      await saveMessageToFirebase(sessionId, "assistant", fallbackResponse, userAgent, clientIP);
 
       return NextResponse.json({
         response: fallbackResponse,
@@ -1973,7 +2150,7 @@ You can also scroll down to see his full project portfolio and work experience o
       const meetingResponse = `🤝 **Meeting Request Sent!**\n\n${meetingResult.message}\n\nLawrence will review your request and contact you soon to schedule a meeting. In the meantime, feel free to ask me any other questions about Lawrence's background and experience.`;
 
       // Save assistant response to Firebase
-      await saveMessageToFirebase(sessionId, "assistant", meetingResponse);
+      await saveMessageToFirebase(sessionId, "assistant", meetingResponse, userAgent, clientIP);
 
       return NextResponse.json({
         response: meetingResponse,
@@ -1992,7 +2169,7 @@ You can also scroll down to see his full project portfolio and work experience o
       const fullResponse = `${fileAnalysis}\n\n${analysis}\n\n**Next Steps**: Do you have any questions about Lawrence's fit for this role? I can help schedule a meeting with Lawrence right away if you'd like to discuss this opportunity further. Just let me know if you'd like to schedule a meeting!`;
 
       // Save assistant response to Firebase
-      await saveMessageToFirebase(sessionId, "assistant", fullResponse);
+      await saveMessageToFirebase(sessionId, "assistant", fullResponse, userAgent, clientIP);
 
       return NextResponse.json({ response: fullResponse });
     }
@@ -2020,7 +2197,7 @@ GUIDELINES: Be conversational, concise, and helpful. Reference context when rele
     // 7. Parallel operations: Cache and save simultaneously
     const [_cacheResult, _firebaseResult] = await Promise.all([
       Promise.resolve(setCachedResponse(messageHash, response)),
-      saveMessageToFirebase(sessionId, "assistant", response),
+      saveMessageToFirebase(sessionId, "assistant", response, userAgent, clientIP),
     ]);
 
     return NextResponse.json({
@@ -2037,7 +2214,14 @@ GUIDELINES: Be conversational, concise, and helpful. Reference context when rele
     // Try to save error response to Firebase (if we have sessionId in scope)
     try {
       const sessionId = getOrCreateSessionId();
-      await saveMessageToFirebase(sessionId, "assistant", errorResponse);
+      const userAgent = request.headers.get("user-agent") || "Unknown Browser";
+      let clientIP = request.headers.get("x-forwarded-for");
+      if (clientIP) {
+        clientIP = clientIP.split(",")[0].trim();
+      } else {
+        clientIP = request.headers.get("x-real-ip") || "Unknown";
+      }
+      await saveMessageToFirebase(sessionId, "assistant", errorResponse, userAgent, clientIP);
     } catch (firebaseError) {
       console.error("Error saving error response to Firebase:", firebaseError);
     }

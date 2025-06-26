@@ -12,6 +12,7 @@ interface HeroSectionProps {
   tourActive?: boolean;
   showCats?: boolean;
   onCatsToggle?: (show: boolean) => void;
+  trackButtonClick?: (buttonType: string, buttonText: string) => void;
 }
 
 export function HeroSection({
@@ -19,6 +20,7 @@ export function HeroSection({
   tourActive = false,
   showCats = false,
   onCatsToggle,
+  trackButtonClick,
 }: HeroSectionProps = {}) {
   const prefersReducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
@@ -389,6 +391,7 @@ export function HeroSection({
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 sm:px-8 py-3 sm:py-4 text-white font-semibold transition-all duration-300 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+            onClick={() => trackButtonClick?.("download_resume", "Download Resume")}
           >
             <FiFileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
             Download Resume
@@ -408,6 +411,7 @@ export function HeroSection({
         <motion.div variants={itemVariants} className="mb-8 relative px-4">
           <motion.button
             onClick={() => {
+              trackButtonClick?.("lets_connect", "Let's Connect!");
               const contactSection = document.getElementById("contact");
               if (contactSection) {
                 const elementPosition =

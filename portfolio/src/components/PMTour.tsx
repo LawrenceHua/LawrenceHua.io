@@ -17,6 +17,7 @@ import {
   FiChevronLeft,
 } from "react-icons/fi";
 
+
 interface PMTourProps {
   onSendMessage: () => void;
   onScheduleMeeting: () => void;
@@ -120,6 +121,48 @@ const tourSteps: TourStep[] = [
   },
 ];
 
+
+
+// Tour analytics tracking
+const trackTourEvent = async (
+  eventType: 'tour_start' | 'tour_step' | 'tour_complete' | 'tour_abandon' | 'tour_cta_action',
+  stepId: string,
+  stepIndex: number,
+  ctaAction?: string
+) => {
+  try {
+    const sessionId = sessionStorage.getItem('sessionId') || 
+                     localStorage.getItem('sessionId') || 
+                     'tour-' + Date.now();
+    
+    const response = await fetch('/api/track-tour-v2', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tourStep: stepId,
+        action: eventType,
+        sessionId,
+        timeOnStep: stepIndex * 1000, // Convert to milliseconds
+        metadata: {
+          stepIndex,
+          ctaAction: ctaAction || null,
+          userAgent: navigator.userAgent
+        }
+      }),
+    });
+    
+    if (response.ok) {
+      console.log(`🎯 Tour event tracked: ${eventType} - ${stepId}`);
+    } else {
+      console.error('Failed to track tour event:', await response.text());
+    }
+  } catch (error) {
+    console.error('Error tracking tour event:', error);
+  }
+};
+
 export default function PMTour({
   onSendMessage,
   onScheduleMeeting,
@@ -155,11 +198,17 @@ export default function PMTour({
     setIsTypingComplete(false);
     setShowTourHoverPopup(false);
     setHasShownAutoPopup(true);
+    
+    // Track tour start
+    trackTourEvent('tour_start', tourSteps[0].id, 0);
+    
     // Scroll to top first
     window.scrollTo({ top: 0, behavior: "smooth" });
     // Start with first step after a delay
     setTimeout(() => {
       scrollToSection(tourSteps[0].targetSection);
+      // Track first step view
+      trackTourEvent('tour_step', tourSteps[0].id, 0);
     }, 1000);
   };
 
@@ -227,10 +276,16 @@ export default function PMTour({
       setTypedText("");
       setIsTypingComplete(false);
       scrollToSection(tourSteps[nextStepIndex].targetSection);
+      
+      // Track step view
+      trackTourEvent('tour_step', tourSteps[nextStepIndex].id, nextStepIndex);
     } else {
       // Tour complete, show final CTA
       setShowFinalCTA(true);
       setIsActive(false);
+      
+      // Track tour completion
+      trackTourEvent('tour_complete', tourSteps[currentStep].id, currentStep);
     }
   };
 
@@ -250,6 +305,11 @@ export default function PMTour({
   };
 
   const closeTour = () => {
+    // Track tour abandonment if tour was active
+    if (isActive) {
+      trackTourEvent('tour_abandon', tourSteps[currentStep].id, currentStep);
+    }
+    
     setIsActive(false);
     setShowFinalCTA(false);
     setReadingProgress(0);
@@ -301,6 +361,9 @@ export default function PMTour({
   };
 
   const handleFinalCTAAction = (action: "message" | "meeting") => {
+    // Track CTA action
+    trackTourEvent('tour_cta_action', 'final_cta', tourSteps.length, action);
+    
     // Close tour first to unlock screen
     closeTour();
 
