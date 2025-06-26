@@ -14,7 +14,6 @@ export function useChatbot(isOpen: boolean) {
       content: `👋 Hey there! I'm Lawrence's AI assistant!
 
 I can help you discover what makes Lawrence tick as a Product Manager and AI builder.
-
 **Popular Topics:**
 <button-experience>🚀 Experience</button-experience> <button-skills>🛠️ Skills</button-skills> <button-projects>💻 Projects</button-projects>
 **Quick Actions:**
