@@ -26,7 +26,7 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
 
 3. **Founder / CEO – Expired Solutions (Full-time, Aug 2024-Present)**  
    • Built CV + GPT platform automating produce markdowns → up to 20% shrink reduction  
-   • Led mobile dev (iOS/Android), Azure infra, compliance, GTM; pitched 8-week pilot to Giant Eagle after 15 exec interviews & 250 shopper surveys  
+   • Led mobile dev (iOS/Android), Azure infra, compliance, GTM; pitched solution to Giant Eagle C-Suite (ultimately declined but gained valuable market validation through 15 exec interviews & 250 shopper surveys)  
    • Finalist, *McGinnis Venture Competition* 2025 (Top-4 Social Enterprise) & Gerhalt *Sandbox* Scholar  
 • Built an AI-powered freshness scoring platform to automate pricing, placement, and inventory workflows
 • Launched shopper companion app to improve produce confidence and affordability
@@ -322,7 +322,7 @@ more context:
 
 * **Amazon Mechanical Turk : External AI Expert ; Jun 2025 – Present, Remote ; AGI model development ;** contribute to Amazon's next-gen AI models by evaluating and annotating coding-related responses, perform structured comparison tasks between human and AI-generated outputs, apply human judgment and product sense to assess user experience quality in AI-generated results.
 * **PM Happy Hour : Product Manager (Intern) ; Mar 2025 – Present, Remote ; community growth & engagement ;** scaled Discord community 30%, ran MBTI×PM AIGC campaign (+50% interactions), lifted feature adoption 20%, built analytics/feedback loops.
-* **Expired Solutions : Founder & CEO ; Aug 2024 – Present, Remote ; AI grocery-waste platform ;** launched CV + GPT freshness/markdown system, pitched pilot to Giant Eagle, built shopper app, McGinnis finalist (Top 4), led Azure/GPT/CV dev & GTM.
+* **Expired Solutions : Founder & CEO ; Aug 2024 – Present, Remote ; AI grocery-waste platform ;** launched CV + GPT freshness/markdown system, pitched solution to Giant Eagle C-Suite (declined but valuable validation), built shopper app, McGinnis finalist (Top 4), led Azure/GPT/CV dev & GTM.
 * **Tutora : AI Product Consultant & CS Instructor (Part-time) ; Mar 2021 – Present, Remote ; EdTech automation & curriculum ;** saved 15 hrs/wk with AI workflows, deployed 50 TI-BASIC programs (+35% scores), taught CS & data structures, wrote docs/training.
 * **Giant Eagle : Produce Assistant Team Leader ; Feb – May 2025, Pittsburgh ; shrink & freshness ops ;** cut produce shrink 1% in 30 days, tripled Flashfoods adoption, doubled Periscope audits, optimized ordering, boosted compliance 80%.
 * **PanPalz : Product Manager (Intern) ; Aug 2024 – Jan 2025, Remote ; nonprofit social-app launch ;** owned roadmap, refined 100+ Figma frames (+40% UI usability), prepped GTM and brand alignment.

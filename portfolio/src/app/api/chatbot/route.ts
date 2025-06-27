@@ -92,7 +92,7 @@ const instantResponses = new Map<string, string>([
 
 🚀 **Founder & CEO - Expired Solutions** (Aug 2024-Present)
 - Built CV + GPT platform automating produce markdowns → 20% shrink reduction
-- Pitched pilot to Giant Eagle after 15 exec interviews & 250 shopper surveys
+- Pitched solution to Giant Eagle C-Suite (ultimately declined, but gained valuable insights through 15 exec interviews & 250 shopper surveys)
 - McGinnis Venture Competition Finalist (Top-4 Social Enterprise)
 <button-expired>View Expired Solutions</button-expired>
 
@@ -130,7 +130,7 @@ const instantResponses = new Map<string, string>([
 🥑 **Expired Solutions** (AI Food Waste Platform)
 • Computer vision for expiration date detection
 • 20% reduction in grocery waste
-• Giant Eagle pilot program
+• Giant Eagle C-Suite pitch (valuable market insights despite declining pilot)
 • Full-stack AI application with React/Python
 <button-expired>View Expired Solutions</button-expired>
 
@@ -436,7 +436,7 @@ LAWRENCE'S BACKGROUND:
 DETAILED EXPERIENCE:
 🚀 **Founder & CEO - Expired Solutions** (Aug 2024-Present) [BUTTON: <button-expired>View Expired Solutions</button-expired>]
 - AI platform using computer vision for food waste reduction
-- Pitched pilot to Giant Eagle after 15 exec interviews, 250 shopper surveys
+- Pitched solution to Giant Eagle C-Suite (ultimately declined, but gained valuable market validation through 15 exec interviews, 250 shopper surveys)
 - McGinnis Venture Competition Finalist (Top-4 Social Enterprise)
 - Built CV + GPT platform → 20% shrink reduction
 
