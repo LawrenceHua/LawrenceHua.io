@@ -39,13 +39,17 @@ export function MessageList({
       {messages.map((message, index) => (
         <motion.div
           key={index}
-          initial={{ opacity: 0, y: 10 }}
+          initial={message.role === "user" ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.3,
-            delay: index * 0.05,
-            ease: "easeOut",
-          }}
+          transition={
+            message.role === "user" 
+              ? { duration: 0 } 
+              : {
+                  duration: 0.3,
+                  delay: index * 0.05,
+                  ease: "easeOut",
+                }
+          }
           className={`flex ${
             message.role === "user" ? "justify-end" : "justify-start"
                       } mb-3`}
