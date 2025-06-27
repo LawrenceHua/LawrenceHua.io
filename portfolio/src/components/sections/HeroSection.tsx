@@ -247,23 +247,23 @@ export function HeroSection({
             <div className="absolute inset-0 rounded-full bg-gradient-to-t from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </motion.div>
 
-          {/* Grey Cat - Right Side */}
+          {/* Grey Cat - Left Side (below tuxedo cat) */}
           <AnimatePresence>
             {showCats && (
               <motion.div
-                initial={{ opacity: 0, scale: 0, x: -20 }}
+                initial={{ opacity: 0, scale: 0, x: 20 }}
                 animate={{
                   opacity: 1,
                   scale: 1,
                   x: 0,
                 }}
-                exit={{ opacity: 0, scale: 0, x: -20 }}
+                exit={{ opacity: 0, scale: 0, x: 20 }}
                 transition={{
                   duration: 0.8,
                   ease: "easeOut",
                   delay: 0.2,
                 }}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 sm:translate-x-20 md:translate-x-24 lg:translate-x-28 z-10"
+                className="absolute left-0 top-1/2 translate-y-8 sm:translate-y-10 md:translate-y-12 lg:translate-y-14 -translate-x-16 sm:-translate-x-20 md:-translate-x-24 lg:-translate-x-28 z-10"
               >
                 <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28">
                   <Image

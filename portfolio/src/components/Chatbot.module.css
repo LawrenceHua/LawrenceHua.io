@@ -709,10 +709,10 @@
     right: 2rem !important;
   }
 
-  /* Desktop welcome message styling - proper spacing for section headers */
+  /* Desktop welcome message styling - tighter spacing for section headers */
   .messageBubble.assistant strong {
     display: block;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     margin-bottom: 0.5rem;
     font-size: 1rem;
     font-weight: 600;
