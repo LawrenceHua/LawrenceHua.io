@@ -100,7 +100,7 @@ const timelineData: TimelineEvent[] = [
     category: "product",
     bullets: [
       "Led AI platform using CV + GPT to automate markdowns and reduce grocery shrink by up to 20%",
-      "Pitched 8-week pilot with Giant Eagle, validated through 15+ exec interviews and 250+ shopper surveys",
+              "Pitched 8-week pilot to Giant Eagle, validated through 15+ exec interviews and 250+ shopper surveys",
       "Finalist, McGinnis Venture Competition (Top 4 – Social Enterprise Track)",
       "Led technical development (Azure, GPT, Vision AI) and compliance planning",
     ],

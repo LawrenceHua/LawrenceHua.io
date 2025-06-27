@@ -25,7 +25,7 @@ const projectsData = {
     {
       title: "Expired Solutions - AI Grocery Platform",
       description:
-        "AI-powered platform designed to reduce grocery shrink using computer vision and GPT with Azure-based solution and mobile companion app. Pitched to Giant Eagle C-Suite executives and reached McGinnis Venture Competition finals.",
+        "AI-powered platform designed to reduce grocery shrink using computer vision and GPT with Azure-based solution and mobile companion app. Pitched pilot to Giant Eagle C-Suite executives and reached McGinnis Venture Competition finals.",
       image: "/logos/expired_solutions_logo.jpeg",
       tags: [
         "AI/ML",

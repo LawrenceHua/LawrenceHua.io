@@ -92,7 +92,7 @@ const instantResponses = new Map<string, string>([
 
 🚀 **Founder & CEO - Expired Solutions** (Aug 2024-Present)
 - Built CV + GPT platform automating produce markdowns → 20% shrink reduction
-- Led Giant Eagle pilot after 15 exec interviews & 250 shopper surveys
+- Pitched pilot to Giant Eagle after 15 exec interviews & 250 shopper surveys
 - McGinnis Venture Competition Finalist (Top-4 Social Enterprise)
 <button-expired>View Expired Solutions</button-expired>
 
@@ -436,7 +436,7 @@ LAWRENCE'S BACKGROUND:
 DETAILED EXPERIENCE:
 🚀 **Founder & CEO - Expired Solutions** (Aug 2024-Present) [BUTTON: <button-expired>View Expired Solutions</button-expired>]
 - AI platform using computer vision for food waste reduction
-- Led Giant Eagle pilot: 15 exec interviews, 250 shopper surveys
+- Pitched pilot to Giant Eagle after 15 exec interviews, 250 shopper surveys
 - McGinnis Venture Competition Finalist (Top-4 Social Enterprise)
 - Built CV + GPT platform → 20% shrink reduction
 
