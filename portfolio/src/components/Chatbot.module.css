@@ -707,6 +707,31 @@
   .chatbotContainer {
     bottom: 2rem !important;
     right: 2rem !important;
-}
+  }
+
+  /* Desktop welcome message styling - proper spacing for section headers */
+  .messageBubble.assistant strong {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .messageBubble.assistant strong:first-child {
+    margin-top: 0.5rem;
+  }
+
+  /* Better button layout on desktop */
+  .messageBubble.assistant button {
+    margin: 0.25rem 0.25rem;
+    display: inline-block;
+  }
+
+  /* Proper line height for desktop */
+  .messageBubble.assistant {
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
 }
 
