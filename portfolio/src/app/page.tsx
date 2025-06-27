@@ -136,7 +136,7 @@ const tourSteps: TourStep[] = [
     id: "project-expired-solutions",
     title: "💡 Featured Project: Expired Solutions",
     content:
-        "I founded and led the development of an AI platform that helps grocery stores reduce food waste. We pitched this solution to major retailers including Giant Eagle's C-Suite executives (ultimately declined but gained valuable market validation through the process).",
+        "I founded and led the development of an AI platform that helps grocery stores reduce food waste. We pitched this solution to major retailers including Giant Eagle's C-Suite executives.",
     targetSection: "projects",
     icon: <FiTarget className="w-5 h-5" />,
     color: "from-indigo-600 to-purple-600",
