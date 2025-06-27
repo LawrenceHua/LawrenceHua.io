@@ -147,40 +147,29 @@ export function CalendarPicker({
     }
   };
 
-  // Smart auto-scroll: only scroll if user is already at the bottom (ChatGPT-style)
-  const smartScrollToBottom = () => {
+  // Auto-scroll to next input section when user clicks calendar inputs
+  const scrollToNextSection = () => {
     if (!onScrollToBottom) return;
     
-    // Find the messages container to check scroll position
-    const messagesContainer = document.querySelector('.messagesContainer');
-    if (!messagesContainer) {
-      // Fallback to regular scroll if container not found
+    // Always scroll to the bottom to show the next input section
+    setTimeout(() => {
       onScrollToBottom();
-      return;
-    }
-
-    const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50; // 50px threshold
-    
-    // Only auto-scroll if user is already at the bottom
-    if (isAtBottom) {
-      onScrollToBottom();
-    }
+    }, 100); // Small delay to ensure DOM is updated
   };
 
-  // Smart scroll when date is selected (only if at bottom)
+  // Auto-scroll when date is selected to show time selection
   useEffect(() => {
     if (selectedDate) {
-      smartScrollToBottom();
+      scrollToNextSection();
     }
   }, [selectedDate]);
 
-  // Smart scroll when both date and time are selected (only if at bottom)
+  // Auto-scroll when time is selected to show confirmation section
   useEffect(() => {
     if (selectedDate && selectedTime) {
-      smartScrollToBottom();
+      scrollToNextSection();
     }
-  }, [selectedDate, selectedTime]);
+  }, [selectedTime]);
 
   return (
     <div
