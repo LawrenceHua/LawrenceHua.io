@@ -156,8 +156,15 @@ export function MessageList({
         </motion.div>
       ))}
 
-      {/* Loading Message - FIXED STYLING */}
-      {isLoading && (
+      {/* Loading Message - Only show if no recent predictive loading message exists */}
+      {isLoading && (() => {
+        const lastMessage = messages[messages.length - 1];
+        const hasRecentLoadingMessage = lastMessage && 
+          lastMessage.role === "assistant" && 
+          lastMessage.timestamp && 
+          (Date.now() - lastMessage.timestamp.getTime() < 2000); // Within last 2 seconds
+        return !hasRecentLoadingMessage;
+      })() && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
