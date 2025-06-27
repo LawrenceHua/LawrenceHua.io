@@ -14,10 +14,10 @@ export function useChatbot(isOpen: boolean) {
       content: `👋 Hey there! I'm Lawrence's AI assistant!
 
 I can help you discover what makes Lawrence tick as a Product Manager and AI builder.
-**Popular Topics:**
-<button-experience>🚀 Experience</button-experience> <button-skills>🛠️ Skills</button-skills> <button-projects>💻 Projects</button-projects>
-**Quick Actions:**
-<button-message>📧 Send Message</button-message> <button-meeting>📅 Book Call</button-meeting> <button-upload>📎 Upload Job</button-upload> <button-funfact>🎲 Surprise Me!</button-funfact> <button-generate-question>💡 Generate Question</button-generate-question>
+
+**Popular Topics:** <button-experience>🚀 Experience</button-experience> <button-skills>🛠️ Skills</button-skills> <button-projects>💻 Projects</button-projects>
+
+**Quick Actions:** <button-message>📧 Send Message</button-message> <button-meeting>📅 Book Call</button-meeting> <button-upload>📎 Upload Job</button-upload> <button-funfact>🎲 Surprise Me!</button-funfact> <button-generate-question>💡 Generate Question</button-generate-question>
 
 Try asking me something like "What's Lawrence's biggest accomplishment?" or "How does he approach problem-solving?"`,
       timestamp: new Date(),
