@@ -103,7 +103,9 @@ export function MessageList({
                     : "text-slate-700 dark:text-slate-200"
                 }`}
                 dangerouslySetInnerHTML={{
-                  __html: formatMessage(message.content, isLoveMode),
+                  __html: message.content.includes('<ul style=') || message.content.includes('<li style=') 
+                    ? message.content  // Already formatted on backend
+                    : formatMessage(message.content, isLoveMode), // Format on frontend
                 }}
               />
 

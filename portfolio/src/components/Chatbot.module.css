@@ -133,7 +133,7 @@
 .messageBubble {
   word-wrap: break-word;
   word-break: break-word;
-  line-height: 1.4;
+  line-height: 1.5;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 0.75rem;
   padding: 0.75rem 1rem;
@@ -145,7 +145,37 @@
 .messageBubble:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
+}
+
+/* Ensure proper text formatting within message bubbles */
+.messageBubble ul {
+  margin: 4px 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+.messageBubble li {
+  margin: 2px 0 !important;
+  padding-left: 16px !important;
+  position: relative !important;
+  line-height: 1.5 !important;
+  list-style: none !important;
+}
+
+.messageBubble li span:first-child {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+}
+
+.messageBubble strong {
+  font-weight: 600;
+  color: inherit;
+}
+
+.messageBubble div {
+  line-height: 1.4;
+}
 
 /* User message styling */
 .messageBubble.user {

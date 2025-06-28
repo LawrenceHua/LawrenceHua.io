@@ -4,22 +4,88 @@ export function formatMessage(
   isLoveMode: boolean = false,
   onButtonClick?: (type: string) => void
 ) {
-  let formatted = content
+  let formatted = content;
+
+  // First handle markdown formatting
+  formatted = formatted
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(/\n/g, "<br>")
-    // Replace dashes with bullet points but ensure they stay together
-    .replace(/^- /gm, "• ")
-    .replace(/\n- /g, "\n• ")
-    .replace(/<br>- /g, "<br>• ")
-    // CRITICAL: Fix bullet point separation issues comprehensively
-    .replace(/•\s*<br>\s*\*\*/g, "• **")           // Fix "• <br> **Title**"
-    .replace(/•\s*<br>\s*([^<\n]+)/g, "• $1")      // Fix "• <br> text"
-    .replace(/•<br>/g, "• ")                        // Remove <br> immediately after bullet
-    .replace(/• <br>/g, "• ")                       // Remove spaces and <br> after bullet
-    .replace(/<br>•\s*<br>/g, "<br>• ")            // Fix double breaks around bullets
-    // Improve general spacing but preserve bullet formatting
-    .replace(/<br><br>/g, "<br><div style='height: 4px;'></div><br>");
+    .replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+  // Handle bullet points properly by converting to HTML lists
+  // Split content into sections and process each section
+  const sections = formatted.split(/\n\n/);
+  
+  formatted = sections.map(section => {
+    // Check if this section contains bullet points or numbered lists
+    if (section.includes('• ') || section.includes('- ') || /\d+\.\s/.test(section)) {
+      const lines = section.split('\n');
+      let processedSection = '';
+      let inList = false;
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        if (line.startsWith('• ') || line.startsWith('- ') || /^\d+\.\s/.test(line)) {
+          // This is a bullet point or numbered list item
+          if (!inList) {
+            processedSection += '<ul style="margin: 4px 0; padding-left: 0; list-style: none;">';
+            inList = true;
+          }
+          // Handle both bullet points and numbered lists
+          let bulletContent = '';
+          let bulletSymbol = '•';
+          
+          if (line.startsWith('• ')) {
+            bulletContent = line.replace(/^•\s*/, '');
+            bulletSymbol = '•';
+          } else if (line.startsWith('- ')) {
+            bulletContent = line.replace(/^-\s*/, '');
+            bulletSymbol = '•';
+          } else if (/^\d+\.\s/.test(line)) {
+            const match = line.match(/^(\d+)\.\s*(.*)/);
+            if (match) {
+              bulletContent = match[2];
+              bulletSymbol = match[1] + '.';
+              
+              // Handle cases where content starts with a colon (like "1. Deep Listening: content")
+              // Clean up any leading colons and extra spaces
+              bulletContent = bulletContent.replace(/^:\s*/, '');
+            }
+          }
+          
+          processedSection += `<li style="margin: 2px 0; padding-left: 20px; position: relative; line-height: 1.5;"><span style="color: #667eea; font-weight: bold; position: absolute; left: 0; top: 0;">${bulletSymbol}</span>${bulletContent}</li>`;
+        } else {
+          // This is not a bullet point
+          if (inList) {
+            processedSection += '</ul>';
+            inList = false;
+          }
+          if (line.trim() !== '') {
+            // Handle section headers properly
+            if (line.includes('**') && line.includes(':')) {
+              // This is a section header with a colon - remove extra spaces after colon
+              const cleanedLine = line.replace(/:\s+/g, ':');
+              processedSection += `<div style="margin: 4px 0; line-height: 1.4;">${cleanedLine}</div>`;
+            } else {
+              processedSection += `<div style="margin: 4px 0; line-height: 1.4;">${line}</div>`;
+            }
+          }
+        }
+      }
+      
+      if (inList) {
+        processedSection += '</ul>';
+      }
+      
+      return processedSection;
+    } else {
+      // No bullet points, just add line breaks and handle headers
+      let cleanedSection = section.replace(/:\s+/g, ':');
+      // Remove newlines immediately after section headers (headers with ** and :)
+      cleanedSection = cleanedSection.replace(/(\*\*[^*]+\*\*:)\n/g, '$1');
+      return cleanedSection.replace(/\n/g, '<br>');
+    }
+  }).join('<div style="height: 8px;"></div>');
 
   // Replace custom button tags with consistent, mobile-responsive buttons
   const baseButtonClass = "inline-flex items-center px-3 py-1.5 sm:px-2 sm:py-1 bg-gradient-to-r text-white rounded-md font-medium text-sm sm:text-xs shadow-md hover:shadow-lg transition-all duration-200 mx-1 my-1 cursor-pointer min-h-[36px] sm:min-h-[32px] touch-manipulation";
@@ -108,10 +174,10 @@ export function formatMessage(
     `<button onclick="window.scrollToProjectsAndClose && window.scrollToProjectsAndClose()" class="${baseButtonClass} from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl">$1</button>`
   );
 
-  // Wrap button groups for better display
+  // Wrap button groups for better display with tighter spacing
   formatted = formatted.replace(
     /(<button[^>]*>.*?<\/button>(?:\s*<button[^>]*>.*?<\/button>)+)/g,
-    '<div style="display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; align-items: center;">$1</div>'
+    '<div style="display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; align-items: center;">$1</div>'
   );
 
   // Special styling for typed commands - make them more visible and attractive

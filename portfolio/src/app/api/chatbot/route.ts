@@ -1,10 +1,14 @@
-import { readFileSync, promises as fs } from "fs";
-import { join } from "path";
-import path from "path";
 import { NextRequest, NextResponse } from "next/server";
+import fs from "fs/promises";
+import path from "path";
 import OpenAI from "openai";
-import { handleGirlfriendEasterEgg } from "./girlfriend-easter-egg";
-import { initializeApp, getApps } from "firebase/app";
+import { formatMessage } from "../../../lib/messageFormatter";
+
+// Import Firebase modules
+import {
+  initializeApp,
+  getApps,
+} from "firebase/app";
 import {
   getFirestore,
   collection,
@@ -12,9 +16,12 @@ import {
   serverTimestamp,
   query,
   where,
-  limit,
   getDocs,
+  limit,
 } from "firebase/firestore";
+
+// Import girlfriend easter egg handler
+import { handleGirlfriendEasterEgg } from "./girlfriend-easter-egg";
 
 // Import pdf-parse at the top level to avoid dynamic import issues
 let pdfParse: any = null;
@@ -56,165 +63,128 @@ const advancedCache = new Map<
   }
 >();
 
-// Pre-computed responses for instant delivery - Rich & Detailed
-const instantResponses = new Map<string, string>([
+// Instant responses optimized for performance
+const instantResponses = new Map([
   [
     "skills",
-    `**My Core Technical Skills & Proven Impact:**
+    `**🛠️ Lawrence's Core Skills & Expertise:**
 
-🎯 **Product Management** (2+ years professional)
-• Led cross-functional teams at PM Happy Hour, PanPalz, Expired Solutions
-• A/B testing frameworks driving 20% retention improvements
-• Product roadmaps scaling communities 30% and reducing costs 26%
-• Professional Scrum Product Owner I certified (97.5/100 score)
+**🎯 Product Management (2+ years professional experience)**
+• Product strategy, roadmapping, stakeholder management
+• A/B testing, analytics, user research, competitive analysis
+• Cross-functional team leadership (led 20+ person teams)
+• Go-to-market strategy, product-market fit validation
 
-🤖 **AI/ML Expertise** (4+ years applied experience)
-• **Computer Vision**: YOLO detection, image classification (Expired Solutions)
-• **NLP & GPT**: Prompt engineering, fine-tuning, API integration 
-• **Model Evaluation**: Contributing to Amazon's AGI development (MTurk)
-• **MLOps**: TensorFlow, PyTorch, scikit-learn, production deployment
+**🤖 AI/ML Specialization**
+• Computer Vision (YOLO, object detection), NLP, GPT integration
+• Model training, fine-tuning, deployment, performance optimization
+• Prompt engineering, AI product strategy, ethical AI implementation
+• Applied AI: food waste detection, content generation, tutoring automation
 
-💻 **Full-Stack Development** (6+ years)
-• **Frontend**: React, Next.js, TypeScript, Tailwind CSS, Android Studio
-• **Backend**: Python, Flask, Node.js, REST APIs, GraphQL
-• **Database**: SQL, MongoDB, Firebase, data pipelines
-• **Cloud**: Azure, AWS, Google Cloud, containerization
+**💻 Technical Stack**
+• Languages: Python, JavaScript, TypeScript, Java, C++
+• Frameworks: React, Next.js, Flask, TensorFlow, PyTorch
+• Cloud: AWS, Firebase, Google Cloud, Azure AI services
+• Tools: Git, Docker, Figma, Notion, Google Analytics
 
-📊 **Data & Analytics** (Proven ROI)
-• Built analytics dashboards cutting decision time 18hrs/week (Kearney)
-• Inventory optimization reducing shrink 1% in 30 days (Giant Eagle)
-• Forecasting models projecting $200M+ value (Expired Solutions)
+**📈 Business & Analytics**
+• Data analysis, forecasting, market sizing, financial modeling
+• Startup experience (founded company, raised funding interest)
+• Client management, consulting, project delivery
+• Public speaking, presentation skills, technical writing
 
-🚀 **Leadership & Entrepreneurship**
-• Founded venture-backed startup (McGinnis VC Finalist)
-• Led 20-person tech teams with 95%+ satisfaction (University of Florida)
-• Mentored 50+ students improving test scores 35% (Tutora)
+**Recent Applications:**
+• Built $200M+ value AI platform (Expired Solutions)
+• Scaled Discord community 30% using AI content strategy
+• Automated workflows saving 15+ hours/week (Tutora)
 
-**Certifications**: AI Product Manager (Udacity), IBM AI PM, Scrum Product Owner I
+<button-projects>💻 See Projects</button-projects> <button-experience>🚀 Full Background</button-experience> <button-message>📧 Let's Talk Skills</button-message>
 
-**See My Work in Action:**
-<button-expired>🥑 AI Food Platform</button-expired> <button-pmhappyhour>📈 Community Growth</button-pmhappyhour> <button-tutora>🎓 EdTech AI</button-tutora>
-
-**Let's Connect:**
-<button-experience>📋 Full Background</button-experience> <button-projects>💻 All Projects</button-projects> <button-message>📧 Send Message</button-message>
-
-**Quick Actions:**
-<button-meeting>📅 Schedule Call</button-meeting> <button-upload>📎 Share Job Description</button-upload> <button-funfact>🎲 Fun Fact</button-funfact>`,
+**Quick Actions:** <button-meeting>📅 Schedule Call</button-meeting> <button-upload>📎 Share Job Description</button-upload> <button-funfact>🎲 Fun Fact</button-funfact>`,
   ],
   [
     "experience",
-    `**I'm Lawrence - AI Product Builder with 9+ Years of Measurable Impact:**
+    `**🚀 Lawrence Hua - AI Product Builder (9+ Years Impact):**
 
-🎯 **Currently seeking my first full-time AI Product Manager role!**
+**🎯 Currently seeking first full-time AI Product Manager role!**
 
-**🚀 Current Active Roles:**
+**Current Active Roles:**
+• **External AI Expert - Amazon MTurk** (Jun 2025-Present) - Evaluating AGI models for Amazon's next-gen AI development
+• **Product Manager - PM Happy Hour** (Mar 2025-Present) - Scaled Discord 30%, viral MBTI campaign (75+ reactions), 20% retention boost <button-pmhappyhour>Visit Site</button-pmhappyhour> <button-pmhappyhour-work>View AI Work</button-pmhappyhour-work>
+• **Founder & CEO - Expired Solutions** (Aug 2024-Present) - AI food waste platform, $200M+ projected value, 50% quality check time reduction, McGinnis VC Finalist <button-expired>View Platform</button-expired>
+• **AI Product Consultant - Tutora** (Mar 2021-Present, 4+ years) - Automated workflows saving 15+ hours/week, boosted test scores 35% across 50+ students <button-tutora>Visit Tutora</button-tutora>
 
-**Founder & CEO - Expired Solutions** (Aug 2024-Present)
-• Built multimodal AI system (Computer Vision + GPT) with $200M+ projected value
-• Cut quality check time 50% using YOLO detection + LLM classification  
-• Forecasted 20% shrink reduction + 50% markdown improvement for Giant Eagle
-• McGinnis Venture Competition Finalist (Top-4) after pitching to C-Suite
-<button-expired>View Expired Solutions</button-expired>
+**Key Past Achievements:**
+• **Giant Eagle Team Lead** (Feb-May 2025) - Cut produce shrink 1% in 30 days, tripled Flashfoods adoption, doubled audits
+• **Motorola Android Engineer** (Aug 2021-Aug 2023) - Shipped features to 15k+ radios, won 1st place hackathon, cut delays 25%
+• **Kearney Tech Lead** (Sep-Dec 2024) - Built LLM tool cutting decision time 18hrs/week (26% faster), led stakeholder demos
 
-**Product Manager - PM Happy Hour** (Mar 2025-Present)  
-• Scaled Discord community 30% through AI content roadmap using Notion AI + Sora
-• Created viral MBTI×PM campaign generating 75+ community reactions in 30 mins
-• Improved retention 20% via A/B testing and live feedback integration
-<button-pmhappyhour>Visit the site</button-pmhappyhour> <button-pmhappyhour-work>View my AI work</button-pmhappyhour-work>
+**🎓 Education:** Carnegie Mellon MISM '24 (McGinnis Finalist, Gerhalt Scholar), University of Florida CS Cum Laude
 
-**External AI Expert - Amazon MTurk** (Jun 2025-Present)
-• Contributing to Amazon's AGI projects by evaluating coding-related AI responses
-• Performing structured comparisons between human/AI outputs for model refinement
+**Awards:** McGinnis VC Finalist, Motorola Hackathon Winner, Gerhalt Sandbox Scholar
 
-**AI Product Consultant - Tutora** (Mar 2021-Present, 4+ years)
-• Automated scheduling/grading workflows saving 15+ hours/week 
-• Deployed 50+ TI-BASIC programs improving test scores 35% across 50+ students
-<button-tutora>Visit Tutora Website</button-tutora>
+<button-skills>🛠️ Technical Skills</button-skills> <button-projects>💻 View Projects</button-projects> <button-message>📧 Let's Connect</button-message>
 
-**⭐ Key Past Achievements:**
-• **Giant Eagle Team Lead**: Cut produce shrink 1% in 30 days, tripled Flashfoods adoption
-• **Motorola Android Engineer**: Shipped features to 15k+ radios, won 1st place hackathon  
-• **Kearney Tech Lead**: Built GPT tool cutting decision time 18hrs/week (26% faster)
-
-🎓 **Education**: Carnegie Mellon MISM '24 (McGinnis Finalist), UF CS Cum Laude
-
-**Next Steps:**
-<button-skills>🛠️ See My Skills</button-skills> <button-projects>💻 View All Projects</button-projects> <button-message>📧 Let's Connect</button-message>
-
-**Quick Actions:**
-<button-meeting>📅 Book a Call</button-meeting> <button-upload>📎 Share Job Description</button-upload> <button-funfact>🎲 Fun Fact About Me</button-funfact>`,
+**Quick Actions:** <button-meeting>📅 Book Call</button-meeting> <button-upload>📎 Share Job Description</button-upload> <button-funfact>🎲 Fun Fact About Me</button-funfact>`,
   ],
   [
     "projects",
-    `**My Most Impactful Projects - Measurable Results:**
+    `**💻 Lawrence's Most Impactful Projects:**
 
-🥑 **Expired Solutions** - AI Food Waste Platform (Founder & CEO)
-• **Impact**: $200M+ projected value, 50% faster quality checks, 20% shrink reduction
-• **Tech**: Computer Vision (YOLO) + GPT-4 fine-tuning on Azure  
-• **Achievement**: McGinnis VC Finalist after pitching to Giant Eagle C-Suite
-• **Users**: Shopper app + retailer dashboard with real-time pricing automation
-<button-expired>View Expired Solutions Platform</button-expired>
+**🥑 Expired Solutions - AI Food Waste Platform (Founder & CEO)**
+• **Impact:** $200M+ projected value, 50% faster quality checks, 20% shrink reduction forecast
+• **Technology:** Computer Vision (YOLO) + GPT-4 fine-tuning on Azure, real-time pricing automation
+• **Achievement:** McGinnis VC Finalist after pitching to Giant Eagle C-Suite, shopper app + retailer dashboard
+<button-expired>View Platform</button-expired>
 
-📈 **PM Happy Hour Community Growth** - Product Management (Current)
-• **Impact**: 30% Discord growth, 75+ reactions on viral MBTI campaign, 20% retention boost
-• **Strategy**: AI content roadmap using Notion AI + Sora for video generation
-• **Methods**: A/B testing framework, live feedback loops, engagement analytics
-<button-pmhappyhour>Visit PM Happy Hour</button-pmhappyhour> <button-pmhappyhour-work>See My AI Content Work</button-pmhappyhour-work>
+**📈 PM Happy Hour Community Growth (Product Manager)**
+• **Impact:** 30% Discord growth, 75+ reactions on viral MBTI campaign, 20% retention boost via A/B testing
+• **Strategy:** AI content roadmap using Notion AI + Sora for video generation, live feedback loops
+<button-pmhappyhour>Visit Community</button-pmhappyhour> <button-pmhappyhour-work>See AI Content Work</button-pmhappyhour-work>
 
-🎓 **Tutora AI Automation** - EdTech Consultant (4+ years)
-• **Impact**: 15 hours/week saved, 35% test score improvement across 50+ students
-• **Automation**: Scheduling, grading, substitution workflows using OpenAI + Google Scripts
-• **Innovation**: 50+ custom TI-BASIC programs for personalized learning paths  
-<button-tutora>Visit Tutora Platform</button-tutora>
+**🎓 Tutora AI Automation (EdTech Consultant, 4+ years)**
+• **Impact:** 15 hours/week saved through automation, 35% test score improvement across 50+ students
+• **Innovation:** Scheduling/grading/substitution workflows using OpenAI + Google Scripts, 50+ custom TI-BASIC programs
+<button-tutora>Visit Platform</button-tutora>
 
-🎬 **Netflix KNN Recommendation System** - ML Engineering
-• **Scale**: 10M+ reviews analyzed with KNN model achieving 94% accuracy
-• **Tech**: Apache Kafka, SVD vs KNN comparison, Grafana visualization dashboards
-• **Testing**: A/B testing framework for recommendation performance optimization
-<button-netflix>View Netflix ML Project</button-netflix>
+**🎬 Netflix KNN Recommendation System (ML Engineering)**
+• **Scale:** 10M+ reviews analyzed with KNN model achieving 94% accuracy, Apache Kafka + SVD comparison
+• **Testing:** A/B testing framework for recommendation performance, Grafana visualization dashboards
+<button-netflix>View ML Project</button-netflix>
 
-⚡ **Kearney Decision Intelligence Tool** - Technical Lead  
-• **Impact**: 26% faster decision-making, saving 18 hours/week for enterprise teams
-• **Tech**: RAG-enabled GPT interface built with Flask + React
-• **Stakeholders**: Bath & Body Works leadership, senior consulting teams
+**⚡ Additional Impact:**
+• **Kearney Decision Intelligence Tool** - 26% faster decision-making, saving 18 hours/week for enterprise teams
+• **Motorola NFC Prototype** - 1st place hackathon winner, improved push-to-talk response times
+• **Giant Eagle Shrink Optimization** - 1% reduction in 30 days, tripled Flashfoods adoption
 
-**More Projects:**
-• **Motorola NFC Prototype**: 1st place hackathon winner, improved push-to-talk response
-• **Giant Eagle Shrink Optimization**: 1% reduction in 30 days, tripled Flashfoods adoption
-• **Portfolio Website**: This site! Next.js + AI chatbot with real-time analytics
+<button-experience>📋 Full Experience</button-experience> <button-skills>🛠️ Technical Skills</button-skills> <button-message>📧 Discuss Projects</button-message>
 
-**Explore Everything:**
-<button-projects>💻 Complete Project Portfolio</button-projects> <button-experience>📋 See Full Experience</button-experience> <button-message>📧 Discuss My Work</button-message>
-
-**Next Steps:**
-<button-meeting>📅 Schedule Technical Discussion</button-meeting> <button-upload>📎 Share Your Project Needs</button-upload> <button-funfact>🎲 Behind-the-Scenes Story</button-funfact>`,
+**Next Steps:** <button-meeting>📅 Schedule Technical Discussion</button-meeting> <button-upload>📎 Share Your Needs</button-upload> <button-funfact>🎲 Behind-the-Scenes Story</button-funfact>`,
   ],
   [
     "education",
-    `**Lawrence's Educational Background:**
+    `**🎓 Lawrence's Educational Background:**
 
-🎓 **Master's in Information Systems Management (MISM)**
-• Carnegie Mellon University (2024)
-• Focus: AI/ML, Product Strategy, Data Analytics
-• Capstone: AI-powered business optimization
+**Carnegie Mellon University - Master's in Information Systems Management (2024)**
+• Focus: AI/ML, Product Strategy, Data Analytics, Business Intelligence
+• McGinnis Venture Competition Finalist (Top-4), Gerhalt Sandbox Scholar
+• Capstone: AI-powered business optimization with real industry impact
 
-🐊 **Bachelor's Degree**
-• University of Florida
-• Computer Science foundations
-• Business and technical coursework
+**University of Florida - Bachelor's Degree, Computer Science (Cum Laude)**
+• Strong foundations in algorithms, data structures, software engineering
+• Business and technical coursework, cross-disciplinary projects
+• Leadership roles in technology and academic organizations
 
-**Continuous Learning:**
-• AI/ML certifications and courses
-• Product management best practices
-• Startup accelerator programs
-• Industry conferences and workshops
+**Continuous Learning & Certifications:**
+• AI/ML specializations, product management best practices
+• Startup accelerator programs, industry conferences
+• Technical workshops, leadership development programs
 
 **Academic Projects:**
-• AI research and development
-• Product case studies and analysis
-• Cross-functional team leadership
+• AI research and development with real-world applications
+• Product case studies and comprehensive market analysis
+• Cross-functional team leadership and project management
 
-**See His Work:**
 <button-projects>💻 View Portfolio</button-projects> <button-expired>🚀 Startup Project</button-expired> <button-skills>🛠️ Technical Skills</button-skills>
 
 **Get Connected:**
@@ -222,65 +192,61 @@ const instantResponses = new Map<string, string>([
   ],
   [
     "contact",
-    `**Ready to Connect with Lawrence?**
-
-I'd be happy to help you get in touch! Lawrence is currently **open to AI PM/APM roles** and exciting opportunities.
+    `**📞 Ready to Connect with Lawrence?**
 
 **What Lawrence is Looking For:**
-🎯 AI Product Manager or Associate PM roles
-🚀 Startup opportunities in AI/ML space
-🤝 Consulting projects in product strategy
-💡 Speaking engagements and industry panels
+🎯 AI Product Manager or Associate PM roles at innovative companies
+🚀 Startup opportunities in AI/ML space with growth potential
+🤝 Consulting projects in product strategy and AI implementation
+💡 Speaking engagements and industry panel discussions
 
 **Current Availability:**
-• Open to immediate opportunities
-• Can start discussions right away
-• Flexible on location (remote/hybrid/onsite)
+• Open to immediate opportunities and can start discussions right away
+• Flexible on location (remote/hybrid/onsite) based on role requirements
+• Available for project consulting and advisory positions
 
-**Quick Contact Options:**
-<button-message>📧 Send a Message</button-message> <button-meeting>📅 Book a Call</button-meeting> <button-upload>📎 Upload Job Description</button-upload>
+**Best Ways to Connect:**
+<button-message>📧 Send Direct Message</button-message> <button-meeting>📅 Book Discovery Call</button-meeting> <button-upload>📎 Upload Job Description</button-upload>
 
-**While You're Here:**
+**While You're Here, Explore:**
 <button-projects>💻 View Projects</button-projects> <button-experience>🚀 See Experience</button-experience> <button-skills>🛠️ Technical Skills</button-skills>
 
 **Keep Exploring:**
 <button-funfact>🎲 Fun Fact</button-funfact> <button-generate-question>💡 Generate Question</button-generate-question>
 
-Click the buttons above for instant assistance, or tell me what you'd like to discuss!`,
+Click any button above for instant assistance, or tell me what you'd like to discuss!`,
   ],
   [
     "ai",
-    `**Lawrence's AI/ML Expertise:**
+    `**🤖 Lawrence's AI/ML Expertise:**
 
-🧠 **Core AI Technologies:**
-• **Computer Vision** - Expiration date detection, image processing
-• **Natural Language Processing** - Chatbots, content generation
-• **Machine Learning** - Model training, optimization, deployment
-• **GPT Integration** - API usage, prompt engineering, fine-tuning
+**Core AI Technologies:**
+• **Computer Vision:** Expiration date detection, image processing, YOLO object detection
+• **Natural Language Processing:** Chatbots, content generation, sentiment analysis
+• **Machine Learning:** Model training/optimization/deployment, performance tuning
+• **GPT Integration:** API usage, prompt engineering, fine-tuning, RAG implementation
 
-🛠 **Technical Stack:**
-• **Languages**: Python, JavaScript, TypeScript
-• **ML Frameworks**: TensorFlow, PyTorch, scikit-learn
-• **AI Tools**: OpenAI APIs, Hugging Face, LangChain
-• **Cloud**: Firebase, AWS, Google Cloud AI services
+**Technical AI Stack:**
+• **Languages:** Python, JavaScript, TypeScript for AI development
+• **ML Frameworks:** TensorFlow, PyTorch, scikit-learn, Hugging Face Transformers
+• **AI Tools:** OpenAI APIs, LangChain, Azure AI services, Google Cloud AI
+• **Infrastructure:** Firebase, AWS, Docker for model deployment and scaling
 
-🚀 **Real-World AI Applications:**
-• **Expired Solutions**: Computer vision for food waste reduction <button-expired>View Expired Solutions</button-expired>
-• **Tutora**: AI tutoring optimization (+35% outcomes) <button-tutora>Visit Tutora Website</button-tutora>
-• **Amazon MTurk**: AI model evaluation and training <button-mturk>Come back for more in July!</button-mturk>
-• **PM Happy Hour**: AI content generation campaigns (videos helped grow community by 25 users per post, 5%) <button-pmhappyhour>Visit the site</button-pmhappyhour> <button-pmhappyhour-work>View my work</button-pmhappyhour-work>
+**Real-World AI Applications:**
+• **Expired Solutions:** Computer vision for food waste reduction ($200M+ projected value) <button-expired>View Platform</button-expired>
+• **Tutora:** AI tutoring optimization achieving 35% better outcomes across 50+ students <button-tutora>Visit Tutora</button-tutora>
+• **Amazon MTurk:** AI model evaluation and training for next-generation systems <button-mturk>Learn More</button-mturk>
+• **PM Happy Hour:** AI content generation campaigns driving 30% community growth <button-pmhappyhour>Visit Community</button-pmhappyhour> <button-pmhappyhour-work>View AI Work</button-pmhappyhour-work>
 
-💡 **AI Product Strategy:**
-• Model selection and evaluation
-• User experience design for AI features
-• Performance optimization and scaling
-• Ethical AI implementation and bias mitigation
+**AI Product Strategy Expertise:**
+• Model selection, evaluation, and performance optimization for business goals
+• User experience design for AI-powered features and seamless integration
+• Ethical AI implementation, bias mitigation, and responsible AI practices
+• Scaling AI solutions from prototype to production with measurable impact
 
-**Explore Lawrence's AI Work:**
-<button-expired>🥑 Food Waste AI</button-expired> <button-tutora>🎓 EdTech AI</button-tutora> <button-pmhappyhour-work>📊 AI Content Generation</button-pmhappyhour-work>
+<button-expired>🥑 Food Waste AI</button-expired> <button-tutora>🎓 EdTech AI</button-tutora> <button-pmhappyhour-work>📊 AI Content Work</button-pmhappyhour-work>
 
-**Next Steps:**
-<button-message>📧 Discuss AI Projects</button-message> <button-meeting>📅 Schedule AI Chat</button-meeting> <button-projects>💻 View All Projects</button-projects>
+**Next Steps:** <button-message>📧 Discuss AI Projects</button-message> <button-meeting>📅 Schedule AI Chat</button-meeting> <button-projects>💻 View All Projects</button-projects>
 
 **Learn More:**
 <button-experience>🚀 Full Background</button-experience> <button-funfact>🎲 Fun AI Fact</button-funfact>`,
@@ -498,7 +464,7 @@ CRITICAL FORMATTING RULES:
 5. Be natural, conversational, and prove value in every response
 
 LAWRENCE'S CURRENT ROLES & ACHIEVEMENTS:
-🎯 **Current Focus**: Seeking first full-time AI Product Manager role
+**🎯 Current Focus**: Seeking first full-time AI Product Manager role
 
 **Active Positions:**
 • **External AI Expert - Amazon MTurk** (Jun 2025-Present): Evaluating AGI models, contributing to Amazon's next-gen AI development
@@ -511,9 +477,9 @@ LAWRENCE'S CURRENT ROLES & ACHIEVEMENTS:
 • **Motorola Android Engineer** (Aug 2021-Aug 2023): Shipped features to 15k+ radios, won 1st place hackathon, cut delays 25%
 • **Kearney Tech Lead** (Sep-Dec 2024): Built LLM tool cutting decision time 18hrs/week, led stakeholder demos
 
-📚 **Education**: Carnegie Mellon MISM '24 (McGinnis Finalist, Gerhalt Scholar), University of Florida CS Cum Laude
+**📚 Education**: Carnegie Mellon MISM '24 (McGinnis Finalist, Gerhalt Scholar), University of Florida CS Cum Laude
 
-🛠 **Core Skills**: Product Management (2+ yrs professional), AI/ML (Computer Vision, NLP, GPT), Full-stack (Python, React, Android), Leadership (led 20-person teams), Data Analytics (A/B testing, forecasting)
+**🛠 Core Skills**: Product Management (2+ yrs professional), AI/ML (Computer Vision, NLP, GPT), Full-stack (Python, React, Android), Leadership (led 20-person teams), Data Analytics (A/B testing, forecasting)
 
 **Key Projects:**
 • <button-expired>Expired Solutions</button-expired> - AI grocery waste platform (CV + GPT)
@@ -1479,7 +1445,7 @@ function getRandomFunFact(): string {
   const randomIndex = Math.floor(Math.random() * FUN_FACTS.length);
   const selectedFact = FUN_FACTS[randomIndex];
 
-  return `🎯 **Fun Fact About Lawrence:**\n\n${selectedFact}\n\nWant another one? Just ask for another fun fact! 😄`;
+  return `**🎯 Fun Fact About Lawrence:**\n\n${selectedFact}\n\nWant another one? Just ask for another fun fact! 😄`;
 }
 
 // Command-based contact response system with step-by-step flow
@@ -2038,9 +2004,11 @@ You can also scroll down to see his full project portfolio and work experience o
     // 1. Check for instant responses first (0ms response time)
     const instantResponse = getInstantResponse(message);
     if (instantResponse) {
-      await saveMessageToFirebase(sessionId, "assistant", instantResponse, userAgent, clientIP);
+      // Apply formatting to instant responses for proper bullet points and buttons
+      const formattedResponse = formatMessage(instantResponse);
+      await saveMessageToFirebase(sessionId, "assistant", formattedResponse, userAgent, clientIP);
       return NextResponse.json({
-        response: instantResponse,
+        response: formattedResponse,
         instant: true,
         responseTime: 0,
       });
@@ -2060,9 +2028,11 @@ You can also scroll down to see his full project portfolio and work experience o
     // 3. Check for fun fact requests (fast path)
     if (isFunFactRequest(message)) {
       const funFactResponse = getRandomFunFact();
-      await saveMessageToFirebase(sessionId, "assistant", funFactResponse, userAgent, clientIP);
+      // Apply formatting to fun fact responses for proper bullet points and buttons
+      const formattedFunFactResponse = formatMessage(funFactResponse);
+      await saveMessageToFirebase(sessionId, "assistant", formattedFunFactResponse, userAgent, clientIP);
       return NextResponse.json({
-        response: funFactResponse,
+        response: formattedFunFactResponse,
         funFact: true,
       });
     }
@@ -2196,14 +2166,17 @@ GUIDELINES: Be conversational, concise, and helpful. Reference context when rele
       isComplexQuery // Only use GPT-4 for complex queries
     );
 
+    // Apply formatting to OpenAI-generated responses for proper bullet points and buttons
+    const formattedResponse = formatMessage(response);
+
     // 7. Parallel operations: Cache and save simultaneously
     const [_cacheResult, _firebaseResult] = await Promise.all([
-      Promise.resolve(setCachedResponse(messageHash, response)),
-      saveMessageToFirebase(sessionId, "assistant", response, userAgent, clientIP),
+      Promise.resolve(setCachedResponse(messageHash, formattedResponse)),
+      saveMessageToFirebase(sessionId, "assistant", formattedResponse, userAgent, clientIP),
     ]);
 
     return NextResponse.json({
-      response,
+      response: formattedResponse,
       optimized: true,
       model: isComplexQuery ? "gpt-4" : "gpt-3.5-turbo",
     });
