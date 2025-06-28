@@ -15,19 +15,15 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Perform structured comparison tasks between human and AI-generated outputs to refine model accuracy, safety, and alignment with real-world expectations  
    • Apply human judgment and product sense to assess user experience quality in AI-generated results, supporting responsible innovation in artificial general intelligence (AGI)  
 
-2. **Product Manager – PM Happy Hour (Internship, Mar 2025-Present)**  
-   • Scaled community 30% with AIGC campaigns; MBTI×PM event ↑ engagement 50%  
-   • Drove A/B testing program → 20% lift in feature adoption  
-• Led an MBTI-themed campaign to boost community interaction, resulting in 50%+ increase in comment and reaction engagement
-• Created and iterated on AIGC-driven posts (e.g. polls, storytelling, AI-generated insights), expanding Discord and social channel visibility
-• Improved feature adoption by 20% via A/B testing and feedback integration from PM community members
-• Developed content calendar, analytics tracking, and engagement benchmarks to guide strategy
-• Collaborated across marketing, content, and community leads to optimize growth and retention
+2. **Product Manager Intern – PM Happy Hour (Internship, Mar 2024-Present)**  
+   • Spearheaded AI content roadmap, growing Discord engagement by 30% through automated content workflows using tools like Notion AI and Sora  
+   • Created a viral MBTI campaign with 75+ community reactions by designing assets in under 30 mins using prompt engineering  
+   • Improved user retention by 20% by running A/B tests and incorporating live feedback into iterative feature releases
 
-3. **Founder / CEO – Expired Solutions (Full-time, Aug 2024-Present)**  
-   • Built CV + GPT platform automating produce markdowns → up to 20% shrink reduction  
-   • Led mobile dev (iOS/Android), Azure infra, compliance, GTM; pitched solution to Giant Eagle C-Suite executives through 15 exec interviews & 250 shopper surveys  
-   • Finalist, *McGinnis Venture Competition* 2025 (Top-4 Social Enterprise) & Gerhalt *Sandbox* Scholar  
+3. **CoFounder – Expired Solutions, LLC (Full-time, Aug 2024-Present)**  
+   • Led product strategy for a multimodal AI system that combined Vision AI and a fine-tuned Azure-hosted LLM, unlocking $200M+ in projected value  
+   • Shipped a prerelease iOS app that reduced quality check time by 50%, using YOLO for product detection and LLM powered classification  
+   • Forecasted a 20% shrink reduction and 50% improvement in markdown sell-through by proposing and pitching an 8-week pilot to Giant Eagle executives  
 • Built an AI-powered freshness scoring platform to automate pricing, placement, and inventory workflows
 • Launched shopper companion app to improve produce confidence and affordability
 • Led business formation, technical development (Azure, GPT, Vision AI), and compliance planning
@@ -53,14 +49,10 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
    • Supported GTM planning for the launch of the world's first nonprofit social app
 • Contributed to team alignment and brand messaging prior to release
 
-6. **Student Consultant, Technical Lead – Kearney (Sep-Dec 2024)**  
-   • Prototyped GPT+Flask decision-support tool → decision time ↓ 18 hrs/week (-26%)  
-   • Built an enterprise LLM-powered decision-support tool that reduced decision-making time by 18 hours/week
-   • Handled research, competitive analysis, and prototyping using OpenAI, Python, and Flask
-• Reduced operational decision-making time by 26% with custom GPT-based prototype
-• Designed and built enterprise tool using OpenAI APIs, Flask, and JavaScript
-• Conducted user research, system architecture design, and stakeholder presentations
-• Prioritized use cases and implementation roadmap with client sponsors
+6. **Consultant (Capstone), Technical Lead – Kearney and Bath and Body Works (Aug-Dec 2024)**  
+   • Prioritized the feature set for a net-new product by translating stakeholder pain points into a clear PRD, resulting in a 3-month prototype that streamlined decision workflows  
+   • Built a RAG-enabled Generative AI interface in Flask + React that replaced manual analysis, cutting enterprise decision-making time by 26% (18 hrs/week)  
+   • Launched an interactive dashboard that enabled senior leadership to identify and prioritize the most critical decision-making pain points, using data storytelling to visualize bottlenecks
 
 7. **Cryptocurrency Researcher – Carnegie Mellon (Jul-Aug 2024)**  
    • Devised GTM strategy for gaming-oriented digital asset; led compliance & tech alignment; delivered final pitch to faculty  
@@ -71,27 +63,14 @@ Speak in my voice: concise, confident, curious, and impact-oriented. Use first-p
 • Led collaboration across regulatory, technical, and product leads to ensure feasibility and compliance
 • Created and delivered final presentation to university stakeholders and faculty advisors
 
-8. **Embedded Android Engineer – Motorola Solutions (Aug 2021-Aug 2023)**  
-   • Shipped GPS, NFC, auth, UI features for 15k+ APX NEXT radios; fixed 80+ defects; 1st-place Motorola Hackathon (NFC prototype)  
-   • Developed embedded Android software for Motorola's APX NEXT Smart Radios, supporting mission-critical communications for public safety professionals
-   • Owned features across GPS, authentication, and UI, contributing to product stability and scale
-• Designed and shipped Android system extensions that improved GPS accuracy, device security, and UI responsiveness for 15,000+ field units
-• Diagnosed and resolved 80+ firmware and application-level defects across network, location, and UI components
-• Led debugging and testing initiatives with global teams, reducing integration delays by 25% and improving time to resolution
-• Coordinated agile planning and knowledge sharing across firmware, Android, and test automation teams
-• Contributed to NFC-based feature prototype that won 1st place at Motorola Product Hackathon
+8. **Embedded Android Engineer – Motorola Solutions, Inc. (Aug 2021-Aug 2023)**  
+   • Built GPS, messaging, and UI features for 15,000+ public safety radios, improving real-time communication reliability for first responders through Android development and testing workflows  
+   • Cut integration delays by 25% by resolving 80+ firmware and app issues through global debugging and JIRA coordination  
+   • Won 1st place in Motorola's internal hackathon by prototyping NFC-based enhancements that sped up push-to-talk response time and simplified device interactions for field users
 
-9. **AI Product Consultant & CS Instructor – Tutora (Part-time, Mar 2021-Present)**  
-   • Automated scheduling, grading, communications (Otter.ai, Dola, WhatsApp, Apps Script) → 15 hrs/week saved  
-   • Authored 50+ TI-BASIC math programs → test scores ↑ 35% across 50+ students  
-   • Redesigned tutoring operations by building both backend automation tools and student-facing programs
-   • Delivered scalable AI systems for internal workflows and custom-built math and computer science curriculum
-   • Improved student performance and operational efficiency
-• Consulted business owners to identify bottlenecks and build 0→1 unified AI tools using Otter.ai, Dola, WhatsApp, and App Scripts for automation and adoption
-• Saved 15+ hours/week and cut review time by 50% through AI-driven scheduling, grading, and substitution flows
-• Developed and launched 50+ TI-BASIC math programs, improving standardized test scores by 35% across 50+ students
-• Taught core computer science principles including data structures, Java programming, and project-based learning using Code.org and AP CS content
-• Delivered training and documentation to ensure long-term adoption of both AI workflows and instructional tools
+9. **AI Product Consultant – Tutora (Part-time, Mar 2021-Present)**  
+   • Built AI-powered tools that automated scheduling, invoicing, and grading, saving 15+ hours per week by integrating OpenAI API, Google App Scripts, Excel, and Zoom  
+   • Improved math scores by 35% for 50+ students by designing and deploying 100+ TI-BASIC programs tailored to personalized tutoring workflows
 
 10. **System Administrator – University of Florida (May 2019-Jun 2021)**  
    • Power Apps asset tracker cut manual errors 60%; supported 200+ users at 95%+ CSAT; led 20-person tech team  
