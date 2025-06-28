@@ -269,7 +269,7 @@ export default function ChatSessionsSection({ timeRange }: ChatSessionsSectionPr
           <div className="mt-3 flex items-center gap-6 text-sm text-gray-400">
             <div className="flex items-center gap-2">
               <FiClock className="h-4 w-4" />
-              {formatDuration(session.totalDuration)}
+              {formatDuration(session.totalDuration / 60000)}
             </div>
             
             <div className="flex items-center gap-2">
@@ -392,7 +392,7 @@ export default function ChatSessionsSection({ timeRange }: ChatSessionsSectionPr
                 </div>
                 
                 <div className="text-center p-4 bg-gray-700 rounded-lg">
-                  <div className="font-bold text-purple-400 text-2xl">{formatDuration(session.totalDuration)}</div>
+                  <div className="font-bold text-purple-400 text-2xl">{formatDuration(session.totalDuration / 60000)}</div>
                   <div className="text-gray-400 text-sm mt-1">Duration</div>
                 </div>
                 

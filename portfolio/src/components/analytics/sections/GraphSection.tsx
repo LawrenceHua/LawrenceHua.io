@@ -60,7 +60,7 @@ export default function GraphSection({ timeRange }: GraphSectionProps) {
     // Chat session metrics
     const totalMessages = daySessions.reduce((sum, session) => sum + session.messageCount, 0);
     const avgSessionDuration = daySessions.length > 0 
-      ? daySessions.reduce((sum, session) => sum + session.totalDuration, 0) / daySessions.length / 1000
+      ? daySessions.reduce((sum, session) => sum + session.totalDuration, 0) / daySessions.length / 1000 // Convert to seconds
       : 0;
 
     // Button click breakdown

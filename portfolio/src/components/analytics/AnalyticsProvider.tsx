@@ -222,12 +222,15 @@ export default function AnalyticsProvider({ children, db }: AnalyticsProviderPro
       }, {} as Record<string, ChatMessage[]>);
 
       // Add messages to sessions and recalculate metrics
-      const enhancedSessions = sessions.map(session => ({
-        ...session,
-        messages: messagesBySession[session.sessionId] || [],
-        messageCount: messagesBySession[session.sessionId]?.length || session.messageCount || 0,
-        totalDuration: session.totalDuration || 0,
-      }));
+      const enhancedSessions = sessions.map(session => {
+        const calculatedDuration = session.endTime.getTime() - session.startTime.getTime(); // milliseconds
+        return {
+          ...session,
+          messages: messagesBySession[session.sessionId] || [],
+          messageCount: messagesBySession[session.sessionId]?.length || session.messageCount || 0,
+          totalDuration: calculatedDuration,
+        };
+      });
 
       // Fetch button clicks
       const buttonsQuery = query(

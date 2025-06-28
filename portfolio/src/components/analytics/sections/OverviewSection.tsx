@@ -122,9 +122,9 @@ export default function OverviewSection({ timeRange }: OverviewSectionProps) {
       return acc;
     }, {} as Record<string, number>);
 
-    // Engagement metrics - Convert milliseconds to minutes
+    // Engagement metrics - totalDuration is now calculated correctly in milliseconds
     const avgSessionDuration = totalSessions > 0 
-      ? filteredSessions.reduce((sum, s) => sum + s.totalDuration, 0) / totalSessions / 60000
+      ? filteredSessions.reduce((sum, s) => sum + s.totalDuration, 0) / totalSessions / 60000 // Convert to minutes
       : 0;
 
     const highEngagementSessions = filteredSessions.filter(s => 
