@@ -8,12 +8,19 @@ export function formatMessage(
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/\n/g, "<br>")
-    // Replace dashes with proper bullet points with better spacing
+    // Replace dashes with proper bullet points - fix spacing issue
     .replace(/^- /gm, "• ")
     .replace(/\n- /g, "\n• ")
     .replace(/<br>- /g, "<br>• ")
-    // Improve spacing between paragraphs
-    .replace(/<br><br>/g, "<br><div style='height: 6px;'></div><br>");
+    // Fix bullet point spacing issues - prevent orphaned bullets and text separation
+    .replace(/<br>•\s*<br>/g, "<br>• ")
+    .replace(/•\s*<br>/g, "• ")
+    .replace(/•<br>/g, "• ")
+    // Fix cases where bullet points get separated from their text
+    .replace(/•\s*<br>\s*([^•<]+)/g, "• $1")
+    .replace(/• <br>/g, "• ")
+    // Improve spacing between paragraphs but not after bullet points
+    .replace(/<br><br>/g, "<br><div style='height: 4px;'></div><br>");
 
   // Replace custom button tags with consistent, mobile-responsive buttons
   const baseButtonClass = "inline-flex items-center px-3 py-1.5 sm:px-2 sm:py-1 bg-gradient-to-r text-white rounded-md font-medium text-sm sm:text-xs shadow-md hover:shadow-lg transition-all duration-200 mx-1 my-1 cursor-pointer min-h-[36px] sm:min-h-[32px] touch-manipulation";

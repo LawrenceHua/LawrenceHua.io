@@ -133,7 +133,7 @@ const instantResponses = new Map<string, string>([
 
 **⭐ Key Past Achievements:**
 • **Giant Eagle Team Lead**: Cut produce shrink 1% in 30 days, tripled Flashfoods adoption
-• **Motorola Android Engineer**: Shipped features to 15k+ radios, won 1st place hackathon
+• **Motorola Android Engineer**: Shipped features to 15k+ radios, won 1st place hackathon  
 • **Kearney Tech Lead**: Built GPT tool cutting decision time 18hrs/week (26% faster)
 
 🎓 **Education**: Carnegie Mellon MISM '24 (McGinnis Finalist), UF CS Cum Laude
@@ -456,9 +456,9 @@ function getInstantResponse(message: string): string | null {
   for (const pattern of quickPatterns) {
     for (const regex of pattern.patterns) {
       if (regex.test(trimmedMessage)) {
-        const response = instantResponses.get(pattern.response);
-        if (response) {
-          return response;
+      const response = instantResponses.get(pattern.response);
+      if (response) {
+        return response;
         }
       }
     }
