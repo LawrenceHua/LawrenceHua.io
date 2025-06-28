@@ -8,18 +8,17 @@ export function formatMessage(
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
     .replace(/\n/g, "<br>")
-    // Replace dashes with proper bullet points - fix spacing issue
+    // Replace dashes with bullet points but ensure they stay together
     .replace(/^- /gm, "• ")
     .replace(/\n- /g, "\n• ")
     .replace(/<br>- /g, "<br>• ")
-    // Fix bullet point spacing issues - prevent orphaned bullets and text separation
-    .replace(/<br>•\s*<br>/g, "<br>• ")
-    .replace(/•\s*<br>/g, "• ")
-    .replace(/•<br>/g, "• ")
-    // Fix cases where bullet points get separated from their text
-    .replace(/•\s*<br>\s*([^•<]+)/g, "• $1")
-    .replace(/• <br>/g, "• ")
-    // Improve spacing between paragraphs but not after bullet points
+    // CRITICAL: Fix bullet point separation issues comprehensively
+    .replace(/•\s*<br>\s*\*\*/g, "• **")           // Fix "• <br> **Title**"
+    .replace(/•\s*<br>\s*([^<\n]+)/g, "• $1")      // Fix "• <br> text"
+    .replace(/•<br>/g, "• ")                        // Remove <br> immediately after bullet
+    .replace(/• <br>/g, "• ")                       // Remove spaces and <br> after bullet
+    .replace(/<br>•\s*<br>/g, "<br>• ")            // Fix double breaks around bullets
+    // Improve general spacing but preserve bullet formatting
     .replace(/<br><br>/g, "<br><div style='height: 4px;'></div><br>");
 
   // Replace custom button tags with consistent, mobile-responsive buttons
